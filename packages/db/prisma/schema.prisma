@@ -1,10 +1,10 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // Managed by Better Auth's Prisma adapter, shown here for relation completeness only.

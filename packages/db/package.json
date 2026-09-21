@@ -1,0 +1,21 @@
+{
+  "name": "@readyyet/db",
+  "version": "0.0.0",
+  "private": true,
+  "main": "generated/client/index.js",
+  "types": "generated/client/index.d.ts",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "7.10.0",
+    "dotenv": "18.0.2"
+  },
+  "devDependencies": {
+    "prisma": "7.10.0",
+    "typescript": "7.0.2"
+  }
+}
