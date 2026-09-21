@@ -255,6 +255,7 @@ model Ticket {
   customer     Customer     @relation(fields: [customerId, locationId], references: [id, locationId], onDelete: Restrict)
   workflowStep WorkflowStep @relation(fields: [workflowId, currentStatusId], references: [workflowId, statusId], onDelete: Restrict)
 
+  @@unique([id, workflowId])
   @@index([locationId, createdAt(sort: Desc)])
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
@@ -269,14 +270,17 @@ model TicketStatusEvent {
   changedBy  String   @map("changed_by")
   createdAt  DateTime @default(now()) @map("created_at")
 
-  ticket  Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   status  Status @relation(fields: [statusId], references: [id], onDelete: Restrict)
   changer User   @relation(fields: [changedBy], references: [id], onDelete: Restrict)
 
   // workflowId is a copy of the parent ticket's workflowId (always equal,
-  // workflows are frozen per ticket), carried here only so this composite
-  // FK can enforce "this status belongs to the ticket's workflow" at the
-  // database level. See docs/architecture/data-model.md#tenant-scoped-foreign-keys.
+  // workflows are frozen per ticket). Both composite FKs below are needed
+  // together: this one pins workflowId to the actual parent ticket's
+  // workflowId (not just any ticket), the other pins statusId to a real
+  // step of that workflow. Neither alone stops workflowId from silently
+  // drifting to a different (but validly-shaped) workflow.
+  // See docs/architecture/data-model.md#tenant-scoped-foreign-keys.
+  ticket       Ticket       @relation(fields: [ticketId, workflowId], references: [id, workflowId], onDelete: Cascade)
   workflowStep WorkflowStep @relation(fields: [workflowId, statusId], references: [workflowId, statusId], onDelete: Restrict)
 
   @@index([ticketId, createdAt])

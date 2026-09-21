@@ -164,6 +164,41 @@ describe("tenant-scoped ticket references", () => {
       }),
     ).rejects.toThrow();
   });
+
+  it("rejects a status event whose workflow_id doesn't match its ticket's workflow, even if that workflow/status pair is individually valid", async () => {
+    const f = await seedFixtures(db);
+    const ticket = await db.ticket.create({
+      data: {
+        locationId: f.locationA.id,
+        customerId: f.customerA.id,
+        workflowId: f.defaultWorkflow.id,
+        currentStatusId: f.status.id,
+        trackingCode: "code-5",
+        title: "Valid ticket",
+        createdBy: f.user.id,
+      },
+    });
+    // A second, unrelated workflow that also has f.status as a real step,
+    // so (otherWorkflow.id, f.status.id) is a valid pair in workflow_step,
+    // it's just not this ticket's workflow.
+    const otherWorkflow = await db.workflow.create({
+      data: {
+        locationId: f.locationB.id,
+        name: "Unrelated custom workflow",
+        steps: { create: [{ position: 1, statusId: f.status.id }] },
+      },
+    });
+    await expect(
+      db.ticketStatusEvent.create({
+        data: {
+          ticketId: ticket.id,
+          workflowId: otherWorkflow.id,
+          statusId: f.status.id,
+          changedBy: f.user.id,
+        },
+      }),
+    ).rejects.toThrow();
+  });
 });
 
 describe("one owner membership per location", () => {
