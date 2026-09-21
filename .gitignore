@@ -1,3 +1,16 @@
 # Claude Code
 .claude/
 CLAUDE.md
+
+# Dependencies and build output
+node_modules/
+dist/
+generated/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
