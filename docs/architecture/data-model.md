@@ -46,6 +46,18 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 `Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
+## Tenant-scoped foreign keys
+
+A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop a ticket from referencing a customer that belongs to a *different* location than the ticket itself, the FK only checks the row exists, not that it's the right tenant's row. This was caught in review (see `docs/decisions/` git history) and fixed with composite FKs:
+
+- `Customer` has `@@unique([id, locationId])`, and `Ticket.customer` is a composite FK on `(customer_id, location_id) -> customer(id, location_id)`. A ticket's customer must belong to the ticket's own location, enforced by Postgres, not application code.
+- `WorkflowStep` already had `@@unique([workflowId, statusId])`. `Ticket.currentStatusId` and `TicketStatusEvent.statusId` each get a composite FK against it: `(workflow_id, status_id) -> workflow_step(workflow_id, status_id)`. This closes a second gap, a ticket's current status (or a history event's status) had nothing stopping it from being a status that isn't even a step in that ticket's workflow. `TicketStatusEvent` carries a `workflow_id` column purely to make this composite FK possible, it's always equal to its parent ticket's `workflow_id` (workflows are frozen per ticket, see Workflow versioning above), a deliberate, cheap denormalization for a real integrity guarantee.
+- `Workflow`'s own tenant scoping (a ticket's workflow must belong to its location, or be a business-type default matching its location's business type) is **not** DB-enforced. A default workflow's `location_id` is intentionally `NULL`, shared across every location of that business type, so there's no single column pair a composite FK could pin to both cases. Enforcing this requires the ticket-creation transaction to explicitly validate the workflow (see Transactions below), a trigger could do it at the DB level but that's more machinery than this one invariant is worth.
+
+## Membership invariants
+
+`membership_one_owner_per_location` is a partial unique index: `(location_id) WHERE role = 'OWNER'`. It enforces *at most one* owner membership per location. It cannot enforce *at least one*, that a location always has an owner membership the moment it's created, since a static constraint can't require a related row to exist. That half of the invariant (see `docs/decisions/0002-location-scoped-membership.md`) has to be the location-creation transaction's job, once the API that creates locations exists.
+
 ## Indexes
 
 | Index | Columns | Supports |
@@ -66,13 +78,16 @@ Deliberately not indexed: `customer.email` (no uniqueness requirement, low query
 
 ## Constraints Prisma can't express
 
-Two things need a raw SQL migration on top of what `schema.prisma` generates, see `packages/db/prisma/migrations/0001_partial_indexes_and_checks/migration.sql`:
+A few things need a raw SQL migration on top of what `schema.prisma` generates, see `packages/db/prisma/migrations/`:
 
 1. `CHECK ((business_type_id IS NOT NULL) <> (location_id IS NOT NULL))` on `workflow`, a workflow is either a business-type default template or a location's custom workflow, never both, never neither.
-2. Three partial unique indexes (two on `workflow`, one on `invitation`), Prisma's schema language doesn't support filtered/partial unique indexes.
+2. Four partial unique indexes (two on `workflow`, one on `invitation`, one on `membership`), Prisma's schema language doesn't support filtered/partial unique indexes.
+
+Composite foreign keys (Tenant-scoped foreign keys, above) are expressible directly in `schema.prisma` via multi-field `@relation`, no raw SQL needed for those.
 
 ## Transactions
 
+- **Ticket creation**: must validate the chosen workflow actually belongs to the ticket's location before insert, either `workflow.location_id = ticket.location_id` (custom workflow) or `workflow.location_id IS NULL AND workflow.business_type_id = location.business_type_id` (default template). Not DB-enforceable, see Tenant-scoped foreign keys above.
 - **Status change**: update `ticket.current_status_id` + insert a `ticket_status_event` row, in one transaction, otherwise the denormalized field and the history can diverge.
 - **Invitation acceptance**: conditional update (`WHERE status = 'PENDING'`), not read-then-write, so two concurrent accepts of the same link can't both succeed. The `Membership` unique constraint is the second safety net.
 - **Workflow edit**: insert the new version, flip `is_active` on old and new, in one transaction, so there's never a moment with zero or two active workflows for that scope.
@@ -81,6 +96,10 @@ Two things need a raw SQL migration on top of what `schema.prisma` generates, se
 ## Pagination
 
 `Ticket` and `TicketStatusEvent` lists use cursor pagination on `(created_at, id)` (id as tiebreaker for stable ordering), not `OFFSET`, both tables are expected to grow unbounded.
+
+## Tests
+
+`packages/db/tests/schema-invariants.test.ts` exercises every constraint added above directly against a real Postgres instance (via `vitest`, run with `pnpm test` from `packages/db`): the workflow scope CHECK, the partial unique indexes, both composite FKs, and the owner-membership uniqueness, each proven to reject the bad case and one proven to accept a valid ticket. What isn't covered yet: anything requiring application code that doesn't exist (invitation-accept race handling, the ticket-creation workflow validation, owner-membership creation on location creation), those get tests once the service layer that implements them exists.
 
 ## Deliberately deferred
 
