@@ -59,6 +59,10 @@ A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop 
 
 `membership_one_owner_per_location` is a partial unique index: `(location_id) WHERE role = 'OWNER'`. It enforces *at most one* owner membership per location. It cannot enforce *at least one*, that a location always has an owner membership the moment it's created, since a static constraint can't require a related row to exist. That half of the invariant (see `docs/decisions/0002-location-scoped-membership.md`) has to be the location-creation transaction's job, once the API that creates locations exists.
 
+## Workflow content invariant
+
+Every default `Workflow` the seed script creates includes all five system statuses (`RECEIVED`, `READY`, `COMPLETED`, `CANCELLED`, `REJECTED`) as steps, see `docs/domain/status-catalogue.md`. Like the two invariants above, this is enforced by the seed script's own logic, not by the database, `WorkflowStep` accepts any status code, nothing stops a future custom workflow from omitting one. Whatever code eventually builds custom workflows (paid tier, not yet built) must validate this before saving, alongside the tenant-scope validation already noted above. A `CHECK` constraint can't express "this workflow's steps include these 5 specific codes", that requires looking at other rows, which `CHECK` constraints in Postgres can't do.
+
 ## Indexes
 
 | Index | Columns | Supports |
