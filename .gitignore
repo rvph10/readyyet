@@ -6,6 +6,10 @@ CLAUDE.md
 node_modules/
 dist/
 generated/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
 
 # Env files
 .env
@@ -14,3 +18,12 @@ generated/
 
 # Logs
 *.log
+
+# Test output
+coverage/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

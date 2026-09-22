@@ -1,35 +1,29 @@
 import type { PrismaClient } from "../generated/client/index.js";
+import { seedCatalogue } from "../prisma/catalogue.js";
 
 /**
- * Minimal fixture data shared by the schema invariant tests: one user,
- * one business type with a default workflow, two locations (so
- * cross-location tests have something to violate), and one customer per
- * location.
+ * Seeds the real status/business-type/default-workflow catalogue (same
+ * code path as prisma/seed.ts, so these tests also cover the seed logic
+ * itself), then layers minimal ticket-level fixtures on top: one user,
+ * two locations under one GARAGE business (so cross-location tests have
+ * something to violate), and one customer per location.
  */
 export async function seedFixtures(db: PrismaClient) {
+  await seedCatalogue(db);
+
   const user = await db.user.create({
     data: { id: "user_1", email: "owner@example.com" },
   });
 
-  const status = await db.status.create({
-    data: { code: "RECEIVED" },
+  const businessType = await db.businessType.findUniqueOrThrow({
+    where: { code: "GARAGE" },
   });
-  const otherStatus = await db.status.create({
-    data: { code: "DONE" },
-  });
-
-  const businessType = await db.businessType.create({
-    data: { code: "GARAGE" },
-  });
-
-  const defaultWorkflow = await db.workflow.create({
-    data: {
-      businessTypeId: businessType.id,
-      name: "Default garage workflow",
-      steps: {
-        create: [{ position: 1, statusId: status.id }],
-      },
-    },
+  const status = await db.status.findUniqueOrThrow({ where: { code: "RECEIVED" } });
+  // CLEANING belongs to PRESSING's default workflow, not GARAGE's, so it's
+  // guaranteed not to be a step of `defaultWorkflow` below.
+  const otherStatus = await db.status.findUniqueOrThrow({ where: { code: "CLEANING" } });
+  const defaultWorkflow = await db.workflow.findFirstOrThrow({
+    where: { businessTypeId: businessType.id, locationId: null, isActive: true },
   });
 
   const business = await db.business.create({
