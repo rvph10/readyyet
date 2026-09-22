@@ -44,3 +44,42 @@ jobs:
       - run: pnpm --filter @readyyet/db exec prisma migrate deploy
       - run: pnpm --filter @readyyet/db run typecheck
       - run: pnpm --filter @readyyet/db run test
+
+  api:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: readyyet
+          POSTGRES_PASSWORD: readyyet
+          POSTGRES_DB: readyyet
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U readyyet"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @readyyet/db run generate
+      - run: pnpm --filter @readyyet/db exec prisma migrate deploy
+      - run: pnpm --filter @readyyet/api run typecheck
+      - run: pnpm --filter @readyyet/api run build
+      - run: pnpm --filter @readyyet/api run test
