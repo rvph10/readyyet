@@ -11,6 +11,7 @@ import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { HealthModule } from "./health/health.module";
 import { LocationModule } from "./location/location.module";
+import { MeModule } from "./me/me.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LocationModule } from "./location/location.module";
     HealthModule,
     BusinessModule,
     LocationModule,
+    MeModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
