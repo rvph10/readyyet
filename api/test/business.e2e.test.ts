@@ -2,19 +2,16 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { AppModule } from "../src/app.module";
+import { createTestApp } from "./support/create-test-app";
 
 describe("POST /businesses", () => {
   let app: INestApplication;
   let sessionCookie: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    await app.init();
+    app = await createTestApp();
 
     const email = `business-test-${Date.now()}@readyyet.test`;
     const signUp = await request(app.getHttpServer())
@@ -73,5 +70,35 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer()).post("/businesses").send(validPayload);
 
     expect(response.status).toBe(401);
+  });
+
+  it("rejects a non-string name", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, name: 123 });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects a request with no location", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ name: "No Location Co" });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects a location sent as an array", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: [validPayload.location] });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 });

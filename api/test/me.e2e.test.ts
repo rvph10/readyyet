@@ -2,19 +2,16 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { AppModule } from "../src/app.module";
+import { createTestApp } from "./support/create-test-app";
 
 describe("GET /me", () => {
   let app: INestApplication;
   let cookie: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    await app.init();
+    app = await createTestApp();
 
     const email = `me-test-${Date.now()}@readyyet.test`;
     const signUp = await request(app.getHttpServer())

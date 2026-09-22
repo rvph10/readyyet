@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { User } from "@readyyet/db";
+import { isUUID } from "class-validator";
 import type { Request } from "express";
 import { PrismaService } from "../../database/prisma.service";
 import { LOCATION_ROLES_KEY } from "../decorators/location-roles.decorator";
@@ -20,6 +21,12 @@ export class LocationMembershipGuard implements CanActivate {
     ]);
     const request = context.switchToHttp().getRequest<Request & { user: User }>();
     const locationId = request.params.locationId as string;
+    // Location.id is a Postgres uuid column: a non-UUID value reaches Prisma
+    // before any controller-level pipe would catch it (guards run first),
+    // and would otherwise surface as a raw DB error, not a clean 404.
+    if (!isUUID(locationId)) {
+      throw new NotFoundError("Location not found");
+    }
 
     const location = await this.prisma.location.findUnique({ where: { id: locationId } });
     if (!location) {

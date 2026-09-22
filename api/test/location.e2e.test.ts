@@ -2,10 +2,9 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { AppModule } from "../src/app.module";
+import { createTestApp } from "./support/create-test-app";
 
 async function signUp(app: INestApplication, email: string) {
   const response = await request(app.getHttpServer())
@@ -21,9 +20,7 @@ describe("GET /locations/:locationId", () => {
   let locationId: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    await app.init();
+    app = await createTestApp();
 
     const stamp = Date.now();
     ownerCookie = await signUp(app, `location-owner-${stamp}@readyyet.test`);
@@ -72,5 +69,12 @@ describe("GET /locations/:locationId", () => {
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(404);
+  });
+
+  it("returns 404, not a raw DB error, for a malformed id", async () => {
+    const response = await request(app.getHttpServer()).get("/locations/not-a-uuid").set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe("NOT_FOUND");
   });
 });
