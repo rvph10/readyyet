@@ -3,14 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 import { AppExceptionFilter } from "../src/common/filters/app-exception.filter";
 import { NotFoundError } from "../src/common/errors/app-error";
 
-function mockHost() {
+function mockHost(requestId = "req-1") {
   const json = vi.fn();
   const status = vi.fn(() => ({ json }));
+  const log = { error: vi.fn() };
+  const request = { id: requestId, log };
   const host = {
-    switchToHttp: () => ({ getResponse: () => ({ status }) }),
+    switchToHttp: () => ({ getRequest: () => request, getResponse: () => ({ status }) }),
   } as unknown as ArgumentsHost;
 
-  return { host, status, json };
+  return { host, status, json, log };
 }
 
 describe("AppExceptionFilter", () => {
@@ -23,7 +25,7 @@ describe("AppExceptionFilter", () => {
 
     expect(status).toHaveBeenCalledWith(404);
     expect(json).toHaveBeenCalledWith({
-      error: { code: "NOT_FOUND", message: "Ticket not found", details: undefined },
+      error: { code: "NOT_FOUND", message: "Ticket not found", details: undefined, requestId: "req-1" },
     });
   });
 
@@ -34,18 +36,20 @@ describe("AppExceptionFilter", () => {
 
     expect(status).toHaveBeenCalledWith(400);
     expect(json).toHaveBeenCalledWith({
-      error: { code: "VALIDATION_ERROR", message: "bad request" },
+      error: { code: "VALIDATION_ERROR", message: "bad request", requestId: "req-1" },
     });
   });
 
-  it("hides an unexpected error behind a generic 500", () => {
-    const { host, status, json } = mockHost();
+  it("hides an unexpected error behind a generic 500, logging it via the request logger", () => {
+    const { host, status, json, log } = mockHost();
+    const error = new Error("boom");
 
-    filter.catch(new Error("boom"), host);
+    filter.catch(error, host);
 
     expect(status).toHaveBeenCalledWith(500);
     expect(json).toHaveBeenCalledWith({
-      error: { code: "INTERNAL_ERROR", message: "Internal server error" },
+      error: { code: "INTERNAL_ERROR", message: "Internal server error", requestId: "req-1" },
     });
+    expect(log.error).toHaveBeenCalledWith(error.stack);
   });
 });

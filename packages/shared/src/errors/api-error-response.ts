@@ -5,5 +5,6 @@ export interface ApiErrorResponse {
     code: ErrorCode;
     message: string;
     details?: unknown;
+    requestId?: string;
   };
 }

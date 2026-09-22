@@ -72,4 +72,17 @@ describe("Better Auth", () => {
     expect(response.status).toBe(200);
     expect(response.body).toBeNull();
   });
+
+  it("rate limits repeated sign-in attempts", async () => {
+    // customRules caps /sign-in/email at 5/min (see api/src/auth/auth.ts);
+    // 10 rapid attempts guarantees at least one 429 regardless of how many
+    // sign-in calls earlier tests in this file already made.
+    const attempts = await Promise.all(
+      Array.from({ length: 10 }, () =>
+        request(app.getHttpServer()).post("/api/auth/sign-in/email").send({ email, password: "wrong-password" }),
+      ),
+    );
+
+    expect(attempts.some((response) => response.status === 429)).toBe(true);
+  });
 });

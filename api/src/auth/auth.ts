@@ -21,4 +21,16 @@ export const auth = betterAuth({
     // see docs/decisions/ for the ADR when that happens.
     requireEmailVerification: false,
   },
+  // Disabled by default outside production, so this has to be explicit.
+  // Nest's guards (and @nestjs/throttler) never see these routes, see
+  // docs/decisions/0009-rate-limiting-and-request-logging.md.
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 5 },
+    },
+  },
 });
