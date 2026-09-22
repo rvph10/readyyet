@@ -12,7 +12,7 @@ export async function seedFixtures(db: PrismaClient) {
   await seedCatalogue(db);
 
   const user = await db.user.create({
-    data: { id: "user_1", email: "owner@example.com" },
+    data: { id: "user_1", email: "owner@example.com", name: "Test Owner" },
   });
 
   const businessType = await db.businessType.findUniqueOrThrow({

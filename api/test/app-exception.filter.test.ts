@@ -1,0 +1,55 @@
+import { ArgumentsHost, HttpException } from "@nestjs/common";
+import { describe, expect, it, vi } from "vitest";
+import { AppExceptionFilter } from "../src/common/filters/app-exception.filter";
+import { NotFoundError } from "../src/common/errors/app-error";
+
+function mockHost(requestId = "req-1") {
+  const json = vi.fn();
+  const status = vi.fn(() => ({ json }));
+  const log = { error: vi.fn() };
+  const request = { id: requestId, log };
+  const host = {
+    switchToHttp: () => ({ getRequest: () => request, getResponse: () => ({ status }) }),
+  } as unknown as ArgumentsHost;
+
+  return { host, status, json, log };
+}
+
+describe("AppExceptionFilter", () => {
+  const filter = new AppExceptionFilter();
+
+  it("maps an AppError to its own status and code", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(new NotFoundError("Ticket not found"), host);
+
+    expect(status).toHaveBeenCalledWith(404);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "NOT_FOUND", message: "Ticket not found", details: undefined, requestId: "req-1" },
+    });
+  });
+
+  it("maps a plain HttpException by status, keeping its message", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(new HttpException("bad request", 400), host);
+
+    expect(status).toHaveBeenCalledWith(400);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "VALIDATION_ERROR", message: "bad request", requestId: "req-1" },
+    });
+  });
+
+  it("hides an unexpected error behind a generic 500, logging it via the request logger", () => {
+    const { host, status, json, log } = mockHost();
+    const error = new Error("boom");
+
+    filter.catch(error, host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "INTERNAL_ERROR", message: "Internal server error", requestId: "req-1" },
+    });
+    expect(log.error).toHaveBeenCalledWith(error.stack);
+  });
+});
