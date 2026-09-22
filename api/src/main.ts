@@ -7,9 +7,7 @@ import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 import pinoHttp from "pino-http";
 import { AppModule } from "./app.module";
-import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { pinoHttpOptions } from "./common/logging/pino-http-options";
-import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 
 async function bootstrap() {
   // Better Auth needs the raw request body; AuthModule re-adds the default
@@ -25,8 +23,6 @@ async function bootstrap() {
   // req.id/req.log. See docs/decisions/0009-rate-limiting-and-request-logging.md.
   app.use(pinoHttp(pinoHttpOptions()));
   app.useLogger(app.get(Logger));
-  app.useGlobalFilters(new AppExceptionFilter());
-  app.useGlobalPipes(createAppValidationPipe());
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 }
