@@ -12,7 +12,8 @@ beforeEach(async () => {
     TRUNCATE TABLE
       business_type_translation, status_translation, membership, invitation,
       customer, ticket_status_event, ticket, workflow_step, workflow,
-      subscription, location, business, business_type, status, "user"
+      subscription, location, business, business_type, status,
+      session, account, verification, "user"
     RESTART IDENTITY CASCADE
   `);
 });
@@ -205,7 +206,7 @@ describe("one owner membership per location", () => {
   it("rejects a second OWNER membership at the same location", async () => {
     const f = await seedFixtures(db);
     const secondUser = await db.user.create({
-      data: { id: "user_2", email: "second-owner@example.com" },
+      data: { id: "user_2", email: "second-owner@example.com", name: "Second Owner" },
     });
     await db.membership.create({
       data: { userId: f.user.id, locationId: f.locationA.id, role: "OWNER" },

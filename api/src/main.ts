@@ -1,9 +1,15 @@
+// Must run before any other import: auth.ts constructs a PrismaClient at
+// module-evaluation time (before NestFactory.create even runs), so
+// DATABASE_URL has to be in process.env before that import is reached.
+import "dotenv/config";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Better Auth needs the raw request body; AuthModule re-adds the default
+  // body parsers for every other route. See docs/decisions/ for the ADR.
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 }

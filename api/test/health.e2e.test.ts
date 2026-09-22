@@ -1,3 +1,6 @@
+// Must run before AppModule is imported: auth.ts constructs a PrismaClient
+// at module-evaluation time, so DATABASE_URL has to already be set.
+import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

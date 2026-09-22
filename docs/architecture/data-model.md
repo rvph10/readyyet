@@ -6,6 +6,8 @@ This is the reference for the schema in `packages/db/prisma/schema.prisma`. It e
 
 ```
 User (Better Auth)
+ ├──< Session
+ ├──< Account
  ├──< Membership >── Location ──> Business (owner: User)
  │                       │              │
  │                       │              └──< Location (1:N)
@@ -22,9 +24,11 @@ User (Better Auth)
  BusinessType ──< Workflow (default template)
              └──< BusinessTypeTranslation
  Status ──< StatusTranslation
+
+Verification (Better Auth, standalone, no relation to User)
 ```
 
-`Business` and `User` (Better Auth's own tables) are the only entities not scoped to a single `Location`. Every other table carries `location_id` as its tenant boundary, enforced as a `NOT NULL` foreign key, not just an application-level filter.
+`Business` and `User` (Better Auth's own tables, along with `Session`/`Account`/`Verification`) are the only entities not scoped to a single `Location`. Every other table carries `location_id` as its tenant boundary, enforced as a `NOT NULL` foreign key, not just an application-level filter.
 
 ## Primary key choices
 
@@ -33,6 +37,7 @@ User (Better Auth)
 - **SMALLINT identity**: `BusinessType`, `Status`. Tiny, developer-seeded reference tables.
 - **Composite / shared PK**: `WorkflowStep` (`workflow_id, position`, no surrogate needed, it's a pure ordered join table), `Subscription` (`location_id` doubles as PK and FK, enforcing strict 1:1 without a redundant key).
 - **UUID as token**: `Invitation.id` doubles as the accept-link token, unguessable is the actual requirement here, not sequential-insert performance.
+- **`User`, `Session`, `Account`, `Verification`**: Better Auth's own tables, shape and key types dictated by `better-auth generate` (see ADR 0008), not a choice made independently of the rest of this document's reasoning.
 
 ## Access model
 
