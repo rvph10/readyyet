@@ -44,7 +44,7 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 ## GDPR erasure
 
-`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
+`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
 ## Tenant-scoped foreign keys
 

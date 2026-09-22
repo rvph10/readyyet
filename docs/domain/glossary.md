@@ -10,7 +10,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 - **Location**: a single physical site under a business (e.g. one branch or workshop). Each location has its own subscription and its own business type.
 - **Membership**: the link between a user and a location, carrying a role. This is how access is granted, always scoped to a specific location, never to a whole business.
 - **Role**: `employee` or `admin` (plus the implicit `owner`), set per membership. An employee can view/create/update tickets and see customer info. An admin additionally manages billing, location settings, and team for the location(s) they're a member of.
-- **Customer**: the end user who drops something off. Has no account and no login, identified only in the context of a ticket (name, email).
+- **Customer**: the end user who drops something off. Has no account and no login, identified only in the context of a ticket (name, email, optional phone for the shop's own reference, never used by any automated system behavior).
 
 ## Work and tracking
 
