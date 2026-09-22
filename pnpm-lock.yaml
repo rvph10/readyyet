@@ -31,6 +31,9 @@ importers:
       '@readyyet/db':
         specifier: workspace:*
         version: link:../packages/db
+      '@readyyet/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       '@thallesp/nestjs-better-auth':
         specifier: 2.8.0
         version: 2.8.0(626658c8ffc688dda3b16870057f16e7)
@@ -105,6 +108,12 @@ importers:
       vitest:
         specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
 
 packages:
 
