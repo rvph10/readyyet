@@ -55,7 +55,22 @@ attached to Express before any module's `configure()` can run.
 Better Auth logs a warning that it can't resolve a per-request client IP
 in this setup, and falls back to a single shared rate-limit bucket per
 path rather than per-IP. One client maxing out `/sign-in/email` would
-temporarily rate-limit everyone hitting that path, not just them. Fixing
-this needs `advanced.ipAddress.trustedProxies`/`ipAddressHeaders`
-configured to match however Railway actually forwards the client IP in
-production, not guessed at locally. Left as a follow-up.
+temporarily rate-limit everyone hitting that path, not just them.
+
+Better Auth already reads `x-forwarded-for` by default. Without
+`advanced.ipAddress.trustedProxies` configured, it requires that header to
+carry exactly one IP and returns `null` (triggering the shared-bucket
+fallback) otherwise, by design, it won't guess which hop is real. Railway's
+own community reports inconsistent behavior here (conflicting statements
+from Railway support on whether `x-forwarded-for` is stripped of
+client-supplied values, and reports of Railway alternating between routing
+patterns that add or drop a CDN hop), so `trustedProxies` can't be set
+correctly from local testing alone.
+
+**TODO, post-deploy:** once this is running on Railway, confirm the real
+shape of the `x-forwarded-for` header on an actual request (temporary log
+of `req.headers` on one endpoint is enough), then set
+`advanced.ipAddress.trustedProxies` in `api/src/auth/auth.ts` to Railway's
+actual proxy IP range(s) so multi-hop chains resolve correctly. Don't guess
+this value; an overly broad range is a spoofing risk, an overly narrow one
+silently breaks resolution again.
