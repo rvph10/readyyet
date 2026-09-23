@@ -63,7 +63,7 @@ describe("Public tracking", () => {
     app = await createTestApp();
     prisma = app.get(PrismaService);
 
-    ownerEmail = `tracking-owner-${Date.now()}@readyyet.test`;
+    ownerEmail = `delivered+tracking-owner-${Date.now()}@resend.dev`;
     ownerCookie = await signInViaOtp(app, prisma, ownerEmail);
 
     const created = await request(app.getHttpServer())

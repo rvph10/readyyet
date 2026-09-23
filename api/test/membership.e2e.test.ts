@@ -23,8 +23,8 @@ describe("Memberships", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `membership-owner-${stamp}@readyyet.test`);
-    employeeEmail = `membership-employee-${stamp}@readyyet.test`;
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+membership-owner-${stamp}@resend.dev`);
+    employeeEmail = `delivered+membership-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
 
     const created = await request(app.getHttpServer())

@@ -60,7 +60,7 @@ describe("Ticket status change rules", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `rules-owner-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+rules-owner-${stamp}@resend.dev`);
     const created = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", ownerCookie)
@@ -76,8 +76,8 @@ describe("Ticket status change rules", () => {
       });
     locationId = created.body.locations[0].id;
 
-    adminCookie = await signInMember(`rules-admin-${stamp}@readyyet.test`, Role.ADMIN);
-    employeeCookie = await signInMember(`rules-employee-${stamp}@readyyet.test`, Role.EMPLOYEE);
+    adminCookie = await signInMember(`delivered+rules-admin-${stamp}@resend.dev`, Role.ADMIN);
+    employeeCookie = await signInMember(`delivered+rules-employee-${stamp}@resend.dev`, Role.EMPLOYEE);
   });
 
   afterAll(async () => {

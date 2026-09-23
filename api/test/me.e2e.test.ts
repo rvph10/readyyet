@@ -15,7 +15,7 @@ describe("GET /me", () => {
   beforeAll(async () => {
     app = await createTestApp();
 
-    const email = `me-test-${Date.now()}@readyyet.test`;
+    const email = `delivered+me-test-${Date.now()}@resend.dev`;
     cookie = await signInViaOtp(app, app.get(PrismaService), email);
   });
 

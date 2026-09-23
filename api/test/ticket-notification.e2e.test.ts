@@ -40,7 +40,7 @@ describe("Ticket tracking link emails", () => {
   beforeAll(async () => {
     app = await createTestApp();
     prisma = app.get(PrismaService);
-    ownerCookie = await signInViaOtp(app, prisma, `notif-owner-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+notif-owner-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")

@@ -30,7 +30,7 @@ describe("Better Auth email OTP", () => {
   });
 
   it("sends an OTP and signs in, creating a new user with a session", async () => {
-    const email = `auth-otp-new-${Date.now()}@readyyet.test`;
+    const email = `delivered+auth-otp-new-${Date.now()}@resend.dev`;
 
     const sent = await request(app.getHttpServer())
       .post("/api/auth/email-otp/send-verification-otp")
@@ -53,7 +53,7 @@ describe("Better Auth email OTP", () => {
   });
 
   it("rejects a wrong OTP", async () => {
-    const email = `auth-otp-wrong-${Date.now()}@readyyet.test`;
+    const email = `delivered+auth-otp-wrong-${Date.now()}@resend.dev`;
     await request(app.getHttpServer())
       .post("/api/auth/email-otp/send-verification-otp")
       .send({ email, type: "sign-in" });
@@ -66,7 +66,7 @@ describe("Better Auth email OTP", () => {
   });
 
   it("rejects reusing the same OTP a second time", async () => {
-    const email = `auth-otp-reuse-${Date.now()}@readyyet.test`;
+    const email = `delivered+auth-otp-reuse-${Date.now()}@resend.dev`;
     await request(app.getHttpServer())
       .post("/api/auth/email-otp/send-verification-otp")
       .send({ email, type: "sign-in" });
@@ -80,7 +80,7 @@ describe("Better Auth email OTP", () => {
   });
 
   it("signs an already-registered user back in without creating a duplicate", async () => {
-    const email = `auth-otp-repeat-${Date.now()}@readyyet.test`;
+    const email = `delivered+auth-otp-repeat-${Date.now()}@resend.dev`;
     const firstCookie = await signInViaOtp(app, prisma, email);
     const firstMe = await request(app.getHttpServer()).get("/api/auth/get-session").set("Cookie", firstCookie);
     const userId = firstMe.body.user.id;
@@ -102,7 +102,7 @@ describe("Better Auth email OTP", () => {
     // customRules caps /email-otp/send-verification-otp at 5/min (see
     // api/src/auth/auth.ts); 10 rapid attempts guarantees at least one
     // 429 regardless of how many calls earlier tests in this file made.
-    const email = `auth-otp-ratelimit-${Date.now()}@readyyet.test`;
+    const email = `delivered+auth-otp-ratelimit-${Date.now()}@resend.dev`;
     const attempts = await Promise.all(
       Array.from({ length: 10 }, () =>
         request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" }),

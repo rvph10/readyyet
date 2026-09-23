@@ -22,10 +22,10 @@ describe("Invitations", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `invite-owner-${stamp}@readyyet.test`);
-    employeeEmail = `invite-employee-${stamp}@readyyet.test`;
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+invite-owner-${stamp}@resend.dev`);
+    employeeEmail = `delivered+invite-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
-    otherCookie = await signInViaOtp(app, prisma, `invite-other-${stamp}@readyyet.test`);
+    otherCookie = await signInViaOtp(app, prisma, `delivered+invite-other-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -72,7 +72,7 @@ describe("Invitations", () => {
     const response = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations`)
       .set("Cookie", employeeCookie)
-      .send({ email: "someone-else@readyyet.test", role: "EMPLOYEE" });
+      .send({ email: "delivered+someone-else@resend.dev", role: "EMPLOYEE" });
 
     expect(response.status).toBe(403);
   });
@@ -133,7 +133,7 @@ describe("Invitations", () => {
   });
 
   it("revokes a pending invitation, blocking a later accept", async () => {
-    const revokeeEmail = `invite-revokee-${Date.now()}@readyyet.test`;
+    const revokeeEmail = `delivered+invite-revokee-${Date.now()}@resend.dev`;
     const revokeeCookie = await signInViaOtp(app, prisma, revokeeEmail);
 
     const created = await request(app.getHttpServer())

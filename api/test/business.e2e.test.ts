@@ -15,7 +15,7 @@ describe("POST /businesses", () => {
   beforeAll(async () => {
     app = await createTestApp();
 
-    const email = `business-test-${Date.now()}@readyyet.test`;
+    const email = `delivered+business-test-${Date.now()}@resend.dev`;
     sessionCookie = await signInViaOtp(app, app.get(PrismaService), email);
   });
 
@@ -115,8 +115,8 @@ describe("POST /businesses/:businessId/locations", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `add-location-owner-${stamp}@readyyet.test`);
-    const adminEmail = `add-location-admin-${stamp}@readyyet.test`;
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+add-location-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+add-location-admin-${stamp}@resend.dev`;
     adminCookie = await signInViaOtp(app, prisma, adminEmail);
 
     const created = await request(app.getHttpServer())

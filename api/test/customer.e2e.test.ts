@@ -30,8 +30,8 @@ describe("Customers", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `customer-owner-${stamp}@readyyet.test`);
-    otherCookie = await signInViaOtp(app, prisma, `customer-other-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+customer-owner-${stamp}@resend.dev`);
+    otherCookie = await signInViaOtp(app, prisma, `delivered+customer-other-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")

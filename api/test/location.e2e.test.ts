@@ -21,9 +21,9 @@ describe("GET /locations/:locationId", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `location-owner-${stamp}@readyyet.test`);
-    otherCookie = await signInViaOtp(app, prisma, `location-other-${stamp}@readyyet.test`);
-    const employeeEmail = `location-employee-${stamp}@readyyet.test`;
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+location-owner-${stamp}@resend.dev`);
+    otherCookie = await signInViaOtp(app, prisma, `delivered+location-other-${stamp}@resend.dev`);
+    const employeeEmail = `delivered+location-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
 
     const created = await request(app.getHttpServer())

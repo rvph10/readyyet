@@ -35,7 +35,7 @@ describe("Locale", () => {
   beforeAll(async () => {
     app = await createTestApp();
     const prisma = app.get(PrismaService);
-    ownerCookie = await signInViaOtp(app, prisma, `locale-owner-${Date.now()}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+locale-owner-${Date.now()}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")

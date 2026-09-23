@@ -54,8 +54,8 @@ describe("Ticket search and filters", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `search-owner-${stamp}@readyyet.test`);
-    employeeCookie = await signInViaOtp(app, prisma, `search-employee-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+search-owner-${stamp}@resend.dev`);
+    employeeCookie = await signInViaOtp(app, prisma, `delivered+search-employee-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -73,7 +73,7 @@ describe("Ticket search and filters", () => {
     locationId = created.body.locations[0].id;
 
     const employee = await prisma.user.findUniqueOrThrow({
-      where: { email: `search-employee-${stamp}@readyyet.test` },
+      where: { email: `delivered+search-employee-${stamp}@resend.dev` },
     });
     employeeId = employee.id;
     await prisma.membership.create({ data: { userId: employeeId, locationId, role: Role.EMPLOYEE } });
