@@ -4,27 +4,24 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
-
-async function signUp(app: INestApplication, email: string) {
-  const response = await request(app.getHttpServer())
-    .post("/api/auth/sign-up/email")
-    .send({ email, password: "correct-horse-battery", name: "Test User" });
-  return response.headers["set-cookie"][0] as string;
-}
+import { signInViaOtp } from "./support/sign-in-via-otp";
 
 describe("GET /locations/:locationId/workflow", () => {
   let app: INestApplication;
+  let prisma: PrismaService;
   let ownerCookie: string;
   let otherCookie: string;
   let locationId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
+    prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signUp(app, `workflow-owner-${stamp}@readyyet.test`);
-    otherCookie = await signUp(app, `workflow-other-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `workflow-owner-${stamp}@readyyet.test`);
+    otherCookie = await signInViaOtp(app, prisma, `workflow-other-${stamp}@readyyet.test`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
