@@ -18,6 +18,7 @@ import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
 import { MembershipModule } from "./membership/membership.module";
 import { TicketModule } from "./ticket/ticket.module";
+import { TrackingModule } from "./tracking/tracking.module";
 import { WorkflowModule } from "./workflow/workflow.module";
 
 @Module({
@@ -45,6 +46,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     EmailModule,
     InvitationModule,
     MembershipModule,
+    TrackingModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
