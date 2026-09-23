@@ -44,9 +44,7 @@ describe("GET /locations/:locationId", () => {
       .post(`/locations/${locationId}/invitations`)
       .set("Cookie", ownerCookie)
       .send({ email: employeeEmail, role: "EMPLOYEE" });
-    await request(app.getHttpServer())
-      .post(`/invitations/${invitation.body.id}/accept`)
-      .set("Cookie", employeeCookie);
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", employeeCookie);
   });
 
   afterAll(async () => {
@@ -54,18 +52,14 @@ describe("GET /locations/:locationId", () => {
   });
 
   it("lets the owner read their own location", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}`)
-      .set("Cookie", ownerCookie);
+    const response = await request(app.getHttpServer()).get(`/locations/${locationId}`).set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
     expect(response.body.id).toBe(locationId);
   });
 
   it("rejects a signed-in user with no membership at that location", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}`)
-      .set("Cookie", otherCookie);
+    const response = await request(app.getHttpServer()).get(`/locations/${locationId}`).set("Cookie", otherCookie);
 
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe("UNAUTHORIZED");
@@ -98,7 +92,10 @@ describe("GET /locations/:locationId", () => {
   });
 
   it("is a no-op with an empty body", async () => {
-    const response = await request(app.getHttpServer()).patch(`/locations/${locationId}`).set("Cookie", ownerCookie).send({});
+    const response = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}`)
+      .set("Cookie", ownerCookie)
+      .send({});
 
     expect(response.status).toBe(200);
   });

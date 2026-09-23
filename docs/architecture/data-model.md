@@ -53,16 +53,16 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 ## Tenant-scoped foreign keys
 
-A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop a ticket from referencing a customer that belongs to a *different* location than the ticket itself, the FK only checks the row exists, not that it's the right tenant's row. This was caught in review (see `docs/decisions/` git history) and fixed with composite FKs:
+A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop a ticket from referencing a customer that belongs to a _different_ location than the ticket itself, the FK only checks the row exists, not that it's the right tenant's row. This was caught in review (see `docs/decisions/` git history) and fixed with composite FKs:
 
 - `Customer` has `@@unique([id, locationId])`, and `Ticket.customer` is a composite FK on `(customer_id, location_id) -> customer(id, location_id)`. A ticket's customer must belong to the ticket's own location, enforced by Postgres, not application code.
 - `WorkflowStep` already had `@@unique([workflowId, statusId])`. `Ticket.currentStatusId` and `TicketStatusEvent.statusId` each get a composite FK against it: `(workflow_id, status_id) -> workflow_step(workflow_id, status_id)`. This closes a second gap, a ticket's current status (or a history event's status) had nothing stopping it from being a status that isn't even a step in that ticket's workflow. `TicketStatusEvent` carries a `workflow_id` column purely to make this composite FK possible, it's always equal to its parent ticket's `workflow_id` (workflows are frozen per ticket, see Workflow versioning above), a deliberate, cheap denormalization for a real integrity guarantee.
-- That `workflow_id` copy on `TicketStatusEvent` created a third gap on its own: nothing tied it back to the *actual parent ticket's* `workflow_id`, an event could carry a valid `(workflow_id, status_id)` pair that simply belonged to a different workflow than its own ticket's. Fixed with a second composite FK, `Ticket` gained `@@unique([id, workflowId])`, and `TicketStatusEvent.ticket` is now `(ticket_id, workflow_id) -> ticket(id, workflow_id)` instead of a plain `ticket_id -> ticket.id`. Both composite FKs on `TicketStatusEvent` are needed together, one pins `workflow_id` to the real parent ticket, the other pins `status_id` to a real step of that workflow.
+- That `workflow_id` copy on `TicketStatusEvent` created a third gap on its own: nothing tied it back to the _actual parent ticket's_ `workflow_id`, an event could carry a valid `(workflow_id, status_id)` pair that simply belonged to a different workflow than its own ticket's. Fixed with a second composite FK, `Ticket` gained `@@unique([id, workflowId])`, and `TicketStatusEvent.ticket` is now `(ticket_id, workflow_id) -> ticket(id, workflow_id)` instead of a plain `ticket_id -> ticket.id`. Both composite FKs on `TicketStatusEvent` are needed together, one pins `workflow_id` to the real parent ticket, the other pins `status_id` to a real step of that workflow.
 - `Workflow`'s own tenant scoping (a ticket's workflow must belong to its location, or be a business-type default matching its location's business type) is **not** DB-enforced. A default workflow's `location_id` is intentionally `NULL`, shared across every location of that business type, so there's no single column pair a composite FK could pin to both cases. Enforcing this requires the ticket-creation transaction to explicitly validate the workflow (see Transactions below), a trigger could do it at the DB level but that's more machinery than this one invariant is worth.
 
 ## Membership invariants
 
-`membership_one_owner_per_location` is a partial unique index: `(location_id) WHERE role = 'OWNER'`. It enforces *at most one* owner membership per location. It cannot enforce *at least one*, that a location always has an owner membership the moment it's created, since a static constraint can't require a related row to exist. That half of the invariant (see `docs/decisions/0002-location-scoped-membership.md`) has to be the location-creation transaction's job, once the API that creates locations exists.
+`membership_one_owner_per_location` is a partial unique index: `(location_id) WHERE role = 'OWNER'`. It enforces _at most one_ owner membership per location. It cannot enforce _at least one_, that a location always has an owner membership the moment it's created, since a static constraint can't require a related row to exist. That half of the invariant (see `docs/decisions/0002-location-scoped-membership.md`) has to be the location-creation transaction's job, once the API that creates locations exists.
 
 ## Workflow content invariant
 
@@ -70,19 +70,19 @@ Every default `Workflow` the seed script creates includes all five system status
 
 ## Indexes
 
-| Index | Columns | Supports |
-|---|---|---|
-| idx_location_business | business_id | List a business's locations |
-| idx_membership_user | user_id | "Which locations can this user see", checked on nearly every request |
-| membership unique | (user_id, location_id) | Permission check, prevents duplicate grants |
-| idx_ticket_location_created | (location_id, created_at DESC) | Dashboard ticket list, most recent first |
-| idx_ticket_location_status_created | (location_id, current_status_id, created_at DESC) | Dashboard filtered by status |
-| ticket tracking_code unique | tracking_code | Public tracking page lookup, hottest single-row read in the app |
-| idx_ticket_customer | customer_id | Customer detail page |
-| idx_status_event_ticket_created | (ticket_id, created_at) | Ticket timeline / public tracking history |
-| idx_customer_location_name | (location_id, full_name) | Customer search within a location |
-| invitation partial unique | (location_id, lower(email)) WHERE status='PENDING' | Prevent duplicate pending invites |
-| workflow partial unique (×2) | business_type_id / location_id WHERE is_active | Resolve the current workflow for a new ticket |
+| Index                              | Columns                                            | Supports                                                             |
+| ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
+| idx_location_business              | business_id                                        | List a business's locations                                          |
+| idx_membership_user                | user_id                                            | "Which locations can this user see", checked on nearly every request |
+| membership unique                  | (user_id, location_id)                             | Permission check, prevents duplicate grants                          |
+| idx_ticket_location_created        | (location_id, created_at DESC)                     | Dashboard ticket list, most recent first                             |
+| idx_ticket_location_status_created | (location_id, current_status_id, created_at DESC)  | Dashboard filtered by status                                         |
+| ticket tracking_code unique        | tracking_code                                      | Public tracking page lookup, hottest single-row read in the app      |
+| idx_ticket_customer                | customer_id                                        | Customer detail page                                                 |
+| idx_status_event_ticket_created    | (ticket_id, created_at)                            | Ticket timeline / public tracking history                            |
+| idx_customer_location_name         | (location_id, full_name)                           | Customer search within a location                                    |
+| invitation partial unique          | (location_id, lower(email)) WHERE status='PENDING' | Prevent duplicate pending invites                                    |
+| workflow partial unique (×2)       | business_type_id / location_id WHERE is_active     | Resolve the current workflow for a new ticket                        |
 
 Deliberately not indexed: `customer.email` (no uniqueness requirement, low query frequency), `ticket.description` (free text, not searched in v1), `ticket_status_event.status_id` alone (always queried through `ticket_id`).
 

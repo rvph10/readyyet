@@ -29,10 +29,15 @@ const emailService = new EmailService(prisma);
 // defaulting to Auth<BetterAuthOptions>) doesn't work here, a real
 // generic-variance mismatch in better-auth's own types between the
 // specific inferred Options and the bare BetterAuthOptions default.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const auth: Auth<any> = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
+  // The web app lives on its own origin (ADR 0001), Better Auth rejects
+  // state-changing requests from any origin other than baseURL unless
+  // it's listed here.
+  trustedOrigins: [process.env.WEB_URL as string],
   // No password auth: sign-in is by emailed OTP, which confirms the
   // email as a side effect and removes the need for a separate
   // password-reset flow entirely. See ADR 0011.

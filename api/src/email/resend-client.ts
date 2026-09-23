@@ -13,3 +13,21 @@ export function getResendClient(): Resend {
   client ??= new Resend(process.env.RESEND_API_KEY);
   return client;
 }
+
+// Resend allows 10 requests per second across the whole team, over that
+// it answers rate_limit_exceeded. Spacing request starts ~8/s leaves
+// headroom for network jitter bunching them up on arrival. Module-level,
+// not per EmailService instance: auth.ts constructs its own EmailService
+// outside Nest's DI, both must share one budget. Per process only, fine
+// for one API instance, not a cross-instance limiter.
+const MIN_MS_BETWEEN_REQUESTS = 120;
+let nextSlotAt = 0;
+
+export async function waitForResendSlot(): Promise<void> {
+  const now = Date.now();
+  const slotAt = Math.max(now, nextSlotAt);
+  nextSlotAt = slotAt + MIN_MS_BETWEEN_REQUESTS;
+  if (slotAt > now) {
+    await new Promise((resolve) => setTimeout(resolve, slotAt - now));
+  }
+}

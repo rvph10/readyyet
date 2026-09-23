@@ -27,7 +27,9 @@ export class AppExceptionFilter implements ExceptionFilter {
   }
 
   private toErrorResponse(exception: unknown, request: Request): ApiErrorResponse {
-    const requestId = request.id?.toString();
+    // pino-http types req.id as string | number | object, but our own
+    // genReqId (common/logging/pino-http-options.ts) only returns strings.
+    const requestId = request.id as string | undefined;
 
     if (exception instanceof AppError) {
       return {

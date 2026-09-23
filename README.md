@@ -35,7 +35,7 @@ Fill in `api/.env`:
 - `RESEND_API_KEY` — from [resend.com/api-keys](https://resend.com/api-keys). The email e2e tests hit the real Resend API using its test-mode addresses (`delivered@resend.dev`, `bounced@resend.dev`), a real key is required for `pnpm test` to pass, not optional.
 - `RESEND_WEBHOOK_SECRET` — only needed to receive real delivery-status webhooks (see `docs/decisions/0010-resend-mail-infrastructure.md`), not needed for local dev or tests.
 - `EMAIL_FROM` — a sender address on a domain verified in Resend.
-- `WEB_URL` — placeholder until `web/` exists, only used to build links in emails.
+- `WEB_URL` — the web app's origin, `http://localhost:3001` locally. It's the only origin allowed by CORS and by Better Auth's `trustedOrigins`, and the base for links in emails.
 - `NODE_ENV`, `LOG_LEVEL` — defaults are fine locally.
 
 Then, from the repo root:
@@ -51,13 +51,15 @@ pnpm --filter @readyyet/api run start:dev
 ```bash
 pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
+pnpm lint
+pnpm format:check   # or pnpm format to fix
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012.
 
 ## CI
 
-`.github/workflows/ci.yml` runs three jobs (`shared`, `db`, `api`) against a fresh Postgres service container per job.
+`.github/workflows/ci.yml` runs four jobs: `lint` (ESLint and Prettier), and `shared`, `db`, `api`, the last two against a fresh Postgres service container each.
 
 - The `api` job needs `RESEND_API_KEY` set as a GitHub Actions repo secret (Settings → Secrets and variables → Actions), for the same reason `pnpm test` needs it locally. Without it, that job fails with a "missing API key" error.
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.

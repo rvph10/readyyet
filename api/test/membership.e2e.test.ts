@@ -47,7 +47,9 @@ describe("Memberships", () => {
       .send({ email: employeeEmail, role: "EMPLOYEE" });
     await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", employeeCookie);
 
-    const list = await request(app.getHttpServer()).get(`/locations/${locationId}/memberships`).set("Cookie", ownerCookie);
+    const list = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/memberships`)
+      .set("Cookie", ownerCookie);
     ownerMembershipId = list.body.find((m: { role: string }) => m.role === "OWNER").id;
     employeeMembershipId = list.body.find((m: { role: string }) => m.role === "EMPLOYEE").id;
   });
@@ -57,7 +59,9 @@ describe("Memberships", () => {
   });
 
   it("lists members with user info", async () => {
-    const response = await request(app.getHttpServer()).get(`/locations/${locationId}/memberships`).set("Cookie", ownerCookie);
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/memberships`)
+      .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(2);

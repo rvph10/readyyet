@@ -5,7 +5,7 @@ import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
 import { NON_RETRYABLE_RESEND_ERRORS } from "./email-status";
-import { getResendClient } from "./resend-client";
+import { getResendClient, waitForResendSlot } from "./resend-client";
 
 // Immediate, in-process retries for transient failures (rate limit, a
 // blip in Resend's API). MAX_TOTAL_ATTEMPTS is the overall ceiling
@@ -64,7 +64,13 @@ export class EmailService {
     return { html: input.html, text: input.text };
   }
 
-  private async attempt(logId: string, to: string, subject: string, html: string | undefined, text: string | undefined) {
+  private async attempt(
+    logId: string,
+    to: string,
+    subject: string,
+    html: string | undefined,
+    text: string | undefined,
+  ) {
     let lastError = "";
 
     for (let i = 0; i < MAX_IMMEDIATE_ATTEMPTS; i++) {
@@ -74,6 +80,7 @@ export class EmailService {
       await this.prisma.emailLog.update({ where: { id: logId }, data: { attempts: { increment: 1 } } });
 
       try {
+        await waitForResendSlot();
         const { data, error } = await getResendClient().emails.send(
           {
             from: process.env.EMAIL_FROM as string,

@@ -25,6 +25,33 @@ jobs:
       - run: pnpm --filter @readyyet/shared run typecheck
       - run: pnpm --filter @readyyet/shared run build
 
+  lint:
+    runs-on: ubuntu-latest
+
+    # prisma.config.ts requires DATABASE_URL to be set even for
+    # `prisma generate`, which never connects, so no Postgres service here.
+    env:
+      DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Type-aware rules need the Prisma client and @readyyet/shared's
+      # declarations to exist, same as the api job's typecheck does.
+      - run: pnpm --filter @readyyet/db run generate
+      - run: pnpm --filter @readyyet/shared run build
+      - run: pnpm lint
+      - run: pnpm format:check
+
   db:
     runs-on: ubuntu-latest
 
