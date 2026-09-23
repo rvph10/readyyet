@@ -126,7 +126,9 @@ describe("Ticket search and filters", () => {
   it("treats % and _ in the search as plain characters", async () => {
     expect(await titles({ q: "100%" })).toEqual(["Tire rotation 100% free"]);
     expect(await titles({ q: "%" })).toEqual(["Tire rotation 100% free"]);
-    expect(await titles({ q: "_" })).toEqual([]);
+    // Not a bare "_": tracking codes are base64url and can contain one.
+    // Unescaped, the _ here would match the space in "Brake pads".
+    expect(await titles({ q: "Brake_pads" })).toEqual([]);
   });
 
   it("does not match an erased customer's placeholder data", async () => {
