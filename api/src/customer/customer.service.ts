@@ -38,7 +38,9 @@ export class CustomerService {
       where: { id: customer.id },
       data: {
         ...(dto.fullName !== undefined && { fullName: dto.fullName }),
-        ...(dto.email !== undefined && { email: dto.email }),
+        // A different address hasn't failed yet, whatever the old one did.
+        ...(dto.email !== undefined &&
+          dto.email !== customer.email && { email: dto.email, emailBouncedAt: null, emailComplainedAt: null }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.locale !== undefined && { locale: dto.locale }),
       },
@@ -74,6 +76,8 @@ export class CustomerService {
     email: string | null;
     phone: string | null;
     locale: Locale | null;
+    emailBouncedAt: Date | null;
+    emailComplainedAt: Date | null;
     createdAt: Date;
   }) {
     return {
@@ -82,6 +86,8 @@ export class CustomerService {
       email: customer.email,
       phone: customer.phone,
       locale: customer.locale,
+      emailBouncedAt: customer.emailBouncedAt,
+      emailComplainedAt: customer.emailComplainedAt,
       createdAt: customer.createdAt,
     };
   }

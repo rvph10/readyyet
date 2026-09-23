@@ -96,4 +96,107 @@ describe("POST /webhooks/resend", () => {
     expect(updated.status).toBe("DELIVERED");
     expect(updated.deliveredAt).not.toBeNull();
   });
+
+  describe("what an event says about the address", () => {
+    const stamp = Date.now();
+    let locationId: string;
+
+    function send(type: string, to: string, extra: object = {}) {
+      const payload = JSON.stringify({
+        type,
+        created_at: new Date().toISOString(),
+        data: {
+          email_id: randomUUID(),
+          created_at: new Date().toISOString(),
+          from: "hello@readyyet.test",
+          to: [to],
+          subject: "Votre réparation est prête",
+          ...extra,
+        },
+      });
+      return request(app.getHttpServer())
+        .post("/webhooks/resend")
+        .set(signPayload(payload))
+        .set("Content-Type", "application/json")
+        .send(payload);
+    }
+
+    async function customerWith(email: string) {
+      return prisma.customer.create({ data: { locationId, fullName: "Chloé Dubois", email } });
+    }
+
+    function reload(id: bigint) {
+      return prisma.customer.findUniqueOrThrow({ where: { id } });
+    }
+
+    beforeAll(async () => {
+      const owner = await prisma.user.create({
+        data: { id: randomUUID(), email: `delivered+webhook-owner-${stamp}@resend.dev`, name: "Owner" },
+      });
+      const garage = await prisma.businessType.findUniqueOrThrow({ where: { code: "GARAGE" } });
+      const business = await prisma.business.create({
+        data: {
+          ownerId: owner.id,
+          name: "Webhook Test",
+          locations: {
+            create: {
+              name: "Shop",
+              businessTypeId: garage.id,
+              contactPhone: "+32470123456",
+              contactEmail: "shop@webhook.test",
+              locale: "FR",
+            },
+          },
+        },
+        include: { locations: true },
+      });
+      locationId = business.locations[0].id;
+    });
+
+    it("flags every customer with that address on a permanent bounce, whatever its case", async () => {
+      const address = `chloe-${stamp}@gmial.test`;
+      const first = await customerWith(address);
+      const second = await customerWith(address.toUpperCase());
+      const other = await customerWith(`someone-else-${stamp}@example.test`);
+
+      const response = await send("email.bounced", address, {
+        bounce: { type: "Permanent", subType: "General", message: "Mailbox does not exist" },
+      });
+
+      expect(response.status).toBe(200);
+      expect((await reload(first.id)).emailBouncedAt).not.toBeNull();
+      expect((await reload(second.id)).emailBouncedAt).not.toBeNull();
+      expect((await reload(other.id)).emailBouncedAt).toBeNull();
+    });
+
+    it("ignores a temporary bounce", async () => {
+      const customer = await customerWith(`full-mailbox-${stamp}@example.test`);
+
+      await send("email.bounced", customer.email!, {
+        bounce: { type: "Transient", subType: "MailboxFull", message: "Mailbox full" },
+      });
+
+      expect((await reload(customer.id)).emailBouncedAt).toBeNull();
+    });
+
+    it("flags an address Resend suppressed, like a bounce", async () => {
+      const customer = await customerWith(`suppressed-${stamp}@example.test`);
+
+      await send("email.suppressed", customer.email!, {
+        suppressed: { type: "Bounce", message: "Address previously bounced" },
+      });
+
+      expect((await reload(customer.id)).emailBouncedAt).not.toBeNull();
+    });
+
+    it("flags a spam report separately", async () => {
+      const customer = await customerWith(`complained-${stamp}@example.test`);
+
+      await send("email.complained", customer.email!);
+
+      const flagged = await reload(customer.id);
+      expect(flagged.emailComplainedAt).not.toBeNull();
+      expect(flagged.emailBouncedAt).toBeNull();
+    });
+  });
 });

@@ -154,4 +154,23 @@ describe("Ticket tracking link emails", () => {
       expect((await resendLink("999999999")).status).toBe(404);
     });
   });
+
+  describe("to an address that fails", () => {
+    async function flaggedCustomer(label: string, flag: "emailBouncedAt" | "emailComplainedAt") {
+      const ticket = await createTicket({ customer: { fullName: "Typo Customer", email: address(label) } });
+      await prisma.customer.update({ where: { id: BigInt(ticket.customer.id) }, data: { [flag]: new Date() } });
+      return ticket;
+    }
+
+    it.each(["emailBouncedAt", "emailComplainedAt"] as const)(
+      "sends nothing more once %s is set, not even for a new ticket",
+      async (flag) => {
+        const first = await flaggedCustomer(`flagged-${flag}`, flag);
+
+        await createTicket({ title: "Second job", customerId: first.customer.id });
+
+        expect(await emailsTo(address(`flagged-${flag}`))).toHaveLength(1);
+      },
+    );
+  });
 });

@@ -14,6 +14,14 @@ const CLAIM_LEASE_MS = 5 * 60 * 1000;
 
 type LoadedTicket = Awaited<ReturnType<NotificationService["loadTicket"]>>;
 
+// An address that bounced for good or reported us as spam gets nothing
+// more until staff change it (see the Customer schema).
+function canEmail<C extends { email: string | null; emailBouncedAt: Date | null; emailComplainedAt: Date | null }>(
+  customer: C,
+): customer is C & { email: string } {
+  return customer.email !== null && !customer.emailBouncedAt && !customer.emailComplainedAt;
+}
+
 // Customer emails, see docs/decisions/0015-customer-emails.md.
 @Injectable()
 export class NotificationService {
@@ -26,7 +34,7 @@ export class NotificationService {
   // gets nothing (they have the QR code instead, ADR 0004).
   async sendTicketCreated(ticketId: bigint) {
     const ticket = await this.loadTicket(ticketId);
-    if (ticket.customer.email) {
+    if (canEmail(ticket.customer)) {
       await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
     }
   }
@@ -37,6 +45,9 @@ export class NotificationService {
     const ticket = await this.loadTicket(ticketId);
     if (!ticket.customer.email) {
       throw new ConflictError("This customer has no email address");
+    }
+    if (!canEmail(ticket.customer)) {
+      throw new ConflictError("Emails to this customer's address fail, check it with them first");
     }
     if (isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)) {
       throw new ConflictError("This ticket's tracking link has expired");
@@ -82,7 +93,7 @@ export class NotificationService {
     if (
       !stillCurrent ||
       ticket.notificationsStoppedAt ||
-      !ticket.customer.email ||
+      !canEmail(ticket.customer) ||
       ticket.location.deletedAt ||
       !isNotifyingStatus(event.status.code)
     ) {

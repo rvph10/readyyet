@@ -4,6 +4,7 @@ import { SkipThrottle } from "@nestjs/throttler";
 import { EmailStatus } from "@readyyet/db";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import type { Request, Response } from "express";
+import type { WebhookEventPayload } from "resend";
 import { PrismaService } from "../database/prisma.service";
 import { WEBHOOK_EVENT_TO_STATUS } from "./email-status";
 import { getResendClient } from "./resend-client";
@@ -43,6 +44,8 @@ export class EmailWebhookController {
       return;
     }
 
+    await this.flagCustomers(event);
+
     if ("email_id" in event.data) {
       const status = WEBHOOK_EVENT_TO_STATUS[event.type];
       if (status) {
@@ -61,5 +64,29 @@ export class EmailWebhookController {
     }
 
     res.status(200).send();
+  }
+
+  // What the event says about the address itself, beyond this one email:
+  // Customers using it get flagged so staff can check it, see
+  // docs/architecture/data-model.md#undeliverable-customer-addresses. A
+  // temporary bounce (full mailbox, server down) says nothing lasting.
+  private async flagCustomers(event: WebhookEventPayload) {
+    if (event.type === "email.bounced" && event.data.bounce.type.toLowerCase() === "permanent") {
+      await this.flag(event.data.to, { emailBouncedAt: new Date() });
+    } else if (event.type === "email.suppressed") {
+      await this.flag(event.data.to, { emailBouncedAt: new Date() });
+    } else if (event.type === "email.complained") {
+      await this.flag(event.data.to, { emailComplainedAt: new Date() });
+    }
+  }
+
+  private flag(addresses: string[], data: { emailBouncedAt: Date } | { emailComplainedAt: Date }) {
+    return this.prisma.customer.updateMany({
+      where: {
+        deletedAt: null,
+        OR: addresses.map((address) => ({ email: { equals: address, mode: "insensitive" as const } })),
+      },
+      data,
+    });
   }
 }
