@@ -83,6 +83,11 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+      # The email e2e tests send real (test-mode) emails via Resend, see
+      # docs/decisions/0010-resend-mail-infrastructure.md. RESEND_API_KEY
+      # must be set as a repo secret.
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      EMAIL_FROM: "ReadyYet <hello@readyyet.app>"
 
     steps:
       - uses: actions/checkout@v7
