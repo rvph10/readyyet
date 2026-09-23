@@ -101,3 +101,107 @@ describe("POST /businesses", () => {
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 });
+
+describe("POST /businesses/:businessId/locations", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let businessId: string;
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `add-location-owner-${stamp}@readyyet.test`);
+    const adminEmail = `add-location-admin-${stamp}@readyyet.test`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+
+    const created = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Multi-Location Co",
+        location: {
+          name: "First Shop",
+          businessTypeCode: "GARAGE",
+          contactPhone: "+12125550123",
+          contactEmail: "first@multiloc.test",
+        },
+      });
+    businessId = created.body.id;
+    const firstLocationId = created.body.locations[0].id;
+
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${firstLocationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("lets the owner add a second location, with its own owner membership", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Second Shop",
+        businessTypeCode: "GARAGE",
+        contactPhone: "+12125550199",
+        contactEmail: "second@multiloc.test",
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.name).toBe("Second Shop");
+
+    const me = await request(app.getHttpServer()).get("/me").set("Cookie", ownerCookie);
+    expect(me.body.memberships.filter((m: { role: string }) => m.role === "OWNER")).toHaveLength(2);
+  });
+
+  it("rejects a non-owner, even an admin at an existing location under that business", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", adminCookie)
+      .send({
+        name: "Should not work",
+        businessTypeCode: "GARAGE",
+        contactPhone: "+12125550100",
+        contactEmail: "no@multiloc.test",
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe("UNAUTHORIZED");
+  });
+
+  it("rejects an unknown business type code", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Third Shop",
+        businessTypeCode: "NOT_REAL",
+        contactPhone: "+12125550101",
+        contactEmail: "third@multiloc.test",
+      });
+
+    expect(response.status).toBe(404);
+  });
+
+  it("returns 404, not a raw DB error, for an unknown business id", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses/00000000-0000-0000-0000-000000000000/locations")
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Nowhere",
+        businessTypeCode: "GARAGE",
+        contactPhone: "+12125550102",
+        contactEmail: "nowhere@multiloc.test",
+      });
+
+    expect(response.status).toBe(404);
+  });
+});

@@ -1,8 +1,9 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
+import { UpdateLocationDto } from "./dto/update-location.dto";
 import { LocationService } from "./location.service";
 
 @ApiTags("Locations")
@@ -16,5 +17,13 @@ export class LocationController {
   @ApiOperation({ summary: "Get a location's own fields" })
   findOne(@Param("locationId") locationId: string) {
     return this.location.findById(locationId);
+  }
+
+  @Patch(":locationId")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @ApiOperation({ summary: "Update a location's settings" })
+  update(@Param("locationId") locationId: string, @Body() dto: UpdateLocationDto) {
+    return this.location.update(locationId, dto);
   }
 }

@@ -47,7 +47,14 @@ export class CustomerService {
 
   async remove(locationId: string, customerId: string) {
     const customer = await this.loadActive(locationId, customerId);
-    await this.prisma.customer.update({ where: { id: customer.id }, data: { deletedAt: new Date() } });
+    // Erasure, not a plain soft-delete flag: redact PII, not just mark
+    // it gone, a Ticket referencing this customer can't be deleted
+    // (onDelete: Restrict) so the row itself has to survive.
+    // See docs/architecture/data-model.md#gdpr-erasure.
+    await this.prisma.customer.update({
+      where: { id: customer.id },
+      data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+    });
   }
 
   private async loadActive(locationId: string, customerId: string) {
