@@ -331,6 +331,7 @@ export class TicketService {
     trackingCode: string;
     title: string;
     description: string | null;
+    notificationsStoppedAt: Date | null;
     createdAt: Date;
     customer: { id: bigint; fullName: string; email: string | null; phone: string | null };
     currentStatus: Status;
@@ -340,6 +341,8 @@ export class TicketService {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       description: ticket.description,
+      // The Customer used "stop updates", staff see why no email went out.
+      notificationsStoppedAt: ticket.notificationsStoppedAt,
       createdAt: ticket.createdAt,
       customer: { ...ticket.customer, id: ticket.customer.id.toString() },
       currentStatus: ticket.currentStatus,

@@ -18,3 +18,10 @@ export function trackingUrl(trackingCode: string): string {
 export function stopUpdatesUrl(trackingCode: string): string {
   return `${trackingUrl(trackingCode)}/stop-updates`;
 }
+
+// What mail clients POST to for a one-click unsubscribe (RFC 8058): the
+// API itself, not the web page, since that request has no browser.
+// BETTER_AUTH_URL is the API's own public URL.
+export function oneClickStopUrl(trackingCode: string): string {
+  return `${process.env.BETTER_AUTH_URL}/tracking/${trackingCode}/stop-notifications`;
+}

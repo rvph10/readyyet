@@ -31,7 +31,7 @@ Fill in `api/.env`:
 
 - `DATABASE_URL`, `PORT` — already correct for the `docker compose` setup above, no change needed.
 - `BETTER_AUTH_SECRET` — generate with `pnpm exec better-auth secret`.
-- `BETTER_AUTH_URL` — `http://localhost:3000` locally.
+- `BETTER_AUTH_URL` — `http://localhost:3000` locally. It's the API's own public URL, also used for the one-click stop link in customer emails.
 - `RESEND_API_KEY` — from [resend.com/api-keys](https://resend.com/api-keys). The email e2e tests hit the real Resend API using its test-mode addresses (`delivered@resend.dev`, `bounced@resend.dev`), a real key is required for `pnpm test` to pass, not optional.
 - `RESEND_WEBHOOK_SECRET` — only needed to receive real delivery-status webhooks (see `docs/decisions/0010-resend-mail-infrastructure.md`), not needed for local dev or tests.
 - `EMAIL_FROM` — a sender address on a domain verified in Resend.

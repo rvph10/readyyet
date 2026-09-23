@@ -4,7 +4,7 @@ import { isNotifyingStatus } from "@readyyet/shared";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
-import { isTrackingLinkExpired, stopUpdatesUrl, trackingUrl } from "../tracking/tracking-link";
+import { isTrackingLinkExpired, oneClickStopUrl, stopUpdatesUrl, trackingUrl } from "../tracking/tracking-link";
 import { buildCustomerEmail } from "./customer-email/customer-email";
 import type { CustomerEmailKind } from "./customer-email/messages";
 
@@ -79,7 +79,13 @@ export class NotificationService {
     // where the ticket stands now (that change queued its own email if
     // it needs one).
     const stillCurrent = ticket.statusEvents[0].id === event.id;
-    if (!stillCurrent || !ticket.customer.email || ticket.location.deletedAt || !isNotifyingStatus(event.status.code)) {
+    if (
+      !stillCurrent ||
+      ticket.notificationsStoppedAt ||
+      !ticket.customer.email ||
+      ticket.location.deletedAt ||
+      !isNotifyingStatus(event.status.code)
+    ) {
       return;
     }
     await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
@@ -116,6 +122,12 @@ export class NotificationService {
       type,
       fromName: `${ticket.location.name} via ReadyYet`,
       replyTo: ticket.location.contactEmail,
+      // Lets mail clients show their own unsubscribe button, which then
+      // stops this ticket's updates instead of marking us as spam.
+      headers: {
+        "List-Unsubscribe": `<${oneClickStopUrl(ticket.trackingCode)}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     });
   }
 }

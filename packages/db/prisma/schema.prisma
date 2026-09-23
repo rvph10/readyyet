@@ -293,17 +293,20 @@ model WorkflowStep {
 }
 
 model Ticket {
-  id              BigInt   @id @default(autoincrement())
-  locationId      String   @map("location_id") @db.Uuid
-  customerId      BigInt   @map("customer_id")
-  workflowId      BigInt   @map("workflow_id")
-  currentStatusId Int      @map("current_status_id")
-  trackingCode    String   @unique @map("tracking_code")
-  title           String
-  description     String?
-  createdBy       String   @map("created_by")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id                     BigInt    @id @default(autoincrement())
+  locationId             String    @map("location_id") @db.Uuid
+  customerId             BigInt    @map("customer_id")
+  workflowId             BigInt    @map("workflow_id")
+  currentStatusId        Int       @map("current_status_id")
+  trackingCode           String    @unique @map("tracking_code")
+  title                  String
+  description            String?
+  createdBy              String    @map("created_by")
+  // Set when the Customer used the "stop updates" link, no more status
+  // update emails for this ticket from then on (ADR 0015).
+  notificationsStoppedAt DateTime? @map("notifications_stopped_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
 
   location      Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
   workflow      Workflow            @relation(fields: [workflowId], references: [id], onDelete: Restrict)

@@ -56,4 +56,31 @@ export class TrackingService {
       statusHistory: ticket.statusEvents,
     };
   }
+
+  // The "stop updates" link (ADR 0015), public like the page it belongs
+  // to. Repeating it keeps the first stop time.
+  async stopNotifications(code: string) {
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { trackingCode: code },
+      select: {
+        id: true,
+        location: { select: { deletedAt: true } },
+        currentStatus: { select: { code: true } },
+        statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1, select: { createdAt: true } },
+      },
+    });
+    // Same 404 as the tracking page, see ADR 0013.
+    if (
+      !ticket ||
+      ticket.location.deletedAt ||
+      isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)
+    ) {
+      throw new NotFoundError("Tracking link not found");
+    }
+
+    await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, notificationsStoppedAt: null },
+      data: { notificationsStoppedAt: new Date() },
+    });
+  }
 }

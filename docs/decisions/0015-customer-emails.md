@@ -52,6 +52,8 @@ The ticket-created email is sent immediately, there's nothing it could contradic
 
 The "stop updates" link stops every further Status update email for that one ticket (it records the time on the Ticket), and is exposed through the `List-Unsubscribe` and `List-Unsubscribe-Post` headers so mail clients can offer their own one-click button. The staff "resend tracking link" action still works afterwards, it's an explicit request, not an automated update.
 
+In practice both lead to the public `POST /tracking/:code/stop-notifications`: the web page's button calls it, and `List-Unsubscribe` points straight at it, since a mail client's one-click request (RFC 8058) has no browser to load a page in. It sets `Ticket.notifications_stopped_at` once, and the status email sweep skips any ticket where it's set, a change already waiting included. Staff see the stop time on the ticket, so a customer who got no email isn't a mystery.
+
 ## Why
 
 An email on every Status change teaches customers to ignore ReadyYet's emails, and every "mark as spam" damages the sending reputation all shops share. The tracking page already shows every step, emails are for what the customer has to act on or needs to hear straight away. A fixed list keeps behavior identical across every Location and leaves nothing to configure.

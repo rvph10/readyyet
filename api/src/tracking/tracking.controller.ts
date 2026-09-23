@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param } from "@nestjs/common";
+import { Controller, Get, Header, HttpCode, Param, Post } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
@@ -19,5 +19,15 @@ export class TrackingController {
   @ApiOperation({ summary: "Public, no-login view of a ticket by its tracking code (ADR 0004)" })
   findByCode(@Param("code") code: string) {
     return this.tracking.findByCode(code);
+  }
+
+  // Also the List-Unsubscribe-Post target, mail clients send it with a
+  // "List-Unsubscribe=One-Click" form body (RFC 8058), nothing to read.
+  @Post(":code/stop-notifications")
+  @HttpCode(204)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({ summary: "Stop status update emails for this ticket, from the customer's link (ADR 0015)" })
+  stopNotifications(@Param("code") code: string) {
+    return this.tracking.stopNotifications(code);
   }
 }
