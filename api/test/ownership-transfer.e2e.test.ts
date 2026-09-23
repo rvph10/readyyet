@@ -112,6 +112,7 @@ describe("Transferring a business's ownership", () => {
       orderBy: { createdAt: "desc" },
     });
     expect(sent.subject).toBe("You transferred Transfer Test to admin");
+    expect(sent.replyTo).toBe(process.env.SUPPORT_EMAIL);
     expect(sent.text).toContain(admin.email);
   });
 

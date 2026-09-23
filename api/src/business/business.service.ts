@@ -125,7 +125,13 @@ export class BusinessService {
     });
     await this.email.send({ to: newOwner.email, ...toNewOwner, type: "ownership_received" });
     const toPreviousOwner = buildPreviousOwnerEmail({ ...params, locale: previousOwner.locale });
-    await this.email.send({ to: previousOwner.email, ...toPreviousOwner, type: "ownership_transferred" });
+    await this.email.send({
+      to: previousOwner.email,
+      ...toPreviousOwner,
+      type: "ownership_transferred",
+      // "Reply if this wasn't you" has to reach someone.
+      replyTo: process.env.SUPPORT_EMAIL,
+    });
   }
 
   private async loadOwned(businessId: string, userId: string, forbidden: string) {
