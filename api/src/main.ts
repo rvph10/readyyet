@@ -17,6 +17,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: false, bufferLogs: true });
   applyHttpMiddleware(app);
   app.useLogger(app.get(Logger));
+  // Railway stops the old container with SIGTERM on every deploy. Without
+  // this the process dies on the spot, cutting off requests in progress,
+  // with it the server stops taking new ones and lets those finish. A cron
+  // sweep cut off mid-way is safe, its emails are retried.
+  app.enableShutdownHooks();
 
   // Dev tooling, not something the running app needs, same non-production
   // gating pino-pretty already uses (pino-http-options.ts).
