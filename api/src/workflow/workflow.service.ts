@@ -23,10 +23,12 @@ export class WorkflowService {
       }));
 
     // Every business type is seeded with exactly one active default workflow
-    // (packages/db/prisma/catalogue.ts), so this indicates a data integrity
-    // bug, not a client-facing error.
-    if (!workflow) {
-      throw new Error(`Location ${locationId} has no active workflow`);
+    // with at least one step (packages/db/prisma/catalogue.ts), so either
+    // condition here indicates a data integrity bug, not a client-facing
+    // error. Checked together since callers (e.g. TicketService.create)
+    // rely on steps[0] always existing on a returned workflow.
+    if (!workflow || workflow.steps.length === 0) {
+      throw new Error(`Location ${locationId} has no usable active workflow`);
     }
 
     return this.serialize(workflow);
