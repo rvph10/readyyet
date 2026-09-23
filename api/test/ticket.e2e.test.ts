@@ -109,8 +109,8 @@ describe("Tickets", () => {
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
-    expect(response.body.length).toBeGreaterThanOrEqual(3);
-    const createdAts = response.body.map((t: { createdAt: string }) => new Date(t.createdAt).getTime());
+    expect(response.body.items.length).toBeGreaterThanOrEqual(3);
+    const createdAts = response.body.items.map((t: { createdAt: string }) => new Date(t.createdAt).getTime());
     expect(createdAts).toEqual([...createdAts].sort((a, b) => b - a));
   });
 
