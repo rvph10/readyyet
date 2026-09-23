@@ -12,6 +12,8 @@ import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { HealthModule } from "./health/health.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
+import { TicketModule } from "./ticket/ticket.module";
+import { WorkflowModule } from "./workflow/workflow.module";
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { MeModule } from "./me/me.module";
     BusinessModule,
     LocationModule,
     MeModule,
+    WorkflowModule,
+    TicketModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
