@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
+import { ENDED_STATUS_CODES } from "@readyyet/shared";
 import { NotFoundError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 
-// A tracking link stops working this long after the ticket reaches one of
-// these statuses, see docs/decisions/0013-public-tracking-endpoint.md.
-const ENDED_STATUS_CODES = new Set(["COMPLETED", "CANCELLED", "REJECTED"]);
+// A tracking link stops working this long after the ticket ends, see
+// docs/decisions/0013-public-tracking-endpoint.md.
 const LINK_LIFETIME_AFTER_END_MS = 30 * 24 * 60 * 60 * 1000;
 
 const publicStatus = { select: { code: true, translations: { select: { locale: true, label: true } } } } as const;
@@ -54,7 +54,7 @@ export class TrackingService {
   }
 
   private isExpired(ticket: { currentStatus: { code: string }; statusEvents: { createdAt: Date }[] }) {
-    if (!ENDED_STATUS_CODES.has(ticket.currentStatus.code)) {
+    if (!(ENDED_STATUS_CODES as readonly string[]).includes(ticket.currentStatus.code)) {
       return false;
     }
     // Every status change writes an event (the ticket's first one included),
