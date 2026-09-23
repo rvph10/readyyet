@@ -42,6 +42,25 @@ export const auth: Auth<any> = betterAuth({
   // state-changing requests from any origin other than baseURL unless
   // it's listed here.
   trustedOrigins: [process.env.WEB_URL as string],
+  user: {
+    additionalFields: {
+      // input: false, a sign-in request can't set it, only the hook below
+      // and PATCH /me do (ADR 0018).
+      locale: { type: "string", required: false, input: false, defaultValue: "EN" },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        // An account is created by its first sign-in, whose browser
+        // language is the best first guess at the User's.
+        before(user, ctx) {
+          const locale = localeFromAcceptLanguage(ctx?.headers?.get("accept-language"));
+          return Promise.resolve({ data: { ...user, locale } });
+        },
+      },
+    },
+  },
   // No password auth: sign-in is by emailed OTP, which confirms the
   // email as a side effect and removes the need for a separate
   // password-reset flow entirely. See ADR 0011.

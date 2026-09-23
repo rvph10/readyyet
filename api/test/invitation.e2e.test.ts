@@ -79,6 +79,22 @@ describe("Invitations", () => {
     expect(log.html).toContain(`${process.env.WEB_URL}/invitations/${invitation.body.id}`);
   });
 
+  it("writes to someone who already has an account in their own language", async () => {
+    const email = `delivered+invite-french-user-${Date.now()}@resend.dev`;
+    await signInViaOtp(app, prisma, email);
+    await prisma.user.update({ where: { email }, data: { locale: "FR" } });
+
+    await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email, role: "EMPLOYEE" });
+
+    const log = await vi.waitFor(() =>
+      prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+    );
+    expect(log.subject).toBe("Test User vous invite à rejoindre Main Shop sur ReadyYet");
+  });
+
   it("rejects a second pending invite to the same email at the same location", async () => {
     const response = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations`)

@@ -172,9 +172,13 @@ export class InvitationService {
       where: { id: invitation.id },
       include: { location: { include: { business: true } }, inviter: true },
     });
+    // The invitee's own language when they already have an account, the
+    // Location's otherwise (ADR 0018).
+    const invitee = await this.prisma.user.findFirst({
+      where: { email: { equals: invitation.email, mode: "insensitive" } },
+    });
     const { subject, react } = buildInvitationEmail({
-      // The invitee's own language is unknown, the Location's is the best guess.
-      locale: location.locale,
+      locale: invitee?.locale ?? location.locale,
       inviter: inviter.name,
       location: location.name,
       business: location.business.name,
