@@ -345,6 +345,43 @@ model TicketStatusEvent {
   @@map("ticket_status_event")
 }
 
+// Not a per-event log, one row per send-attempt sequence. type stays a
+// plain string (not a Prisma enum) since the set of email types is still
+// being decided, a new one shouldn't need a migration.
+model EmailLog {
+  id            String      @id @default(uuid()) @db.Uuid
+  resendId      String?     @unique @map("resend_id")
+  to            String
+  subject       String
+  // react content is rendered to html at send time and stored here, so a
+  // later retry (a fresh process, possibly minutes later) has the exact
+  // content to resend without needing the original React element again.
+  html          String?
+  text          String?
+  type          String
+  status        EmailStatus @default(QUEUED)
+  attempts      Int         @default(0)
+  lastError     String?     @map("last_error")
+  lastEvent     Json?       @map("last_event")
+  lastAttemptAt DateTime?   @map("last_attempt_at")
+  deliveredAt   DateTime?   @map("delivered_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@index([status, lastAttemptAt])
+  @@map("email_log")
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  BOUNCED
+  COMPLAINED
+  DELAYED
+  FAILED
+}
+
 model Subscription {
   locationId           String             @id @map("location_id") @db.Uuid
   stripeCustomerId     String             @map("stripe_customer_id")

@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_PIPE } from "@nestjs/core";
+import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AuthModule } from "@thallesp/nestjs-better-auth";
 import { LoggerModule } from "nestjs-pino";
@@ -10,6 +11,7 @@ import { BusinessModule } from "./business/business.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { CustomerModule } from "./customer/customer.module";
+import { EmailModule } from "./email/email.module";
 import { HealthModule } from "./health/health.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
@@ -26,6 +28,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     // docs/decisions/0009-rate-limiting-and-request-logging.md.
     LoggerModule.forRoot({ pinoHttp: pinoHttpOptions(), useExisting: true }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     AuthModule.forRoot({ auth }),
     HealthModule,
@@ -35,6 +38,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     WorkflowModule,
     TicketModule,
     CustomerModule,
+    EmailModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

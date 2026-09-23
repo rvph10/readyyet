@@ -4,6 +4,7 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
+import express from "express";
 import { Logger } from "nestjs-pino";
 import pinoHttp from "pino-http";
 import { AppModule } from "./app.module";
@@ -22,6 +23,12 @@ async function bootstrap() {
   // win the ordering race or Better-Auth-handled requests never get a
   // req.id/req.log. See docs/decisions/0009-rate-limiting-and-request-logging.md.
   app.use(pinoHttp(pinoHttpOptions()));
+  // Same ordering reasoning as pino-http above: Resend's webhook signature
+  // verification needs the exact raw bytes, but AuthModule's own body
+  // parser would otherwise JSON-parse this route too (it only skips its
+  // own /api/auth basePath). body-parser sets req._body after a
+  // successful parse, which makes that later json() call skip re-parsing.
+  app.use("/webhooks/resend", express.raw({ type: "application/json" }));
   app.useLogger(app.get(Logger));
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
