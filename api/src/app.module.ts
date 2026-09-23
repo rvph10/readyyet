@@ -13,6 +13,7 @@ import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { CustomerModule } from "./customer/customer.module";
 import { EmailModule } from "./email/email.module";
 import { HealthModule } from "./health/health.module";
+import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
 import { TicketModule } from "./ticket/ticket.module";
@@ -39,6 +40,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     TicketModule,
     CustomerModule,
     EmailModule,
+    InvitationModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
