@@ -152,3 +152,21 @@ export function buildPreviousOwnerEmail(input: OwnershipTransferInput) {
   );
   return { subject: oneLine(messages.subject(input)), react };
 }
+
+export function buildAccountDeletedEmail(input: { locale: Locale; email: string }) {
+  const messages = MESSAGES[input.locale].accountDeleted;
+  const body = messages.body(input.email);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        ReadyYet
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Text style={styles.text}>{messages.history}</Text>
+      <Text style={styles.text}>{messages.newAccount}</Text>
+      <Hr />
+      <Text style={{ ...styles.text, fontWeight: "bold" }}>{messages.notYou}</Text>
+    </Layout>
+  );
+  return { subject: messages.subject, react };
+}

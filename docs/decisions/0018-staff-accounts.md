@@ -27,7 +27,7 @@ A User can delete their own account. It's an anonymisation, like a Customer's er
 - Signing in again later with the same address creates a new, empty account.
 - It requires a sign-in within the last 10 minutes. Otherwise it's refused and the web app asks for a new code first.
 - An Owner can't delete their account while they own a Business that still has a Location: they transfer it or delete its Locations first.
-- A confirmation is emailed to the address, in the User's language, before it's replaced.
+- A confirmation is emailed, in the User's language, to the address the account had, once the deletion has gone through. Replies go to the support inbox (`SUPPORT_EMAIL`), like the previous Owner's copy of a transfer email.
 
 ## Why
 

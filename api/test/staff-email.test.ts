@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { describe, expect, it } from "vitest";
 import {
+  buildAccountDeletedEmail,
   buildInvitationEmail,
   buildNewOwnerEmail,
   buildPreviousOwnerEmail,
@@ -128,4 +129,18 @@ describe("Ownership transfer emails", () => {
       expect(text).toContain(notYou);
     },
   );
+});
+
+describe("Account deleted email", () => {
+  it.each([
+    ["EN", "Your ReadyYet account was deleted", "reply to this email"],
+    ["FR", "Votre compte ReadyYet a été supprimé", "répondez à cet e-mail"],
+  ] as const)("in %s, names the account and says what to do if it wasn't them", async (locale, subject, notYou) => {
+    const email = buildAccountDeletedEmail({ locale, email: "sam@example.test" });
+
+    expect(email.subject).toBe(subject);
+    const [, text] = await rendered(email.react);
+    expect(text).toContain("sam@example.test");
+    expect(text).toContain(notYou);
+  });
 });

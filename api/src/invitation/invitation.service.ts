@@ -193,8 +193,9 @@ export class InvitationService {
       react,
       type: "invitation",
       fromName: `${location.name} via ReadyYet`,
-      // A question about the invitation goes to whoever sent it.
-      replyTo: inviter.email,
+      // A question about the invitation goes to whoever sent it, or to the
+      // shop once they deleted their account (ADR 0018).
+      replyTo: inviter.deletedAt ? location.contactEmail : inviter.email,
     });
   }
 }

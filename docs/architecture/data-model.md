@@ -51,6 +51,8 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 `Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
+A staff `User` who deletes their account is handled the same way (ADR 0018): tickets, Status events and invitations point at the row with `ON DELETE RESTRICT`, so `name` becomes "Former member", `email` becomes `deleted-<id>@deleted.invalid` (a reserved domain, never deliverable, and unique through the id), `deleted_at` is set, and their sessions, sign-in records and memberships are deleted in the same transaction.
+
 ## Deleted Locations
 
 `Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Nothing under a deleted Location is removed, tickets are permanent records. Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.

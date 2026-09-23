@@ -38,6 +38,13 @@ interface StaffMessages {
     powers: string;
     button: string;
   };
+  accountDeleted: {
+    subject: string;
+    body: (email: string) => string;
+    history: string;
+    newAccount: string;
+    notYou: string;
+  };
   previousOwner: {
     subject: (params: TransferParams) => string;
     body: (params: TransferParams) => string;
@@ -84,6 +91,13 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       stillAdmin: "You remain an admin at each of its locations, until you choose to leave them.",
       notYou: "If you didn't make this transfer, reply to this email right away.",
     },
+    accountDeleted: {
+      subject: "Your ReadyYet account was deleted",
+      body: (email) => `Your ReadyYet account (${email}) was deleted, you no longer have access to any location.`,
+      history: "Tickets and changes you made stay in each shop's history, without your name or email address.",
+      newAccount: "You can create a new account at any time by signing in with this address.",
+      notYou: "If you didn't delete your account, reply to this email right away.",
+    },
   },
   FR: {
     signInCode: {
@@ -118,6 +132,14 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       stillAdmin:
         "Vous restez administrateur de chacun de ses établissements, jusqu'à ce que vous choisissiez de les quitter.",
       notYou: "Si vous n'êtes pas à l'origine de ce transfert, répondez à cet e-mail sans attendre.",
+    },
+    accountDeleted: {
+      subject: "Votre compte ReadyYet a été supprimé",
+      body: (email) => `Votre compte ReadyYet (${email}) a été supprimé, vous n'avez plus accès à aucun établissement.`,
+      history:
+        "Les tickets et modifications que vous avez faits restent dans l'historique de chaque commerce, sans votre nom ni votre adresse e-mail.",
+      newAccount: "Vous pouvez créer un nouveau compte à tout moment en vous connectant avec cette adresse.",
+      notYou: "Si vous n'avez pas supprimé votre compte, répondez à cet e-mail sans attendre.",
     },
   },
 };
