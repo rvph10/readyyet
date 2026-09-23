@@ -5,6 +5,7 @@ import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
+import { UpdateBusinessDto } from "./dto/update-business.dto";
 
 @Injectable()
 export class BusinessService {
@@ -19,6 +20,27 @@ export class BusinessService {
       },
       include: { locations: true },
     });
+  }
+
+  // Owner only, like every Business-wide action (ADR 0002). Members see
+  // their Business's name through /me.
+  async findOne(businessId: string, userId: string) {
+    await this.loadOwned(businessId, userId, "Only the business owner can view it");
+    return this.prisma.business.findUniqueOrThrow({
+      where: { id: businessId },
+      include: {
+        locations: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: "asc" },
+          select: { id: true, name: true, createdAt: true },
+        },
+      },
+    });
+  }
+
+  async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
+    await this.loadOwned(businessId, userId, "Only the business owner can rename it");
+    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name } });
   }
 
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {

@@ -211,3 +211,93 @@ describe("POST /businesses/:businessId/locations", () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe("GET and PATCH /businesses/:businessId", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let businessId: string;
+  let firstLocationId: string;
+
+  const location = (name: string) => ({
+    name,
+    businessTypeCode: "GARAGE",
+    contactPhone: "+12125550123",
+    contactEmail: "shop@readrename.test",
+    locale: "EN",
+  });
+
+  function get(cookie: string, id = businessId) {
+    return request(app.getHttpServer()).get(`/businesses/${id}`).set("Cookie", cookie);
+  }
+
+  function rename(cookie: string, body: object, id = businessId) {
+    return request(app.getHttpServer()).patch(`/businesses/${id}`).set("Cookie", cookie).send(body);
+  }
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+business-read-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+business-read-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+
+    const created = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", ownerCookie)
+      .send({ name: "Read Rename Co", location: location("First") });
+    businessId = created.body.id;
+    firstLocationId = created.body.locations[0].id;
+    const admin = await prisma.user.findUniqueOrThrow({ where: { email: adminEmail } });
+    await prisma.membership.create({ data: { userId: admin.id, locationId: firstLocationId, role: "ADMIN" } });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("shows the owner the business with its locations, deleted ones left out", async () => {
+    const second = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send(location("Second"));
+    const closed = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send(location("Closed"));
+    await request(app.getHttpServer()).delete(`/locations/${closed.body.id}`).set("Cookie", ownerCookie);
+
+    const response = await get(ownerCookie);
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe("Read Rename Co");
+    expect(response.body.locations.map((l: { id: string }) => l.id)).toEqual([firstLocationId, second.body.id]);
+  });
+
+  it("lets the owner rename it, and members see the new name", async () => {
+    const response = await rename(ownerCookie, { name: "Renamed Co" });
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe("Renamed Co");
+    const me = await request(app.getHttpServer()).get("/me").set("Cookie", adminCookie);
+    expect(me.body.memberships[0].location.business.name).toBe("Renamed Co");
+  });
+
+  it("is the owner's alone, even for an admin of one of its locations", async () => {
+    expect((await get(adminCookie)).status).toBe(403);
+    expect((await rename(adminCookie, { name: "Hijacked" })).status).toBe(403);
+  });
+
+  it("rejects an empty or missing name", async () => {
+    expect((await rename(ownerCookie, { name: "" })).status).toBe(400);
+    expect((await rename(ownerCookie, {})).status).toBe(400);
+  });
+
+  it("returns 404 for an unknown business", async () => {
+    expect((await get(ownerCookie, "00000000-0000-0000-0000-000000000000")).status).toBe(404);
+    expect((await rename(ownerCookie, { name: "X" }, "not-a-uuid")).status).toBe(404);
+  });
+});
