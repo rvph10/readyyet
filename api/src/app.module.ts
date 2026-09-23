@@ -16,6 +16,7 @@ import { HealthModule } from "./health/health.module";
 import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
+import { MembershipModule } from "./membership/membership.module";
 import { TicketModule } from "./ticket/ticket.module";
 import { WorkflowModule } from "./workflow/workflow.module";
 
@@ -41,6 +42,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     CustomerModule,
     EmailModule,
     InvitationModule,
+    MembershipModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

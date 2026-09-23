@@ -13,6 +13,7 @@ describe("GET /locations/:locationId", () => {
   let prisma: PrismaService;
   let ownerCookie: string;
   let otherCookie: string;
+  let employeeCookie: string;
   let locationId: string;
 
   beforeAll(async () => {
@@ -22,6 +23,8 @@ describe("GET /locations/:locationId", () => {
     const stamp = Date.now();
     ownerCookie = await signInViaOtp(app, prisma, `location-owner-${stamp}@readyyet.test`);
     otherCookie = await signInViaOtp(app, prisma, `location-other-${stamp}@readyyet.test`);
+    const employeeEmail = `location-employee-${stamp}@readyyet.test`;
+    employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -36,6 +39,14 @@ describe("GET /locations/:locationId", () => {
         },
       });
     locationId = created.body.locations[0].id;
+
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: employeeEmail, role: "EMPLOYEE" });
+    await request(app.getHttpServer())
+      .post(`/invitations/${invitation.body.id}/accept`)
+      .set("Cookie", employeeCookie);
   });
 
   afterAll(async () => {
@@ -73,5 +84,31 @@ describe("GET /locations/:locationId", () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("NOT_FOUND");
+  });
+
+  it("lets the owner update the location's settings", async () => {
+    const response = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}`)
+      .set("Cookie", ownerCookie)
+      .send({ name: "Main Street (renamed)", contactPhone: "+12125550188" });
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe("Main Street (renamed)");
+    expect(response.body.contactPhone).toBe("+12125550188");
+  });
+
+  it("is a no-op with an empty body", async () => {
+    const response = await request(app.getHttpServer()).patch(`/locations/${locationId}`).set("Cookie", ownerCookie).send({});
+
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects an EMPLOYEE updating location settings", async () => {
+    const response = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}`)
+      .set("Cookie", employeeCookie)
+      .send({ name: "Should not work" });
+
+    expect(response.status).toBe(403);
   });
 });

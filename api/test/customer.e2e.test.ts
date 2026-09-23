@@ -108,6 +108,14 @@ describe("Customers", () => {
       .query({ q: "Deleteme" })
       .set("Cookie", ownerCookie);
     expect(list.body).toHaveLength(0);
+
+    // Erasure, not a plain flag: the row survives (a Ticket references it,
+    // onDelete: Restrict) but its PII is actually redacted, not just
+    // deletedAt set. See docs/architecture/data-model.md#gdpr-erasure.
+    const raw = await prisma.customer.findUniqueOrThrow({ where: { id: BigInt(customerId) } });
+    expect(raw.fullName).not.toContain("Carol");
+    expect(raw.email).toBeNull();
+    expect(raw.phone).toBeNull();
   });
 
   it("rejects a signed-in user with no membership at that location", async () => {
