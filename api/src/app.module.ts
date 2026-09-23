@@ -11,6 +11,7 @@ import { BusinessModule } from "./business/business.module";
 import { CatalogueModule } from "./catalogue/catalogue.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
+import { validateEnv } from "./config/env";
 import { CustomerModule } from "./customer/customer.module";
 import { EmailModule } from "./email/email.module";
 import { HealthModule } from "./health/health.module";
@@ -31,7 +32,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     // Logger/PinoLogger on top of that. See
     // docs/decisions/0009-rate-limiting-and-request-logging.md.
     LoggerModule.forRoot({ pinoHttp: pinoHttpOptions(), useExisting: true }),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     // CORS is applied app-wide in common/http-middleware.ts instead, see
