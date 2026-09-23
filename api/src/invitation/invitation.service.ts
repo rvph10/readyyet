@@ -6,9 +6,11 @@ import { ConflictError, NotFoundError, UnauthorizedError } from "../common/error
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { assertCanManage, roleAt } from "../membership/team-rules";
+import { buildInvitationEmail } from "../notification/staff-email/staff-email";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
-const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const INVITATION_TTL_MS = 7 * DAY_MS;
 
 @Injectable()
 export class InvitationService {
@@ -166,13 +168,29 @@ export class InvitationService {
   }
 
   private async sendInviteEmail(invitation: Invitation) {
-    const link = `${process.env.WEB_URL}/invitations/${invitation.id}`;
+    const { location, inviter } = await this.prisma.invitation.findUniqueOrThrow({
+      where: { id: invitation.id },
+      include: { location: { include: { business: true } }, inviter: true },
+    });
+    const { subject, react } = buildInvitationEmail({
+      // The invitee's own language is unknown, the Location's is the best guess.
+      locale: location.locale,
+      inviter: inviter.name,
+      location: location.name,
+      business: location.business.name,
+      role: invitation.role,
+      email: invitation.email,
+      expiresInDays: Math.round((invitation.expiresAt.getTime() - Date.now()) / DAY_MS),
+      acceptUrl: `${process.env.WEB_URL}/invitations/${invitation.id}`,
+    });
     await this.email.send({
       to: invitation.email,
-      subject: "You've been invited to join a team on ReadyYet",
+      subject,
+      react,
       type: "invitation",
-      html: `<p>You've been invited to join a location on ReadyYet as ${invitation.role}.</p><p><a href="${link}">Accept the invitation</a></p>`,
-      text: `You've been invited to join a location on ReadyYet as ${invitation.role}. Accept it here: ${link}`,
+      fromName: `${location.name} via ReadyYet`,
+      // A question about the invitation goes to whoever sent it.
+      replyTo: inviter.email,
     });
   }
 }
