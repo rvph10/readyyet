@@ -53,7 +53,13 @@ export class TicketService {
       let customerId: bigint;
       if (dto.customer) {
         const customer = await tx.customer.create({
-          data: { locationId, fullName: dto.customer.fullName, email: dto.customer.email, phone: dto.customer.phone },
+          data: {
+            locationId,
+            fullName: dto.customer.fullName,
+            email: dto.customer.email,
+            phone: dto.customer.phone,
+            locale: dto.customer.locale,
+          },
         });
         customerId = customer.id;
       } else {

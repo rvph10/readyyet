@@ -37,6 +37,7 @@ export async function seedFixtures(db: PrismaClient) {
       name: "Location A",
       contactPhone: "+10000000000",
       contactEmail: "a@example.com",
+      locale: "EN",
     },
   });
   const locationB = await db.location.create({
@@ -46,6 +47,7 @@ export async function seedFixtures(db: PrismaClient) {
       name: "Location B",
       contactPhone: "+10000000001",
       contactEmail: "b@example.com",
+      locale: "EN",
     },
   });
 

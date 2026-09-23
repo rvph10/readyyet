@@ -23,8 +23,10 @@ export class TrackingService {
         title: true,
         createdAt: true,
         location: {
-          select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, deletedAt: true },
+          select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, locale: true, deletedAt: true },
         },
+        // Only to resolve the page's language, never returned as is.
+        customer: { select: { locale: true } },
         currentStatus: publicStatusSelect,
         workflow: {
           select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatusSelect } } },
@@ -45,6 +47,8 @@ export class TrackingService {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       createdAt: ticket.createdAt,
+      // The page opens in the language this ticket's emails use (ADR 0015).
+      locale: ticket.customer.locale ?? ticket.location.locale,
       location: { name, contactPhone, contactEmail, logoUrl },
       currentStatus: ticket.currentStatus,
       steps: ticket.workflow.steps,

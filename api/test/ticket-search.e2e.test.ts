@@ -67,6 +67,7 @@ describe("Ticket search and filters", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550111",
           contactEmail: "shop@searchtest.test",
+          locale: "EN",
         },
       });
     locationId = created.body.locations[0].id;

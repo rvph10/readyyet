@@ -76,6 +76,7 @@ describe("Public tracking", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550199",
           contactEmail: "shop@trackingtest.test",
+          locale: "FR",
         },
       });
     locationId = created.body.locations[0].id;

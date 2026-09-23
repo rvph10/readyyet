@@ -43,6 +43,7 @@ describe("Customers", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "shop@customertest.test",
+          locale: "EN",
         },
       });
     locationId = created.body.locations[0].id;

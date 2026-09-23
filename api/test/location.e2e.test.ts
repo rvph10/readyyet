@@ -36,6 +36,7 @@ describe("GET /locations/:locationId", () => {
           businessTypeCode: "PRESSING",
           contactPhone: "+12125550199",
           contactEmail: "main@janespressing.test",
+          locale: "EN",
         },
       });
     locationId = created.body.locations[0].id;

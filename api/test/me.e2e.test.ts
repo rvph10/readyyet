@@ -41,6 +41,7 @@ describe("GET /me", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "shop@metest.test",
+          locale: "EN",
         },
       });
 

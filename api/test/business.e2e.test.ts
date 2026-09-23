@@ -30,6 +30,7 @@ describe("POST /businesses", () => {
       businessTypeCode: "GARAGE",
       contactPhone: "+12125550123",
       contactEmail: "downtown@joesgarage.test",
+      locale: "EN",
     },
   };
 
@@ -128,6 +129,7 @@ describe("POST /businesses/:businessId/locations", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "first@multiloc.test",
+          locale: "EN",
         },
       });
     businessId = created.body.id;
@@ -153,6 +155,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550199",
         contactEmail: "second@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(201);
@@ -171,6 +174,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550100",
         contactEmail: "no@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(403);
@@ -186,6 +190,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "NOT_REAL",
         contactPhone: "+12125550101",
         contactEmail: "third@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(404);
@@ -200,6 +205,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550102",
         contactEmail: "nowhere@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(404);

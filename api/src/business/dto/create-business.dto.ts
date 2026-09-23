@@ -1,5 +1,15 @@
 import { Type } from "class-transformer";
-import { IsDefined, IsEmail, IsNotEmpty, IsObject, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import { Locale } from "@readyyet/db";
+import {
+  IsDefined,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsPhoneNumber,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 
 export class CreateLocationDto {
   @IsString()
@@ -15,6 +25,9 @@ export class CreateLocationDto {
 
   @IsEmail()
   contactEmail!: string;
+
+  @IsEnum(Locale)
+  locale!: Locale;
 }
 
 export class CreateBusinessDto {
