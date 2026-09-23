@@ -51,13 +51,15 @@ pnpm --filter @readyyet/api run start:dev
 ```bash
 pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
+pnpm lint
+pnpm format:check   # or pnpm format to fix
 ```
 
 Both run against the real local Postgres from `docker compose`, not a mock. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012.
 
 ## CI
 
-`.github/workflows/ci.yml` runs three jobs (`shared`, `db`, `api`) against a fresh Postgres service container per job.
+`.github/workflows/ci.yml` runs four jobs: `lint` (ESLint and Prettier), and `shared`, `db`, `api`, the last two against a fresh Postgres service container each.
 
 - The `api` job needs `RESEND_API_KEY` set as a GitHub Actions repo secret (Settings → Secrets and variables → Actions), for the same reason `pnpm test` needs it locally. Without it, that job fails with a "missing API key" error.
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.
