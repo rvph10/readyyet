@@ -20,3 +20,7 @@ export type NotifyingStatusCode = (typeof NOTIFYING_STATUS_CODES)[number];
 export function isEndedStatus(statusCode: string): boolean {
   return (ENDED_STATUS_CODES as readonly string[]).includes(statusCode);
 }
+
+export function isNotifyingStatus(statusCode: string): statusCode is NotifyingStatusCode {
+  return (NOTIFYING_STATUS_CODES as readonly string[]).includes(statusCode);
+}

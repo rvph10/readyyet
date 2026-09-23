@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, Role } from "@readyyet/db";
-import { ENDED_STATUS_CODES, isEndedStatus } from "@readyyet/shared";
+import { ENDED_STATUS_CODES, isEndedStatus, isNotifyingStatus } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
@@ -10,7 +10,7 @@ import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
-import { STATUS_UNDO_WINDOW_MS } from "./status-rules";
+import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-rules";
 import { generateTrackingCode } from "./tracking-code";
 
 const DEFAULT_LIST_TAKE = 50;
@@ -264,7 +264,16 @@ export class TicketService {
 
       await this.moveStatus(tx, ticket.id, ticket.currentStatusId, step.statusId);
       await tx.ticketStatusEvent.create({
-        data: { ticketId: ticket.id, workflowId: ticket.workflowId, statusId: step.statusId, changedBy: userId },
+        data: {
+          ticketId: ticket.id,
+          workflowId: ticket.workflowId,
+          statusId: step.statusId,
+          changedBy: userId,
+          // Sent later by NotificationService, only if still current (ADR 0015).
+          ...(isNotifyingStatus(dto.statusCode) && {
+            pendingNotification: { create: { sendAfter: new Date(Date.now() + STATUS_NOTIFICATION_DELAY_MS) } },
+          }),
+        },
       });
       return tx.ticket.findUniqueOrThrow({ where: { id }, include: DETAIL_INCLUDE });
     });

@@ -345,6 +345,8 @@ model TicketStatusEvent {
   ticket       Ticket       @relation(fields: [ticketId, workflowId], references: [id, workflowId], onDelete: Cascade)
   workflowStep WorkflowStep @relation(fields: [workflowId, statusId], references: [workflowId, statusId], onDelete: Restrict)
 
+  pendingNotification PendingStatusNotification?
+
   @@index([ticketId, createdAt])
   @@map("ticket_status_event")
 }
@@ -401,4 +403,16 @@ model Subscription {
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
+}
+
+// A customer status email waiting out the undo window (ADR 0015, ADR
+// 0016). Deleted with its status event, so an undone change never sends.
+model PendingStatusNotification {
+  statusEventId BigInt   @id @map("status_event_id")
+  sendAfter     DateTime @map("send_after")
+
+  statusEvent TicketStatusEvent @relation(fields: [statusEventId], references: [id], onDelete: Cascade)
+
+  @@index([sendAfter])
+  @@map("pending_status_notification")
 }

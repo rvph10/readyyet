@@ -38,6 +38,8 @@ The `CANCELLED` and `REJECTED` emails carry a fixed, translated message asking t
 
 A Status update email is queued, not sent, when the Status changes. It's sent 2 minutes later only if the Status event that queued it is still the ticket's latest. A change undone within that window (ADR 0016), or followed by another change, never reaches the customer. The window is the same as the undo window in ADR 0016, on purpose.
 
+In practice the change queues a row in `pending_status_notification`, due 10 seconds after the undo window closes so an undo at the very end of its window can't race the send. A sweep runs every 30 seconds, so the email leaves between about 2m10s and 2m40s after the change. The row is deleted along with its Status event, which is how an undo cancels it. A sweep claims a due row (a short lease) before sending, so overlapping sweeps can't send it twice, and a crash mid-send retries it instead of losing it.
+
 The ticket-created email is sent immediately, there's nothing it could contradict.
 
 ### Sender, content and language
