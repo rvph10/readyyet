@@ -9,11 +9,7 @@ import { createTestApp } from "./support/create-test-app";
 const WEB_URL = process.env.WEB_URL as string;
 const OTHER_ORIGIN = "https://evil.example";
 
-// Better Auth's own trustedOrigins check isn't covered here: it disables
-// itself whenever NODE_ENV is "test" (advanced.disableOriginCheck
-// defaults to isTest()), so it can only be exercised against a real
-// running server.
-describe("CORS", () => {
+describe("HTTP middleware", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -24,6 +20,18 @@ describe("CORS", () => {
     await app.close();
   });
 
+  it.each(["/health", "/api/auth/get-session"])("sets security headers on %s", async (path) => {
+    const response = await request(app.getHttpServer()).get(path);
+
+    expect(response.headers["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers["content-security-policy"]).toContain("default-src 'self'");
+    expect(response.headers["strict-transport-security"]).toBeDefined();
+  });
+
+  // Better Auth's own trustedOrigins check isn't covered here: it disables
+  // itself whenever NODE_ENV is "test" (advanced.disableOriginCheck
+  // defaults to isTest()), so it can only be exercised against a real
+  // running server.
   it("allows a PATCH preflight from the web app with credentials", async () => {
     const response = await request(app.getHttpServer())
       .options("/locations/00000000-0000-0000-0000-000000000000")

@@ -1,5 +1,6 @@
 import { INestApplication } from "@nestjs/common";
 import express from "express";
+import helmet from "helmet";
 import pinoHttp from "pino-http";
 import { pinoHttpOptions } from "./logging/pino-http-options";
 
@@ -13,6 +14,7 @@ import { pinoHttpOptions } from "./logging/pino-http-options";
 // next(), so anything that must also apply to /api/auth/* has to win that
 // ordering race. See docs/decisions/0009-rate-limiting-and-request-logging.md.
 export function applyHttpMiddleware(app: INestApplication) {
+  app.use(helmet());
   app.use(pinoHttp(pinoHttpOptions()));
   // Done here rather than via Better Auth's trustedOrigins-driven CORS
   // (disableTrustedOriginsCors in app.module.ts): that one only allows
