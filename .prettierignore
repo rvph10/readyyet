@@ -1,0 +1,5 @@
+pnpm-lock.yaml
+**/generated/
+**/dist/
+# ADRs are an append-only record, never reformatted after the fact.
+docs/decisions/

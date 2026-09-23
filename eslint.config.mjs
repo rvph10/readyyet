@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import { defineConfig } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import tseslint from "typescript-eslint";
 
 // The root typescript devDependency (6.0.x) is what the type-aware rules
@@ -29,4 +30,6 @@ export default defineConfig(
     files: ["**/*.mjs"],
     extends: [tseslint.configs.disableTypeChecked],
   },
+  // Last, so formatting is left to Prettier alone.
+  eslintConfigPrettier,
 );
