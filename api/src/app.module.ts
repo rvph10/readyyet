@@ -9,9 +9,12 @@ import { auth } from "./auth/auth";
 import { BusinessModule } from "./business/business.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
+import { CustomerModule } from "./customer/customer.module";
 import { HealthModule } from "./health/health.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
+import { TicketModule } from "./ticket/ticket.module";
+import { WorkflowModule } from "./workflow/workflow.module";
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { MeModule } from "./me/me.module";
     BusinessModule,
     LocationModule,
     MeModule,
+    WorkflowModule,
+    TicketModule,
+    CustomerModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
