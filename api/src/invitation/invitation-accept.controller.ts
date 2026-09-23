@@ -1,4 +1,5 @@
 import { Controller, Param, Post } from "@nestjs/common";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { InvitationService } from "./invitation.service";
@@ -8,11 +9,13 @@ import { InvitationService } from "./invitation.service";
 // LocationMembershipGuard doesn't apply), it only needs Better Auth's
 // already-global AuthGuard plus the email-match check inside the
 // service.
+@ApiTags("Invitations")
 @Controller("invitations")
 export class InvitationAcceptController {
   constructor(private readonly invitation: InvitationService) {}
 
   @Post(":invitationId/accept")
+  @ApiOperation({ summary: "Accept an invitation (creates a real Membership)" })
   accept(@Param("invitationId") invitationId: string, @CurrentUser() user: User) {
     return this.invitation.accept(invitationId, user);
   }

@@ -1,9 +1,11 @@
 import { Controller, Get } from "@nestjs/common";
 import { HealthCheck, HealthCheckService, PrismaHealthIndicator } from "@nestjs/terminus";
+import { ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { PrismaService } from "../database/prisma.service";
 
+@ApiTags("Health")
 @AllowAnonymous()
 // Hit frequently and legitimately by infra health probes; throttling
 // would cause false-negative health failures.

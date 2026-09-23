@@ -1,4 +1,5 @@
 import { Controller, Post, Req, Res } from "@nestjs/common";
+import { ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { EmailStatus } from "@readyyet/db";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
@@ -7,6 +8,7 @@ import { PrismaService } from "../database/prisma.service";
 import { WEBHOOK_EVENT_TO_STATUS } from "./email-status";
 import { getResendClient } from "./resend-client";
 
+@ApiTags("Email")
 @AllowAnonymous()
 // Resend can deliver events in bursts; throttling would cause us to drop
 // legitimate, already signature-verified webhook calls.
@@ -16,6 +18,9 @@ export class EmailWebhookController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Post()
+  // Called by Resend, not a client of this API, real request-signing
+  // requirements don't map onto a "try it out" reference page.
+  @ApiExcludeEndpoint()
   async handle(@Req() req: Request, @Res() res: Response) {
     // req.body is the raw Buffer here, see main.ts's scoped
     // express.raw() mount for /webhooks/resend, signature verification
