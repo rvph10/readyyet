@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { EmailStatus } from "@readyyet/db";
+import type { PrismaClient } from "@readyyet/db";
 import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
@@ -28,7 +29,13 @@ export interface SendEmailInput {
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly prisma: PrismaService) {}
+  // Typed as the wider PrismaClient, not PrismaService: auth.ts
+  // constructs this class directly outside Nest's DI container (it's
+  // evaluated at module load, before Nest even exists, see ADR 0008),
+  // passing its own already-constructed PrismaClient. Nest's DI resolves
+  // by exact class token though, not by supertype, so @Inject(PrismaService)
+  // is still needed to tell it which provider to hand in here.
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaClient) {}
 
   async send(input: SendEmailInput) {
     const { html, text } = await this.resolveContent(input);

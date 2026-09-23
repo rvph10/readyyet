@@ -4,7 +4,9 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
+import { signInViaOtp } from "./support/sign-in-via-otp";
 
 describe("POST /businesses", () => {
   let app: INestApplication;
@@ -14,10 +16,7 @@ describe("POST /businesses", () => {
     app = await createTestApp();
 
     const email = `business-test-${Date.now()}@readyyet.test`;
-    const signUp = await request(app.getHttpServer())
-      .post("/api/auth/sign-up/email")
-      .send({ email, password: "correct-horse-battery", name: "Business Owner" });
-    sessionCookie = signUp.headers["set-cookie"][0];
+    sessionCookie = await signInViaOtp(app, app.get(PrismaService), email);
   });
 
   afterAll(async () => {

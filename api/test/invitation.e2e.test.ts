@@ -4,17 +4,13 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
-
-async function signUp(app: INestApplication, email: string) {
-  const response = await request(app.getHttpServer())
-    .post("/api/auth/sign-up/email")
-    .send({ email, password: "correct-horse-battery", name: "Test User" });
-  return response.headers["set-cookie"][0] as string;
-}
+import { signInViaOtp } from "./support/sign-in-via-otp";
 
 describe("Invitations", () => {
   let app: INestApplication;
+  let prisma: PrismaService;
   let ownerCookie: string;
   let employeeCookie: string;
   let employeeEmail: string;
@@ -23,12 +19,13 @@ describe("Invitations", () => {
 
   beforeAll(async () => {
     app = await createTestApp();
+    prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signUp(app, `invite-owner-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `invite-owner-${stamp}@readyyet.test`);
     employeeEmail = `invite-employee-${stamp}@readyyet.test`;
-    employeeCookie = await signUp(app, employeeEmail);
-    otherCookie = await signUp(app, `invite-other-${stamp}@readyyet.test`);
+    employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
+    otherCookie = await signInViaOtp(app, prisma, `invite-other-${stamp}@readyyet.test`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -124,7 +121,7 @@ describe("Invitations", () => {
 
   it("revokes a pending invitation, blocking a later accept", async () => {
     const revokeeEmail = `invite-revokee-${Date.now()}@readyyet.test`;
-    const revokeeCookie = await signUp(app, revokeeEmail);
+    const revokeeCookie = await signInViaOtp(app, prisma, revokeeEmail);
 
     const created = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations`)
