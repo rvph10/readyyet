@@ -1,6 +1,8 @@
 import { Type } from "class-transformer";
+import { Locale } from "@readyyet/db";
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumberString,
   IsObject,
@@ -22,6 +24,11 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsPhoneNumber()
   phone?: string;
+
+  // Unset means the Location's own locale applies (ADR 0015).
+  @IsOptional()
+  @IsEnum(Locale)
+  locale?: Locale;
 }
 
 export class CreateTicketDto {

@@ -161,6 +161,9 @@ model Location {
   contactPhone   String    @map("contact_phone")
   contactEmail   String    @map("contact_email")
   logoUrl        String?   @map("logo_url")
+  // Default language for this Location's customer emails and tracking
+  // page, a Customer's own locale overrides it. See ADR 0015.
+  locale         Locale
   deletedAt      DateTime? @map("deleted_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
@@ -218,6 +221,7 @@ model Customer {
   fullName   String    @map("full_name")
   email      String?
   phone      String?
+  locale     Locale?
   deletedAt  DateTime? @map("deleted_at")
   createdAt  DateTime  @default(now()) @map("created_at")
 
@@ -289,17 +293,20 @@ model WorkflowStep {
 }
 
 model Ticket {
-  id              BigInt   @id @default(autoincrement())
-  locationId      String   @map("location_id") @db.Uuid
-  customerId      BigInt   @map("customer_id")
-  workflowId      BigInt   @map("workflow_id")
-  currentStatusId Int      @map("current_status_id")
-  trackingCode    String   @unique @map("tracking_code")
-  title           String
-  description     String?
-  createdBy       String   @map("created_by")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id                     BigInt    @id @default(autoincrement())
+  locationId             String    @map("location_id") @db.Uuid
+  customerId             BigInt    @map("customer_id")
+  workflowId             BigInt    @map("workflow_id")
+  currentStatusId        Int       @map("current_status_id")
+  trackingCode           String    @unique @map("tracking_code")
+  title                  String
+  description            String?
+  createdBy              String    @map("created_by")
+  // Set when the Customer used the "stop updates" link, no more status
+  // update emails for this ticket from then on (ADR 0015).
+  notificationsStoppedAt DateTime? @map("notifications_stopped_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
 
   location      Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
   workflow      Workflow            @relation(fields: [workflowId], references: [id], onDelete: Restrict)
@@ -341,6 +348,8 @@ model TicketStatusEvent {
   ticket       Ticket       @relation(fields: [ticketId, workflowId], references: [id, workflowId], onDelete: Cascade)
   workflowStep WorkflowStep @relation(fields: [workflowId, statusId], references: [workflowId, statusId], onDelete: Restrict)
 
+  pendingNotification PendingStatusNotification?
+
   @@index([ticketId, createdAt])
   @@map("ticket_status_event")
 }
@@ -352,6 +361,11 @@ model EmailLog {
   id            String      @id @default(uuid()) @db.Uuid
   resendId      String?     @unique @map("resend_id")
   to            String
+  // Kept so a retry sends from the same name, with the same Reply-To.
+  fromName      String?     @map("from_name")
+  replyTo       String?     @map("reply_to")
+  // Extra headers (List-Unsubscribe), a flat name to value object.
+  headers       Json?
   subject       String
   // react content is rendered to html at send time and stored here, so a
   // later retry (a fresh process, possibly minutes later) has the exact
@@ -394,4 +408,16 @@ model Subscription {
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
+}
+
+// A customer status email waiting out the undo window (ADR 0015, ADR
+// 0016). Deleted with its status event, so an undone change never sends.
+model PendingStatusNotification {
+  statusEventId BigInt   @id @map("status_event_id")
+  sendAfter     DateTime @map("send_after")
+
+  statusEvent TicketStatusEvent @relation(fields: [statusEventId], references: [id], onDelete: Cascade)
+
+  @@index([sendAfter])
+  @@map("pending_status_notification")
 }

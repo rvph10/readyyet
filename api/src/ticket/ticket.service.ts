@@ -1,17 +1,21 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@readyyet/db";
-import { ENDED_STATUS_CODES } from "@readyyet/shared";
+import { Prisma, Role } from "@readyyet/db";
+import { ENDED_STATUS_CODES, isEndedStatus, isNotifyingStatus } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
-import { NotFoundError, ValidationError } from "../common/errors/app-error";
+import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
+import { NotificationService } from "../notification/notification.service";
 import { WorkflowService } from "../workflow/workflow.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
+import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-rules";
 import { generateTrackingCode } from "./tracking-code";
 
 const DEFAULT_LIST_TAKE = 50;
+
+const DETAIL_INCLUDE = { customer: true, currentStatus: { include: { translations: true } } } as const;
 
 // Cursor pagination on (createdAt, id), not OFFSET, see
 // docs/architecture/data-model.md#pagination. id breaks createdAt ties.
@@ -35,6 +39,7 @@ export class TicketService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workflow: WorkflowService,
+    private readonly notification: NotificationService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -53,7 +58,13 @@ export class TicketService {
       let customerId: bigint;
       if (dto.customer) {
         const customer = await tx.customer.create({
-          data: { locationId, fullName: dto.customer.fullName, email: dto.customer.email, phone: dto.customer.phone },
+          data: {
+            locationId,
+            fullName: dto.customer.fullName,
+            email: dto.customer.email,
+            phone: dto.customer.phone,
+            locale: dto.customer.locale,
+          },
         });
         customerId = customer.id;
       } else {
@@ -78,11 +89,25 @@ export class TicketService {
           createdBy: userId,
           statusEvents: { create: { statusId: firstStep.status.id, changedBy: userId } },
         },
-        include: { customer: true, currentStatus: { include: { translations: true } } },
+        include: DETAIL_INCLUDE,
       });
     });
 
+    // After the transaction commits, never inside it: an email can't be
+    // taken back if the insert rolled back. A failed send doesn't fail the
+    // ticket, EmailService records it and its retry sweep picks it up.
+    await this.notification.sendTicketCreated(ticket.id);
+
     return this.mapDetail(ticket);
+  }
+
+  async resendTrackingLink(locationId: string, ticketId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+    return this.notification.resendTrackingLink(ticket.id);
   }
 
   async list(locationId: string, query: ListTicketsQueryDto) {
@@ -195,37 +220,110 @@ export class TicketService {
         ...(dto.title !== undefined && { title: dto.title }),
         ...(dto.description !== undefined && { description: dto.description }),
       },
-      include: { customer: true, currentStatus: { include: { translations: true } } },
+      include: DETAIL_INCLUDE,
     });
 
     return this.mapDetail(updated);
   }
 
+  // Rules from docs/decisions/0016-ticket-status-change-rules.md.
   async updateStatus(locationId: string, ticketId: string, userId: string, dto: UpdateTicketStatusDto) {
     const id = parseBigIntId(ticketId, "Ticket");
-    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
-    if (!ticket) {
-      throw new NotFoundError("Ticket not found");
+    if (dto.statusCode === "RECEIVED") {
+      throw new ValidationError("A ticket can't move back to RECEIVED");
     }
 
-    const step = await this.prisma.workflowStep.findFirst({
-      where: { workflowId: ticket.workflowId, status: { code: dto.statusCode } },
-      include: { status: { include: { translations: true } } },
-    });
-    if (!step) {
-      throw new ValidationError(`"${dto.statusCode}" is not a step of this ticket's workflow`);
-    }
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const ticket = await tx.ticket.findFirst({ where: { id, locationId }, include: { currentStatus: true } });
+      if (!ticket) {
+        throw new NotFoundError("Ticket not found");
+      }
 
-    const updated = await this.prisma.ticket.update({
-      where: { id },
-      data: {
-        currentStatusId: step.statusId,
-        statusEvents: { create: { statusId: step.statusId, changedBy: userId } },
-      },
-      include: { customer: true, currentStatus: { include: { translations: true } } },
+      const step = await tx.workflowStep.findFirst({
+        where: { workflowId: ticket.workflowId, status: { code: dto.statusCode } },
+      });
+      if (!step) {
+        throw new ValidationError(`"${dto.statusCode}" is not a step of this ticket's workflow`);
+      }
+
+      const from = ticket.currentStatus.code;
+      if (step.statusId === ticket.currentStatusId) {
+        throw new ConflictError(`The ticket is already ${from}`);
+      }
+      if (dto.statusCode === "COMPLETED" && from !== "READY") {
+        throw new ConflictError("A ticket can only be COMPLETED once it's READY");
+      }
+      if (isEndedStatus(from)) {
+        const membership = await tx.membership.findUniqueOrThrow({
+          where: { userId_locationId: { userId, locationId } },
+        });
+        if (membership.role === Role.EMPLOYEE) {
+          throw new UnauthorizedError(`Only an owner or admin can change a ${from} ticket`);
+        }
+      }
+
+      await this.moveStatus(tx, ticket.id, ticket.currentStatusId, step.statusId);
+      await tx.ticketStatusEvent.create({
+        data: {
+          ticketId: ticket.id,
+          workflowId: ticket.workflowId,
+          statusId: step.statusId,
+          changedBy: userId,
+          // Sent later by NotificationService, only if still current (ADR 0015).
+          ...(isNotifyingStatus(dto.statusCode) && {
+            pendingNotification: { create: { sendAfter: new Date(Date.now() + STATUS_NOTIFICATION_DELAY_MS) } },
+          }),
+        },
+      });
+      return tx.ticket.findUniqueOrThrow({ where: { id }, include: DETAIL_INCLUDE });
     });
 
     return this.mapDetail(updated);
+  }
+
+  async undoStatus(locationId: string, ticketId: string, userId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const ticket = await tx.ticket.findFirst({ where: { id, locationId } });
+      if (!ticket) {
+        throw new NotFoundError("Ticket not found");
+      }
+
+      const [latest, previous] = await tx.ticketStatusEvent.findMany({
+        where: { ticketId: id },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: 2,
+      });
+      // The first event is the ticket's creation at RECEIVED, not a change.
+      if (!previous) {
+        throw new ConflictError("There is no status change to undo");
+      }
+      if (latest.changedBy !== userId) {
+        throw new UnauthorizedError("Only the person who made a status change can undo it");
+      }
+      if (Date.now() - latest.createdAt.getTime() > STATUS_UNDO_WINDOW_MS) {
+        throw new ConflictError("A status change can only be undone within 2 minutes");
+      }
+
+      await this.moveStatus(tx, id, latest.statusId, previous.statusId);
+      await tx.ticketStatusEvent.delete({ where: { id: latest.id } });
+      return tx.ticket.findUniqueOrThrow({ where: { id }, include: DETAIL_INCLUDE });
+    });
+
+    return this.mapDetail(updated);
+  }
+
+  // Conditional on the status the caller read, so two concurrent changes
+  // (or a change racing an undo) can't both apply.
+  private async moveStatus(tx: Prisma.TransactionClient, ticketId: bigint, fromStatusId: number, toStatusId: number) {
+    const { count } = await tx.ticket.updateMany({
+      where: { id: ticketId, currentStatusId: fromStatusId },
+      data: { currentStatusId: toStatusId },
+    });
+    if (count === 0) {
+      throw new ConflictError("The ticket's status was just changed by someone else, reload and try again");
+    }
   }
 
   private mapDetail(ticket: {
@@ -233,6 +331,7 @@ export class TicketService {
     trackingCode: string;
     title: string;
     description: string | null;
+    notificationsStoppedAt: Date | null;
     createdAt: Date;
     customer: { id: bigint; fullName: string; email: string | null; phone: string | null };
     currentStatus: Status;
@@ -242,6 +341,8 @@ export class TicketService {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       description: ticket.description,
+      // The Customer used "stop updates", staff see why no email went out.
+      notificationsStoppedAt: ticket.notificationsStoppedAt,
       createdAt: ticket.createdAt,
       customer: { ...ticket.customer, id: ticket.customer.id.toString() },
       currentStatus: ticket.currentStatus,

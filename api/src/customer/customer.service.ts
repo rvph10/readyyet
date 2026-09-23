@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import type { Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
@@ -39,6 +40,7 @@ export class CustomerService {
         ...(dto.fullName !== undefined && { fullName: dto.fullName }),
         ...(dto.email !== undefined && { email: dto.email }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
+        ...(dto.locale !== undefined && { locale: dto.locale }),
       },
     });
 
@@ -71,6 +73,7 @@ export class CustomerService {
     fullName: string;
     email: string | null;
     phone: string | null;
+    locale: Locale | null;
     createdAt: Date;
   }) {
     return {
@@ -78,6 +81,7 @@ export class CustomerService {
       fullName: customer.fullName,
       email: customer.email,
       phone: customer.phone,
+      locale: customer.locale,
       createdAt: customer.createdAt,
     };
   }

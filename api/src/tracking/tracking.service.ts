@@ -1,12 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { ENDED_STATUS_CODES } from "@readyyet/shared";
 import { NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/public-status-select";
 import { PrismaService } from "../database/prisma.service";
-
-// A tracking link stops working this long after the ticket ends, see
-// docs/decisions/0013-public-tracking-endpoint.md.
-const LINK_LIFETIME_AFTER_END_MS = 30 * 24 * 60 * 60 * 1000;
+import { isTrackingLinkExpired } from "./tracking-link";
 
 @Injectable()
 export class TrackingService {
@@ -23,8 +19,10 @@ export class TrackingService {
         title: true,
         createdAt: true,
         location: {
-          select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, deletedAt: true },
+          select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, locale: true, deletedAt: true },
         },
+        // Only to resolve the page's language, never returned as is.
+        customer: { select: { locale: true } },
         currentStatus: publicStatusSelect,
         workflow: {
           select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatusSelect } } },
@@ -36,7 +34,12 @@ export class TrackingService {
       },
     });
 
-    if (!ticket || ticket.location.deletedAt || this.isExpired(ticket)) {
+    if (!ticket || ticket.location.deletedAt) {
+      throw new NotFoundError("Tracking link not found");
+    }
+    // Same response as an unknown code on purpose, see ADR 0013.
+    const latestEvent = ticket.statusEvents[ticket.statusEvents.length - 1];
+    if (isTrackingLinkExpired(ticket.currentStatus.code, latestEvent.createdAt)) {
       throw new NotFoundError("Tracking link not found");
     }
 
@@ -45,6 +48,8 @@ export class TrackingService {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       createdAt: ticket.createdAt,
+      // The page opens in the language this ticket's emails use (ADR 0015).
+      locale: ticket.customer.locale ?? ticket.location.locale,
       location: { name, contactPhone, contactEmail, logoUrl },
       currentStatus: ticket.currentStatus,
       steps: ticket.workflow.steps,
@@ -52,13 +57,30 @@ export class TrackingService {
     };
   }
 
-  private isExpired(ticket: { currentStatus: { code: string }; statusEvents: { createdAt: Date }[] }) {
-    if (!(ENDED_STATUS_CODES as readonly string[]).includes(ticket.currentStatus.code)) {
-      return false;
+  // The "stop updates" link (ADR 0015), public like the page it belongs
+  // to. Repeating it keeps the first stop time.
+  async stopNotifications(code: string) {
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { trackingCode: code },
+      select: {
+        id: true,
+        location: { select: { deletedAt: true } },
+        currentStatus: { select: { code: true } },
+        statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1, select: { createdAt: true } },
+      },
+    });
+    // Same 404 as the tracking page, see ADR 0013.
+    if (
+      !ticket ||
+      ticket.location.deletedAt ||
+      isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)
+    ) {
+      throw new NotFoundError("Tracking link not found");
     }
-    // Every status change writes an event (the ticket's first one included),
-    // so the latest event is when the ticket reached its current status.
-    const endedAt = ticket.statusEvents[ticket.statusEvents.length - 1].createdAt;
-    return Date.now() - endedAt.getTime() > LINK_LIFETIME_AFTER_END_MS;
+
+    await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, notificationsStoppedAt: null },
+      data: { notificationsStoppedAt: new Date() },
+    });
   }
 }

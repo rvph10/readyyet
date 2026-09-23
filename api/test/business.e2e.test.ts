@@ -15,7 +15,7 @@ describe("POST /businesses", () => {
   beforeAll(async () => {
     app = await createTestApp();
 
-    const email = `business-test-${Date.now()}@readyyet.test`;
+    const email = `delivered+business-test-${Date.now()}@resend.dev`;
     sessionCookie = await signInViaOtp(app, app.get(PrismaService), email);
   });
 
@@ -30,6 +30,7 @@ describe("POST /businesses", () => {
       businessTypeCode: "GARAGE",
       contactPhone: "+12125550123",
       contactEmail: "downtown@joesgarage.test",
+      locale: "EN",
     },
   };
 
@@ -114,8 +115,8 @@ describe("POST /businesses/:businessId/locations", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `add-location-owner-${stamp}@readyyet.test`);
-    const adminEmail = `add-location-admin-${stamp}@readyyet.test`;
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+add-location-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+add-location-admin-${stamp}@resend.dev`;
     adminCookie = await signInViaOtp(app, prisma, adminEmail);
 
     const created = await request(app.getHttpServer())
@@ -128,6 +129,7 @@ describe("POST /businesses/:businessId/locations", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "first@multiloc.test",
+          locale: "EN",
         },
       });
     businessId = created.body.id;
@@ -153,6 +155,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550199",
         contactEmail: "second@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(201);
@@ -171,6 +174,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550100",
         contactEmail: "no@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(403);
@@ -186,6 +190,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "NOT_REAL",
         contactPhone: "+12125550101",
         contactEmail: "third@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(404);
@@ -200,6 +205,7 @@ describe("POST /businesses/:businessId/locations", () => {
         businessTypeCode: "GARAGE",
         contactPhone: "+12125550102",
         contactEmail: "nowhere@multiloc.test",
+        locale: "EN",
       });
 
     expect(response.status).toBe(404);

@@ -78,7 +78,7 @@ describe("POST /webhooks/resend", () => {
       data: {
         email_id: log.resendId,
         created_at: new Date().toISOString(),
-        from: "test@readyyet.test",
+        from: "delivered+test@resend.dev",
         to: [log.to],
         subject: log.subject,
       },

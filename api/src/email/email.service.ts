@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailStatus } from "@readyyet/db";
-import type { PrismaClient } from "@readyyet/db";
+import type { EmailLog, PrismaClient } from "@readyyet/db";
 import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
@@ -25,6 +25,26 @@ export interface SendEmailInput {
   html?: string;
   text?: string;
   react?: ReactElement;
+  // Display name shown instead of EMAIL_FROM's own, the address stays
+  // EMAIL_FROM's (it's the one verified in Resend).
+  fromName?: string;
+  replyTo?: string;
+  headers?: Record<string, string>;
+}
+
+type StoredMessage = Pick<EmailLog, "id" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers">;
+
+// fromName is user input (a Location's name): quoted so a comma or angle
+// bracket in it can't be read as another address, and line breaks
+// removed so it can't inject a header.
+function sender(fromName: string | null): string {
+  const from = process.env.EMAIL_FROM as string;
+  if (!fromName) {
+    return from;
+  }
+  const address = /<([^>]+)>/.exec(from)?.[1] ?? from;
+  const name = fromName.replace(/[\r\n]+/g, " ").replace(/["\\]/g, "\\$&");
+  return `"${name}" <${address}>`;
 }
 
 @Injectable()
@@ -41,17 +61,27 @@ export class EmailService {
     const { html, text } = await this.resolveContent(input);
 
     const log = await this.prisma.emailLog.create({
-      data: { to: input.to, subject: input.subject, type: input.type, html, text, status: EmailStatus.QUEUED },
+      data: {
+        to: input.to,
+        subject: input.subject,
+        type: input.type,
+        html,
+        text,
+        fromName: input.fromName,
+        replyTo: input.replyTo,
+        headers: input.headers,
+        status: EmailStatus.QUEUED,
+      },
     });
 
-    return this.attempt(log.id, input.to, input.subject, html, text);
+    return this.attempt(log);
   }
 
   // Re-attempts an existing row (used by EmailRetryService's cron sweep)
   // from its already-persisted content, rather than needing the original
   // caller's react element again.
-  async retry(logId: string, to: string, subject: string, html: string | null, text: string | null) {
-    return this.attempt(logId, to, subject, html ?? undefined, text ?? undefined);
+  async retry(log: StoredMessage) {
+    return this.attempt(log);
   }
 
   private async resolveContent(input: SendEmailInput): Promise<{ html?: string; text?: string }> {
@@ -64,13 +94,8 @@ export class EmailService {
     return { html: input.html, text: input.text };
   }
 
-  private async attempt(
-    logId: string,
-    to: string,
-    subject: string,
-    html: string | undefined,
-    text: string | undefined,
-  ) {
+  private async attempt(message: StoredMessage) {
+    const { id: logId, to, subject, html, text } = message;
     let lastError = "";
 
     for (let i = 0; i < MAX_IMMEDIATE_ATTEMPTS; i++) {
@@ -83,9 +108,11 @@ export class EmailService {
         await waitForResendSlot();
         const { data, error } = await getResendClient().emails.send(
           {
-            from: process.env.EMAIL_FROM as string,
+            from: sender(message.fromName),
             to,
             subject,
+            ...(message.replyTo && { replyTo: message.replyTo }),
+            ...(message.headers && { headers: message.headers as Record<string, string> }),
             ...(html ? { html } : { text: text! }),
           },
           { idempotencyKey: logId },

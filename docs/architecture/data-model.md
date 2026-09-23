@@ -68,6 +68,10 @@ A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop 
 
 Every default `Workflow` the seed script creates includes all five system statuses (`RECEIVED`, `READY`, `COMPLETED`, `CANCELLED`, `REJECTED`) as steps, see `docs/domain/status-catalogue.md`. Like the two invariants above, this is enforced by the seed script's own logic, not by the database, `WorkflowStep` accepts any status code, nothing stops a future custom workflow from omitting one. Whatever code eventually builds custom workflows (paid tier, not yet built) must validate this before saving, alongside the tenant-scope validation already noted above. A `CHECK` constraint can't express "this workflow's steps include these 5 specific codes", that requires looking at other rows, which `CHECK` constraints in Postgres can't do.
 
+## Pending status notifications
+
+`pending_status_notification(status_event_id PK, send_after)` holds a customer status email waiting out the 2-minute undo window (ADR 0015, ADR 0016). Its FK to `ticket_status_event` is `ON DELETE CASCADE`: undoing a change deletes its event, which deletes the queued email with it, no application code needed. The sending sweep reads it through the `send_after` index.
+
 ## Indexes
 
 | Index                              | Columns                                            | Supports                                                             |

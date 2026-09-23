@@ -38,7 +38,7 @@ describe("Public tracking", () => {
       .send({
         title,
         description: "Internal note: quoted 300 EUR",
-        customer: { fullName: "Carla Private", email: "carla@example.test", phone: "+33600000000" },
+        customer: { fullName: "Carla Private", email: "delivered+carla@resend.dev", phone: "+33600000000" },
       });
     return response.body as { id: string; trackingCode: string };
   }
@@ -63,7 +63,7 @@ describe("Public tracking", () => {
     app = await createTestApp();
     prisma = app.get(PrismaService);
 
-    ownerEmail = `tracking-owner-${Date.now()}@readyyet.test`;
+    ownerEmail = `delivered+tracking-owner-${Date.now()}@resend.dev`;
     ownerCookie = await signInViaOtp(app, prisma, ownerEmail);
 
     const created = await request(app.getHttpServer())
@@ -76,6 +76,7 @@ describe("Public tracking", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550199",
           contactEmail: "shop@trackingtest.test",
+          locale: "FR",
         },
       });
     locationId = created.body.locations[0].id;
@@ -121,7 +122,7 @@ describe("Public tracking", () => {
     const leakedKeys = [...collectKeys(response.body)].filter((key) => PRIVATE_KEYS.has(key));
     expect(leakedKeys).toEqual([]);
     const raw = JSON.stringify(response.body);
-    for (const secret of ["Carla Private", "carla@example.test", "+33600000000", ownerEmail, "Internal note"]) {
+    for (const secret of ["Carla Private", "delivered+carla@resend.dev", "+33600000000", ownerEmail, "Internal note"]) {
       expect(raw).not.toContain(secret);
     }
   });
@@ -135,6 +136,7 @@ describe("Public tracking", () => {
 
   it("keeps working for 30 days after the ticket ends", async () => {
     const ticket = await createTicket("Exhaust");
+    await setStatus(ticket.id, "READY");
     await setStatus(ticket.id, "COMPLETED");
     await ageHistory(ticket.id, 29 * DAY_MS);
 
@@ -145,6 +147,8 @@ describe("Public tracking", () => {
 
   it.each(["COMPLETED", "CANCELLED", "REJECTED"])("expires 30 days after the ticket reaches %s", async (status) => {
     const ticket = await createTicket(`Ended ${status}`);
+    // COMPLETED is only reachable from READY (ADR 0016).
+    await setStatus(ticket.id, "READY");
     await setStatus(ticket.id, status);
     await ageHistory(ticket.id, 31 * DAY_MS);
 

@@ -23,6 +23,7 @@ export class LocationService {
         ...(dto.contactPhone !== undefined && { contactPhone: dto.contactPhone }),
         ...(dto.contactEmail !== undefined && { contactEmail: dto.contactEmail }),
         ...(dto.logoUrl !== undefined && { logoUrl: dto.logoUrl }),
+        ...(dto.locale !== undefined && { locale: dto.locale }),
       },
     });
   }

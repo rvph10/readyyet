@@ -20,8 +20,8 @@ describe("GET /locations/:locationId/workflow", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `workflow-owner-${stamp}@readyyet.test`);
-    otherCookie = await signInViaOtp(app, prisma, `workflow-other-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+workflow-owner-${stamp}@resend.dev`);
+    otherCookie = await signInViaOtp(app, prisma, `delivered+workflow-other-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -33,6 +33,7 @@ describe("GET /locations/:locationId/workflow", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "shop@workflowtest.test",
+          locale: "EN",
         },
       });
     locationId = created.body.locations[0].id;

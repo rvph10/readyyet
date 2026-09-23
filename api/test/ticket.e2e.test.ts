@@ -20,8 +20,8 @@ describe("Tickets", () => {
     prisma = app.get(PrismaService);
 
     const stamp = Date.now();
-    ownerCookie = await signInViaOtp(app, prisma, `ticket-owner-${stamp}@readyyet.test`);
-    otherCookie = await signInViaOtp(app, prisma, `ticket-other-${stamp}@readyyet.test`);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+ticket-owner-${stamp}@resend.dev`);
+    otherCookie = await signInViaOtp(app, prisma, `delivered+ticket-other-${stamp}@resend.dev`);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -33,6 +33,7 @@ describe("Tickets", () => {
           businessTypeCode: "GARAGE",
           contactPhone: "+12125550123",
           contactEmail: "shop@tickettest.test",
+          locale: "EN",
         },
       });
     locationId = created.body.locations[0].id;
@@ -48,7 +49,7 @@ describe("Tickets", () => {
       .set("Cookie", ownerCookie)
       .send({
         title: "Brake inspection",
-        customer: { fullName: "Alice Driver", email: "alice@example.test" },
+        customer: { fullName: "Alice Driver", email: "delivered+alice@resend.dev" },
       });
 
     expect(response.status).toBe(201);

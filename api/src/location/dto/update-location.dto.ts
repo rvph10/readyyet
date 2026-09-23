@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from "class-validator";
+import { Locale } from "@readyyet/db";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from "class-validator";
 
 export class UpdateLocationDto {
   @IsOptional()
@@ -18,4 +19,8 @@ export class UpdateLocationDto {
   @IsString()
   @IsNotEmpty()
   logoUrl?: string;
+
+  @IsOptional()
+  @IsEnum(Locale)
+  locale?: Locale;
 }

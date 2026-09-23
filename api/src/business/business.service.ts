@@ -53,6 +53,7 @@ export class BusinessService {
       businessTypeId: businessType.id,
       contactPhone: dto.contactPhone,
       contactEmail: dto.contactEmail,
+      locale: dto.locale,
       memberships: { create: { userId: ownerId, role: Role.OWNER } },
     };
   }
