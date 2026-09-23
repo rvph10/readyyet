@@ -104,7 +104,9 @@ describe("Tickets", () => {
   });
 
   it("lists tickets for the location, newest first", async () => {
-    const response = await request(app.getHttpServer()).get(`/locations/${locationId}/tickets`).set("Cookie", ownerCookie);
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
     expect(response.body.length).toBeGreaterThanOrEqual(3);

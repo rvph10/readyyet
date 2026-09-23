@@ -64,7 +64,13 @@ export class EmailService {
     return { html: input.html, text: input.text };
   }
 
-  private async attempt(logId: string, to: string, subject: string, html: string | undefined, text: string | undefined) {
+  private async attempt(
+    logId: string,
+    to: string,
+    subject: string,
+    html: string | undefined,
+    text: string | undefined,
+  ) {
     let lastError = "";
 
     for (let i = 0; i < MAX_IMMEDIATE_ATTEMPTS; i++) {

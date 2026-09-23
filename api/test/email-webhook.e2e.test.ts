@@ -75,7 +75,13 @@ describe("POST /webhooks/resend", () => {
     const payload = JSON.stringify({
       type: "email.delivered",
       created_at: new Date().toISOString(),
-      data: { email_id: log.resendId, created_at: new Date().toISOString(), from: "test@readyyet.test", to: [log.to], subject: log.subject },
+      data: {
+        email_id: log.resendId,
+        created_at: new Date().toISOString(),
+        from: "test@readyyet.test",
+        to: [log.to],
+        subject: log.subject,
+      },
     });
 
     const response = await request(app.getHttpServer())

@@ -45,6 +45,7 @@ jobs:
       - run: pnpm --filter @readyyet/db run generate
       - run: pnpm --filter @readyyet/shared run build
       - run: pnpm lint
+      - run: pnpm format:check
 
   db:
     runs-on: ubuntu-latest

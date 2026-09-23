@@ -66,7 +66,13 @@ export class CustomerService {
     return customer;
   }
 
-  private serialize(customer: { id: bigint; fullName: string; email: string | null; phone: string | null; createdAt: Date }) {
+  private serialize(customer: {
+    id: bigint;
+    fullName: string;
+    email: string | null;
+    phone: string | null;
+    createdAt: Date;
+  }) {
     return {
       id: customer.id.toString(),
       fullName: customer.fullName,

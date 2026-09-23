@@ -37,8 +37,6 @@ describe("createAppValidationPipe", () => {
   it("throws an instance of our ValidationError class", async () => {
     const pipe = createAppValidationPipe();
 
-    await expect(pipe.transform({ email: "not-an-email", name: "" }, metadata)).rejects.toBeInstanceOf(
-      ValidationError,
-    );
+    await expect(pipe.transform({ email: "not-an-email", name: "" }, metadata)).rejects.toBeInstanceOf(ValidationError);
   });
 });

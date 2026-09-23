@@ -34,9 +34,7 @@ describe("workflow scope (business type template XOR location custom)", () => {
 
   it("rejects a workflow with neither business_type_id nor location_id set", async () => {
     await seedFixtures(db);
-    await expect(
-      db.workflow.create({ data: { name: "Invalid" } }),
-    ).rejects.toThrow();
+    await expect(db.workflow.create({ data: { name: "Invalid" } })).rejects.toThrow();
   });
 });
 

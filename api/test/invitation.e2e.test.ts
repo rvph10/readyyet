@@ -86,20 +86,28 @@ describe("Invitations", () => {
   });
 
   it("rejects accepting with a mismatched signed-in user", async () => {
-    const list = await request(app.getHttpServer()).get(`/locations/${locationId}/invitations`).set("Cookie", ownerCookie);
+    const list = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie);
     const invitationId = list.body.find((i: { email: string }) => i.email === employeeEmail).id;
 
-    const response = await request(app.getHttpServer()).post(`/invitations/${invitationId}/accept`).set("Cookie", otherCookie);
+    const response = await request(app.getHttpServer())
+      .post(`/invitations/${invitationId}/accept`)
+      .set("Cookie", otherCookie);
 
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe("UNAUTHORIZED");
   });
 
   it("lets the invited user accept, creating a real membership", async () => {
-    const list = await request(app.getHttpServer()).get(`/locations/${locationId}/invitations`).set("Cookie", ownerCookie);
+    const list = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie);
     const invitationId = list.body.find((i: { email: string }) => i.email === employeeEmail).id;
 
-    const accept = await request(app.getHttpServer()).post(`/invitations/${invitationId}/accept`).set("Cookie", employeeCookie);
+    const accept = await request(app.getHttpServer())
+      .post(`/invitations/${invitationId}/accept`)
+      .set("Cookie", employeeCookie);
     expect(accept.status).toBe(201);
     expect(accept.body.role).toBe("EMPLOYEE");
 
@@ -110,10 +118,14 @@ describe("Invitations", () => {
   });
 
   it("rejects accepting an already-accepted invitation again", async () => {
-    const list = await request(app.getHttpServer()).get(`/locations/${locationId}/invitations`).set("Cookie", ownerCookie);
+    const list = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie);
     const invitationId = list.body.find((i: { email: string }) => i.email === employeeEmail).id;
 
-    const response = await request(app.getHttpServer()).post(`/invitations/${invitationId}/accept`).set("Cookie", employeeCookie);
+    const response = await request(app.getHttpServer())
+      .post(`/invitations/${invitationId}/accept`)
+      .set("Cookie", employeeCookie);
 
     expect(response.status).toBe(409);
     expect(response.body.error.code).toBe("CONFLICT");
@@ -135,7 +147,9 @@ describe("Invitations", () => {
     expect(revoked.status).toBe(201);
     expect(revoked.body.status).toBe("REVOKED");
 
-    const accept = await request(app.getHttpServer()).post(`/invitations/${invitationId}/accept`).set("Cookie", revokeeCookie);
+    const accept = await request(app.getHttpServer())
+      .post(`/invitations/${invitationId}/accept`)
+      .set("Cookie", revokeeCookie);
     expect(accept.status).toBe(409);
   });
 

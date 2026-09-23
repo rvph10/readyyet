@@ -54,7 +54,9 @@ describe("Better Auth email OTP", () => {
 
   it("rejects a wrong OTP", async () => {
     const email = `auth-otp-wrong-${Date.now()}@readyyet.test`;
-    await request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" });
+    await request(app.getHttpServer())
+      .post("/api/auth/email-otp/send-verification-otp")
+      .send({ email, type: "sign-in" });
 
     const response = await request(app.getHttpServer())
       .post("/api/auth/sign-in/email-otp")
@@ -65,7 +67,9 @@ describe("Better Auth email OTP", () => {
 
   it("rejects reusing the same OTP a second time", async () => {
     const email = `auth-otp-reuse-${Date.now()}@readyyet.test`;
-    await request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" });
+    await request(app.getHttpServer())
+      .post("/api/auth/email-otp/send-verification-otp")
+      .send({ email, type: "sign-in" });
     const otp = await readOtp(prisma, email);
 
     const first = await request(app.getHttpServer()).post("/api/auth/sign-in/email-otp").send({ email, otp });

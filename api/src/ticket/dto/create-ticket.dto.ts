@@ -1,5 +1,14 @@
 import { Type } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsNumberString, IsObject, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumberString,
+  IsObject,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 
 export class CreateCustomerDto {
   @IsString()
