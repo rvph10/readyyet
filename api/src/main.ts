@@ -4,6 +4,7 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import express from "express";
 import { Logger } from "nestjs-pino";
 import pinoHttp from "pino-http";
@@ -30,6 +31,22 @@ async function bootstrap() {
   // successful parse, which makes that later json() call skip re-parsing.
   app.use("/webhooks/resend", express.raw({ type: "application/json" }));
   app.useLogger(app.get(Logger));
+
+  // Dev tooling, not something the running app needs, same non-production
+  // gating pino-pretty already uses (pino-http-options.ts).
+  if (process.env.NODE_ENV !== "production") {
+    const config = new DocumentBuilder()
+      .setTitle("ReadyYet API")
+      .setDescription(
+        "Better Auth's own routes (/api/auth/*) aren't included here, they're raw middleware, not Nest controllers. See ADR 0008/0011.",
+      )
+      .setVersion("0.0.0")
+      .addCookieAuth("better-auth.session_token")
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
+
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 }
