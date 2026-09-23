@@ -8,6 +8,7 @@ import { LoggerModule } from "nestjs-pino";
 import { pinoHttpOptions } from "./common/logging/pino-http-options";
 import { auth } from "./auth/auth";
 import { BusinessModule } from "./business/business.module";
+import { CatalogueModule } from "./catalogue/catalogue.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { CustomerModule } from "./customer/customer.module";
@@ -47,6 +48,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     InvitationModule,
     MembershipModule,
     TrackingModule,
+    CatalogueModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes
