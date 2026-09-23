@@ -8,5 +8,9 @@ export default defineConfig({
     // throttle can only keep the suite under that limit if files run one
     // at a time.
     fileParallelism: false,
+    // Above one send's worst case by design: up to 3 attempts against the
+    // real Resend API with 2s of backoff between them (email.service.ts).
+    // The 5s default failed a test whenever Resend was briefly slow.
+    testTimeout: 15_000,
   },
 });
