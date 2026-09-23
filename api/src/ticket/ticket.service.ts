@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
+import { parseBigIntId } from "../common/parse-bigint-id";
 import { WorkflowService } from "../workflow/workflow.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
+import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
 import { generateTrackingCode } from "./tracking-code";
 
@@ -89,7 +91,7 @@ export class TicketService {
   }
 
   async findOne(locationId: string, ticketId: string) {
-    const id = this.parseTicketId(ticketId);
+    const id = parseBigIntId(ticketId, "Ticket");
     const ticket = await this.prisma.ticket.findFirst({
       where: { id, locationId },
       include: {
@@ -113,8 +115,27 @@ export class TicketService {
     };
   }
 
+  async update(locationId: string, ticketId: string, dto: UpdateTicketDto) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+
+    const updated = await this.prisma.ticket.update({
+      where: { id },
+      data: {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.description !== undefined && { description: dto.description }),
+      },
+      include: { customer: true, currentStatus: { include: { translations: true } } },
+    });
+
+    return this.mapDetail(updated);
+  }
+
   async updateStatus(locationId: string, ticketId: string, userId: string, dto: UpdateTicketStatusDto) {
-    const id = this.parseTicketId(ticketId);
+    const id = parseBigIntId(ticketId, "Ticket");
     const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
     if (!ticket) {
       throw new NotFoundError("Ticket not found");
@@ -138,13 +159,6 @@ export class TicketService {
     });
 
     return this.mapDetail(updated);
-  }
-
-  private parseTicketId(ticketId: string): bigint {
-    if (!/^\d+$/.test(ticketId)) {
-      throw new NotFoundError("Ticket not found");
-    }
-    return BigInt(ticketId);
   }
 
   private mapDetail(ticket: {

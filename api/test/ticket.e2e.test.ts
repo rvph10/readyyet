@@ -130,6 +130,41 @@ describe("Tickets", () => {
     expect(response.body.statusEvents[0].status.code).toBe("RECEIVED");
   });
 
+  it("updates a ticket's title and description", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Initial title", customer: { fullName: "Grace Edit" } });
+
+    const patched = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Brake pads worn", description: "Front pads at 2mm, needs replacement" });
+
+    expect(patched.status).toBe(200);
+    expect(patched.body.title).toBe("Brake pads worn");
+    expect(patched.body.description).toBe("Front pads at 2mm, needs replacement");
+
+    const detail = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie);
+    expect(detail.body.title).toBe("Brake pads worn");
+  });
+
+  it("rejects a non-member updating a ticket", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Should not edit", customer: { fullName: "Henry Block" } });
+
+    const response = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", otherCookie)
+      .send({ title: "Hacked" });
+
+    expect(response.status).toBe(403);
+  });
+
   it("moves a ticket to a real step of its workflow", async () => {
     const created = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)

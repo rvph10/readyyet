@@ -6,6 +6,7 @@ import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
+import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
 import { TicketService } from "./ticket.service";
 
@@ -28,6 +29,11 @@ export class TicketController {
   @Get(":ticketId")
   findOne(@Param("locationId") locationId: string, @Param("ticketId") ticketId: string) {
     return this.ticket.findOne(locationId, ticketId);
+  }
+
+  @Patch(":ticketId")
+  update(@Param("locationId") locationId: string, @Param("ticketId") ticketId: string, @Body() dto: UpdateTicketDto) {
+    return this.ticket.update(locationId, ticketId, dto);
   }
 
   @Patch(":ticketId/status")
