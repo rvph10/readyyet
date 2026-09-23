@@ -26,5 +26,5 @@ export async function signInViaOtp(app: INestApplication, prisma: PrismaService,
     .post("/api/auth/sign-in/email-otp")
     .send({ email, otp, name: "Test User" });
 
-  return response.headers["set-cookie"][0] as string;
+  return response.headers["set-cookie"][0];
 }

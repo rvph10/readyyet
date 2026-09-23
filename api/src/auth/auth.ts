@@ -29,6 +29,7 @@ const emailService = new EmailService(prisma);
 // defaulting to Auth<BetterAuthOptions>) doesn't work here, a real
 // generic-variance mismatch in better-auth's own types between the
 // specific inferred Options and the bare BetterAuthOptions default.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const auth: Auth<any> = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   secret: process.env.BETTER_AUTH_SECRET,

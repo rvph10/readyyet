@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { InvitationStatus, Prisma, Role } from "@readyyet/db";
+import { InvitationStatus, Prisma } from "@readyyet/db";
 import type { Invitation, User } from "@readyyet/db";
 import { isUUID } from "class-validator";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../common/errors/app-error";
@@ -114,7 +114,7 @@ export class InvitationService {
         // Express's JSON serializer throws on it (same class of bug as
         // Ticket/Customer/Workflow ids).
         const membership = await tx.membership.create({
-          data: { userId: user.id, locationId: invitation.locationId, role: invitation.role as Role },
+          data: { userId: user.id, locationId: invitation.locationId, role: invitation.role },
         });
         return { ...membership, id: membership.id.toString() };
       } catch (err) {
