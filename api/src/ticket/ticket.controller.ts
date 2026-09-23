@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
@@ -43,7 +43,7 @@ export class TicketController {
   }
 
   @Patch(":ticketId/status")
-  @ApiOperation({ summary: "Move a ticket to a real step of its workflow" })
+  @ApiOperation({ summary: "Move a ticket to another step of its workflow, following ADR 0016's rules" })
   updateStatus(
     @Param("locationId") locationId: string,
     @Param("ticketId") ticketId: string,
@@ -51,5 +51,12 @@ export class TicketController {
     @Body() dto: UpdateTicketStatusDto,
   ) {
     return this.ticket.updateStatus(locationId, ticketId, user.id, dto);
+  }
+
+  @Post(":ticketId/status/undo")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Undo your own latest status change, within 2 minutes (ADR 0016)" })
+  undoStatus(@Param("locationId") locationId: string, @Param("ticketId") ticketId: string, @CurrentUser() user: User) {
+    return this.ticket.undoStatus(locationId, ticketId, user.id);
   }
 }

@@ -105,6 +105,7 @@ describe("Ticket search and filters", () => {
       .set("Cookie", ownerCookie);
 
     await setStatus(ids.oil, "DIAGNOSING");
+    await setStatus(ids.tires, "READY");
     await setStatus(ids.tires, "COMPLETED");
     await setStatus(ids.erased, "CANCELLED");
   });

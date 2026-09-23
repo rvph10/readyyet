@@ -136,6 +136,7 @@ describe("Public tracking", () => {
 
   it("keeps working for 30 days after the ticket ends", async () => {
     const ticket = await createTicket("Exhaust");
+    await setStatus(ticket.id, "READY");
     await setStatus(ticket.id, "COMPLETED");
     await ageHistory(ticket.id, 29 * DAY_MS);
 
@@ -146,6 +147,8 @@ describe("Public tracking", () => {
 
   it.each(["COMPLETED", "CANCELLED", "REJECTED"])("expires 30 days after the ticket reaches %s", async (status) => {
     const ticket = await createTicket(`Ended ${status}`);
+    // COMPLETED is only reachable from READY (ADR 0016).
+    await setStatus(ticket.id, "READY");
     await setStatus(ticket.id, status);
     await ageHistory(ticket.id, 31 * DAY_MS);
 

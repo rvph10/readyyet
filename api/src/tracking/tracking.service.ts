@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ENDED_STATUS_CODES } from "@readyyet/shared";
+import { isEndedStatus } from "@readyyet/shared";
 import { NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/public-status-select";
 import { PrismaService } from "../database/prisma.service";
@@ -57,7 +57,7 @@ export class TrackingService {
   }
 
   private isExpired(ticket: { currentStatus: { code: string }; statusEvents: { createdAt: Date }[] }) {
-    if (!(ENDED_STATUS_CODES as readonly string[]).includes(ticket.currentStatus.code)) {
+    if (!isEndedStatus(ticket.currentStatus.code)) {
       return false;
     }
     // Every status change writes an event (the ticket's first one included),
