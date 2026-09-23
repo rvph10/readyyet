@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ENDED_STATUS_CODES } from "@readyyet/shared";
 import { NotFoundError } from "../common/errors/app-error";
+import { publicStatusSelect } from "../common/public-status-select";
 import { PrismaService } from "../database/prisma.service";
 
 // A tracking link stops working this long after the ticket ends, see
 // docs/decisions/0013-public-tracking-endpoint.md.
 const LINK_LIFETIME_AFTER_END_MS = 30 * 24 * 60 * 60 * 1000;
-
-const publicStatus = { select: { code: true, translations: { select: { locale: true, label: true } } } } as const;
 
 @Injectable()
 export class TrackingService {
@@ -26,13 +25,13 @@ export class TrackingService {
         location: {
           select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, deletedAt: true },
         },
-        currentStatus: publicStatus,
+        currentStatus: publicStatusSelect,
         workflow: {
-          select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatus } } },
+          select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatusSelect } } },
         },
         statusEvents: {
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-          select: { createdAt: true, status: publicStatus },
+          select: { createdAt: true, status: publicStatusSelect },
         },
       },
     });
