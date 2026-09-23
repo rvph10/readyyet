@@ -112,6 +112,21 @@ describe("EmailService", () => {
     expect(sent.mock.lastCall![0].from).toMatch(/^"Evil Shop Bcc: victim@example.test" </);
   });
 
+  it("sends extra headers and keeps them for a retry", async () => {
+    const headers = { "List-Unsubscribe": "<https://api.readyyet.test/stop>" };
+    const log = await email.send({
+      to: "delivered@resend.dev",
+      subject: "readyyet headers test",
+      type: "test",
+      html: "<p>Headers check.</p>",
+      headers,
+    });
+
+    expect(log.status).toBe("SENT");
+    expect(log.headers).toEqual(headers);
+    expect(sent.mock.lastCall![0].headers).toEqual(headers);
+  });
+
   it("throws when no content is provided", async () => {
     await expect(email.send({ to: "delivered@resend.dev", subject: "Empty", type: "test" })).rejects.toThrow(
       /requires one of react, html, or text/,

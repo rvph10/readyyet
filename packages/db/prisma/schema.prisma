@@ -361,6 +361,8 @@ model EmailLog {
   // Kept so a retry sends from the same name, with the same Reply-To.
   fromName      String?     @map("from_name")
   replyTo       String?     @map("reply_to")
+  // Extra headers (List-Unsubscribe), a flat name to value object.
+  headers       Json?
   subject       String
   // react content is rendered to html at send time and stored here, so a
   // later retry (a fresh process, possibly minutes later) has the exact

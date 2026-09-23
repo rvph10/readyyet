@@ -29,9 +29,10 @@ export interface SendEmailInput {
   // EMAIL_FROM's (it's the one verified in Resend).
   fromName?: string;
   replyTo?: string;
+  headers?: Record<string, string>;
 }
 
-type StoredMessage = Pick<EmailLog, "id" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo">;
+type StoredMessage = Pick<EmailLog, "id" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers">;
 
 // fromName is user input (a Location's name): quoted so a comma or angle
 // bracket in it can't be read as another address, and line breaks
@@ -68,6 +69,7 @@ export class EmailService {
         text,
         fromName: input.fromName,
         replyTo: input.replyTo,
+        headers: input.headers,
         status: EmailStatus.QUEUED,
       },
     });
@@ -110,6 +112,7 @@ export class EmailService {
             to,
             subject,
             ...(message.replyTo && { replyTo: message.replyTo }),
+            ...(message.headers && { headers: message.headers as Record<string, string> }),
             ...(html ? { html } : { text: text! }),
           },
           { idempotencyKey: logId },
