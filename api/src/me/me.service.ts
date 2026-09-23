@@ -7,7 +7,7 @@ export class MeService {
 
   async getMemberships(userId: string) {
     return this.prisma.membership.findMany({
-      where: { userId },
+      where: { userId, location: { deletedAt: null } },
       select: {
         role: true,
         location: {

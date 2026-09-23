@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { InvitationStatus } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { UpdateLocationDto } from "./dto/update-location.dto";
@@ -26,5 +27,19 @@ export class LocationService {
         ...(dto.locale !== undefined && { locale: dto.locale }),
       },
     });
+  }
+
+  // A soft delete, final in v1 (ADR 0017): tickets are permanent records.
+  // The guard, tracking page and customer emails all treat a deleted
+  // Location as gone, this only clears what would otherwise linger.
+  async remove(locationId: string) {
+    await this.prisma.$transaction([
+      this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
+      this.prisma.invitation.updateMany({
+        where: { locationId, status: InvitationStatus.PENDING },
+        data: { status: InvitationStatus.REVOKED },
+      }),
+      this.prisma.pendingStatusNotification.deleteMany({ where: { statusEvent: { ticket: { locationId } } } }),
+    ]);
   }
 }

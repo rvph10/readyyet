@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
@@ -25,5 +25,14 @@ export class LocationController {
   @ApiOperation({ summary: "Update a location's settings" })
   update(@Param("locationId") locationId: string, @Body() dto: UpdateLocationDto) {
     return this.location.update(locationId, dto);
+  }
+
+  @Delete(":locationId")
+  @LocationRoles(Role.OWNER)
+  @UseGuards(LocationMembershipGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete a location for good, owner only (ADR 0017)" })
+  remove(@Param("locationId") locationId: string) {
+    return this.location.remove(locationId);
   }
 }
