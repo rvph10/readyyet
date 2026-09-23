@@ -41,7 +41,7 @@ Verification (Better Auth, standalone, no relation to User)
 
 ## Access model
 
-`Membership(user_id, location_id, role)` is the only access-control table. A `Business` owner gets an implicit `OWNER` membership row on every `Location` created under their business (kept in sync on ownership transfer), rather than a separate `Business.ownerId` check, so every authorization guard checks the same thing: "does this user have a membership at this location, and what role." See `docs/decisions/0002-location-scoped-membership.md`.
+`Membership(user_id, location_id, role)` is the only access-control table. A `Business` owner gets an implicit `OWNER` membership row on every `Location` created under their business (kept in sync on ownership transfer, ADR 0017), rather than a separate `Business.ownerId` check, so every authorization guard checks the same thing: "does this user have a membership at this location, and what role." See `docs/decisions/0002-location-scoped-membership.md`.
 
 ## Workflow versioning
 
