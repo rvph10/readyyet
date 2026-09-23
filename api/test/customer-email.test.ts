@@ -16,6 +16,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
   return {
     kind: "READY",
     locale: "EN",
+    businessTypeCode: "GARAGE",
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
     location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test" },
@@ -51,10 +52,38 @@ describe("Customer emails", () => {
     });
   });
 
-  it("writes French with French wording", () => {
-    const { subject } = buildCustomerEmail(input({ kind: "READY", locale: "FR" }));
+  describe("names the job after the business type", () => {
+    it.each([
+      ["GARAGE", "EN", "Your repair at Joe's Garage is ready"],
+      ["TAILORING", "EN", "Your alteration at Joe's Garage is ready"],
+      ["OTHER", "EN", "Your job at Joe's Garage is ready"],
+      ["GARAGE", "FR", "Votre réparation chez Joe's Garage est prête"],
+      ["TAILORING", "FR", "Votre retouche chez Joe's Garage est prête"],
+      ["PRESSING", "FR", "Votre dépôt chez Joe's Garage est prêt"],
+      ["FRAMING", "FR", "Votre encadrement chez Joe's Garage est prêt"],
+      ["OTHER", "FR", "Votre dépôt chez Joe's Garage est prêt"],
+    ] as const)("%s in %s", (businessTypeCode, locale, subject) => {
+      expect(buildCustomerEmail(input({ kind: "READY", locale, businessTypeCode })).subject).toBe(subject);
+    });
 
-    expect(subject).toBe("Votre dépôt chez Joe's Garage est prêt");
+    it("falls back to the default word for a business type it doesn't know", () => {
+      const { subject } = buildCustomerEmail(input({ kind: "CANCELLED", locale: "FR", businessTypeCode: "NEW_TYPE" }));
+
+      expect(subject).toBe("Votre dépôt chez Joe's Garage a été annulé");
+    });
+
+    it.each([
+      ["TAILORING", ["Suivre ma retouche", "pour cette retouche", "venir la récupérer", "est prête"]],
+      ["PRESSING", ["Suivre mon dépôt", "pour ce dépôt", "venir le récupérer", "est prêt"]],
+      ["FRAMING", ["Suivre mon encadrement", "pour cet encadrement", "venir le récupérer", "est prêt"]],
+    ] as const)("makes French agree with the %s noun", async (businessTypeCode, phrases) => {
+      const { react } = buildCustomerEmail(input({ kind: "READY", locale: "FR", businessTypeCode }));
+      const text = (await render(react, { plainText: true })).replace(/\s+/g, " ");
+
+      for (const phrase of phrases) {
+        expect(text).toContain(phrase);
+      }
+    });
   });
 
   it("escapes user-entered text instead of rendering it as HTML", async () => {

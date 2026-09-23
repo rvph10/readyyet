@@ -11,11 +11,13 @@ import { Section } from "@react-email/section";
 import { Text } from "@react-email/text";
 import type { Locale } from "@readyyet/db";
 import type { ReactElement } from "react";
-import { type CustomerEmailKind, MESSAGES } from "./messages";
+import { type CustomerEmailKind, jobNoun, MESSAGES } from "./messages";
 
 export interface CustomerEmailInput {
   kind: CustomerEmailKind;
   locale: Locale;
+  // Picks the word for the job ("repair", "retouche"...), see messages.ts.
+  businessTypeCode: string;
   customerName: string;
   ticketTitle: string;
   location: { name: string; contactPhone: string; contactEmail: string };
@@ -44,7 +46,8 @@ const styles = {
 
 function CustomerEmail({ input }: { input: CustomerEmailInput }) {
   const messages = MESSAGES[input.locale];
-  const params = { location: input.location.name, title: input.ticketTitle };
+  const job = jobNoun(input.locale, input.businessTypeCode);
+  const params = { location: input.location.name, title: input.ticketTitle, job };
   const body = messages.kinds[input.kind].body(params);
 
   return (
@@ -60,7 +63,7 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
           <Text style={styles.text}>{body}</Text>
           <Section style={{ margin: "24px 0" }}>
             <Button href={input.trackingUrl} style={styles.button}>
-              {messages.trackButton}
+              {messages.trackButton(job)}
             </Button>
           </Section>
           <Hr />
@@ -72,7 +75,8 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
           </Text>
           <Hr />
           <Text style={styles.footer}>
-            {messages.footer(input.location.name)} <Link href={input.stopUpdatesUrl}>{messages.stopUpdates}</Link>
+            {messages.footer({ location: input.location.name, job })}{" "}
+            <Link href={input.stopUpdatesUrl}>{messages.stopUpdates(job)}</Link>
           </Text>
         </Container>
       </Body>
@@ -84,6 +88,7 @@ export function buildCustomerEmail(input: CustomerEmailInput): { subject: string
   const subject = MESSAGES[input.locale].kinds[input.kind].subject({
     location: input.location.name,
     title: input.ticketTitle,
+    job: jobNoun(input.locale, input.businessTypeCode),
   });
   // A subject is a single header line, a line break in a Location's name
   // must not become a second header.
