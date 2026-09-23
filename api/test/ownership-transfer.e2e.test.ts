@@ -96,6 +96,35 @@ describe("Transferring a business's ownership", () => {
     expect(await rolesOf(owner.id, locationIds)).toEqual([Role.ADMIN, Role.ADMIN]);
   });
 
+  it("emails both people, each in their own language", async () => {
+    const { admin, businessId } = await setUp();
+    await prisma.user.update({ where: { id: admin.id }, data: { locale: "FR" } });
+
+    await transfer(owner.cookie, businessId, admin.id);
+
+    const received = await prisma.emailLog.findFirstOrThrow({ where: { to: admin.email, type: "ownership_received" } });
+    expect(received.subject).toBe("Vous êtes maintenant propriétaire de Transfer Test sur ReadyYet");
+    const sent = await prisma.emailLog.findFirstOrThrow({
+      where: {
+        to: (await prisma.user.findUniqueOrThrow({ where: { id: owner.id } })).email,
+        type: "ownership_transferred",
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(sent.subject).toBe("You transferred Transfer Test to admin");
+    expect(sent.text).toContain(admin.email);
+  });
+
+  it("emails nobody when the transfer is refused", async () => {
+    const { businessId, locationIds } = await setUp();
+    const employee = await createUser("unsent");
+    await prisma.membership.create({ data: { userId: employee.id, locationId: locationIds[0], role: Role.EMPLOYEE } });
+
+    await transfer(owner.cookie, businessId, employee.id);
+
+    expect(await prisma.emailLog.count({ where: { to: employee.email } })).toBe(0);
+  });
+
   it("hands over what only the owner can do", async () => {
     const { businessId, locationIds } = await setUp();
     const admin = await signIn("new-owner");

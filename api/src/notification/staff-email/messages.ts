@@ -9,6 +9,13 @@ interface InvitationParams {
   expiresInDays: number;
 }
 
+interface TransferParams {
+  business: string;
+  previousOwner: string;
+  newOwner: string;
+  newOwnerEmail: string;
+}
+
 interface StaffMessages {
   signInCode: {
     subject: string;
@@ -24,6 +31,18 @@ interface StaffMessages {
     button: string;
     expiry: (params: InvitationParams) => string;
     ignore: string;
+  };
+  newOwner: {
+    subject: (params: TransferParams) => string;
+    body: (params: TransferParams) => string;
+    powers: string;
+    button: string;
+  };
+  previousOwner: {
+    subject: (params: TransferParams) => string;
+    body: (params: TransferParams) => string;
+    stillAdmin: string;
+    notYou: string;
   };
 }
 
@@ -50,6 +69,21 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       expiry: ({ expiresInDays }) => `This invitation expires in ${expiresInDays} days.`,
       ignore: "If you weren't expecting this invitation, you can ignore this email.",
     },
+    newOwner: {
+      subject: ({ business }) => `You're now the owner of ${business} on ReadyYet`,
+      body: ({ business, previousOwner }) =>
+        `${previousOwner} transferred ${business} to you, you're now its owner at every one of its locations.`,
+      powers:
+        "As the owner, you alone can add or delete locations, make someone an admin or remove one, and transfer the business.",
+      button: "Open ReadyYet",
+    },
+    previousOwner: {
+      subject: ({ business, newOwner }) => `You transferred ${business} to ${newOwner}`,
+      body: ({ business, newOwner, newOwnerEmail }) =>
+        `${business} now belongs to ${newOwner} (${newOwnerEmail}), as you asked.`,
+      stillAdmin: "You remain an admin at each of its locations, until you choose to leave them.",
+      notYou: "If you didn't make this transfer, reply to this email right away.",
+    },
   },
   FR: {
     signInCode: {
@@ -68,6 +102,22 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       button: "Accepter l'invitation",
       expiry: ({ expiresInDays }) => `Cette invitation expire dans ${expiresInDays}\u00a0jours.`,
       ignore: "Si vous ne vous attendiez pas à cette invitation, ignorez cet e-mail.",
+    },
+    newOwner: {
+      subject: ({ business }) => `Vous êtes maintenant propriétaire de ${business} sur ReadyYet`,
+      body: ({ business, previousOwner }) =>
+        `${previousOwner} vous a transféré ${business}, vous en êtes maintenant propriétaire, dans chacun de ses établissements.`,
+      powers:
+        "En tant que propriétaire, vous seul pouvez ajouter ou supprimer un établissement, nommer ou retirer un administrateur, et transférer l'entreprise.",
+      button: "Ouvrir ReadyYet",
+    },
+    previousOwner: {
+      subject: ({ business, newOwner }) => `Vous avez transféré ${business} à ${newOwner}`,
+      body: ({ business, newOwner, newOwnerEmail }) =>
+        `${business} appartient désormais à ${newOwner} (${newOwnerEmail}), comme vous l'avez demandé.`,
+      stillAdmin:
+        "Vous restez administrateur de chacun de ses établissements, jusqu'à ce que vous choisissiez de les quitter.",
+      notYou: "Si vous n'êtes pas à l'origine de ce transfert, répondez à cet e-mail sans attendre.",
     },
   },
 };
