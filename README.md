@@ -53,7 +53,7 @@ pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012.
 
 ## CI
 
