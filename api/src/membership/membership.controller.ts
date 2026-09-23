@@ -21,6 +21,16 @@ export class MembershipController {
     return this.membership.list(locationId);
   }
 
+  // Declared before :membershipId so "me" isn't read as an id. Open to
+  // every role, unlike the rest of this controller.
+  @Delete("me")
+  @LocationRoles(Role.OWNER, Role.ADMIN, Role.EMPLOYEE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Leave this location, removing your own membership (not the owner, ADR 0017)" })
+  leave(@Param("locationId") locationId: string, @CurrentUser() user: User) {
+    return this.membership.leave(locationId, user.id);
+  }
+
   @Patch(":membershipId")
   @ApiOperation({ summary: "Change a member's role between ADMIN and EMPLOYEE (owner only, ADR 0017)" })
   updateRole(

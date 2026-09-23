@@ -44,6 +44,13 @@ export class MembershipService {
     await this.prisma.membership.delete({ where: { id: membership.id } });
   }
 
+  async leave(locationId: string, userId: string) {
+    if ((await roleAt(this.prisma, userId, locationId)) === Role.OWNER) {
+      throw new ConflictError("The owner can't leave, transfer ownership of the business first");
+    }
+    await this.prisma.membership.delete({ where: { userId_locationId: { userId, locationId } } });
+  }
+
   private async loadInLocation(locationId: string, membershipId: string) {
     const id = parseBigIntId(membershipId, "Membership");
     const membership = await this.prisma.membership.findFirst({ where: { id, locationId } });

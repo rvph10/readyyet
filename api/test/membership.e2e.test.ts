@@ -2,6 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
+import { Role } from "@readyyet/db";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -127,5 +128,41 @@ describe("Memberships", () => {
 
     const location = await request(app.getHttpServer()).get(`/locations/${locationId}`).set("Cookie", employeeCookie);
     expect(location.status).toBe(403);
+  });
+
+  describe("leaving", () => {
+    function leave(cookie: string) {
+      return request(app.getHttpServer()).delete(`/locations/${locationId}/memberships/me`).set("Cookie", cookie);
+    }
+
+    async function addMember(label: string, role: Role) {
+      const email = `delivered+membership-${label}-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+      await prisma.membership.create({ data: { userId: user.id, locationId, role } });
+      return cookie;
+    }
+
+    it.each([Role.EMPLOYEE, Role.ADMIN])("lets an %s leave, losing access", async (role) => {
+      const cookie = await addMember(`leaving-${role.toLowerCase()}`, role);
+
+      expect((await leave(cookie)).status).toBe(204);
+
+      const location = await request(app.getHttpServer()).get(`/locations/${locationId}`).set("Cookie", cookie);
+      expect(location.status).toBe(403);
+    });
+
+    it("doesn't let the owner leave", async () => {
+      const response = await leave(ownerCookie);
+
+      expect(response.status).toBe(409);
+      expect(await prisma.membership.count({ where: { id: BigInt(ownerMembershipId) } })).toBe(1);
+    });
+
+    it("rejects someone who isn't a member", async () => {
+      const outsider = await signInViaOtp(app, prisma, `delivered+membership-outsider-${Date.now()}@resend.dev`);
+
+      expect((await leave(outsider)).status).toBe(403);
+    });
   });
 });
