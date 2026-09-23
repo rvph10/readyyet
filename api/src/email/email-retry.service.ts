@@ -30,7 +30,7 @@ export class EmailRetryService {
 
     for (const log of stuck) {
       this.logger.log(`Retrying email ${log.id} (attempts so far: ${log.attempts})`);
-      await this.email.retry(log.id, log.to, log.subject, log.html, log.text);
+      await this.email.retry(log);
     }
   }
 }

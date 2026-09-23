@@ -2,9 +2,10 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { EmailStatus } from "@readyyet/db";
 import { EmailRetryService } from "../src/email/email-retry.service";
+import { getResendClient } from "../src/email/resend-client";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 
@@ -12,6 +13,8 @@ describe("EmailRetryService", () => {
   let app: INestApplication;
   let retry: EmailRetryService;
   let prisma: PrismaService;
+
+  const sent = vi.spyOn(getResendClient().emails, "send");
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -43,6 +46,34 @@ describe("EmailRetryService", () => {
     expect(updated.status).toBe("SENT");
     expect(updated.resendId).toBeTruthy();
     expect(updated.attempts).toBeGreaterThan(1);
+  });
+
+  it("retries with the same display name and Reply-To as the original send", async () => {
+    const stuck = await prisma.emailLog.create({
+      data: {
+        to: "delivered@resend.dev",
+        subject: "readyyet retry sender test",
+        html: "<p>Should keep its sender.</p>",
+        fromName: "Retry Shop via ReadyYet",
+        replyTo: "retry@shop.test",
+        type: "test",
+        status: EmailStatus.FAILED,
+        attempts: 1,
+        lastError: "simulated failure",
+        lastAttemptAt: new Date(Date.now() - 5 * 60_000),
+      },
+    });
+
+    await retry.sweep();
+
+    const updated = await prisma.emailLog.findUniqueOrThrow({ where: { id: stuck.id } });
+    expect(updated.status).toBe("SENT");
+    // Checked on what the SDK was handed, see the same spy in email.e2e.test.ts.
+    const call = sent.mock.calls.find(([message]) => message.subject === "readyyet retry sender test");
+    expect(call![0]).toMatchObject({
+      from: expect.stringMatching(/^"Retry Shop via ReadyYet" </),
+      replyTo: "retry@shop.test",
+    });
   });
 
   it("does not retry a FAILED row still inside its cooldown window", async () => {

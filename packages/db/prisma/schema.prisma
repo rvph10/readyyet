@@ -356,6 +356,9 @@ model EmailLog {
   id            String      @id @default(uuid()) @db.Uuid
   resendId      String?     @unique @map("resend_id")
   to            String
+  // Kept so a retry sends from the same name, with the same Reply-To.
+  fromName      String?     @map("from_name")
+  replyTo       String?     @map("reply_to")
   subject       String
   // react content is rendered to html at send time and stored here, so a
   // later retry (a fresh process, possibly minutes later) has the exact

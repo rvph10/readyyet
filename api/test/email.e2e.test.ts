@@ -2,8 +2,9 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { EmailService } from "../src/email/email.service";
+import { getResendClient } from "../src/email/resend-client";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 
@@ -15,6 +16,11 @@ describe("EmailService", () => {
   let app: INestApplication;
   let email: EmailService;
   let prisma: PrismaService;
+
+  // The test API key can only send, not read emails back, so what we hand
+  // the SDK is checked instead. The real send still happens, Resend
+  // accepting it (SENT) confirms the headers are valid.
+  const sent = vi.spyOn(getResendClient().emails, "send");
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -69,6 +75,41 @@ describe("EmailService", () => {
     // itself is a delivery event that would arrive via the webhook, not
     // synchronously here, so this only confirms the send-side SENT status.
     expect(log.status).toBe("SENT");
+  });
+
+  it("sends under the given display name, from EMAIL_FROM's address, with a Reply-To", async () => {
+    const log = await email.send({
+      to: "delivered@resend.dev",
+      subject: "readyyet sender test",
+      type: "test",
+      html: "<p>Sender check.</p>",
+      fromName: 'Joe\'s Garage, "Downtown" via ReadyYet',
+      replyTo: "shop@joesgarage.test",
+    });
+
+    const stored = await prisma.emailLog.findUniqueOrThrow({ where: { id: log.id } });
+    expect(stored.fromName).toBe('Joe\'s Garage, "Downtown" via ReadyYet');
+    expect(stored.replyTo).toBe("shop@joesgarage.test");
+
+    expect(log.status).toBe("SENT");
+    const address = /<([^>]+)>/.exec(process.env.EMAIL_FROM as string)![1];
+    expect(sent.mock.lastCall![0]).toMatchObject({
+      from: `"Joe's Garage, \\"Downtown\\" via ReadyYet" <${address}>`,
+      replyTo: "shop@joesgarage.test",
+    });
+  });
+
+  it("keeps a display name to one line, so it can't add a header", async () => {
+    const log = await email.send({
+      to: "delivered@resend.dev",
+      subject: "readyyet sender injection test",
+      type: "test",
+      html: "<p>Injection check.</p>",
+      fromName: "Evil Shop\r\nBcc: victim@example.test",
+    });
+
+    expect(log.status).toBe("SENT");
+    expect(sent.mock.lastCall![0].from).toMatch(/^"Evil Shop Bcc: victim@example.test" </);
   });
 
   it("throws when no content is provided", async () => {
