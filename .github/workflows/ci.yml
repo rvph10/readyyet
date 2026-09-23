@@ -28,6 +28,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
 
+    # prisma.config.ts requires DATABASE_URL to be set even for
+    # `prisma generate`, which never connects, so no Postgres service here.
+    env:
+      DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+
     steps:
       - uses: actions/checkout@v7
 
