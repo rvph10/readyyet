@@ -32,7 +32,9 @@ import { WorkflowModule } from "./workflow/workflow.module";
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
-    AuthModule.forRoot({ auth }),
+    // CORS is applied app-wide in common/http-middleware.ts instead, see
+    // the comment there.
+    AuthModule.forRoot({ auth, disableTrustedOriginsCors: true }),
     HealthModule,
     BusinessModule,
     LocationModule,
