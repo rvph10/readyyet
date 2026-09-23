@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -16,7 +17,7 @@ export class InvitationController {
   constructor(private readonly invitation: InvitationService) {}
 
   @Post()
-  @ApiOperation({ summary: "Invite someone by email to a location with a role" })
+  @ApiOperation({ summary: "Invite someone by email to a location with a role (an admin invites employees only)" })
   create(@Param("locationId") locationId: string, @CurrentUser() user: User, @Body() dto: CreateInvitationDto) {
     return this.invitation.create(locationId, user.id, dto);
   }
@@ -28,8 +29,25 @@ export class InvitationController {
   }
 
   @Post(":invitationId/revoke")
-  @ApiOperation({ summary: "Revoke a pending invitation" })
-  revoke(@Param("locationId") locationId: string, @Param("invitationId") invitationId: string) {
-    return this.invitation.revoke(locationId, invitationId);
+  @ApiOperation({ summary: "Revoke a pending invitation (an admin revokes employee invitations only)" })
+  revoke(
+    @Param("locationId") locationId: string,
+    @Param("invitationId") invitationId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.invitation.revoke(locationId, user.id, invitationId);
+  }
+
+  @Post(":invitationId/resend")
+  @HttpCode(200)
+  // Each call sends an email, same limit as resending a tracking link.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: "Email a pending invitation again, extending its expiry (ADR 0017)" })
+  resend(
+    @Param("locationId") locationId: string,
+    @Param("invitationId") invitationId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.invitation.resend(locationId, user.id, invitationId);
   }
 }

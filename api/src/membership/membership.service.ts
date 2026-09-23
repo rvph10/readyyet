@@ -4,6 +4,7 @@ import { ConflictError, NotFoundError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
 import { PrismaService } from "../database/prisma.service";
 import { UpdateMembershipRoleDto } from "./dto/update-membership-role.dto";
+import { assertCanManage, roleAt } from "./team-rules";
 
 @Injectable()
 export class MembershipService {
@@ -18,11 +19,12 @@ export class MembershipService {
     return memberships.map((membership) => ({ ...membership, id: membership.id.toString() }));
   }
 
-  async updateRole(locationId: string, membershipId: string, dto: UpdateMembershipRoleDto) {
+  async updateRole(locationId: string, actorId: string, membershipId: string, dto: UpdateMembershipRoleDto) {
     const membership = await this.loadInLocation(locationId, membershipId);
     if (membership.role === Role.OWNER) {
       throw new ConflictError("The owner's membership can't be changed here");
     }
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), membership.role, dto.role);
 
     const updated = await this.prisma.membership.update({
       where: { id: membership.id },
@@ -32,13 +34,21 @@ export class MembershipService {
     return { ...updated, id: updated.id.toString() };
   }
 
-  async remove(locationId: string, membershipId: string) {
+  async remove(locationId: string, actorId: string, membershipId: string) {
     const membership = await this.loadInLocation(locationId, membershipId);
     if (membership.role === Role.OWNER) {
       throw new ConflictError("The owner's membership can't be removed");
     }
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), membership.role);
 
     await this.prisma.membership.delete({ where: { id: membership.id } });
+  }
+
+  async leave(locationId: string, userId: string) {
+    if ((await roleAt(this.prisma, userId, locationId)) === Role.OWNER) {
+      throw new ConflictError("The owner can't leave, transfer ownership of the business first");
+    }
+    await this.prisma.membership.delete({ where: { userId_locationId: { userId, locationId } } });
   }
 
   private async loadInLocation(locationId: string, membershipId: string) {

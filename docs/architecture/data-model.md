@@ -41,7 +41,7 @@ Verification (Better Auth, standalone, no relation to User)
 
 ## Access model
 
-`Membership(user_id, location_id, role)` is the only access-control table. A `Business` owner gets an implicit `OWNER` membership row on every `Location` created under their business (kept in sync on ownership transfer), rather than a separate `Business.ownerId` check, so every authorization guard checks the same thing: "does this user have a membership at this location, and what role." See `docs/decisions/0002-location-scoped-membership.md`.
+`Membership(user_id, location_id, role)` is the only access-control table. A `Business` owner gets an implicit `OWNER` membership row on every `Location` created under their business (kept in sync on ownership transfer, ADR 0017), rather than a separate `Business.ownerId` check, so every authorization guard checks the same thing: "does this user have a membership at this location, and what role." See `docs/decisions/0002-location-scoped-membership.md`.
 
 ## Workflow versioning
 
@@ -50,6 +50,10 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 ## GDPR erasure
 
 `Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
+
+## Deleted Locations
+
+`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Nothing under a deleted Location is removed, tickets are permanent records. Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
 
 ## Tenant-scoped foreign keys
 

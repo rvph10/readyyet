@@ -28,8 +28,9 @@ export class LocationMembershipGuard implements CanActivate {
       throw new NotFoundError("Location not found");
     }
 
+    // A deleted Location is gone for everyone, its members included (ADR 0017).
     const location = await this.prisma.location.findUnique({ where: { id: locationId } });
-    if (!location) {
+    if (!location || location.deletedAt) {
       throw new NotFoundError("Location not found");
     }
 

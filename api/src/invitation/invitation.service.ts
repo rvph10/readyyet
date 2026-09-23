@@ -5,6 +5,7 @@ import { isUUID } from "class-validator";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
+import { assertCanManage, roleAt } from "../membership/team-rules";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -19,6 +20,8 @@ export class InvitationService {
   ) {}
 
   async create(locationId: string, inviterId: string, dto: CreateInvitationDto) {
+    assertCanManage(await roleAt(this.prisma, inviterId, locationId), dto.role);
+
     const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existingUser) {
       const existingMembership = await this.prisma.membership.findUnique({
@@ -28,6 +31,18 @@ export class InvitationService {
         throw new ConflictError("This person is already a member of this location");
       }
     }
+
+    // Expiry is otherwise only recorded on accept, and a stale PENDING row
+    // would keep the one-pending-per-email index from allowing this one.
+    await this.prisma.invitation.updateMany({
+      where: {
+        locationId,
+        email: { equals: dto.email, mode: "insensitive" },
+        status: InvitationStatus.PENDING,
+        expiresAt: { lt: new Date() },
+      },
+      data: { status: InvitationStatus.EXPIRED },
+    });
 
     let invitation: Invitation;
     try {
@@ -58,17 +73,9 @@ export class InvitationService {
     return this.prisma.invitation.findMany({ where: { locationId }, orderBy: { createdAt: "desc" } });
   }
 
-  async revoke(locationId: string, invitationId: string) {
-    // Invitation.id is a Postgres uuid column, a non-UUID value would
-    // otherwise surface as a raw DB error, not a clean 404 (same reasoning
-    // as LocationMembershipGuard's own isUUID check).
-    if (!isUUID(invitationId)) {
-      throw new NotFoundError("Invitation not found");
-    }
-    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, locationId } });
-    if (!invitation) {
-      throw new NotFoundError("Invitation not found");
-    }
+  async revoke(locationId: string, actorId: string, invitationId: string) {
+    const invitation = await this.loadInLocation(locationId, invitationId);
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), invitation.role);
     if (invitation.status !== InvitationStatus.PENDING) {
       throw new ConflictError("Only a pending invitation can be revoked");
     }
@@ -77,6 +84,24 @@ export class InvitationService {
       where: { id: invitationId },
       data: { status: InvitationStatus.REVOKED },
     });
+  }
+
+  // Sends the same link again and gives it a fresh 7 days (ADR 0017).
+  async resend(locationId: string, actorId: string, invitationId: string) {
+    const invitation = await this.loadInLocation(locationId, invitationId);
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), invitation.role);
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      throw new ConflictError("Only a pending invitation can be resent, send a new one instead");
+    }
+
+    const updated = await this.prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { expiresAt: new Date(Date.now() + INVITATION_TTL_MS) },
+    });
+    this.sendInviteEmail(updated).catch((err) => {
+      this.logger.error(`Failed to resend invitation email for ${updated.id}`, err instanceof Error ? err.stack : err);
+    });
+    return updated;
   }
 
   async accept(invitationId: string, user: User) {
@@ -124,6 +149,20 @@ export class InvitationService {
         throw err;
       }
     });
+  }
+
+  private async loadInLocation(locationId: string, invitationId: string) {
+    // Invitation.id is a Postgres uuid column, a non-UUID value would
+    // otherwise surface as a raw DB error, not a clean 404 (same reasoning
+    // as LocationMembershipGuard's own isUUID check).
+    if (!isUUID(invitationId)) {
+      throw new NotFoundError("Invitation not found");
+    }
+    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, locationId } });
+    if (!invitation) {
+      throw new NotFoundError("Invitation not found");
+    }
+    return invitation;
   }
 
   private async sendInviteEmail(invitation: Invitation) {
