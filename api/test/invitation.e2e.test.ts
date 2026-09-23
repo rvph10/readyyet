@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
@@ -161,5 +161,75 @@ describe("Invitations", () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("NOT_FOUND");
+  });
+
+  describe("resending", () => {
+    const address = (label: string) => `delivered+invite-resend-${Date.now()}-${label}@resend.dev`;
+
+    function invite(email: string) {
+      return request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email, role: "EMPLOYEE" });
+    }
+
+    function resend(invitationId: string) {
+      return request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations/${invitationId}/resend`)
+        .set("Cookie", ownerCookie);
+    }
+
+    function lapse(invitationId: string) {
+      return prisma.invitation.update({
+        where: { id: invitationId },
+        data: { expiresAt: new Date(Date.now() - 1000) },
+      });
+    }
+
+    it("emails a pending invitation again and gives it a fresh 7 days", async () => {
+      const email = address("pending");
+      const invitation = await invite(email);
+      await prisma.invitation.update({
+        where: { id: invitation.body.id },
+        data: { expiresAt: new Date(Date.now() + 60_000) },
+      });
+
+      const response = await resend(invitation.body.id);
+
+      expect(response.status).toBe(200);
+      const expiresIn = new Date(response.body.expiresAt).getTime() - Date.now();
+      expect(expiresIn).toBeGreaterThan(7 * 24 * 60 * 60 * 1000 - 60_000);
+      // The email is sent after the response, like the first one.
+      await vi.waitFor(async () => expect(await prisma.emailLog.count({ where: { to: email } })).toBe(2));
+    });
+
+    it("refuses a revoked or lapsed invitation", async () => {
+      const revoked = await invite(address("revoked"));
+      await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations/${revoked.body.id}/revoke`)
+        .set("Cookie", ownerCookie);
+      const lapsed = await invite(address("lapsed"));
+      await lapse(lapsed.body.id);
+
+      expect((await resend(revoked.body.id)).status).toBe(409);
+      expect((await resend(lapsed.body.id)).status).toBe(409);
+    });
+
+    it("lets staff invite the same email again once an invitation lapsed", async () => {
+      const email = address("reinvite");
+      const first = await invite(email);
+      await lapse(first.body.id);
+
+      const second = await invite(email.toUpperCase());
+
+      expect(second.status).toBe(201);
+      const stale = await prisma.invitation.findUniqueOrThrow({ where: { id: first.body.id } });
+      expect(stale.status).toBe("EXPIRED");
+    });
+
+    it("returns 404 for an invitation that isn't in this location", async () => {
+      expect((await resend("00000000-0000-0000-0000-000000000000")).status).toBe(404);
+      expect((await resend("not-a-uuid")).status).toBe(404);
+    });
   });
 });

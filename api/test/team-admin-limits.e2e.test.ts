@@ -93,6 +93,18 @@ describe("What an admin can do to the team", () => {
       expect((await revoke(adminCookie, admin.body.id)).status).toBe(403);
       expect((await revoke(ownerCookie, admin.body.id)).status).toBe(201);
     });
+
+    it("lets an admin resend an employee invitation, but not an admin one", async () => {
+      const employee = await invite(ownerCookie, "resend-employee", "EMPLOYEE");
+      const admin = await invite(ownerCookie, "resend-admin", "ADMIN");
+      const resend = (invitationId: string) =>
+        request(app.getHttpServer())
+          .post(`/locations/${locationId}/invitations/${invitationId}/resend`)
+          .set("Cookie", adminCookie);
+
+      expect((await resend(employee.body.id)).status).toBe(200);
+      expect((await resend(admin.body.id)).status).toBe(403);
+    });
   });
 
   describe("roles", () => {

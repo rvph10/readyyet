@@ -32,6 +32,18 @@ export class InvitationService {
       }
     }
 
+    // Expiry is otherwise only recorded on accept, and a stale PENDING row
+    // would keep the one-pending-per-email index from allowing this one.
+    await this.prisma.invitation.updateMany({
+      where: {
+        locationId,
+        email: { equals: dto.email, mode: "insensitive" },
+        status: InvitationStatus.PENDING,
+        expiresAt: { lt: new Date() },
+      },
+      data: { status: InvitationStatus.EXPIRED },
+    });
+
     let invitation: Invitation;
     try {
       invitation = await this.prisma.invitation.create({
@@ -62,16 +74,7 @@ export class InvitationService {
   }
 
   async revoke(locationId: string, actorId: string, invitationId: string) {
-    // Invitation.id is a Postgres uuid column, a non-UUID value would
-    // otherwise surface as a raw DB error, not a clean 404 (same reasoning
-    // as LocationMembershipGuard's own isUUID check).
-    if (!isUUID(invitationId)) {
-      throw new NotFoundError("Invitation not found");
-    }
-    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, locationId } });
-    if (!invitation) {
-      throw new NotFoundError("Invitation not found");
-    }
+    const invitation = await this.loadInLocation(locationId, invitationId);
     assertCanManage(await roleAt(this.prisma, actorId, locationId), invitation.role);
     if (invitation.status !== InvitationStatus.PENDING) {
       throw new ConflictError("Only a pending invitation can be revoked");
@@ -81,6 +84,24 @@ export class InvitationService {
       where: { id: invitationId },
       data: { status: InvitationStatus.REVOKED },
     });
+  }
+
+  // Sends the same link again and gives it a fresh 7 days (ADR 0017).
+  async resend(locationId: string, actorId: string, invitationId: string) {
+    const invitation = await this.loadInLocation(locationId, invitationId);
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), invitation.role);
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      throw new ConflictError("Only a pending invitation can be resent, send a new one instead");
+    }
+
+    const updated = await this.prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { expiresAt: new Date(Date.now() + INVITATION_TTL_MS) },
+    });
+    this.sendInviteEmail(updated).catch((err) => {
+      this.logger.error(`Failed to resend invitation email for ${updated.id}`, err instanceof Error ? err.stack : err);
+    });
+    return updated;
   }
 
   async accept(invitationId: string, user: User) {
@@ -128,6 +149,20 @@ export class InvitationService {
         throw err;
       }
     });
+  }
+
+  private async loadInLocation(locationId: string, invitationId: string) {
+    // Invitation.id is a Postgres uuid column, a non-UUID value would
+    // otherwise surface as a raw DB error, not a clean 404 (same reasoning
+    // as LocationMembershipGuard's own isUUID check).
+    if (!isUUID(invitationId)) {
+      throw new NotFoundError("Invitation not found");
+    }
+    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, locationId } });
+    if (!invitation) {
+      throw new NotFoundError("Invitation not found");
+    }
+    return invitation;
   }
 
   private async sendInviteEmail(invitation: Invitation) {

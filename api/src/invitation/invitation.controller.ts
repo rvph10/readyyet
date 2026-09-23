@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -35,5 +36,18 @@ export class InvitationController {
     @CurrentUser() user: User,
   ) {
     return this.invitation.revoke(locationId, user.id, invitationId);
+  }
+
+  @Post(":invitationId/resend")
+  @HttpCode(200)
+  // Each call sends an email, same limit as resending a tracking link.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: "Email a pending invitation again, extending its expiry (ADR 0017)" })
+  resend(
+    @Param("locationId") locationId: string,
+    @Param("invitationId") invitationId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.invitation.resend(locationId, user.id, invitationId);
   }
 }
