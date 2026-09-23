@@ -38,7 +38,7 @@ describe("Public tracking", () => {
       .send({
         title,
         description: "Internal note: quoted 300 EUR",
-        customer: { fullName: "Carla Private", email: "carla@example.test", phone: "+33600000000" },
+        customer: { fullName: "Carla Private", email: "delivered+carla@resend.dev", phone: "+33600000000" },
       });
     return response.body as { id: string; trackingCode: string };
   }
@@ -122,7 +122,7 @@ describe("Public tracking", () => {
     const leakedKeys = [...collectKeys(response.body)].filter((key) => PRIVATE_KEYS.has(key));
     expect(leakedKeys).toEqual([]);
     const raw = JSON.stringify(response.body);
-    for (const secret of ["Carla Private", "carla@example.test", "+33600000000", ownerEmail, "Internal note"]) {
+    for (const secret of ["Carla Private", "delivered+carla@resend.dev", "+33600000000", ownerEmail, "Internal note"]) {
       expect(raw).not.toContain(secret);
     }
   });

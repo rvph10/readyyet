@@ -81,7 +81,7 @@ describe("Ticket search and filters", () => {
     const brakes = await createTicket(ownerCookie, {
       title: "Brake pads",
       description: "Front axle, squeaking",
-      customer: { fullName: "Alice Martin", email: "alice@example.test", phone: "+33611111111" },
+      customer: { fullName: "Alice Martin", email: "delivered+alice@resend.dev", phone: "+33611111111" },
     });
     ids.brakes = brakes.id;
     const oil = await createTicket(employeeCookie, {
@@ -92,12 +92,12 @@ describe("Ticket search and filters", () => {
     ids.oil = oil.id;
     const tires = await createTicket(ownerCookie, {
       title: "Tire rotation 100% free",
-      customer: { fullName: "Bruno Petit", email: "bruno@example.test" },
+      customer: { fullName: "Bruno Petit", email: "delivered+bruno@resend.dev" },
     });
     ids.tires = tires.id;
     const erased = await createTicket(ownerCookie, {
       title: "Windshield",
-      customer: { fullName: "Zoe Erased", email: "zoe@example.test" },
+      customer: { fullName: "Zoe Erased", email: "delivered+zoe@resend.dev" },
     });
     ids.erased = erased.id;
     await request(app.getHttpServer())
@@ -118,7 +118,7 @@ describe("Ticket search and filters", () => {
     expect(await titles({ q: "BRAKE" })).toEqual(["Brake pads"]);
     expect(await titles({ q: "5w30" })).toEqual(["Oil change"]);
     expect(await titles({ q: "alice martin" })).toEqual(["Brake pads", "Oil change"]);
-    expect(await titles({ q: "bruno@example" })).toEqual(["Tire rotation 100% free"]);
+    expect(await titles({ q: "+bruno@resend" })).toEqual(["Tire rotation 100% free"]);
     expect(await titles({ q: "33611" })).toEqual(["Brake pads", "Oil change"]);
 
     const { trackingCode } = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(ids.tires) } });

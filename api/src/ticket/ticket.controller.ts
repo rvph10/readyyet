@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -51,6 +52,15 @@ export class TicketController {
     @Body() dto: UpdateTicketStatusDto,
   ) {
     return this.ticket.updateStatus(locationId, ticketId, user.id, dto);
+  }
+
+  @Post(":ticketId/resend-link")
+  @HttpCode(HttpStatus.OK)
+  // Each call emails the customer, a few per minute covers a real mistake.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: "Email the customer their tracking link again (ADR 0015)" })
+  resendTrackingLink(@Param("locationId") locationId: string, @Param("ticketId") ticketId: string) {
+    return this.ticket.resendTrackingLink(locationId, ticketId);
   }
 
   @Post(":ticketId/status/undo")

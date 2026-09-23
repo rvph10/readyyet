@@ -4,6 +4,7 @@ import { ENDED_STATUS_CODES, isEndedStatus } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
+import { NotificationService } from "../notification/notification.service";
 import { WorkflowService } from "../workflow/workflow.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
@@ -38,6 +39,7 @@ export class TicketService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workflow: WorkflowService,
+    private readonly notification: NotificationService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -91,7 +93,21 @@ export class TicketService {
       });
     });
 
+    // After the transaction commits, never inside it: an email can't be
+    // taken back if the insert rolled back. A failed send doesn't fail the
+    // ticket, EmailService records it and its retry sweep picks it up.
+    await this.notification.sendTicketCreated(ticket.id);
+
     return this.mapDetail(ticket);
+  }
+
+  async resendTrackingLink(locationId: string, ticketId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+    return this.notification.resendTrackingLink(ticket.id);
   }
 
   async list(locationId: string, query: ListTicketsQueryDto) {

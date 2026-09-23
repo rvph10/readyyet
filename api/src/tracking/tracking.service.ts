@@ -1,12 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { isEndedStatus } from "@readyyet/shared";
 import { NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/public-status-select";
 import { PrismaService } from "../database/prisma.service";
-
-// A tracking link stops working this long after the ticket ends, see
-// docs/decisions/0013-public-tracking-endpoint.md.
-const LINK_LIFETIME_AFTER_END_MS = 30 * 24 * 60 * 60 * 1000;
+import { isTrackingLinkExpired } from "./tracking-link";
 
 @Injectable()
 export class TrackingService {
@@ -38,7 +34,12 @@ export class TrackingService {
       },
     });
 
-    if (!ticket || ticket.location.deletedAt || this.isExpired(ticket)) {
+    if (!ticket || ticket.location.deletedAt) {
+      throw new NotFoundError("Tracking link not found");
+    }
+    // Same response as an unknown code on purpose, see ADR 0013.
+    const latestEvent = ticket.statusEvents[ticket.statusEvents.length - 1];
+    if (isTrackingLinkExpired(ticket.currentStatus.code, latestEvent.createdAt)) {
       throw new NotFoundError("Tracking link not found");
     }
 
@@ -54,15 +55,5 @@ export class TrackingService {
       steps: ticket.workflow.steps,
       statusHistory: ticket.statusEvents,
     };
-  }
-
-  private isExpired(ticket: { currentStatus: { code: string }; statusEvents: { createdAt: Date }[] }) {
-    if (!isEndedStatus(ticket.currentStatus.code)) {
-      return false;
-    }
-    // Every status change writes an event (the ticket's first one included),
-    // so the latest event is when the ticket reached its current status.
-    const endedAt = ticket.statusEvents[ticket.statusEvents.length - 1].createdAt;
-    return Date.now() - endedAt.getTime() > LINK_LIFETIME_AFTER_END_MS;
   }
 }

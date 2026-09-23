@@ -49,7 +49,7 @@ describe("Tickets", () => {
       .set("Cookie", ownerCookie)
       .send({
         title: "Brake inspection",
-        customer: { fullName: "Alice Driver", email: "alice@example.test" },
+        customer: { fullName: "Alice Driver", email: "delivered+alice@resend.dev" },
       });
 
     expect(response.status).toBe(201);
