@@ -16,7 +16,7 @@ export class InvitationController {
   constructor(private readonly invitation: InvitationService) {}
 
   @Post()
-  @ApiOperation({ summary: "Invite someone by email to a location with a role" })
+  @ApiOperation({ summary: "Invite someone by email to a location with a role (an admin invites employees only)" })
   create(@Param("locationId") locationId: string, @CurrentUser() user: User, @Body() dto: CreateInvitationDto) {
     return this.invitation.create(locationId, user.id, dto);
   }
@@ -28,8 +28,12 @@ export class InvitationController {
   }
 
   @Post(":invitationId/revoke")
-  @ApiOperation({ summary: "Revoke a pending invitation" })
-  revoke(@Param("locationId") locationId: string, @Param("invitationId") invitationId: string) {
-    return this.invitation.revoke(locationId, invitationId);
+  @ApiOperation({ summary: "Revoke a pending invitation (an admin revokes employee invitations only)" })
+  revoke(
+    @Param("locationId") locationId: string,
+    @Param("invitationId") invitationId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.invitation.revoke(locationId, user.id, invitationId);
   }
 }

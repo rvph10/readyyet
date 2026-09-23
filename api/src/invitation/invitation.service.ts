@@ -5,6 +5,7 @@ import { isUUID } from "class-validator";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
+import { assertCanManage, roleAt } from "../membership/team-rules";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -19,6 +20,8 @@ export class InvitationService {
   ) {}
 
   async create(locationId: string, inviterId: string, dto: CreateInvitationDto) {
+    assertCanManage(await roleAt(this.prisma, inviterId, locationId), dto.role);
+
     const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existingUser) {
       const existingMembership = await this.prisma.membership.findUnique({
@@ -58,7 +61,7 @@ export class InvitationService {
     return this.prisma.invitation.findMany({ where: { locationId }, orderBy: { createdAt: "desc" } });
   }
 
-  async revoke(locationId: string, invitationId: string) {
+  async revoke(locationId: string, actorId: string, invitationId: string) {
     // Invitation.id is a Postgres uuid column, a non-UUID value would
     // otherwise surface as a raw DB error, not a clean 404 (same reasoning
     // as LocationMembershipGuard's own isUUID check).
@@ -69,6 +72,7 @@ export class InvitationService {
     if (!invitation) {
       throw new NotFoundError("Invitation not found");
     }
+    assertCanManage(await roleAt(this.prisma, actorId, locationId), invitation.role);
     if (invitation.status !== InvitationStatus.PENDING) {
       throw new ConflictError("Only a pending invitation can be revoked");
     }
