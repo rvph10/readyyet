@@ -66,6 +66,18 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 - The `api` job needs `RESEND_API_KEY` set as a GitHub Actions repo secret (Settings → Secrets and variables → Actions), for the same reason `pnpm test` needs it locally. Without it, that job fails with a "missing API key" error.
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.
 
+## Deploy
+
+The API runs on Railway, configured by `api/railway.json`. One-time service settings:
+
+- **Root Directory**: leave it at the repo root, the build needs the whole pnpm workspace.
+- **Config file path**: `/api/railway.json` (Railway doesn't look in subdirectories on its own).
+- **Variables**: everything in `api/.env.example`, with `NODE_ENV=production`, `DATABASE_URL` referencing the Railway Postgres service, and `SENTRY_DSN` and `RESEND_WEBHOOK_SECRET` set (the API refuses to start in production without them). `DATABASE_URL` is also needed at build time, `prisma generate` reads it.
+
+Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
+
+After the first deploy, do the trusted-proxy check at the end of ADR 0009.
+
 ## Docs
 
 - `docs/decisions/` — numbered ADRs, the reasoning behind every real architectural/product decision.
