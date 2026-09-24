@@ -8,12 +8,15 @@ import {
   IsObject,
   IsPhoneNumber,
   IsString,
+  MaxLength,
   ValidateNested,
 } from "class-validator";
+import { NAME_MAX_LENGTH } from "../../common/text-limits";
 
 export class CreateLocationDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(NAME_MAX_LENGTH)
   name!: string;
 
   @IsString()
@@ -33,6 +36,7 @@ export class CreateLocationDto {
 export class CreateBusinessDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(NAME_MAX_LENGTH)
   name!: string;
 
   @IsDefined()

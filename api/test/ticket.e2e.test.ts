@@ -85,6 +85,19 @@ describe("Tickets", () => {
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
+  it("rejects a title or customer name past its length limit, naming the field", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "t".repeat(201), customer: { fullName: "n".repeat(101) } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.details.map((issue: { property: string }) => issue.property)).toEqual([
+      "title",
+      "customer.fullName",
+    ]);
+  });
+
   it("rejects a request with neither customer nor customerId", async () => {
     const response = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)
