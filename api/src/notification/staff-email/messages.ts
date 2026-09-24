@@ -16,6 +16,11 @@ interface TransferParams {
   newOwnerEmail: string;
 }
 
+interface TrialEndingParams {
+  location: string;
+  days: number;
+}
+
 interface StaffMessages {
   signInCode: {
     subject: string;
@@ -50,6 +55,12 @@ interface StaffMessages {
     body: (params: TransferParams) => string;
     stillAdmin: string;
     notYou: string;
+  };
+  trialEnding: {
+    subject: (params: TrialEndingParams) => string;
+    body: (params: TrialEndingParams) => string;
+    kept: string;
+    button: string;
   };
 }
 
@@ -98,6 +109,14 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       newAccount: "You can create a new account at any time by signing in with this address.",
       notYou: "If you didn't delete your account, reply to this email right away.",
     },
+    trialEnding: {
+      subject: ({ location, days }) =>
+        `Your ReadyYet trial for ${location} ends in ${days} day${days === 1 ? "" : "s"}`,
+      body: ({ location, days }) =>
+        `The free trial of ReadyYet at ${location} ends in ${days} day${days === 1 ? "" : "s"}. Choose a plan to keep creating tickets and inviting your team.`,
+      kept: "Tickets already open keep working, and your customers' tracking links stay online either way.",
+      button: "Choose a plan",
+    },
   },
   FR: {
     signInCode: {
@@ -140,6 +159,14 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
         "Les tickets et modifications que vous avez faits restent dans l'historique de chaque commerce, sans votre nom ni votre adresse e-mail.",
       newAccount: "Vous pouvez créer un nouveau compte à tout moment en vous connectant avec cette adresse.",
       notYou: "Si vous n'avez pas supprimé votre compte, répondez à cet e-mail sans attendre.",
+    },
+    trialEnding: {
+      subject: ({ location, days }) =>
+        `Votre essai ReadyYet pour ${location} se termine dans ${days}\u00a0jour${days > 1 ? "s" : ""}`,
+      body: ({ location, days }) =>
+        `L'essai gratuit de ReadyYet pour ${location} se termine dans ${days}\u00a0jour${days > 1 ? "s" : ""}. Choisissez une formule pour continuer à créer des tickets et à inviter votre équipe.`,
+      kept: "Les tickets en cours continuent de fonctionner, et les liens de suivi de vos clients restent en ligne dans tous les cas.",
+      button: "Choisir une formule",
     },
   },
 };
