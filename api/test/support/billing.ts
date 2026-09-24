@@ -5,11 +5,13 @@ import { vi, type Mock } from "vitest";
 // Stripe is never called from tests, only the requests sent to it are
 // checked. Test files swap it in with vi.mock of src/billing/stripe-client.
 const fn = (): Mock => vi.fn();
+// Lists are iterated with for await, an empty array stands for "none".
+const list = (): Mock => vi.fn(() => []);
 export const stripe = {
   customers: { create: fn(), update: fn() },
   prices: { list: fn() },
-  checkout: { sessions: { create: fn() } },
-  subscriptions: { retrieve: fn(), update: fn(), cancel: fn() },
+  checkout: { sessions: { create: fn(), list: list(), expire: fn() } },
+  subscriptions: { retrieve: fn(), update: fn(), cancel: fn(), list: list() },
   subscriptionSchedules: { create: fn(), update: fn(), release: fn() },
   billingPortal: { sessions: { create: fn() } },
 };

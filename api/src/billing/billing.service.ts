@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus, Plan, SubscriptionStatus } from "@readyyet/db";
-import type Stripe from "stripe";
+import Stripe from "stripe";
 import { ConflictError, LocationFrozenError, MemberLimitError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { ChoosePlanDto } from "./dto/choose-plan.dto";
@@ -8,7 +8,7 @@ import { BillingDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
 import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit } from "./plans";
 import { getStripeClient } from "./stripe-client";
-import { toSubscriptionRow } from "./stripe-sync";
+import { scheduledLookupKey, toSubscriptionRow } from "./stripe-sync";
 
 function perMonth(price: Stripe.Price) {
   return price.unit_amount! / (price.recurring!.interval === "year" ? 12 : 1);
@@ -52,6 +52,12 @@ export class BillingService {
     }
 
     const customer = location.business.stripeCustomerId ?? (await this.createCustomer(location.business));
+    // Our row hears of a completed checkout only through its webhook. A
+    // second checkout before then would bill the Location twice.
+    if ((await this.liveSubscriptions(customer, locationId)).length > 0) {
+      throw new ConflictError("This location already has a subscription, change its plan instead");
+    }
+    await this.expireOpenCheckouts(customer, locationId);
     const price = await this.price(lookupKey(dto.plan, dto.interval));
 
     // Choosing during the trial keeps the days left, the card is charged
@@ -63,6 +69,7 @@ export class BillingService {
     const session = await getStripeClient().checkout.sessions.create({
       mode: "subscription",
       customer,
+      metadata: { locationId },
       line_items: [{ price: price.id, quantity: 1 }],
       subscription_data: {
         description: location.name,
@@ -96,20 +103,20 @@ export class BillingService {
       throw new MemberLimitError(ESSENTIEL_MEMBER_LIMIT);
     }
 
-    await this.dropWhatWasWaiting(subscription);
-    if (!same) {
-      const price = await this.price(key);
-      if (perMonth(price) > perMonth(item.price)) {
-        // The change only applies once its prorated invoice is paid.
-        const updated = await stripe.subscriptions.update(subscription.id, {
-          items: [{ id: item.id, price: price.id }],
-          proration_behavior: "always_invoice",
-          payment_behavior: "pending_if_incomplete",
-        });
-        if (updated.pending_update) {
-          throw new ConflictError("The payment for this change failed, update the card and try again");
-        }
-      } else {
+    // A subscription under a schedule can't be changed directly.
+    const waiting = scheduledLookupKey(subscription);
+    if (subscription.schedule) {
+      await stripe.subscriptionSchedules.release((subscription.schedule as Stripe.SubscriptionSchedule).id);
+    }
+    const price = same ? null : await this.price(key);
+    if (price && perMonth(price) > perMonth(item.price)) {
+      await this.upgrade(subscription, item, price, waiting);
+    } else {
+      // Choosing a plan undoes a cancellation.
+      if (subscription.cancel_at_period_end) {
+        await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: false });
+      }
+      if (price) {
         await this.scheduleAtPeriodEnd(subscription, item, price);
       }
     }
@@ -127,7 +134,11 @@ export class BillingService {
     if (subscription.cancel_at_period_end) {
       throw new ConflictError("This location's subscription is already cancelled");
     }
-    await this.dropWhatWasWaiting(subscription);
+    // A subscription under a schedule can't be changed directly, and a move
+    // waiting for the period end means nothing once it stops there.
+    if (subscription.schedule) {
+      await stripe.subscriptionSchedules.release((subscription.schedule as Stripe.SubscriptionSchedule).id);
+    }
     await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: true });
 
     await this.sync(subscription.id);
@@ -160,13 +171,19 @@ export class BillingService {
   }
 
   // Deleting a Location ends its subscription at once, without refund
-  // (ADR 0033).
+  // (ADR 0033). Asked of Stripe, not our row: a checkout completed a moment
+  // ago isn't in the row until its webhook arrives.
   async cancelNow(locationId: string) {
-    const { status, stripeSubscriptionId } = await this.prisma.subscription.findUniqueOrThrow({
-      where: { locationId },
+    const { business } = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      include: { business: true },
     });
-    if (status === SubscriptionStatus.ACTIVE || status === SubscriptionStatus.PAST_DUE) {
-      await getStripeClient().subscriptions.cancel(stripeSubscriptionId!);
+    if (!business.stripeCustomerId) {
+      return;
+    }
+    await this.expireOpenCheckouts(business.stripeCustomerId, locationId);
+    for (const subscription of await this.liveSubscriptions(business.stripeCustomerId, locationId)) {
+      await getStripeClient().subscriptions.cancel(subscription.id);
     }
   }
 
@@ -240,15 +257,55 @@ export class BillingService {
     return price;
   }
 
-  // A new choice replaces whatever was waiting for the period end, and a
-  // subscription under a schedule can't be changed directly.
-  private async dropWhatWasWaiting(subscription: Stripe.Subscription) {
-    const stripe = getStripeClient();
-    if (subscription.schedule) {
-      await stripe.subscriptionSchedules.release((subscription.schedule as Stripe.SubscriptionSchedule).id);
+  // At once and prorated, all or nothing: with error_if_incomplete a
+  // declined card leaves the subscription as it was, a cancellation included,
+  // which is why it's lifted in the same call.
+  private async upgrade(
+    subscription: Stripe.Subscription,
+    item: Stripe.SubscriptionItem,
+    price: Stripe.Price,
+    waiting: string | undefined,
+  ) {
+    try {
+      await getStripeClient().subscriptions.update(subscription.id, {
+        items: [{ id: item.id, price: price.id }],
+        proration_behavior: "always_invoice",
+        payment_behavior: "error_if_incomplete",
+        cancel_at_period_end: false,
+      });
+    } catch (err) {
+      if (!(err instanceof Stripe.errors.StripeCardError)) {
+        throw err;
+      }
+      // The schedule had to go before the update, a declined upgrade
+      // mustn't take a waiting move to a cheaper price with it.
+      if (waiting) {
+        await this.scheduleAtPeriodEnd(subscription, item, await this.price(waiting));
+      }
+      throw new ConflictError("The payment for this change failed, update the card and try again");
     }
-    if (subscription.cancel_at_period_end) {
-      await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: false });
+  }
+
+  // Subscriptions of this Location that still bill or could, on Stripe's
+  // side, whatever our row has heard so far.
+  private async liveSubscriptions(customer: string, locationId: string) {
+    const live: Stripe.Subscription[] = [];
+    for await (const subscription of getStripeClient().subscriptions.list({ customer, limit: 100 })) {
+      if (subscription.metadata.locationId === locationId && subscription.status !== "incomplete_expired") {
+        live.push(subscription);
+      }
+    }
+    return live;
+  }
+
+  // An abandoned tab could still be paid later, and bill the Location a
+  // second time or after it's gone.
+  private async expireOpenCheckouts(customer: string, locationId: string) {
+    const stripe = getStripeClient();
+    for await (const session of stripe.checkout.sessions.list({ customer, status: "open", limit: 100 })) {
+      if (session.metadata?.locationId === locationId) {
+        await stripe.checkout.sessions.expire(session.id);
+      }
     }
   }
 

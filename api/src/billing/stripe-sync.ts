@@ -23,12 +23,8 @@ export function toSubscriptionRow(subscription: Stripe.Subscription) {
     return null;
   }
   const item = subscription.items.data[0];
-  const schedule = subscription.schedule as Stripe.SubscriptionSchedule | null;
-  // Set by BillingService when it schedules a move to a cheaper price. By
-  // date, not by the period end: a phase can end mid-period.
-  const now = Date.now() / 1000;
-  const next = schedule?.phases.find((phase) => phase.start_date > now && phase.metadata?.lookupKey);
-  const scheduled = next ? fromLookupKey(next.metadata!.lookupKey) : null;
+  const next = scheduledLookupKey(subscription);
+  const scheduled = next ? fromLookupKey(next) : null;
 
   return {
     status,
@@ -39,4 +35,13 @@ export function toSubscriptionRow(subscription: Stripe.Subscription) {
     scheduledPlan: scheduled?.plan ?? null,
     scheduledInterval: scheduled?.interval ?? null,
   };
+}
+
+// The price a move to a cheaper price waits to switch to, from the phase
+// metadata BillingService sets. By date, not by the period end: a phase can
+// end mid-period. `schedule` must be expanded.
+export function scheduledLookupKey(subscription: Stripe.Subscription) {
+  const schedule = subscription.schedule as Stripe.SubscriptionSchedule | null;
+  const now = Date.now() / 1000;
+  return schedule?.phases.find((phase) => phase.start_date > now && phase.metadata?.lookupKey)?.metadata!.lookupKey;
 }

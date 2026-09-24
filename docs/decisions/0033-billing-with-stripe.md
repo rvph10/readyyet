@@ -26,11 +26,12 @@ Choosing a plan during the trial goes through checkout with the subscription's t
 ### Checkout and the portal
 
 - The first payment of a Location goes through Stripe Checkout, which also collects the billing address and the shop's VAT number for its invoice.
+- Before opening a checkout, Stripe is asked whether the Location already has a subscription that hasn't ended, and any checkout still open for it is expired. Our row only learns of a completed checkout through its webhook, and a Location must never end up with two subscriptions.
 - The Owner reaches Stripe's Customer Portal for cards, invoices and billing details. Changing plan in the portal is turned off, it can't enforce the member limit.
 
 ### Changing plan
 
-- A change to a price that costs more per month takes effect at once, prorated.
+- A change to a price that costs more per month takes effect at once, prorated, and only if its invoice is paid: a declined card leaves the subscription exactly as it was, a cancellation or a waiting move to a cheaper price included.
 - A change to a price that costs less per month takes effect at the end of the current period, through a subscription schedule. Moving to Essentiel is refused while the Location is over its member limit, and once it's scheduled, invitations are held to that limit too.
 
 Per month, the order is: Essentiel yearly (€24.17), Essentiel monthly (€29), Pro yearly (€40.83), Pro monthly (€49). So every move to Pro is immediate, and moving from monthly to yearly waits for the renewal.
@@ -38,7 +39,7 @@ Per month, the order is: Essentiel yearly (€24.17), Essentiel monthly (€29),
 ### Stopping
 
 - The Owner can cancel a Location's subscription. It stays usable until the end of the paid period, then it's frozen. Choosing a plan again unfreezes it.
-- Deleting a Location (ADR 0017) cancels its subscription at once, without refund.
+- Deleting a Location (ADR 0017) cancels its subscription at once, without refund. Stripe is asked for the Location's subscriptions and open checkouts rather than our row, so one completed a moment before isn't missed.
 - After failed payments, Stripe retries for up to 2 weeks, the Location keeps working meanwhile. Once retries run out, Stripe cancels the subscription and the Location is frozen.
 
 ### Webhooks

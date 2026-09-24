@@ -4,6 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
+import Stripe from "stripe";
 import { PrismaService } from "../src/database/prisma.service";
 import { createBusiness, stripe } from "./support/billing";
 import { createTestApp } from "./support/create-test-app";
@@ -92,25 +93,49 @@ describe("Changing and cancelling a paying location's plan", () => {
     await app.close();
   });
 
-  it("moves to Pro at once, prorated, and only if its invoice is paid", async () => {
-    onStripe("essentiel_monthly");
+  const declined = () => new Stripe.errors.StripeCardError({ type: "card_error", message: "Your card was declined." });
+
+  it("moves to Pro at once and prorated, all or nothing, lifting a cancellation in the same call", async () => {
+    onStripe("essentiel_monthly", { cancel_at_period_end: true });
 
     const response = await choose("PRO", "MONTH", adminCookie);
 
     expect(response.status).toBe(200);
+    expect(stripe.subscriptions.update).toHaveBeenCalledTimes(1);
     expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, {
       items: [{ id: "si_1", price: "price_pm" }],
       proration_behavior: "always_invoice",
-      payment_behavior: "pending_if_incomplete",
+      payment_behavior: "error_if_incomplete",
+      cancel_at_period_end: false,
     });
     expect(stripe.subscriptionSchedules.create).not.toHaveBeenCalled();
   });
 
-  it("says so when the payment for a move up fails", async () => {
-    onStripe("essentiel_monthly");
-    stripe.subscriptions.update.mockResolvedValue({ pending_update: { expires_at: 1 } });
+  it("leaves a cancellation in place when the payment for a move up is declined", async () => {
+    onStripe("essentiel_monthly", { cancel_at_period_end: true });
+    stripe.subscriptions.update.mockRejectedValueOnce(declined());
 
     expect((await choose("PRO", "YEAR")).status).toBe(409);
+    // The only call was the declined upgrade, nothing lifted the cancellation.
+    expect(stripe.subscriptions.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("schedules again a waiting move to a cheaper price when the move up is declined", async () => {
+    onStripe("essentiel_monthly", {
+      schedule: {
+        id: "sub_sched_0",
+        phases: [
+          { start_date: 1000, metadata: {} },
+          { start_date: periodEnd, metadata: { lookupKey: "essentiel_yearly" } },
+        ],
+      },
+    });
+    stripe.subscriptions.update.mockRejectedValueOnce(declined());
+
+    expect((await choose("PRO", "MONTH")).status).toBe(409);
+    expect(stripe.subscriptionSchedules.release).toHaveBeenCalledWith("sub_sched_0");
+    const [, { phases }] = stripe.subscriptionSchedules.update.mock.calls[0];
+    expect(phases[1]).toMatchObject({ items: [{ price: "price_ey" }], metadata: { lookupKey: "essentiel_yearly" } });
   });
 
   it("waits for the period end to move to a cheaper price, through a schedule", async () => {
@@ -223,31 +248,54 @@ describe("Deleting a location", () => {
   const remove = (locationId: string) =>
     request(app.getHttpServer()).delete(`/locations/${locationId}`).set("Cookie", ownerCookie);
 
-  it("cancels its subscription at once", async () => {
-    const { locationId } = await createBusiness(app, ownerCookie, "Closing Co");
-    const subscriptionId = `sub_delete_${Date.now()}`;
-    await prisma.subscription.update({
-      where: { locationId },
-      data: { status: "ACTIVE", plan: "PRO", interval: "MONTH", stripeSubscriptionId: subscriptionId },
-    });
+  // A Location of a Business that has paid before, so it has a Stripe customer.
+  async function payingLocation(name: string) {
+    const { businessId, locationId } = await createBusiness(app, ownerCookie, name);
+    const customer = `cus_delete_${Date.now()}`;
+    await prisma.business.update({ where: { id: businessId }, data: { stripeCustomerId: customer } });
+    return { locationId, customer };
+  }
+
+  it("cancels its subscriptions and expires its open checkouts, found on Stripe, not the others'", async () => {
+    const { locationId, customer } = await payingLocation("Closing Co");
+    stripe.subscriptions.list.mockReturnValueOnce([
+      { id: "sub_ours", status: "active", metadata: { locationId } },
+      { id: "sub_other_location", status: "active", metadata: { locationId: "another" } },
+    ]);
+    stripe.checkout.sessions.list.mockReturnValueOnce([
+      { id: "cs_ours", metadata: { locationId } },
+      { id: "cs_other_location", metadata: { locationId: "another" } },
+    ]);
 
     expect((await remove(locationId)).status).toBe(204);
-    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith(subscriptionId);
+    expect(stripe.subscriptions.list).toHaveBeenCalledWith({ customer, limit: 100 });
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledTimes(1);
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith("sub_ours");
+    expect(stripe.checkout.sessions.expire).toHaveBeenCalledTimes(1);
+    expect(stripe.checkout.sessions.expire).toHaveBeenCalledWith("cs_ours");
   });
 
-  it("has nothing to cancel during the trial", async () => {
+  it("cancels a subscription whose webhook hasn't arrived yet, while the row still says trial", async () => {
+    const { locationId } = await payingLocation("Racing Co");
+    stripe.subscriptions.list.mockReturnValueOnce([
+      { id: "sub_just_paid", status: "trialing", metadata: { locationId } },
+    ]);
+
+    expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith("sub_just_paid");
+  });
+
+  it("has nothing to ask Stripe for a business that never paid", async () => {
     const { locationId } = await createBusiness(app, ownerCookie, "Trial Co");
 
     expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.list).not.toHaveBeenCalled();
     expect(stripe.subscriptions.cancel).not.toHaveBeenCalled();
   });
 
   it("keeps the location when Stripe can't cancel, so it's never deleted while still billed", async () => {
-    const { locationId } = await createBusiness(app, ownerCookie, "Stuck Co");
-    await prisma.subscription.update({
-      where: { locationId },
-      data: { status: "ACTIVE", stripeSubscriptionId: `sub_stuck_${Date.now()}` },
-    });
+    const { locationId } = await payingLocation("Stuck Co");
+    stripe.subscriptions.list.mockReturnValueOnce([{ id: "sub_stuck", status: "active", metadata: { locationId } }]);
     stripe.subscriptions.cancel.mockRejectedValueOnce(new Error("Stripe is down"));
 
     expect((await remove(locationId)).status).toBe(500);

@@ -181,6 +181,30 @@ describe("POST /locations/:locationId/billing/checkout", () => {
     expect(stripe.checkout.sessions.create).not.toHaveBeenCalled();
   });
 
+  it("refuses a second checkout once Stripe has the first one's subscription, before its webhook", async () => {
+    stripe.subscriptions.list.mockReturnValueOnce([
+      { id: "sub_just_paid", status: "trialing", metadata: { locationId } },
+    ]);
+
+    const response = await checkout({ plan: "PRO", interval: "MONTH" });
+
+    expect(response.status).toBe(409);
+    expect(stripe.checkout.sessions.create).not.toHaveBeenCalled();
+  });
+
+  it("expires the location's checkouts still open, so an abandoned tab can't bill it too", async () => {
+    stripe.checkout.sessions.list.mockReturnValueOnce([
+      { id: "cs_old_tab", metadata: { locationId } },
+      { id: "cs_other_location", metadata: { locationId: "another" } },
+    ]);
+
+    await checkout({ plan: "PRO", interval: "MONTH" });
+
+    expect(stripe.checkout.sessions.expire).toHaveBeenCalledTimes(1);
+    expect(stripe.checkout.sessions.expire).toHaveBeenCalledWith("cs_old_tab");
+    expect(stripe.checkout.sessions.create.mock.calls[0][0].metadata).toEqual({ locationId });
+  });
+
   it("refuses a location that already pays, its plan is changed instead", async () => {
     await prisma.subscription.update({ where: { locationId }, data: { status: "ACTIVE" } });
 
