@@ -1211,6 +1211,15 @@
             }
           },
           {
+            "name": "customerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "pattern": "^\\d{1,19}$",
+              "type": "string"
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -1263,15 +1272,6 @@
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "customerId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "pattern": "^\\d+$",
               "type": "string"
             }
           },

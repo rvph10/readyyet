@@ -1,5 +1,7 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Matches, Max, MaxLength, Min } from "class-validator";
+import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
+import { IsBigIntId } from "../../common/parse-bigint-id";
 
 export class ListTicketsQueryDto {
   // One search box: matched against title, description, tracking code and
@@ -35,7 +37,8 @@ export class ListTicketsQueryDto {
   createdBy?: string;
 
   @IsOptional()
-  @Matches(/^\d+$/)
+  @IsBigIntId()
+  @ApiPropertyOptional({ pattern: "^\\d{1,19}$" })
   customerId?: string;
 
   @IsOptional()

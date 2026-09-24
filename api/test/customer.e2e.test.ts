@@ -182,15 +182,18 @@ describe("Customers", () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it("rejects a malformed cursor", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}/customers`)
-      .query({ cursor: "not-a-cursor" })
-      .set("Cookie", ownerCookie);
+  it.each(["not-a-cursor", Buffer.from('["A","99999999999999999999"]').toString("base64url")])(
+    "rejects the malformed cursor %s",
+    async (cursor) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ cursor })
+        .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(400);
-    expect(response.body.error.code).toBe("VALIDATION_ERROR");
-  });
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    },
+  );
 
   it("rejects a signed-in user with no membership at that location", async () => {
     const response = await request(app.getHttpServer())
@@ -200,12 +203,15 @@ describe("Customers", () => {
     expect(response.status).toBe(403);
   });
 
-  it("returns 404, not a raw DB error, for a malformed customer id", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}/customers/not-a-number`)
-      .set("Cookie", ownerCookie);
+  it.each(["not-a-number", "99999999999999999999"])(
+    "returns 404, not a raw DB error, for the customer id %s",
+    async (customerId) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers/${customerId}`)
+        .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe("NOT_FOUND");
-  });
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe("NOT_FOUND");
+    },
+  );
 });

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import type { Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
-import { parseBigIntId } from "../common/parse-bigint-id";
+import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
@@ -21,7 +21,7 @@ function decodeCursor(cursor: string): { fullName: string; id: bigint } {
   } catch {
     throw new ValidationError("Invalid cursor");
   }
-  if (!Array.isArray(value) || typeof value[0] !== "string" || !/^\d+$/.test(String(value[1]))) {
+  if (!Array.isArray(value) || typeof value[0] !== "string" || !isBigIntId(String(value[1]))) {
     throw new ValidationError("Invalid cursor");
   }
   return { fullName: value[0], id: BigInt(value[1] as string) };

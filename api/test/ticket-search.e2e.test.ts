@@ -200,6 +200,8 @@ describe("Ticket search and filters", () => {
       { state: "closed" },
       { createdFrom: "yesterday" },
       { customerId: "abc" },
+      { customerId: "99999999999999999999" },
+      { cursor: Buffer.from("2026-01-01T00:00:00.000Z_99999999999999999999").toString("base64url") },
     ];
     for (const query of invalidQueries) {
       const response = await list(query);

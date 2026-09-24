@@ -104,6 +104,16 @@ describe("Tickets", () => {
     expect(response.status).toBe(404);
   });
 
+  it.each(["1.5", "99999999999999999999"])("rejects the customerId %s, not a bigint", async (customerId) => {
+    const response = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Invalid", customerId });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
   it("lists tickets for the location, newest first", async () => {
     const response = await request(app.getHttpServer())
       .get(`/locations/${locationId}/tickets`)
@@ -238,12 +248,15 @@ describe("Tickets", () => {
     expect(list.status).toBe(403);
   });
 
-  it("returns 404, not a raw DB error, for a malformed ticket id", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}/tickets/not-a-number`)
-      .set("Cookie", ownerCookie);
+  it.each(["not-a-number", "99999999999999999999"])(
+    "returns 404, not a raw DB error, for the ticket id %s",
+    async (ticketId) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/tickets/${ticketId}`)
+        .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe("NOT_FOUND");
-  });
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe("NOT_FOUND");
+    },
+  );
 });

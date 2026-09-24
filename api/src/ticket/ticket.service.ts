@@ -3,7 +3,7 @@ import { Locale, Prisma, Role } from "@readyyet/db";
 import { ENDED_STATUS_CODES, isEndedStatus, isNotifyingStatus } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
-import { parseBigIntId } from "../common/parse-bigint-id";
+import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { WorkflowService } from "../workflow/workflow.service";
@@ -43,7 +43,7 @@ function encodeCursor(createdAt: Date, id: bigint): string {
 function decodeCursor(cursor: string): { createdAt: Date; id: bigint } {
   const [createdAt, id] = Buffer.from(cursor, "base64url").toString().split("_");
   const date = new Date(createdAt);
-  if (!/^\d+$/.test(id ?? "") || Number.isNaN(date.getTime())) {
+  if (!isBigIntId(id ?? "") || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid cursor");
   }
   return { createdAt: date, id: BigInt(id) };

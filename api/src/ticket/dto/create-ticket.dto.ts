@@ -4,13 +4,13 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumberString,
   IsObject,
   IsOptional,
   IsPhoneNumber,
   IsString,
   ValidateNested,
 } from "class-validator";
+import { IsBigIntId } from "../../common/parse-bigint-id";
 
 export class CreateCustomerDto {
   @IsString()
@@ -43,7 +43,7 @@ export class CreateTicketDto {
   // BigInt id sent as a string; service rejects when both this and
   // `customer` are present, or when neither is.
   @IsOptional()
-  @IsNumberString()
+  @IsBigIntId()
   customerId?: string;
 
   @IsOptional()
