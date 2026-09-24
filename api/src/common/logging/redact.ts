@@ -6,7 +6,7 @@ export function maskTrackingCode(url: string): string {
 }
 
 export function maskSearchTerm(url: string): string {
-  return url.replace(/([?&]q=)[^&#]*/, "$1[redacted]");
+  return url.replace(/([?&]q=)[^&#]*/g, "$1[redacted]");
 }
 
 // Prisma quotes the whole query, argument values included, between the line

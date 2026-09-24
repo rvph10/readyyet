@@ -17,6 +17,9 @@ describe("redact", () => {
     );
     expect(maskSearchTerm("/locations/abc/customers?q=Jane")).toBe("/locations/abc/customers?q=[redacted]");
     expect(maskSearchTerm("/locations/abc/tickets?state=open")).toBe("/locations/abc/tickets?state=open");
+    expect(maskSearchTerm("/locations/abc/customers?q=Jane&q=Doe")).toBe(
+      "/locations/abc/customers?q=[redacted]&q=[redacted]",
+    );
   });
 
   it("keeps which Prisma call failed and why, not the values it was called with", () => {
