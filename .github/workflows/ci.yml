@@ -140,4 +140,9 @@ jobs:
       - run: pnpm --filter @readyyet/shared run build
       - run: pnpm --filter @readyyet/api run typecheck
       - run: pnpm --filter @readyyet/api run build
+      # Every API change has to show up in the PR as a diff of this file.
+      - name: Check api/openapi.json is up to date
+        run: |
+          pnpm --filter @readyyet/api run openapi
+          git diff --exit-code api/openapi.json || { echo "::error::api/openapi.json is out of date, run: pnpm --filter @readyyet/api run openapi"; exit 1; }
       - run: pnpm --filter @readyyet/api run test
