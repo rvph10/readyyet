@@ -11,7 +11,15 @@ export function pinoHttpOptions(): Options {
       res.setHeader("x-request-id", id);
       return id;
     },
-    redact: ["req.headers.authorization", "req.headers.cookie", 'res.headers["set-cookie"]'],
+    redact: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      'res.headers["set-cookie"]',
+      // The client's IP, personal data, set by Railway's proxy. remoteAddress
+      // stays: behind the proxy it's the proxy's own address.
+      'req.headers["x-forwarded-for"]',
+      'req.headers["x-real-ip"]',
+    ],
     serializers: {
       // Treated like the cookie above, see redact.ts. pino logs the parsed
       // query next to the URL.
