@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { EmailStatus } from "@readyyet/db";
+import { SentryCron } from "@sentry/nestjs";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService, MAX_TOTAL_ATTEMPTS } from "./email.service";
 
@@ -18,6 +19,12 @@ export class EmailRetryService {
   ) {}
 
   @Cron("*/5 * * * *")
+  // Alerts when a sweep is missed or runs too long, not only when one throws.
+  @SentryCron("email-retry-sweep", {
+    schedule: { type: "crontab", value: "*/5 * * * *" },
+    checkinMargin: 2,
+    maxRuntime: 10,
+  })
   async sweep() {
     const cutoff = new Date(Date.now() - RETRY_COOLDOWN_MS);
     const stuck = await this.prisma.emailLog.findMany({

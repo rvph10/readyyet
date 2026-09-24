@@ -8,6 +8,8 @@ Unexpected errors in the API are reported to Sentry (`@sentry/nestjs`, initialis
 
 - An HTTP request is reported only when `AppExceptionFilter` answers it with a 500. A 4xx is the API working as designed, including a database race it maps to 409 or 404.
 - An error thrown by a `@Cron` job is reported by the SDK itself. `@nestjs/schedule` would otherwise only log it.
+- Both cron jobs are also Sentry cron monitors (`@SentryCron`), which alert when a run is missed or runs too long. Without them, a sweep that silently stopped would go unnoticed, and customers would stop getting emails.
+- `/health` has a Sentry uptime monitor, set up in Sentry, not in code. Railway only calls it during a deploy.
 - An event carries a failing request's method and path, nothing else. Even without `sendDefaultPii`, the SDK sends the request body, query string, headers and client IP by default, and ours carry customer names, emails, phone numbers and search terms. A tracking code in the path gives access to a ticket (ADR 0004), so it's masked there and in the transaction name, the same way the request logs mask it.
 - A Prisma validation error's message quotes the whole failing query, argument values included, whatever `errorFormat` is set. Only its first line (the call) and last line (what's wrong) are sent.
 - `SENTRY_DSN` is required in production, where the API refuses to start without it, and unset everywhere else, where the SDK does nothing.
