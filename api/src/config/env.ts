@@ -19,6 +19,11 @@ const envSchema = z
     RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
     // Error tracking (src/instrument.ts), off where unset.
     SENTRY_DSN: z.url().optional(),
+    // A secret key (sk_) or a restricted one (rk_).
+    STRIPE_SECRET_KEY: z.string().regex(/^(sk|rk)_/),
+    // Only deployed environments receive Stripe's webhooks, locally
+    // `stripe listen` prints its own secret.
+    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",
@@ -27,6 +32,10 @@ const envSchema = z
   .refine((env) => env.NODE_ENV !== "production" || env.SENTRY_DSN, {
     message: "Required in production",
     path: ["SENTRY_DSN"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.STRIPE_WEBHOOK_SECRET, {
+    message: "Required in production",
+    path: ["STRIPE_WEBHOOK_SECRET"],
   });
 
 export function validateEnv(config: Record<string, unknown>) {
