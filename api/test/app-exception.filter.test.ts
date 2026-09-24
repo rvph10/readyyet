@@ -40,6 +40,28 @@ describe("AppExceptionFilter", () => {
     });
   });
 
+  it("maps a 429 to RATE_LIMITED", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(new HttpException("Too Many Requests", 429), host);
+
+    expect(status).toHaveBeenCalledWith(429);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "RATE_LIMITED", message: "Too Many Requests", requestId: "req-1" },
+    });
+  });
+
+  it("maps an unlisted 5xx HttpException to INTERNAL_ERROR, not a client error", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(new HttpException("Service Unavailable Exception", 503), host);
+
+    expect(status).toHaveBeenCalledWith(503);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "INTERNAL_ERROR", message: "Service Unavailable Exception", requestId: "req-1" },
+    });
+  });
+
   it("hides an unexpected error behind a generic 500, logging it via the request logger", () => {
     const { host, status, json, log } = mockHost();
     const error = new Error("boom");

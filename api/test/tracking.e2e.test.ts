@@ -201,13 +201,14 @@ describe("Public tracking rate limit", () => {
   });
 
   it("allows 30 requests per minute, then answers 429", async () => {
-    const statuses: number[] = [];
+    const responses: request.Response[] = [];
     for (let i = 0; i < 31; i++) {
-      const response = await request(app.getHttpServer()).get("/tracking/doesnotexist");
-      statuses.push(response.status);
+      responses.push(await request(app.getHttpServer()).get("/tracking/doesnotexist"));
     }
 
-    expect(statuses.slice(0, 30).every((status) => status === 404)).toBe(true);
-    expect(statuses[30]).toBe(429);
+    expect(responses.slice(0, 30).every((response) => response.status === 404)).toBe(true);
+    expect(responses[30].status).toBe(429);
+    expect(responses[30].body.error.code).toBe("RATE_LIMITED");
+    expect(responses[30].headers["retry-after"]).toBeDefined();
   });
 });

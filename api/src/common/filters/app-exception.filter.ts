@@ -8,6 +8,7 @@ const STATUS_TO_CODE: Partial<Record<number, ErrorCode>> = {
   [HttpStatus.FORBIDDEN]: ErrorCode.UNAUTHORIZED,
   [HttpStatus.NOT_FOUND]: ErrorCode.NOT_FOUND,
   [HttpStatus.CONFLICT]: ErrorCode.CONFLICT,
+  [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.RATE_LIMITED,
 };
 
 @Catch()
@@ -41,7 +42,7 @@ export class AppExceptionFilter implements ExceptionFilter {
       const status = exception.getStatus();
       return {
         error: {
-          code: STATUS_TO_CODE[status] ?? ErrorCode.VALIDATION_ERROR,
+          code: STATUS_TO_CODE[status] ?? (status >= 500 ? ErrorCode.INTERNAL_ERROR : ErrorCode.VALIDATION_ERROR),
           message: exception.message,
           requestId,
         },
