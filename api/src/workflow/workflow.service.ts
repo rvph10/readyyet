@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { Locale } from "@readyyet/db";
+import { Plan, type Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { statusSelect } from "../common/status-select";
@@ -9,16 +9,24 @@ export class WorkflowService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getActiveWorkflow(locationId: string) {
-    const location = await this.prisma.location.findUnique({ where: { id: locationId } });
+    const location = await this.prisma.location.findUnique({
+      where: { id: locationId },
+      include: { subscription: true },
+    });
     if (!location) {
       throw new NotFoundError("Location not found");
     }
 
-    const workflow =
+    // A custom Workflow is Pro's (ADR 0031), on Essentiel it stays stored
+    // but new Tickets use the default one.
+    const custom =
+      location.subscription!.plan === Plan.PRO &&
       (await this.prisma.workflow.findFirst({
         where: { locationId, isActive: true },
         include: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
-      })) ??
+      }));
+    const workflow =
+      custom ||
       (await this.prisma.workflow.findFirst({
         where: { businessTypeId: location.businessTypeId, locationId: null, isActive: true },
         include: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },

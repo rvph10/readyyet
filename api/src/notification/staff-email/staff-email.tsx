@@ -162,3 +162,23 @@ export function buildAccountDeletedEmail(input: { locale: Locale; email: string 
   );
   return { subject: messages.subject, react };
 }
+
+export function buildTrialEndingEmail(input: { locale: Locale; location: string; days: number; billingUrl: string }) {
+  const messages = MESSAGES[input.locale].trialEnding;
+  const body = messages.body(input);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        {input.location}
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Section style={{ margin: "24px 0" }}>
+        <Button href={input.billingUrl} style={styles.button}>
+          {messages.button}
+        </Button>
+      </Section>
+      <Text style={styles.text}>{messages.kept}</Text>
+    </Layout>
+  );
+  return { subject: oneLine(messages.subject(input)), react };
+}

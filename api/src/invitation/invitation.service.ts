@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InvitationStatus, Prisma } from "@readyyet/db";
 import type { Invitation, User } from "@readyyet/db";
 import { isUUID } from "class-validator";
+import { BillingService } from "../billing/billing.service";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
@@ -22,10 +23,12 @@ export class InvitationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly billing: BillingService,
   ) {}
 
   async create(locationId: string, inviterId: string, dto: CreateInvitationDto) {
     assertCanManage(await roleAt(this.prisma, inviterId, locationId), dto.role);
+    await this.billing.assertRoomForMember(locationId);
 
     const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existingUser) {
@@ -106,6 +109,8 @@ export class InvitationService {
     if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
       throw new ConflictError("Only a pending invitation can be resent, send a new one instead");
     }
+    // Already counted in the member limit, only the freeze applies.
+    await this.billing.assertNotFrozen(locationId);
 
     const updated = await this.prisma.invitation.update({
       where: { id: invitation.id },

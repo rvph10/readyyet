@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus } from "@readyyet/db";
+import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { UpdateLocationDto } from "./dto/update-location.dto";
@@ -7,7 +8,10 @@ import { locationSelect, toLocationResponse } from "./location-select";
 
 @Injectable()
 export class LocationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly billing: BillingService,
+  ) {}
 
   async findById(locationId: string) {
     const location = await this.prisma.location.findUnique({ where: { id: locationId }, ...locationSelect });
@@ -36,6 +40,10 @@ export class LocationService {
   // The guard, tracking page and customer emails all treat a deleted
   // Location as gone, this only clears what would otherwise linger.
   async remove(locationId: string) {
+    // Stripe first: a Location deleted while still billed would be worse
+    // than one still there after its subscription ended, deleting it again
+    // finishes the job.
+    await this.billing.cancelNow(locationId);
     await this.prisma.$transaction([
       this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
       this.prisma.invitation.updateMany({

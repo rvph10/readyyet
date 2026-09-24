@@ -46,6 +46,20 @@ describe("POST /businesses", () => {
     expect(response.body.locations[0].name).toBe("Downtown");
   });
 
+  it("starts the first location on a 14-day Pro trial", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send(validPayload);
+
+    const subscription = await app
+      .get(PrismaService)
+      .subscription.findUniqueOrThrow({ where: { locationId: response.body.locations[0].id } });
+    expect(subscription).toMatchObject({ status: "TRIAL", plan: "PRO", stripeSubscriptionId: null });
+    const days = (subscription.trialEndsAt!.getTime() - Date.now()) / (24 * 60 * 60 * 1000);
+    expect(days).toBeCloseTo(14, 1);
+  });
+
   it("rejects an unknown business type code", async () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
@@ -163,6 +177,22 @@ describe("POST /businesses/:businessId/locations", () => {
 
     const me = await request(app.getHttpServer()).get("/me").set("Cookie", ownerCookie);
     expect(me.body.memberships.filter((m: { role: string }) => m.role === "OWNER")).toHaveLength(2);
+  });
+
+  it("starts a later location without a trial, it has to be paid for", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Third Shop",
+        businessTypeCode: "GARAGE",
+        contactPhone: "+12125550188",
+        contactEmail: "third@multiloc.test",
+        locale: "EN",
+      });
+
+    const subscription = await prisma.subscription.findUniqueOrThrow({ where: { locationId: response.body.id } });
+    expect(subscription).toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
   });
 
   it("rejects a non-owner, even an admin at an existing location under that business", async () => {

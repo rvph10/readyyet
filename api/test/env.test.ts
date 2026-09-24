@@ -9,6 +9,7 @@ const valid = {
   RESEND_API_KEY: "re_test",
   EMAIL_FROM: "ReadyYet <hello@readyyet.app>",
   SUPPORT_EMAIL: "support@readyyet.app",
+  STRIPE_SECRET_KEY: "sk_test_x",
 };
 
 describe("validateEnv", () => {
@@ -25,13 +26,24 @@ describe("validateEnv", () => {
     expect(check).toThrow(/WEB_URL/);
   });
 
-  it("requires the webhook secret and error tracking in production only", () => {
-    const production = { ...valid, NODE_ENV: "production" };
-    const sentryDsn = "https://key@o1.ingest.sentry.io/1";
+  it("requires the webhook secrets and error tracking in production only", () => {
+    const production = {
+      ...valid,
+      NODE_ENV: "production",
+      RESEND_WEBHOOK_SECRET: "whsec_x",
+      STRIPE_WEBHOOK_SECRET: "whsec_y",
+      SENTRY_DSN: "https://key@o1.ingest.sentry.io/1",
+    };
 
-    expect(() => validateEnv({ ...production, SENTRY_DSN: sentryDsn })).toThrow(/RESEND_WEBHOOK_SECRET/);
-    expect(() => validateEnv({ ...production, RESEND_WEBHOOK_SECRET: "whsec_x" })).toThrow(/SENTRY_DSN/);
-    expect(validateEnv({ ...production, RESEND_WEBHOOK_SECRET: "whsec_x", SENTRY_DSN: sentryDsn })).toBeTruthy();
+    expect(() => validateEnv({ ...production, RESEND_WEBHOOK_SECRET: undefined })).toThrow(/RESEND_WEBHOOK_SECRET/);
+    expect(() => validateEnv({ ...production, STRIPE_WEBHOOK_SECRET: undefined })).toThrow(/STRIPE_WEBHOOK_SECRET/);
+    expect(() => validateEnv({ ...production, SENTRY_DSN: undefined })).toThrow(/SENTRY_DSN/);
+    expect(validateEnv(production)).toBeTruthy();
+  });
+
+  it("rejects anything but a Stripe secret or restricted key", () => {
+    expect(() => validateEnv({ ...valid, STRIPE_SECRET_KEY: "pk_test_x" })).toThrow(/STRIPE_SECRET_KEY/);
+    expect(validateEnv({ ...valid, STRIPE_SECRET_KEY: "rk_test_x" })).toBeTruthy();
   });
 
   it("requires a real support address", () => {

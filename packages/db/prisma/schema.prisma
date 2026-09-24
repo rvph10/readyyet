@@ -112,23 +112,31 @@ enum Locale {
 }
 
 enum Plan {
-  TRIAL
+  ESSENTIEL
   PRO
 }
 
+enum BillingInterval {
+  MONTH
+  YEAR
+}
+
+// TRIAL is ours alone, Stripe has no subscription yet. The other three
+// mirror the Stripe subscription (ADR 0033).
 enum SubscriptionStatus {
-  TRIALING
+  TRIAL
   ACTIVE
   PAST_DUE
-  CANCELED
+  ENDED
 }
 
 model Business {
-  id        String   @id @default(uuid()) @db.Uuid
-  ownerId   String   @map("owner_id")
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid()) @db.Uuid
+  ownerId          String   @map("owner_id")
+  name             String
+  stripeCustomerId String?  @unique @map("stripe_customer_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   owner     User       @relation("BusinessOwner", fields: [ownerId], references: [id])
   locations Location[]
@@ -407,13 +415,22 @@ enum EmailStatus {
   FAILED
 }
 
+// A Location's billing state (ADR 0031, ADR 0033). During a trial `plan`
+// is PRO, a Location that never had a trial nor paid has none.
 model Subscription {
   locationId           String             @id @map("location_id") @db.Uuid
-  stripeCustomerId     String             @map("stripe_customer_id")
+  status               SubscriptionStatus
+  plan                 Plan?
+  interval             BillingInterval?
+  trialEndsAt          DateTime?          @map("trial_ends_at")
+  trialReminderSentAt  DateTime?          @map("trial_reminder_sent_at")
   stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
-  plan                 Plan               @default(TRIAL)
-  status               SubscriptionStatus @default(TRIALING)
   currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  // A move to a cheaper price waiting for the period to end.
+  scheduledPlan        Plan?              @map("scheduled_plan")
+  scheduledInterval    BillingInterval?   @map("scheduled_interval")
+  createdAt            DateTime           @default(now()) @map("created_at")
   updatedAt            DateTime           @updatedAt @map("updated_at")
 
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)

@@ -7,6 +7,7 @@ import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { WorkflowService } from "../workflow/workflow.service";
+import { BillingService } from "../billing/billing.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
@@ -57,6 +58,7 @@ export class TicketService {
     private readonly prisma: PrismaService,
     private readonly workflow: WorkflowService,
     private readonly notification: NotificationService,
+    private readonly billing: BillingService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -67,6 +69,7 @@ export class TicketService {
       throw new ValidationError("Provide either customerId or customer");
     }
 
+    await this.billing.assertNotFrozen(locationId);
     const activeWorkflow = await this.workflow.getActiveWorkflow(locationId);
     const firstStep = activeWorkflow.steps[0];
     const workflowId = BigInt(activeWorkflow.id);

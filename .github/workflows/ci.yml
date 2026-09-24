@@ -137,6 +137,9 @@ jobs:
       # it only signs sessions of a throwaway CI database.
       BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
       BETTER_AUTH_URL: http://localhost:3000
+      # Never called: the billing tests replace the Stripe client
+      # (api/src/billing/stripe-client.ts), startup only checks the shape.
+      STRIPE_SECRET_KEY: sk_test_ci_only_never_used
 
     steps:
       - uses: actions/checkout@v7
