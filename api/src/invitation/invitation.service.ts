@@ -9,6 +9,9 @@ import { assertCanManage, roleAt } from "../membership/team-rules";
 import { buildInvitationEmail } from "../notification/staff-email/staff-email";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
+// Who sent it, for the dashboard, rather than a bare user id.
+const INVITATION_INCLUDE = { include: { inviter: { select: { id: true, name: true } } } } as const;
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const INVITATION_TTL_MS = 7 * DAY_MS;
 
@@ -46,7 +49,7 @@ export class InvitationService {
       data: { status: InvitationStatus.EXPIRED },
     });
 
-    let invitation: Invitation;
+    let invitation: Invitation & { inviter: { id: string; name: string } };
     try {
       invitation = await this.prisma.invitation.create({
         data: {
@@ -56,6 +59,7 @@ export class InvitationService {
           invitedBy: inviterId,
           expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
         },
+        ...INVITATION_INCLUDE,
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -68,11 +72,16 @@ export class InvitationService {
       this.logger.error(`Failed to send invitation email for ${invitation.id}`, err instanceof Error ? err.stack : err);
     });
 
-    return invitation;
+    return serialize(invitation);
   }
 
   async list(locationId: string) {
-    return this.prisma.invitation.findMany({ where: { locationId }, orderBy: { createdAt: "desc" } });
+    const invitations = await this.prisma.invitation.findMany({
+      where: { locationId },
+      orderBy: { createdAt: "desc" },
+      ...INVITATION_INCLUDE,
+    });
+    return invitations.map(serialize);
   }
 
   async revoke(locationId: string, actorId: string, invitationId: string) {
@@ -82,10 +91,12 @@ export class InvitationService {
       throw new ConflictError("Only a pending invitation can be revoked");
     }
 
-    return this.prisma.invitation.update({
+    const revoked = await this.prisma.invitation.update({
       where: { id: invitationId },
       data: { status: InvitationStatus.REVOKED },
+      ...INVITATION_INCLUDE,
     });
+    return serialize(revoked);
   }
 
   // Sends the same link again and gives it a fresh 7 days (ADR 0017).
@@ -99,11 +110,12 @@ export class InvitationService {
     const updated = await this.prisma.invitation.update({
       where: { id: invitation.id },
       data: { expiresAt: new Date(Date.now() + INVITATION_TTL_MS) },
+      ...INVITATION_INCLUDE,
     });
     this.sendInviteEmail(updated).catch((err) => {
       this.logger.error(`Failed to resend invitation email for ${updated.id}`, err instanceof Error ? err.stack : err);
     });
-    return updated;
+    return serialize(updated);
   }
 
   async accept(invitationId: string, user: User) {
@@ -198,4 +210,8 @@ export class InvitationService {
       replyTo: inviter.deletedAt ? location.contactEmail : inviter.email,
     });
   }
+}
+
+function serialize({ inviter, ...invitation }: Invitation & { inviter: { id: string; name: string } }) {
+  return { ...invitation, invitedBy: inviter };
 }

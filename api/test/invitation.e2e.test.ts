@@ -69,7 +69,8 @@ describe("Invitations", () => {
     const log = await vi.waitFor(() =>
       prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
     );
-    const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy } });
+    const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy.id } });
+    expect(invitation.body.invitedBy).toEqual({ id: owner.id, name: owner.name });
     expect(log).toMatchObject({
       subject: "Test User invited you to join Main Shop on ReadyYet",
       fromName: "Main Shop via ReadyYet",

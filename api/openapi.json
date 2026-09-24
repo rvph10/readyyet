@@ -4039,6 +4039,21 @@
           "role"
         ]
       },
+      "InviterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "InvitationDto": {
         "type": "object",
         "properties": {
@@ -4068,7 +4083,7 @@
             "type": "string"
           },
           "invitedBy": {
-            "type": "string"
+            "$ref": "#/components/schemas/InviterDto"
           },
           "expiresAt": {
             "format": "date-time",
