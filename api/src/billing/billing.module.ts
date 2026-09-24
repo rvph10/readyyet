@@ -8,5 +8,6 @@ import { StripeWebhookController } from "./stripe-webhook.controller";
   imports: [DatabaseModule],
   controllers: [BillingController, StripeWebhookController],
   providers: [BillingService],
+  exports: [BillingService],
 })
 export class BillingModule {}

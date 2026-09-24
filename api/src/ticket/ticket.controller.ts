@@ -25,7 +25,7 @@ export class TicketController {
 
   @Post()
   @ApiOperation({ summary: "Create a ticket (with an inline customer or an existing customerId)" })
-  @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.PAYMENT_REQUIRED)
   create(
     @Param("locationId") locationId: string,
     @CurrentUser() user: User,

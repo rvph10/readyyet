@@ -349,3 +349,80 @@ describe("POST /webhooks/stripe", () => {
     expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
   });
 });
+
+describe("What a location's plan allows", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let locationId: string;
+
+  const invite = (email: string) =>
+    request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email, role: "EMPLOYEE" });
+  const createTicket = () =>
+    request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Brake inspection", customer: { fullName: "Alice Driver" } });
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+plan-limits-${Date.now()}@resend.dev`);
+    ({ locationId } = await createBusiness(app, ownerCookie, "Limits Co"));
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("freezes new tickets and invitations once the trial is over, not what's already there", async () => {
+    const ticket = await createTicket();
+    const pending = await invite(`delivered+plan-limits-pending-${Date.now()}@resend.dev`);
+    await prisma.subscription.update({ where: { locationId }, data: { trialEndsAt: new Date(Date.now() - 1000) } });
+
+    const frozenTicket = await createTicket();
+    expect(frozenTicket.status).toBe(402);
+    expect(frozenTicket.body.error.code).toBe("LOCATION_FROZEN");
+    expect((await invite(`delivered+plan-limits-new-${Date.now()}@resend.dev`)).status).toBe(402);
+    const resent = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations/${pending.body.id}/resend`)
+      .set("Cookie", ownerCookie);
+    expect(resent.status).toBe(402);
+
+    const moved = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${ticket.body.id}/status`)
+      .set("Cookie", ownerCookie)
+      .send({ statusCode: "READY" });
+    expect(moved.status).toBe(200);
+    expect((await request(app.getHttpServer()).get(`/tracking/${ticket.body.trackingCode}`)).status).toBe(200);
+  });
+
+  it("holds Essentiel to 2 members counting pending invitations, a resend adds no one", async () => {
+    await prisma.invitation.updateMany({ where: { locationId }, data: { status: "REVOKED" } });
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", plan: "ESSENTIEL", interval: "MONTH" },
+    });
+
+    const second = await invite(`delivered+plan-limits-second-${Date.now()}@resend.dev`);
+    expect(second.status).toBe(201);
+
+    const third = await invite(`delivered+plan-limits-third-${Date.now()}@resend.dev`);
+    expect(third.status).toBe(409);
+    expect(third.body.error.code).toBe("MEMBER_LIMIT_REACHED");
+
+    const resent = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations/${second.body.id}/resend`)
+      .set("Cookie", ownerCookie);
+    expect(resent.status).toBe(200);
+  });
+
+  it("lets Pro invite past 2", async () => {
+    await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO" } });
+
+    expect((await invite(`delivered+plan-limits-pro-${Date.now()}@resend.dev`)).status).toBe(201);
+  });
+});

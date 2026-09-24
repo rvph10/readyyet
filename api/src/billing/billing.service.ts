@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus, Plan, SubscriptionStatus } from "@readyyet/db";
-import { ConflictError } from "../common/errors/app-error";
+import { ConflictError, LocationFrozenError, MemberLimitError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { ChoosePlanDto } from "./dto/choose-plan.dto";
 import { BillingDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
-import { isFrozen, lookupKey, memberLimit } from "./plans";
+import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit } from "./plans";
 import { getStripeClient } from "./stripe-client";
 import { toSubscriptionRow } from "./stripe-sync";
 
@@ -42,8 +42,8 @@ export class BillingService {
     if (subscription.status === SubscriptionStatus.ACTIVE || subscription.status === SubscriptionStatus.PAST_DUE) {
       throw new ConflictError("This location already has a subscription, change its plan instead");
     }
-    if (dto.plan === Plan.ESSENTIEL) {
-      await this.assertWithinEssentielLimit(locationId);
+    if (dto.plan === Plan.ESSENTIEL && (await this.countMembers(locationId)) > ESSENTIEL_MEMBER_LIMIT) {
+      throw new MemberLimitError(ESSENTIEL_MEMBER_LIMIT);
     }
 
     const stripe = getStripeClient();
@@ -77,17 +77,35 @@ export class BillingService {
     return { url: session.url! };
   }
 
+  // What a frozen Location can't do: create Tickets (ADR 0031).
+  async assertNotFrozen(locationId: string) {
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    if (isFrozen(subscription)) {
+      throw new LocationFrozenError();
+    }
+  }
+
+  // Before an invitation that would add a member.
+  async assertRoomForMember(locationId: string) {
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    if (isFrozen(subscription)) {
+      throw new LocationFrozenError();
+    }
+    const limit = memberLimit(subscription);
+    if (limit && (await this.countMembers(locationId)) >= limit) {
+      throw new MemberLimitError(limit);
+    }
+  }
+
   // Memberships and pending invitations both count (ADR 0031).
-  async assertWithinEssentielLimit(locationId: string) {
+  private async countMembers(locationId: string) {
     const [members, invitations] = await Promise.all([
       this.prisma.membership.count({ where: { locationId } }),
       this.prisma.invitation.count({
         where: { locationId, status: InvitationStatus.PENDING, expiresAt: { gt: new Date() } },
       }),
     ]);
-    if (members + invitations > 2) {
-      throw new ConflictError("Essentiel allows 2 members, remove members or revoke invitations first");
-    }
+    return members + invitations;
   }
 
   // Every webhook ends here (ADR 0033): Stripe's current state is written
