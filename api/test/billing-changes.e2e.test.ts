@@ -1,0 +1,289 @@
+// Must run before AppModule is imported: auth.ts constructs a PrismaClient
+// at module-evaluation time, so DATABASE_URL has to already be set.
+import "dotenv/config";
+import { INestApplication } from "@nestjs/common";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import request from "supertest";
+import { PrismaService } from "../src/database/prisma.service";
+import { createBusiness, stripe } from "./support/billing";
+import { createTestApp } from "./support/create-test-app";
+import { signInViaOtp } from "./support/sign-in-via-otp";
+
+// Hoisted by vitest above the imports, so the app gets the fake client.
+vi.mock("../src/billing/stripe-client", async () => {
+  const { stripe } = await import("./support/billing");
+  return { getStripeClient: () => stripe };
+});
+
+describe("Changing and cancelling a paying location's plan", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let locationId: string;
+  const subscriptionId = `sub_plan_${Date.now()}`;
+  const periodEnd = Math.floor(Date.now() / 1000) + 20 * 24 * 60 * 60;
+
+  const prices: Record<string, object> = {
+    essentiel_monthly: {
+      id: "price_em",
+      lookup_key: "essentiel_monthly",
+      unit_amount: 2900,
+      recurring: { interval: "month" },
+    },
+    essentiel_yearly: {
+      id: "price_ey",
+      lookup_key: "essentiel_yearly",
+      unit_amount: 29000,
+      recurring: { interval: "year" },
+    },
+    pro_monthly: { id: "price_pm", lookup_key: "pro_monthly", unit_amount: 4900, recurring: { interval: "month" } },
+    pro_yearly: { id: "price_py", lookup_key: "pro_yearly", unit_amount: 49000, recurring: { interval: "year" } },
+  };
+  // What Stripe answers for the subscription, on `key`'s price.
+  const onStripe = (key: string, fields: object = {}) =>
+    stripe.subscriptions.retrieve.mockResolvedValue({
+      id: subscriptionId,
+      status: "active",
+      metadata: { locationId },
+      cancel_at_period_end: false,
+      schedule: null,
+      items: { data: [{ id: "si_1", current_period_end: periodEnd, price: prices[key] }] },
+      ...fields,
+    });
+  const choose = (plan: string, interval: string, cookie = ownerCookie) =>
+    request(app.getHttpServer())
+      .post(`/locations/${locationId}/billing/plan`)
+      .set("Cookie", cookie)
+      .send({ plan, interval });
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+plan-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+plan-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    ({ locationId } = await createBusiness(app, ownerCookie, "Plan Co"));
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+  });
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    stripe.prices.list.mockImplementation(({ lookup_keys: [key] }: { lookup_keys: string[] }) =>
+      Promise.resolve({ data: [prices[key]] }),
+    );
+    stripe.subscriptions.update.mockResolvedValue({ pending_update: null });
+    stripe.subscriptionSchedules.create.mockResolvedValue({ id: "sub_sched_1", phases: [{ start_date: 1000 }] });
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", plan: "ESSENTIEL", interval: "MONTH", stripeSubscriptionId: subscriptionId },
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("moves to Pro at once, prorated, and only if its invoice is paid", async () => {
+    onStripe("essentiel_monthly");
+
+    const response = await choose("PRO", "MONTH", adminCookie);
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, {
+      items: [{ id: "si_1", price: "price_pm" }],
+      proration_behavior: "always_invoice",
+      payment_behavior: "pending_if_incomplete",
+    });
+    expect(stripe.subscriptionSchedules.create).not.toHaveBeenCalled();
+  });
+
+  it("says so when the payment for a move up fails", async () => {
+    onStripe("essentiel_monthly");
+    stripe.subscriptions.update.mockResolvedValue({ pending_update: { expires_at: 1 } });
+
+    expect((await choose("PRO", "YEAR")).status).toBe(409);
+  });
+
+  it("waits for the period end to move to a cheaper price, through a schedule", async () => {
+    onStripe("pro_monthly");
+
+    const response = await choose("PRO", "YEAR");
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptions.update).not.toHaveBeenCalled();
+    expect(stripe.subscriptionSchedules.create).toHaveBeenCalledWith({ from_subscription: subscriptionId });
+    expect(stripe.subscriptionSchedules.update).toHaveBeenCalledWith("sub_sched_1", {
+      end_behavior: "release",
+      phases: [
+        { items: [{ price: "price_pm" }], start_date: 1000, end_date: periodEnd },
+        {
+          items: [{ price: "price_py" }],
+          duration: { interval: "year", interval_count: 1 },
+          proration_behavior: "none",
+          metadata: { lookupKey: "pro_yearly" },
+        },
+      ],
+    });
+  });
+
+  it("refuses a move to Essentiel while the location has more than 2 members", async () => {
+    onStripe("pro_monthly");
+    await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO" } });
+    const invited = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: `delivered+plan-extra-${Date.now()}@resend.dev`, role: "EMPLOYEE" });
+    expect(invited.status).toBe(201);
+
+    const response = await choose("ESSENTIEL", "MONTH");
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.code).toBe("MEMBER_LIMIT_REACHED");
+    await prisma.invitation.updateMany({ where: { locationId }, data: { status: "REVOKED" } });
+  });
+
+  it("undoes a waiting change or cancellation when the current plan is chosen again", async () => {
+    onStripe("pro_monthly", { cancel_at_period_end: true, schedule: { id: "sub_sched_1", phases: [] } });
+
+    const response = await choose("PRO", "MONTH");
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptionSchedules.release).toHaveBeenCalledWith("sub_sched_1");
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, { cancel_at_period_end: false });
+  });
+
+  it("refuses the plan the location is already on, with nothing waiting", async () => {
+    onStripe("pro_monthly");
+
+    expect((await choose("PRO", "MONTH")).status).toBe(409);
+  });
+
+  it("sends a location without a subscription to checkout", async () => {
+    await prisma.subscription.update({ where: { locationId }, data: { status: "ENDED" } });
+
+    expect((await choose("PRO", "MONTH")).status).toBe(409);
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
+  });
+
+  it("lets the owner cancel at the period end, not an admin", async () => {
+    onStripe("pro_monthly");
+    const cancel = (cookie: string) =>
+      request(app.getHttpServer()).post(`/locations/${locationId}/billing/cancel`).set("Cookie", cookie);
+
+    expect((await cancel(adminCookie)).status).toBe(403);
+    expect((await cancel(ownerCookie)).status).toBe(200);
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, { cancel_at_period_end: true });
+
+    onStripe("pro_monthly", { cancel_at_period_end: true });
+    expect((await cancel(ownerCookie)).status).toBe(409);
+  });
+});
+
+describe("Deleting a location", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+billing-delete-${Date.now()}@resend.dev`);
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const remove = (locationId: string) =>
+    request(app.getHttpServer()).delete(`/locations/${locationId}`).set("Cookie", ownerCookie);
+
+  it("cancels its subscription at once", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Closing Co");
+    const subscriptionId = `sub_delete_${Date.now()}`;
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", plan: "PRO", interval: "MONTH", stripeSubscriptionId: subscriptionId },
+    });
+
+    expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith(subscriptionId);
+  });
+
+  it("has nothing to cancel during the trial", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Trial Co");
+
+    expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.cancel).not.toHaveBeenCalled();
+  });
+
+  it("keeps the location when Stripe can't cancel, so it's never deleted while still billed", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Stuck Co");
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", stripeSubscriptionId: `sub_stuck_${Date.now()}` },
+    });
+    stripe.subscriptions.cancel.mockRejectedValueOnce(new Error("Stripe is down"));
+
+    expect((await remove(locationId)).status).toBe(500);
+    expect((await prisma.location.findUniqueOrThrow({ where: { id: locationId } })).deletedAt).toBeNull();
+  });
+});
+
+describe("POST /businesses/:businessId/billing/portal", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let businessId: string;
+  let locationId: string;
+
+  const portal = (cookie: string) =>
+    request(app.getHttpServer()).post(`/businesses/${businessId}/billing/portal`).set("Cookie", cookie);
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+portal-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+portal-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    ({ businessId, locationId } = await createBusiness(app, ownerCookie, "Portal Co"));
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+    stripe.billingPortal.sessions.create.mockResolvedValue({ url: "https://billing.stripe.com/p/session/test" });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("has nothing to show before the business has paid", async () => {
+    expect((await portal(ownerCookie)).status).toBe(409);
+  });
+
+  it("opens the business's Stripe customer for its owner", async () => {
+    await prisma.business.update({ where: { id: businessId }, data: { stripeCustomerId: `cus_portal_${Date.now()}` } });
+
+    const response = await portal(ownerCookie);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ url: "https://billing.stripe.com/p/session/test" });
+  });
+
+  it("is the owner's alone", async () => {
+    expect((await portal(adminCookie)).status).toBe(403);
+  });
+});
