@@ -1,4 +1,9 @@
-import { ArgumentsHost, HttpException, InternalServerErrorException, ServiceUnavailableException } from "@nestjs/common";
+import {
+  ArgumentsHost,
+  HttpException,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from "@nestjs/common";
 import { Prisma } from "@readyyet/db";
 import * as Sentry from "@sentry/nestjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
