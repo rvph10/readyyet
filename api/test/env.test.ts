@@ -8,6 +8,7 @@ const valid = {
   WEB_URL: "http://localhost:3001",
   RESEND_API_KEY: "re_test",
   EMAIL_FROM: "ReadyYet <hello@readyyet.app>",
+  SUPPORT_EMAIL: "support@readyyet.app",
 };
 
 describe("validateEnv", () => {
@@ -27,6 +28,11 @@ describe("validateEnv", () => {
   it("requires the webhook secret in production only", () => {
     expect(() => validateEnv({ ...valid, NODE_ENV: "production" })).toThrow(/RESEND_WEBHOOK_SECRET/);
     expect(validateEnv({ ...valid, NODE_ENV: "production", RESEND_WEBHOOK_SECRET: "whsec_x" })).toBeTruthy();
+  });
+
+  it("requires a real support address", () => {
+    expect(() => validateEnv({ ...valid, SUPPORT_EMAIL: undefined })).toThrow(/SUPPORT_EMAIL/);
+    expect(() => validateEnv({ ...valid, SUPPORT_EMAIL: "support" })).toThrow(/SUPPORT_EMAIL/);
   });
 
   it("rejects a secret too short to be safe", () => {
