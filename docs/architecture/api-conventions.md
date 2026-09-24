@@ -50,7 +50,7 @@ Every error from our own routes has one shape, written by `AppExceptionFilter`:
 
 | Status | `code`                      | When                                                                                                                         |
 | ------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 400    | `VALIDATION_ERROR`          | Invalid input. `details` lists each rejected property and its failed rules.                                                  |
+| 400    | `VALIDATION_ERROR`          | Invalid input. `details` lists each rejected property (`customer.email` inside an object) and its failed rules.              |
 | 401    | `UNAUTHENTICATED`           | No valid session.                                                                                                            |
 | 403    | `UNAUTHORIZED`              | Signed in, but not a member of this Location (or not the Business's Owner), or the Role doesn't allow it.                    |
 | 403    | `REAUTHENTICATION_REQUIRED` | The session is too old for this action, sign in again (account deletion).                                                    |

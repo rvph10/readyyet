@@ -3,9 +3,9 @@ import { ApiErrorResponse, ErrorCode } from "@readyyet/shared";
 
 export class ValidationIssueDto {
   property!: string;
-  // Rule name to message. Absent when only a nested property failed.
+  // Rule name to message.
   @ApiProperty({ type: "object", additionalProperties: { type: "string" } })
-  constraints?: Record<string, string>;
+  constraints!: Record<string, string>;
 }
 
 export class ApiErrorDto {

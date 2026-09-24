@@ -3144,6 +3144,7 @@
           }
         },
         "required": [
+          "constraints",
           "property"
         ]
       },
