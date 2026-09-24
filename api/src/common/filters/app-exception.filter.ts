@@ -62,11 +62,10 @@ export class AppExceptionFilter implements ExceptionFilter {
       };
     }
 
-    if (exception instanceof HttpException) {
-      const status = exception.getStatus();
+    if (exception instanceof HttpException && exception.getStatus() < 500) {
       return {
         error: {
-          code: STATUS_TO_CODE[status] ?? (status >= 500 ? ErrorCode.INTERNAL_ERROR : ErrorCode.VALIDATION_ERROR),
+          code: STATUS_TO_CODE[exception.getStatus()] ?? ErrorCode.VALIDATION_ERROR,
           message: exception.message,
           requestId,
         },

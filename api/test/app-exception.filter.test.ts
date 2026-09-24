@@ -1,4 +1,4 @@
-import { ArgumentsHost, HttpException } from "@nestjs/common";
+import { ArgumentsHost, HttpException, InternalServerErrorException, ServiceUnavailableException } from "@nestjs/common";
 import { Prisma } from "@readyyet/db";
 import * as Sentry from "@sentry/nestjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -92,15 +92,26 @@ describe("AppExceptionFilter", () => {
     expect(captureException).not.toHaveBeenCalled();
   });
 
-  it("maps an unlisted 5xx HttpException to INTERNAL_ERROR, not a client error", () => {
-    const { host, status, json } = mockHost();
+  it("treats a 5xx HttpException like an unexpected error: logged, reported, generic message", () => {
+    const { host, status, json, log } = mockHost();
+    const error = new InternalServerErrorException("connection string has password=hunter2");
 
-    filter.catch(new HttpException("Service Unavailable Exception", 503), host);
+    filter.catch(error, host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "INTERNAL_ERROR", message: "Internal server error", requestId: "req-1" },
+    });
+    expect(log.error).toHaveBeenCalledWith(error.stack);
+    expect(captureException).toHaveBeenCalledWith(error);
+  });
+
+  it("keeps a 5xx HttpException's own status", () => {
+    const { host, status } = mockHost();
+
+    filter.catch(new ServiceUnavailableException(), host);
 
     expect(status).toHaveBeenCalledWith(503);
-    expect(json).toHaveBeenCalledWith({
-      error: { code: "INTERNAL_ERROR", message: "Service Unavailable Exception", requestId: "req-1" },
-    });
   });
 
   it("maps a unique constraint violation to a 409, without Prisma's message", () => {
