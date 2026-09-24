@@ -22,19 +22,15 @@ export default defineRailway((ctx) => {
       builder: "RAILPACK",
       buildCommand:
         "pnpm --filter @readyyet/db run generate && pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/api run build",
-      // Every commit deploys, a docs-only one included: promoting to main
-      // checks staging runs exactly the commit being promoted.
-      watchPatterns: [],
+      // No watchPatterns, on purpose: every commit deploys, a docs-only one
+      // included, since promoting to main checks staging runs exactly the
+      // commit being promoted.
     },
     // The seed only adds what's missing, so it's safe on every deploy.
     preDeploy: "pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed",
     start: "node --enable-source-maps api/dist/main.js",
     healthcheck: "/health",
     replicas: { [REGION]: 1 },
-    deploy: {
-      restartPolicyType: "ON_FAILURE",
-      restartPolicyMaxRetries: 10,
-    },
     env: {
       NODE_ENV: "production",
       DATABASE_URL: db.env.DATABASE_URL,
