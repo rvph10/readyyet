@@ -181,6 +181,11 @@ describe("Customers", () => {
       expect(response.status).toBe(200);
       names.push(...response.body.items.map((customer: { fullName: string }) => customer.fullName));
       cursor = response.body.nextCursor;
+      // Only the id: the cursor is in the URL, which the logs and Railway's
+      // proxy record, so it can't carry the customer's name.
+      if (cursor) {
+        expect(cursor).toBe(response.body.items[0].id);
+      }
     } while (cursor);
 
     expect(names.length).toBeGreaterThanOrEqual(2);
@@ -188,18 +193,40 @@ describe("Customers", () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it.each(["not-a-cursor", Buffer.from('["A","99999999999999999999"]').toString("base64url")])(
-    "rejects the malformed cursor %s",
-    async (cursor) => {
-      const response = await request(app.getHttpServer())
-        .get(`/locations/${locationId}/customers`)
-        .query({ cursor })
-        .set("Cookie", ownerCookie);
+  it.each(["not-a-cursor", "99999999999999999999", "999999999"])("rejects the malformed cursor %s", async (cursor) => {
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/customers`)
+      .query({ cursor })
+      .set("Cookie", ownerCookie);
 
-      expect(response.status).toBe(400);
-      expect(response.body.error.code).toBe("VALIDATION_ERROR");
-    },
-  );
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects another location's customer as a cursor", async () => {
+    const other = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", otherCookie)
+      .send({
+        name: "Other Garage",
+        location: {
+          name: "Other Shop",
+          businessTypeCode: "GARAGE",
+          contactPhone: "+12125550124",
+          contactEmail: "shop@othercustomertest.test",
+          locale: "EN",
+        },
+      });
+    const foreignId = await createTicketWithCustomer(app, otherCookie, other.body.locations[0].id, "Carol Foreign");
+
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/customers`)
+      .query({ cursor: foreignId })
+      .set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
 
   it("rejects a signed-in user with no membership at that location", async () => {
     const response = await request(app.getHttpServer())

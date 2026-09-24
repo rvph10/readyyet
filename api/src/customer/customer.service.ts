@@ -8,32 +8,13 @@ import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
 
-// Keyset pagination on (fullName, id), like tickets on (createdAt, id), see
-// docs/architecture/data-model.md#pagination.
-function encodeCursor(fullName: string, id: bigint): string {
-  return Buffer.from(JSON.stringify([fullName, id.toString()])).toString("base64url");
-}
-
-function decodeCursor(cursor: string): { fullName: string; id: bigint } {
-  let value: unknown;
-  try {
-    value = JSON.parse(Buffer.from(cursor, "base64url").toString());
-  } catch {
-    throw new ValidationError("Invalid cursor");
-  }
-  if (!Array.isArray(value) || typeof value[0] !== "string" || !isBigIntId(String(value[1]))) {
-    throw new ValidationError("Invalid cursor");
-  }
-  return { fullName: value[0], id: BigInt(value[1] as string) };
-}
-
 @Injectable()
 export class CustomerService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(locationId: string, query: ListCustomersQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
+    const after = query.cursor ? await this.cursorPosition(locationId, query.cursor) : undefined;
     const customers = await this.prisma.customer.findMany({
       where: {
         locationId,
@@ -52,7 +33,7 @@ export class CustomerService {
     const last = page[page.length - 1];
     return {
       items: page.map((customer) => this.serialize(customer)),
-      nextCursor: customers.length > take ? encodeCursor(last.fullName, last.id) : null,
+      nextCursor: customers.length > take ? last.id.toString() : null,
     };
   }
 
@@ -88,6 +69,24 @@ export class CustomerService {
       where: { id: customer.id },
       data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
     });
+  }
+
+  // Keyset pagination on (fullName, id), like tickets on (createdAt, id), see
+  // docs/architecture/data-model.md#pagination. The cursor is only the last
+  // customer's id, the name is looked up here: a cursor carrying it would
+  // put a customer's name in every URL, which the logs and Railway's proxy
+  // record as is.
+  private async cursorPosition(locationId: string, cursor: string) {
+    const customer = isBigIntId(cursor)
+      ? await this.prisma.customer.findFirst({
+          where: { id: BigInt(cursor), locationId },
+          select: { id: true, fullName: true },
+        })
+      : null;
+    if (!customer) {
+      throw new ValidationError("Invalid cursor");
+    }
+    return customer;
   }
 
   private async loadActive(locationId: string, customerId: string) {
