@@ -25,4 +25,10 @@ describe("GET /health", () => {
     expect(response.body.status).toBe("ok");
     expect(response.body.info.database.status).toBe("up");
   });
+
+  it("names the commit it runs", async () => {
+    const response = await request(app.getHttpServer()).get("/health");
+
+    expect(response.headers["x-release"]).toBe(process.env.RAILWAY_GIT_COMMIT_SHA ?? "unknown");
+  });
 });

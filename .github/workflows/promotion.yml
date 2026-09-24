@@ -1,0 +1,43 @@
+name: Promotion
+
+# Required on main (ADR 0023): only staging is merged into main, and only
+# once staging runs exactly that commit and is healthy.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  promotion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Only staging is merged into main
+        if: github.head_ref != 'staging' || github.event.pull_request.head.repo.full_name != github.repository
+        # Through env, not interpolated into the script: a fork picks its
+        # branch name.
+        env:
+          HEAD: ${{ github.event.pull_request.head.label }}
+        run: |
+          echo "::error::Only staging can be merged into main, this PR comes from $HEAD"
+          exit 1
+
+      - name: Staging runs this commit and is healthy
+        env:
+          SHA: ${{ github.event.pull_request.head.sha }}
+          HEALTH_URL: https://api-staging-327d.up.railway.app/health
+        # Railway deploys staging a few minutes after the push, so wait for it.
+        # curl -f: anything but a 200 counts as not healthy yet.
+        run: |
+          for attempt in $(seq 1 30); do
+            release=$(curl -fsS -m 10 -o /dev/null -D - "$HEALTH_URL" | tr -d '\r' | awk -F': ' 'tolower($1) == "x-release" { print $2 }') || release=""
+            if [ "$release" = "$SHA" ]; then
+              echo "Staging runs $SHA and /health answers 200"
+              exit 0
+            fi
+            echo "Staging runs ${release:-nothing healthy}, waiting for $SHA"
+            sleep 30
+          done
+          echo "::error::Staging isn't healthy on $SHA after 15 minutes"
+          exit 1
