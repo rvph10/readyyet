@@ -766,12 +766,12 @@
         ]
       }
     },
-    "/locations/{locationId}": {
-      "get": {
-        "operationId": "LocationController_findOne",
+    "/businesses/{businessId}/billing/portal": {
+      "post": {
+        "operationId": "BusinessController_billingPortal",
         "parameters": [
           {
-            "name": "locationId",
+            "name": "businessId",
             "required": true,
             "in": "path",
             "schema": {
@@ -785,7 +785,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LocationDto"
+                  "$ref": "#/components/schemas/RedirectDto"
                 }
               }
             }
@@ -812,6 +812,16 @@
           },
           "404": {
             "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
             "content": {
               "application/json": {
                 "schema": {
@@ -866,230 +876,9 @@
             "cookie": []
           }
         ],
-        "summary": "Get a location's own fields",
+        "summary": "Open Stripe's page for the business's cards, invoices and billing details (owner only)",
         "tags": [
-          "Locations"
-        ]
-      },
-      "patch": {
-        "operationId": "LocationController_update",
-        "parameters": [
-          {
-            "name": "locationId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateLocationDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LocationDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "VALIDATION_ERROR: the request is invalid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "UNAUTHENTICATED: no valid session",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "VALIDATION_ERROR: the request body is over the size limit",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "415": {
-            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Update a location's settings",
-        "tags": [
-          "Locations"
-        ]
-      },
-      "delete": {
-        "operationId": "LocationController_remove",
-        "parameters": [
-          {
-            "name": "locationId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "401": {
-            "description": "UNAUTHENTICATED: no valid session",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "VALIDATION_ERROR: the request body is over the size limit",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "415": {
-            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Delete a location for good, owner only (ADR 0017)",
-        "tags": [
-          "Locations"
+          "Businesses"
         ]
       }
     },
@@ -1584,6 +1373,333 @@
         "summary": "Stop paying for a location at the end of its period, owner only (ADR 0033)",
         "tags": [
           "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}": {
+      "get": {
+        "operationId": "LocationController_findOne",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a location's own fields",
+        "tags": [
+          "Locations"
+        ]
+      },
+      "patch": {
+        "operationId": "LocationController_update",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a location's settings",
+        "tags": [
+          "Locations"
+        ]
+      },
+      "delete": {
+        "operationId": "LocationController_remove",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a location for good, owner only (ADR 0017)",
+        "tags": [
+          "Locations"
         ]
       }
     },
@@ -5137,33 +5253,16 @@
           "userId"
         ]
       },
-      "UpdateLocationDto": {
+      "RedirectDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "contactPhone": {
+          "url": {
             "type": "string"
-          },
-          "contactEmail": {
-            "type": "string",
-            "format": "email"
-          },
-          "logoUrl": {
-            "type": "string",
-            "maxLength": 2048,
-            "format": "uri"
-          },
-          "locale": {
-            "type": "string",
-            "enum": [
-              "EN",
-              "FR"
-            ]
           }
-        }
+        },
+        "required": [
+          "url"
+        ]
       },
       "BillingDto": {
         "type": "object",
@@ -5266,16 +5365,33 @@
           "interval"
         ]
       },
-      "RedirectDto": {
+      "UpdateLocationDto": {
         "type": "object",
         "properties": {
-          "url": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "contactPhone": {
             "type": "string"
+          },
+          "contactEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "logoUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "EN",
+              "FR"
+            ]
           }
-        },
-        "required": [
-          "url"
-        ]
+        }
       },
       "MyBusinessDto": {
         "type": "object",

@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
+import { RedirectDto } from "../billing/dto/redirect.response.dto";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { LocationDto } from "../location/dto/location.response.dto";
@@ -63,5 +64,13 @@ export class BusinessController {
     @Body() dto: TransferOwnershipDto,
   ): Promise<BusinessDto> {
     return this.business.transferOwnership(businessId, user.id, dto);
+  }
+
+  @Post(":businessId/billing/portal")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Open Stripe's page for the business's cards, invoices and billing details (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  billingPortal(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<RedirectDto> {
+    return this.business.billingPortal(businessId, user.id);
   }
 }

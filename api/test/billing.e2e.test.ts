@@ -17,6 +17,7 @@ const stripe = vi.hoisted(() => ({
   checkout: { sessions: { create: vi.fn() } },
   subscriptions: { retrieve: vi.fn(), update: vi.fn(), cancel: vi.fn() },
   subscriptionSchedules: { create: vi.fn(), update: vi.fn(), release: vi.fn() },
+  billingPortal: { sessions: { create: vi.fn() } },
 }));
 vi.mock("../src/billing/stripe-client", () => ({ getStripeClient: () => stripe }));
 
@@ -649,5 +650,54 @@ describe("Deleting a location", () => {
 
     expect((await remove(locationId)).status).toBe(500);
     expect((await prisma.location.findUniqueOrThrow({ where: { id: locationId } })).deletedAt).toBeNull();
+  });
+});
+
+describe("POST /businesses/:businessId/billing/portal", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let businessId: string;
+  let locationId: string;
+
+  const portal = (cookie: string) =>
+    request(app.getHttpServer()).post(`/businesses/${businessId}/billing/portal`).set("Cookie", cookie);
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+portal-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+portal-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    ({ businessId, locationId } = await createBusiness(app, ownerCookie, "Portal Co"));
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+    stripe.billingPortal.sessions.create.mockResolvedValue({ url: "https://billing.stripe.com/p/session/test" });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("has nothing to show before the business has paid", async () => {
+    expect((await portal(ownerCookie)).status).toBe(409);
+  });
+
+  it("opens the business's Stripe customer for its owner", async () => {
+    await prisma.business.update({ where: { id: businessId }, data: { stripeCustomerId: `cus_portal_${Date.now()}` } });
+
+    const response = await portal(ownerCookie);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ url: "https://billing.stripe.com/p/session/test" });
+  });
+
+  it("is the owner's alone", async () => {
+    expect((await portal(adminCookie)).status).toBe(403);
   });
 });

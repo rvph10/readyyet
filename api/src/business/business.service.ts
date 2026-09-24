@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Role } from "@readyyet/db";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
+import { BillingService } from "../billing/billing.service";
 import { trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
 import { EmailService } from "../email/email.service";
 import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
@@ -20,6 +21,7 @@ export class BusinessService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly billing: BillingService,
   ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
@@ -74,6 +76,12 @@ export class BusinessService {
       ...locationSelect,
     });
     return toLocationResponse(location);
+  }
+
+  async billingPortal(businessId: string, userId: string) {
+    return this.billing.portal(
+      await this.loadOwned(businessId, userId, "Only the business owner can manage its billing"),
+    );
   }
 
   // ADR 0017: to an Admin of one of its Locations, who becomes OWNER on

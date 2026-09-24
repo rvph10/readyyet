@@ -134,6 +134,19 @@ export class BillingService {
     return this.get(locationId);
   }
 
+  // Stripe's own page for the Business's cards, invoices and billing
+  // details. Plan changes are off there, they go through changePlan.
+  async portal(business: { id: string; stripeCustomerId: string | null }): Promise<RedirectDto> {
+    if (!business.stripeCustomerId) {
+      throw new ConflictError("This business hasn't paid for a location yet");
+    }
+    const session = await getStripeClient().billingPortal.sessions.create({
+      customer: business.stripeCustomerId,
+      return_url: `${process.env.WEB_URL}/businesses/${business.id}/billing`,
+    });
+    return { url: session.url };
+  }
+
   // Deleting a Location ends its subscription at once, without refund
   // (ADR 0033).
   async cancelNow(locationId: string) {
