@@ -78,6 +78,27 @@ describe("EmailRetryService", () => {
     });
   });
 
+  it("does not retry a sign-in code, it would arrive expired", async () => {
+    const stuck = await prisma.emailLog.create({
+      data: {
+        to: "delivered@resend.dev",
+        subject: "readyyet retry sign-in code test",
+        html: "<p>Should not be retried.</p>",
+        type: "auth_otp",
+        status: EmailStatus.FAILED,
+        attempts: 1,
+        lastError: "simulated failure",
+        lastAttemptAt: new Date(Date.now() - 5 * 60_000),
+      },
+    });
+
+    await retry.sweep();
+
+    const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: stuck.id } });
+    expect(after.status).toBe("FAILED");
+    expect(after.attempts).toBe(1);
+  });
+
   it("does not retry a FAILED row still inside its cooldown window", async () => {
     const recent = await prisma.emailLog.create({
       data: {

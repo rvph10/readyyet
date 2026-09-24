@@ -5,6 +5,7 @@ import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
+import { locationSelect, toLocationResponse } from "../location/location-select";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
@@ -17,14 +18,15 @@ export class BusinessService {
   ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
-    return this.prisma.business.create({
+    const business = await this.prisma.business.create({
       data: {
         ownerId,
         name: dto.name,
         locations: { create: await this.buildLocationWithOwnerMembership(dto.location, ownerId) },
       },
-      include: { locations: true },
+      include: { locations: locationSelect },
     });
+    return { ...business, locations: business.locations.map(toLocationResponse) };
   }
 
   // Owner only, like every Business-wide action (ADR 0002). Members see
@@ -51,9 +53,11 @@ export class BusinessService {
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can add a location");
 
-    return this.prisma.location.create({
+    const location = await this.prisma.location.create({
       data: { businessId, ...(await this.buildLocationWithOwnerMembership(dto, userId)) },
+      ...locationSelect,
     });
+    return toLocationResponse(location);
   }
 
   // ADR 0017: to an Admin of one of its Locations, who becomes OWNER on

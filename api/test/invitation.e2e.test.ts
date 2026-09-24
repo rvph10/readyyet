@@ -69,7 +69,8 @@ describe("Invitations", () => {
     const log = await vi.waitFor(() =>
       prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
     );
-    const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy } });
+    const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy.id } });
+    expect(invitation.body.invitedBy).toEqual({ id: owner.id, name: owner.name });
     expect(log).toMatchObject({
       subject: "Test User invited you to join Main Shop on ReadyYet",
       fromName: "Main Shop via ReadyYet",
@@ -182,7 +183,7 @@ describe("Invitations", () => {
     const revoked = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations/${invitationId}/revoke`)
       .set("Cookie", ownerCookie);
-    expect(revoked.status).toBe(201);
+    expect(revoked.status).toBe(200);
     expect(revoked.body.status).toBe("REVOKED");
 
     const accept = await request(app.getHttpServer())

@@ -1,13 +1,4 @@
-import { Body } from "@react-email/body";
-import { Button } from "@react-email/button";
-import { Container } from "@react-email/container";
-import { Head } from "@react-email/head";
-import { Heading } from "@react-email/heading";
-import { Hr } from "@react-email/hr";
-import { Html } from "@react-email/html";
-import { Preview } from "@react-email/preview";
-import { Section } from "@react-email/section";
-import { Text } from "@react-email/text";
+import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "react-email";
 import { Locale } from "@readyyet/db";
 import type { InvitationRole } from "@readyyet/db";
 import type { ReactElement, ReactNode } from "react";
@@ -45,7 +36,8 @@ function Layout({ locale, preview, children }: { locale: Locale; preview: string
     <Html lang={locale.toLowerCase()}>
       <Head />
       <Preview>{preview}</Preview>
-      <Body style={styles.body}>
+      {/* Body sets its own lang, English unless told otherwise. */}
+      <Body lang={locale.toLowerCase()} style={styles.body}>
         <Container style={styles.container}>{children}</Container>
       </Body>
     </Html>

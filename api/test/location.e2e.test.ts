@@ -92,6 +92,29 @@ describe("GET /locations/:locationId", () => {
     expect(response.body.contactPhone).toBe("+12125550188");
   });
 
+  it("takes an https logo URL", async () => {
+    const response = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}`)
+      .set("Cookie", ownerCookie)
+      .send({ logoUrl: "https://cdn.example.com/logo.png" });
+
+    expect(response.status).toBe(200);
+    expect(response.body.logoUrl).toBe("https://cdn.example.com/logo.png");
+  });
+
+  it.each(["javascript:alert(1)", "http://cdn.example.com/logo.png", "cdn.example.com/logo.png"])(
+    "rejects the logo URL %s",
+    async (logoUrl) => {
+      const response = await request(app.getHttpServer())
+        .patch(`/locations/${locationId}`)
+        .set("Cookie", ownerCookie)
+        .send({ logoUrl });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("logoUrl");
+    },
+  );
+
   it("is a no-op with an empty body", async () => {
     const response = await request(app.getHttpServer())
       .patch(`/locations/${locationId}`)

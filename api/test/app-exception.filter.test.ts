@@ -1,7 +1,16 @@
-import { ArgumentsHost, HttpException } from "@nestjs/common";
-import { describe, expect, it, vi } from "vitest";
+import {
+  ArgumentsHost,
+  HttpException,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from "@nestjs/common";
+import { Prisma } from "@readyyet/db";
+import * as Sentry from "@sentry/nestjs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppExceptionFilter } from "../src/common/filters/app-exception.filter";
 import { NotFoundError } from "../src/common/errors/app-error";
+
+vi.mock("@sentry/nestjs", () => ({ captureException: vi.fn() }));
 
 function mockHost(requestId = "req-1") {
   const json = vi.fn();
@@ -15,8 +24,32 @@ function mockHost(requestId = "req-1") {
   return { host, status, json, log };
 }
 
+function prismaError(code: string) {
+  return new Prisma.PrismaClientKnownRequestError("Invalid `prisma.ticket.update()` invocation", {
+    code,
+    clientVersion: Prisma.prismaVersion.client,
+  });
+}
+
 describe("AppExceptionFilter", () => {
   const filter = new AppExceptionFilter();
+  const captureException = vi.mocked(Sentry.captureException);
+
+  afterEach(() => {
+    captureException.mockClear();
+  });
+
+  it("reports only unexpected errors to Sentry, not the ones it answers with a 4xx", () => {
+    const error = new Error("boom");
+
+    filter.catch(new NotFoundError("Ticket not found"), mockHost().host);
+    filter.catch(new HttpException("Too Many Requests", 429), mockHost().host);
+    filter.catch(prismaError("P2002"), mockHost().host);
+    expect(captureException).not.toHaveBeenCalled();
+
+    filter.catch(error, mockHost().host);
+    expect(captureException).toHaveBeenCalledWith(error);
+  });
 
   it("maps an AppError to its own status and code", () => {
     const { host, status, json } = mockHost();
@@ -38,6 +71,97 @@ describe("AppExceptionFilter", () => {
     expect(json).toHaveBeenCalledWith({
       error: { code: "VALIDATION_ERROR", message: "bad request", requestId: "req-1" },
     });
+  });
+
+  it("maps a 429 to RATE_LIMITED", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(new HttpException("Too Many Requests", 429), host);
+
+    expect(status).toHaveBeenCalledWith(429);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "RATE_LIMITED", message: "Too Many Requests", requestId: "req-1" },
+    });
+  });
+
+  it("maps a body-parser client error to its own status, without reporting it", () => {
+    const { host, status, json } = mockHost();
+    const tooLarge = Object.assign(new Error("request entity too large"), { status: 413, expose: true });
+
+    filter.catch(tooLarge, host);
+
+    expect(status).toHaveBeenCalledWith(413);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "VALIDATION_ERROR", message: "request entity too large", requestId: "req-1" },
+    });
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("treats a 5xx HttpException like an unexpected error: logged, reported, generic message", () => {
+    const { host, status, json, log } = mockHost();
+    const error = new InternalServerErrorException("connection string has password=hunter2");
+
+    filter.catch(error, host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "INTERNAL_ERROR", message: "Internal server error", requestId: "req-1" },
+    });
+    expect(log.error).toHaveBeenCalledWith(error.stack);
+    expect(captureException).toHaveBeenCalledWith(error);
+  });
+
+  it("keeps a 5xx HttpException's own status", () => {
+    const { host, status } = mockHost();
+
+    filter.catch(new ServiceUnavailableException(), host);
+
+    expect(status).toHaveBeenCalledWith(503);
+  });
+
+  it("maps a unique constraint violation to a 409, without Prisma's message", () => {
+    const { host, status, json, log } = mockHost();
+
+    filter.catch(prismaError("P2002"), host);
+
+    expect(status).toHaveBeenCalledWith(409);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "CONFLICT", message: "Conflicts with an existing record", details: undefined, requestId: "req-1" },
+    });
+    expect(log.error).not.toHaveBeenCalled();
+  });
+
+  it("maps a missing record to a 404", () => {
+    const { host, status, json } = mockHost();
+
+    filter.catch(prismaError("P2025"), host);
+
+    expect(status).toHaveBeenCalledWith(404);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "NOT_FOUND", message: "Not found", details: undefined, requestId: "req-1" },
+    });
+  });
+
+  it("keeps any other Prisma error a logged 500", () => {
+    const { host, status, log } = mockHost();
+
+    filter.catch(prismaError("P2003"), host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    expect(log.error).toHaveBeenCalled();
+  });
+
+  it("logs a Prisma validation error without the values of the failing query", () => {
+    const { host, status, log } = mockHost();
+    const message =
+      '\nInvalid `prisma.customer.create()` invocation:\n\n{\n  data: { fullName: "Jane Doe" }\n}\n\nArgument `location` is missing.';
+
+    filter.catch(new Prisma.PrismaClientValidationError(message, { clientVersion: Prisma.prismaVersion.client }), host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    const logged = log.error.mock.calls[0][0] as string;
+    expect(logged).toContain("Invalid `prisma.customer.create()` invocation: Argument `location` is missing.");
+    expect(logged).not.toContain("Jane Doe");
   });
 
   it("hides an unexpected error behind a generic 500, logging it via the request logger", () => {

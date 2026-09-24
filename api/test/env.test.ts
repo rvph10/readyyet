@@ -25,9 +25,13 @@ describe("validateEnv", () => {
     expect(check).toThrow(/WEB_URL/);
   });
 
-  it("requires the webhook secret in production only", () => {
-    expect(() => validateEnv({ ...valid, NODE_ENV: "production" })).toThrow(/RESEND_WEBHOOK_SECRET/);
-    expect(validateEnv({ ...valid, NODE_ENV: "production", RESEND_WEBHOOK_SECRET: "whsec_x" })).toBeTruthy();
+  it("requires the webhook secret and error tracking in production only", () => {
+    const production = { ...valid, NODE_ENV: "production" };
+    const sentryDsn = "https://key@o1.ingest.sentry.io/1";
+
+    expect(() => validateEnv({ ...production, SENTRY_DSN: sentryDsn })).toThrow(/RESEND_WEBHOOK_SECRET/);
+    expect(() => validateEnv({ ...production, RESEND_WEBHOOK_SECRET: "whsec_x" })).toThrow(/SENTRY_DSN/);
+    expect(validateEnv({ ...production, RESEND_WEBHOOK_SECRET: "whsec_x", SENTRY_DSN: sentryDsn })).toBeTruthy();
   });
 
   it("requires a real support address", () => {

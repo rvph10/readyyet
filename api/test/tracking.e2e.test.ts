@@ -185,6 +185,18 @@ describe("Public tracking", () => {
     expect(serializeReq({ url: "/tracking/AbC-123_xyz0?utm=mail" }).url).toBe("/tracking/[redacted]?utm=mail");
     expect(serializeReq({ url: "/locations/abc/tickets" }).url).toBe("/locations/abc/tickets");
   });
+
+  it("masks the search term in request logs, in the URL and the parsed query", () => {
+    const serializeReq = pinoHttpOptions().serializers!.req as (req: {
+      url: string;
+      query: Record<string, string>;
+    }) => { url: string; query: Record<string, string> };
+
+    expect(serializeReq({ url: "/locations/abc/customers?q=Jane&take=5", query: { q: "Jane", take: "5" } })).toEqual({
+      url: "/locations/abc/customers?q=[redacted]&take=5",
+      query: { q: "[redacted]", take: "5" },
+    });
+  });
 });
 
 // Own app instance: the throttler's in-memory counter is per app, and the
@@ -201,13 +213,14 @@ describe("Public tracking rate limit", () => {
   });
 
   it("allows 30 requests per minute, then answers 429", async () => {
-    const statuses: number[] = [];
+    const responses: request.Response[] = [];
     for (let i = 0; i < 31; i++) {
-      const response = await request(app.getHttpServer()).get("/tracking/doesnotexist");
-      statuses.push(response.status);
+      responses.push(await request(app.getHttpServer()).get("/tracking/doesnotexist"));
     }
 
-    expect(statuses.slice(0, 30).every((status) => status === 404)).toBe(true);
-    expect(statuses[30]).toBe(429);
+    expect(responses.slice(0, 30).every((response) => response.status === 404)).toBe(true);
+    expect(responses[30].status).toBe(429);
+    expect(responses[30].body.error.code).toBe("RATE_LIMITED");
+    expect(responses[30].headers["retry-after"]).toBeDefined();
   });
 });

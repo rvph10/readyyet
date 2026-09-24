@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { isNotifyingStatus } from "@readyyet/shared";
+import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
@@ -60,6 +61,13 @@ export class NotificationService {
   // their undo window has passed. An undone change deleted its row with
   // its status event, so everything here was really made.
   @Cron(CronExpression.EVERY_30_SECONDS, { name: "customer-status-emails" })
+  // Sentry schedules have minute resolution, twice the check-ins a minute
+  // expects is fine. Alerts when sweeps stop, not only when one throws.
+  @CronMonitor("customer-status-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
   async sendDueStatusEmails() {
     const due = await this.prisma.pendingStatusNotification.findMany({
       where: { sendAfter: { lte: new Date() } },

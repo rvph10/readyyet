@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import type { Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
+import { statusSelect } from "../common/status-select";
 
 @Injectable()
 export class WorkflowService {
@@ -15,11 +17,11 @@ export class WorkflowService {
     const workflow =
       (await this.prisma.workflow.findFirst({
         where: { locationId, isActive: true },
-        include: { steps: { orderBy: { position: "asc" }, include: { status: { include: { translations: true } } } } },
+        include: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
       })) ??
       (await this.prisma.workflow.findFirst({
         where: { businessTypeId: location.businessTypeId, locationId: null, isActive: true },
-        include: { steps: { orderBy: { position: "asc" }, include: { status: { include: { translations: true } } } } },
+        include: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
       }));
 
     // Every business type is seeded with exactly one active default workflow
@@ -39,7 +41,7 @@ export class WorkflowService {
     name: string;
     steps: {
       position: number;
-      status: { id: number; code: string; translations: { locale: string; label: string }[] };
+      status: { id: number; code: string; translations: { locale: Locale; label: string }[] };
     }[];
   }) {
     return {

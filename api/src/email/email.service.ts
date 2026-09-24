@@ -1,7 +1,7 @@
+import { render } from "react-email";
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailStatus } from "@readyyet/db";
 import type { EmailLog, PrismaClient } from "@readyyet/db";
-import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
 import { NON_RETRYABLE_RESEND_ERRORS } from "./email-status";

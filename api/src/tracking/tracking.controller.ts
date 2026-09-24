@@ -1,11 +1,14 @@
-import { Controller, Get, Header, HttpCode, Param, Post } from "@nestjs/common";
+import { Controller, Get, Header, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
+import { ApiErrors } from "../common/decorators/api-errors.decorator";
+import { TrackingDto } from "./dto/tracking.response.dto";
 import { TrackingService } from "./tracking.service";
 
 @ApiTags("Tracking")
 @AllowAnonymous()
+@ApiErrors(HttpStatus.TOO_MANY_REQUESTS)
 @Controller("tracking")
 export class TrackingController {
   constructor(private readonly tracking: TrackingService) {}
@@ -17,7 +20,8 @@ export class TrackingController {
   // The response is one customer's ticket, no shared cache should keep it.
   @Header("Cache-Control", "no-store")
   @ApiOperation({ summary: "Public, no-login view of a ticket by its tracking code (ADR 0004)" })
-  findByCode(@Param("code") code: string) {
+  @ApiErrors(HttpStatus.NOT_FOUND)
+  findByCode(@Param("code") code: string): Promise<TrackingDto> {
     return this.tracking.findByCode(code);
   }
 
@@ -27,6 +31,7 @@ export class TrackingController {
   @HttpCode(204)
   @Throttle({ default: { limit: 30, ttl: 60_000 } })
   @ApiOperation({ summary: "Stop status update emails for this ticket, from the customer's link (ADR 0015)" })
+  @ApiErrors(HttpStatus.NOT_FOUND)
   stopNotifications(@Param("code") code: string) {
     return this.tracking.stopNotifications(code);
   }

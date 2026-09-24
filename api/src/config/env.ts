@@ -17,10 +17,16 @@ const envSchema = z
     SUPPORT_EMAIL: z.email(),
     // Only production receives Resend's webhooks.
     RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
+    // Error tracking (src/instrument.ts), off where unset.
+    SENTRY_DSN: z.url().optional(),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",
     path: ["RESEND_WEBHOOK_SECRET"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.SENTRY_DSN, {
+    message: "Required in production",
+    path: ["SENTRY_DSN"],
   });
 
 export function validateEnv(config: Record<string, unknown>) {

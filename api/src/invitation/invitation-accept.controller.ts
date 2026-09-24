@@ -1,7 +1,9 @@
-import { Controller, Param, Post } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Controller, HttpStatus, Param, Post } from "@nestjs/common";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
+import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { MembershipDto } from "../membership/dto/membership.response.dto";
 import { InvitationService } from "./invitation.service";
 
 // Deliberately separate from InvitationController: accepting isn't
@@ -10,13 +12,16 @@ import { InvitationService } from "./invitation.service";
 // already-global AuthGuard plus the email-match check inside the
 // service.
 @ApiTags("Invitations")
+@ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("invitations")
 export class InvitationAcceptController {
   constructor(private readonly invitation: InvitationService) {}
 
   @Post(":invitationId/accept")
   @ApiOperation({ summary: "Accept an invitation (creates a real Membership)" })
-  accept(@Param("invitationId") invitationId: string, @CurrentUser() user: User) {
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  accept(@Param("invitationId") invitationId: string, @CurrentUser() user: User): Promise<MembershipDto> {
     return this.invitation.accept(invitationId, user);
   }
 }

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [staging, main]
   pull_request:
-    branches: [main]
+    branches: [staging, main]
 
 jobs:
   shared:
@@ -24,6 +24,22 @@ jobs:
 
       - run: pnpm --filter @readyyet/shared run typecheck
       - run: pnpm --filter @readyyet/shared run build
+
+  # Known vulnerabilities in any dependency, from the lockfile alone.
+  # Ignored advisories are listed in pnpm-workspace.yaml with their reason.
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - run: pnpm audit --audit-level high
 
   lint:
     runs-on: ubuntu-latest
@@ -140,4 +156,9 @@ jobs:
       - run: pnpm --filter @readyyet/shared run build
       - run: pnpm --filter @readyyet/api run typecheck
       - run: pnpm --filter @readyyet/api run build
+      # Every API change has to show up in the PR as a diff of this file.
+      - name: Check api/openapi.json is up to date
+        run: |
+          pnpm --filter @readyyet/api run openapi
+          git diff --exit-code api/openapi.json || { echo "::error::api/openapi.json is out of date, run: pnpm --filter @readyyet/api run openapi"; exit 1; }
       - run: pnpm --filter @readyyet/api run test

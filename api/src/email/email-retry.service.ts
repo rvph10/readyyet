@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { EmailStatus } from "@readyyet/db";
+import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService, MAX_TOTAL_ATTEMPTS } from "./email.service";
 
@@ -18,12 +19,21 @@ export class EmailRetryService {
   ) {}
 
   @Cron("*/5 * * * *")
+  // Alerts when a sweep is missed or runs too long, not only when one throws.
+  @CronMonitor("email-retry-sweep", {
+    schedule: { type: "crontab", value: "*/5 * * * *" },
+    checkinMargin: 2,
+    maxRuntime: 10,
+  })
   async sweep() {
     const cutoff = new Date(Date.now() - RETRY_COOLDOWN_MS);
     const stuck = await this.prisma.emailLog.findMany({
       where: {
         status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] },
         attempts: { lt: MAX_TOTAL_ATTEMPTS },
+        // A sign-in code expires in 5 minutes, one sent by a later sweep
+        // would already be dead. The User asks for a new one instead.
+        type: { not: "auth_otp" },
         OR: [{ lastAttemptAt: null }, { lastAttemptAt: { lt: cutoff } }],
       },
     });
