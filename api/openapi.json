@@ -3456,7 +3456,9 @@
             "format": "email"
           },
           "logoUrl": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
           },
           "locale": {
             "type": "string",
