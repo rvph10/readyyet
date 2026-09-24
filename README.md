@@ -81,6 +81,8 @@ railway config plan             # review, then
 railway config apply
 ```
 
+Production answers on `api.readyyet.app`. Railway's IaC can't register a custom domain, so it's attached to the production `api` service in Railway, with the CNAME Railway gives added at the DNS provider. Staging keeps the domain Railway generates.
+
 Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `WEB_URL`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
 
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.

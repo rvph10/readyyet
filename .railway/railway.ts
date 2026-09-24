@@ -6,7 +6,12 @@ import { defineRailway, github, postgres, preserve, project, service } from "rai
 // EU West (Amsterdam): customer data stays in the EU, like Sentry's (ADR 0019).
 const REGION = "europe-west4-drams3a";
 
+// Attached to the production service in Railway, not here: Railway's IaC
+// can't register a custom domain. Staging keeps the one Railway generates.
+const PRODUCTION_DOMAIN = "api.readyyet.app";
+
 export default defineRailway((ctx) => {
+  const production = ctx.environment === "production";
   const db = postgres("postgres", { region: REGION });
 
   const api = service("api", {
@@ -15,7 +20,7 @@ export default defineRailway((ctx) => {
     // some installed apps never finish theirs. CI passing is enforced by the
     // branch rulesets instead, nothing reaches either branch without it.
     source: github("rvph10/readyyet", {
-      branch: ctx.environment === "production" ? "main" : "staging",
+      branch: production ? "main" : "staging",
       checkSuites: false,
     }),
     build: {
@@ -34,7 +39,7 @@ export default defineRailway((ctx) => {
     env: {
       NODE_ENV: "production",
       DATABASE_URL: db.env.DATABASE_URL,
-      BETTER_AUTH_URL: "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+      BETTER_AUTH_URL: production ? `https://${PRODUCTION_DOMAIN}` : "https://${{RAILWAY_PUBLIC_DOMAIN}}",
       // Secrets, or values that differ per environment: set in Railway,
       // never here, the repo is public.
       BETTER_AUTH_SECRET: preserve(),

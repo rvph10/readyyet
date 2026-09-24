@@ -128,4 +128,19 @@ describe("Better Auth email OTP", () => {
 
     expect(attempts.some((response) => response.status === 429)).toBe(true);
   });
+
+  // An invalid email: the rate limiter runs before validation, and no email is sent.
+  it("keeps a separate rate limit per client IP", async () => {
+    const send = (ip: string) =>
+      request(app.getHttpServer())
+        .post("/api/auth/email-otp/send-verification-otp")
+        .set("X-Real-IP", ip)
+        .send({ email: "not-an-email", type: "sign-in" });
+    for (let i = 0; i < 10; i++) {
+      await send("203.0.113.1");
+    }
+
+    expect((await send("203.0.113.1")).status).toBe(429);
+    expect((await send("203.0.113.2")).status).toBe(400);
+  });
 });
