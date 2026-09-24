@@ -6277,13 +6277,39 @@
           "logoUrl": {
             "type": "string",
             "nullable": true
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
+          "mapsUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "openingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "timeZone": {
+            "type": "string"
           }
         },
         "required": [
           "name",
           "contactPhone",
           "contactEmail",
-          "logoUrl"
+          "logoUrl",
+          "address",
+          "mapsUrl",
+          "openingHours",
+          "timeZone"
         ]
       },
       "PublicStatusDto": {

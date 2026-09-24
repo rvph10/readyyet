@@ -98,6 +98,16 @@ export function IsWeeklyOpeningHours() {
   });
 }
 
+// Google's documented Maps URL for a search: directions in the app the
+// Customer already uses, with no API key or script (ADR 0029).
+export function mapsUrl(address: PostalAddress): string {
+  const query = [
+    address.streetAddress,
+    `${address.postalCode} ${address.addressLocality}`,
+    address.addressCountry,
+  ].join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
 
 // Stored in the week's order, only the fields that belong to it: the DTO
 // instances would otherwise be saved as they arrived.
