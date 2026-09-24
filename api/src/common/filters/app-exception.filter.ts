@@ -1,7 +1,8 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { Request, Response } from "express";
+import { Prisma } from "@readyyet/db";
 import { ApiErrorResponse, ErrorCode } from "@readyyet/shared";
-import { AppError } from "../errors/app-error";
+import { AppError, ConflictError, NotFoundError } from "../errors/app-error";
 
 const STATUS_TO_CODE: Partial<Record<number, ErrorCode>> = {
   [HttpStatus.UNAUTHORIZED]: ErrorCode.UNAUTHENTICATED,
@@ -11,9 +12,20 @@ const STATUS_TO_CODE: Partial<Record<number, ErrorCode>> = {
   [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.RATE_LIMITED,
 };
 
+// A service checks first where it can, but a concurrent request can still
+// take a unique value or remove a row between that check and the write.
+function fromPrismaError(exception: unknown): unknown {
+  if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+    if (exception.code === "P2002") return new ConflictError("Conflicts with an existing record");
+    if (exception.code === "P2025") return new NotFoundError("Not found");
+  }
+  return exception;
+}
+
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(caught: unknown, host: ArgumentsHost): void {
+    const exception = fromPrismaError(caught);
     const request = host.switchToHttp().getRequest<Request>();
     const response = host.switchToHttp().getResponse<Response>();
 
