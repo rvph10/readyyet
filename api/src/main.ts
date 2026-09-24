@@ -2,6 +2,7 @@
 // module-evaluation time (before NestFactory.create even runs), so
 // DATABASE_URL has to be in process.env before that import is reached.
 import "dotenv/config";
+import "./instrument";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";

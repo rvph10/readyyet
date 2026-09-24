@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { Request, Response } from "express";
 import { Prisma } from "@readyyet/db";
+import * as Sentry from "@sentry/nestjs";
 import { ApiErrorResponse, ErrorCode } from "@readyyet/shared";
 import { AppError, ConflictError, NotFoundError } from "../errors/app-error";
 
@@ -62,6 +63,7 @@ export class AppExceptionFilter implements ExceptionFilter {
     }
 
     request.log.error(exception instanceof Error ? exception.stack : exception);
+    Sentry.captureException(exception);
     return { error: { code: ErrorCode.INTERNAL_ERROR, message: "Internal server error", requestId } };
   }
 }

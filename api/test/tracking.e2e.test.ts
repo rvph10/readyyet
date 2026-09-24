@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { pinoHttpOptions } from "../src/common/logging/pino-http-options";
+import { maskTrackingCode, pinoHttpOptions } from "../src/common/logging/pino-http-options";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -184,6 +184,13 @@ describe("Public tracking", () => {
 
     expect(serializeReq({ url: "/tracking/AbC-123_xyz0?utm=mail" }).url).toBe("/tracking/[redacted]?utm=mail");
     expect(serializeReq({ url: "/locations/abc/tickets" }).url).toBe("/locations/abc/tickets");
+  });
+
+  it("masks the tracking code in a full URL or a transaction name, as error reports carry", () => {
+    expect(maskTrackingCode("https://api.readyyet.app/tracking/AbC-123_xyz0/stop-notifications")).toBe(
+      "https://api.readyyet.app/tracking/[redacted]/stop-notifications",
+    );
+    expect(maskTrackingCode("GET /tracking/AbC-123_xyz0")).toBe("GET /tracking/[redacted]");
   });
 });
 

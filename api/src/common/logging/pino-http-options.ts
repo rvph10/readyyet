@@ -23,6 +23,6 @@ export function pinoHttpOptions(): Options {
   };
 }
 
-function maskTrackingCode(url: string): string {
-  return url.replace(/^\/tracking\/[^/?#]+/, "/tracking/[redacted]");
+export function maskTrackingCode(url: string): string {
+  return url.replace(/\/tracking\/[^/?#\s]+/, "/tracking/[redacted]");
 }

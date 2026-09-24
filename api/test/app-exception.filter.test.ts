@@ -1,8 +1,11 @@
 import { ArgumentsHost, HttpException } from "@nestjs/common";
 import { Prisma } from "@readyyet/db";
-import { describe, expect, it, vi } from "vitest";
+import * as Sentry from "@sentry/nestjs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppExceptionFilter } from "../src/common/filters/app-exception.filter";
 import { NotFoundError } from "../src/common/errors/app-error";
+
+vi.mock("@sentry/nestjs", () => ({ captureException: vi.fn() }));
 
 function mockHost(requestId = "req-1") {
   const json = vi.fn();
@@ -25,6 +28,23 @@ function prismaError(code: string) {
 
 describe("AppExceptionFilter", () => {
   const filter = new AppExceptionFilter();
+  const captureException = vi.mocked(Sentry.captureException);
+
+  afterEach(() => {
+    captureException.mockClear();
+  });
+
+  it("reports only unexpected errors to Sentry, not the ones it answers with a 4xx", () => {
+    const error = new Error("boom");
+
+    filter.catch(new NotFoundError("Ticket not found"), mockHost().host);
+    filter.catch(new HttpException("Too Many Requests", 429), mockHost().host);
+    filter.catch(prismaError("P2002"), mockHost().host);
+    expect(captureException).not.toHaveBeenCalled();
+
+    filter.catch(error, mockHost().host);
+    expect(captureException).toHaveBeenCalledWith(error);
+  });
 
   it("maps an AppError to its own status and code", () => {
     const { host, status, json } = mockHost();

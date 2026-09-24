@@ -34,6 +34,7 @@
     "@react-email/text": "0.1.6",
     "@readyyet/db": "workspace:*",
     "@readyyet/shared": "workspace:*",
+    "@sentry/nestjs": "11.0.0",
     "@thallesp/nestjs-better-auth": "2.8.0",
     "better-auth": "1.7.5",
     "class-transformer": "0.5.1",
