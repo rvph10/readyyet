@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { SYSTEM_STATUS_CODES } from "@readyyet/shared";
-import { publicStatusSelect } from "../common/public-status-select";
+import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
 
 @Injectable()

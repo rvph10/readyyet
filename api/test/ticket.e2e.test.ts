@@ -130,6 +130,32 @@ describe("Tickets", () => {
     expect(response.body.statusEvents[0].status.code).toBe("RECEIVED");
   });
 
+  it("returns only the documented fields, no internal columns", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Shape check", customer: { fullName: "Dana Shape", email: "delivered+shape@resend.dev" } });
+
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie);
+    const status = { id: expect.any(Number), code: "RECEIVED", translations: expect.any(Array) };
+
+    expect(Object.keys(response.body.customer).sort()).toEqual([
+      "createdAt",
+      "email",
+      "emailBouncedAt",
+      "emailComplainedAt",
+      "fullName",
+      "id",
+      "locale",
+      "phone",
+    ]);
+    expect(response.body.currentStatus).toEqual(status);
+    expect(Object.keys(response.body.currentStatus.translations[0]).sort()).toEqual(["label", "locale"]);
+    expect(response.body.statusEvents[0].status).toEqual(status);
+  });
+
   it("updates a ticket's title and description", async () => {
     const created = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)
