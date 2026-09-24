@@ -70,11 +70,18 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 ## Deploy
 
-The API runs on Railway, configured by `api/railway.json`. One-time service settings:
+The API runs on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, each commit only once CI has passed on it. Changes go to `staging` first, releasing is merging `staging` into `main`.
 
-- **Root Directory**: leave it at the repo root, the build needs the whole pnpm workspace.
-- **Config file path**: `/api/railway.json` (Railway doesn't look in subdirectories on its own).
-- **Variables**: everything in `api/.env.example`, with `NODE_ENV=production`, `DATABASE_URL` referencing the Railway Postgres service, and `SENTRY_DSN` and `RESEND_WEBHOOK_SECRET` set (the API refuses to start in production without them). `DATABASE_URL` is also needed at build time, `prisma generate` reads it.
+Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api` service, its settings and variables, and a Postgres per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
+
+```bash
+railway link                    # once, pick the readyyet project
+railway environment staging     # then production
+railway config plan             # review, then
+railway config apply
+```
+
+Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `WEB_URL`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
 
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 
