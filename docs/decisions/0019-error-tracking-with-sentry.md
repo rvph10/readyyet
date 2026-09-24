@@ -6,7 +6,7 @@ Date: 2026-09-24
 
 Unexpected errors in the API are reported to Sentry (`@sentry/nestjs`, initialised in `api/src/instrument.ts`, loaded first by `main.ts`).
 
-- An HTTP request is reported only when `AppExceptionFilter` answers it with a 500. A 4xx is the API working as designed, including a database race it maps to 409 or 404.
+- An HTTP request is reported only when `AppExceptionFilter` answers it with a 5xx, whatever threw it, and the client then only gets a generic message. A 4xx is the API working as designed, including a database race it maps to 409 or 404.
 - An error thrown by a `@Cron` job is reported by the SDK itself. `@nestjs/schedule` would otherwise only log it.
 - Both cron jobs are also Sentry cron monitors (`@CronMonitor`, wrapping `@SentryCron`), which alert when a run is missed or runs too long. Check-ins are sent in production only, a dev machine's would read as missed runs every time it stops. Without them, a sweep that silently stopped would go unnoticed, and customers would stop getting emails.
 - `/health` has a Sentry uptime monitor, set up in Sentry, not in code. Railway only calls it during a deploy.
