@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Role } from "@readyyet/db";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
@@ -18,6 +18,8 @@ const omitStripe = { stripeCustomerId: true } as const;
 
 @Injectable()
 export class BusinessService {
+  private readonly logger = new Logger(BusinessService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
@@ -128,8 +130,15 @@ export class BusinessService {
     });
 
     // After the commit, never inside it: an email can't be taken back.
-    await this.billing.ownerChanged(businessId);
     await this.sendTransferEmails(business.name, userId, dto.userId);
+    // The transfer has happened, a Stripe outage mustn't report it as failed:
+    // the caller is no longer the Owner and couldn't retry it.
+    await this.billing.ownerChanged(businessId).catch((err) => {
+      this.logger.error(
+        `Failed to move the Stripe customer's email for business ${businessId}`,
+        err instanceof Error ? err.stack : err,
+      );
+    });
     return business;
   }
 

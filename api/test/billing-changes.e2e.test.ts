@@ -313,14 +313,19 @@ describe("Transferring a business that pays", () => {
     prisma = app.get(PrismaService);
   });
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterAll(async () => {
     await app.close();
   });
 
-  it("moves the Stripe customer's email, where invoices go, to the new owner", async () => {
+  // Owner and Admin of a Business with a Stripe customer, ready to transfer.
+  async function payingBusiness(tag: string) {
     const stamp = Date.now();
-    const ownerCookie = await signInViaOtp(app, prisma, `delivered+transfer-billing-owner-${stamp}@resend.dev`);
-    const adminEmail = `delivered+transfer-billing-admin-${stamp}@resend.dev`;
+    const ownerCookie = await signInViaOtp(app, prisma, `delivered+transfer-${tag}-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+transfer-${tag}-admin-${stamp}@resend.dev`;
     const adminCookie = await signInViaOtp(app, prisma, adminEmail);
     const { businessId, locationId } = await createBusiness(app, ownerCookie, "Handover Co");
     const invitation = await request(app.getHttpServer())
@@ -331,13 +336,26 @@ describe("Transferring a business that pays", () => {
     const customerId = `cus_handover_${stamp}`;
     await prisma.business.update({ where: { id: businessId }, data: { stripeCustomerId: customerId } });
     const admin = await prisma.user.findUniqueOrThrow({ where: { email: adminEmail } });
+    const transfer = () =>
+      request(app.getHttpServer())
+        .post(`/businesses/${businessId}/transfer-ownership`)
+        .set("Cookie", ownerCookie)
+        .send({ userId: admin.id });
+    return { adminEmail, customerId, transfer };
+  }
 
-    const response = await request(app.getHttpServer())
-      .post(`/businesses/${businessId}/transfer-ownership`)
-      .set("Cookie", ownerCookie)
-      .send({ userId: admin.id });
+  it("moves the Stripe customer's email, where invoices go, to the new owner", async () => {
+    const { adminEmail, customerId, transfer } = await payingBusiness("ok");
 
-    expect(response.status).toBe(200);
+    expect((await transfer()).status).toBe(200);
     expect(stripe.customers.update).toHaveBeenCalledWith(customerId, { email: adminEmail });
+  });
+
+  it("still reports the transfer and sends its emails when Stripe fails", async () => {
+    const { adminEmail, transfer } = await payingBusiness("stripe-down");
+    stripe.customers.update.mockRejectedValueOnce(new Error("Stripe is down"));
+
+    expect((await transfer()).status).toBe(200);
+    expect(await prisma.emailLog.count({ where: { to: adminEmail, type: "ownership_received" } })).toBe(1);
   });
 });
