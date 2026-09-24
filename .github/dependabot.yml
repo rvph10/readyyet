@@ -6,6 +6,8 @@ updates:
       - "/"
       - "/api"
       - "/packages/*"
+    # Like any change, updates go through staging first (ADR 0022).
+    target-branch: staging
     schedule:
       interval: weekly
     # Every dependency is pinned to an exact version, keep it that way.
@@ -21,6 +23,7 @@ updates:
 
   - package-ecosystem: github-actions
     directory: "/"
+    target-branch: staging
     schedule:
       interval: weekly
     groups:
