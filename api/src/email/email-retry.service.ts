@@ -31,6 +31,9 @@ export class EmailRetryService {
       where: {
         status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] },
         attempts: { lt: MAX_TOTAL_ATTEMPTS },
+        // A sign-in code expires in 5 minutes, one sent by a later sweep
+        // would already be dead. The User asks for a new one instead.
+        type: { not: "auth_otp" },
         OR: [{ lastAttemptAt: null }, { lastAttemptAt: { lt: cutoff } }],
       },
     });
