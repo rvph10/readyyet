@@ -223,4 +223,10 @@ describe("Public tracking rate limit", () => {
     expect(responses[30].body.error.code).toBe("RATE_LIMITED");
     expect(responses[30].headers["retry-after"]).toBeDefined();
   });
+
+  it("counts each client IP separately", async () => {
+    const response = await request(app.getHttpServer()).get("/tracking/doesnotexist").set("X-Real-IP", "203.0.113.7");
+
+    expect(response.status).toBe(404);
+  });
 });

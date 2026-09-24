@@ -2,14 +2,16 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_PIPE } from "@nestjs/core";
 import { ScheduleModule } from "@nestjs/schedule";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerGuard, ThrottlerModule, normalizeIp } from "@nestjs/throttler";
 import { AuthModule } from "@thallesp/nestjs-better-auth";
+import type { Request } from "express";
 import { LoggerModule } from "nestjs-pino";
 import { pinoHttpOptions } from "./common/logging/pino-http-options";
 import { auth } from "./auth/auth";
 import { BusinessModule } from "./business/business.module";
 import { CatalogueModule } from "./catalogue/catalogue.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
+import { CLIENT_IP_HEADER } from "./common/client-ip";
 import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { validateEnv } from "./config/env";
 import { CustomerModule } from "./customer/customer.module";
@@ -34,7 +36,14 @@ import { WorkflowModule } from "./workflow/workflow.module";
     LoggerModule.forRoot({ pinoHttp: pinoHttpOptions(), useExisting: true }),
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 60 }],
+      // Absent locally and in tests, where the socket address is the client.
+      getTracker: (req) => {
+        const request = req as Request;
+        return normalizeIp(request.header(CLIENT_IP_HEADER) ?? (request.ip as string));
+      },
+    }),
     // CORS is applied app-wide in common/http-middleware.ts instead, see
     // the comment there.
     AuthModule.forRoot({ auth, disableTrustedOriginsCors: true }),
