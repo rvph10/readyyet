@@ -1,4 +1,4 @@
-import { Plan, SubscriptionStatus, type Subscription } from "@readyyet/db";
+import { BillingInterval, Plan, SubscriptionStatus, type Subscription } from "@readyyet/db";
 
 const TRIAL_DAYS = 14;
 const ESSENTIEL_MEMBER_LIMIT = 2;
@@ -29,4 +29,10 @@ export function isFrozen(subscription: Subscription, now = new Date()) {
 export function memberLimit(subscription: Subscription) {
   const essentiel = subscription.plan === Plan.ESSENTIEL || subscription.scheduledPlan === Plan.ESSENTIEL;
   return essentiel ? ESSENTIEL_MEMBER_LIMIT : null;
+}
+
+// The lookup keys of the four prices, the same in the sandbox and in live
+// mode (ADR 0033).
+export function lookupKey(plan: Plan, interval: BillingInterval) {
+  return `${plan === Plan.PRO ? "pro" : "essentiel"}_${interval === BillingInterval.YEAR ? "yearly" : "monthly"}`;
 }
