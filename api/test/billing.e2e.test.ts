@@ -270,9 +270,11 @@ describe("POST /webhooks/stripe", () => {
       subscription({
         cancel_at_period_end: true,
         schedule: {
+          // The next phase can start before the period ends, as it did
+          // when a schedule rewrote a trialing subscription.
           phases: [
-            { start_date: periodEnd - 1000, metadata: {} },
-            { start_date: periodEnd, metadata: { lookupKey: "essentiel_yearly" } },
+            { start_date: periodEnd - 30 * 24 * 60 * 60, metadata: {} },
+            { start_date: periodEnd - 5 * 24 * 60 * 60, metadata: { lookupKey: "essentiel_yearly" } },
           ],
         },
       }),

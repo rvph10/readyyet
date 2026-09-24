@@ -78,7 +78,10 @@ describe("Changing and cancelling a paying location's plan", () => {
       Promise.resolve({ data: [prices[key]] }),
     );
     stripe.subscriptions.update.mockResolvedValue({ pending_update: null });
-    stripe.subscriptionSchedules.create.mockResolvedValue({ id: "sub_sched_1", phases: [{ start_date: 1000 }] });
+    stripe.subscriptionSchedules.create.mockResolvedValue({
+      id: "sub_sched_1",
+      phases: [{ start_date: 1000, end_date: periodEnd, trial_end: null }],
+    });
     await prisma.subscription.update({
       where: { locationId },
       data: { status: "ACTIVE", plan: "ESSENTIEL", interval: "MONTH", stripeSubscriptionId: subscriptionId },
@@ -130,6 +133,19 @@ describe("Changing and cancelling a paying location's plan", () => {
         },
       ],
     });
+  });
+
+  it("keeps the days left of a trial when the move waits for the period end", async () => {
+    onStripe("pro_monthly", { status: "trialing" });
+    stripe.subscriptionSchedules.create.mockResolvedValue({
+      id: "sub_sched_1",
+      phases: [{ start_date: 1000, end_date: periodEnd, trial_end: periodEnd }],
+    });
+
+    await choose("ESSENTIEL", "MONTH");
+
+    const [, { phases }] = stripe.subscriptionSchedules.update.mock.calls[0];
+    expect(phases[0]).toMatchObject({ start_date: 1000, end_date: periodEnd, trial_end: periodEnd });
   });
 
   it("refuses a move to Essentiel while the location has more than 2 members", async () => {

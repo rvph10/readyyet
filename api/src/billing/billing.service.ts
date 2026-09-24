@@ -261,13 +261,18 @@ export class BillingService {
   ) {
     const stripe = getStripeClient();
     const schedule = await stripe.subscriptionSchedules.create({ from_subscription: subscription.id });
+    // Stripe built this phase from the subscription, its trial included.
+    // Rewritten without the trial, the phase would end it on the spot and
+    // bill the rest of the trial days (ADR 0033).
+    const [current] = schedule.phases;
     await stripe.subscriptionSchedules.update(schedule.id, {
       end_behavior: "release",
       phases: [
         {
           items: [{ price: item.price.id }],
-          start_date: schedule.phases[0].start_date,
-          end_date: item.current_period_end,
+          start_date: current.start_date,
+          end_date: current.end_date,
+          ...(current.trial_end && { trial_end: current.trial_end }),
         },
         {
           items: [{ price: price.id }],
