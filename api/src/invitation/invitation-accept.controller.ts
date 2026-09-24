@@ -1,5 +1,5 @@
 import { Controller, HttpStatus, Param, Post } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -13,6 +13,7 @@ import { InvitationService } from "./invitation.service";
 // service.
 @ApiTags("Invitations")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("invitations")
 export class InvitationAcceptController {
   constructor(private readonly invitation: InvitationService) {}

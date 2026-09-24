@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
@@ -16,6 +16,7 @@ import { TicketService } from "./ticket.service";
 
 @ApiTags("Tickets")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("locations/:locationId/tickets")
 @LocationRoles(Role.OWNER, Role.ADMIN, Role.EMPLOYEE)
 @UseGuards(LocationMembershipGuard)

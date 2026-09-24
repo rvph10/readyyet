@@ -1,9 +1,10 @@
 import { Controller, Get } from "@nestjs/common";
 import { HealthCheck, HealthCheckService, PrismaHealthIndicator } from "@nestjs/terminus";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiServiceUnavailableResponse, ApiTags, getSchemaPath } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { PrismaService } from "../database/prisma.service";
+import { ApiErrorResponseDto } from "../common/dto/error.response.dto";
 
 @ApiTags("Health")
 @AllowAnonymous()
@@ -19,6 +20,9 @@ export class HealthController {
   ) {}
 
   @Get()
+  // Replaces the 503 schema @HealthCheck() documents: AppExceptionFilter
+  // answers a failed check with the error envelope, not Terminus's own body.
+  @ApiServiceUnavailableResponse({ schema: { $ref: getSchemaPath(ApiErrorResponseDto) } })
   @HealthCheck()
   check() {
     return this.health.check([() => this.prismaHealth.pingCheck("database", this.prisma)]);

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Query, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
@@ -11,6 +11,7 @@ import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 @ApiTags("Customers")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("locations/:locationId/customers")
 @LocationRoles(Role.OWNER, Role.ADMIN, Role.EMPLOYEE)
 @UseGuards(LocationMembershipGuard)

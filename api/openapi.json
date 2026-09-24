@@ -113,120 +113,22 @@
               }
             }
           },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "503": {
             "description": "The Health Check is not successful",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "error",
-                        "shutting_down"
-                      ],
-                      "example": "error"
-                    },
-                    "info": {
-                      "type": "object",
-                      "example": {
-                        "database": {
-                          "status": "up",
-                          "responseTime": 12
-                        }
-                      },
-                      "additionalProperties": {
-                        "type": "object",
-                        "required": [
-                          "status"
-                        ],
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "up",
-                              "degraded",
-                              "down"
-                            ]
-                          },
-                          "responseTime": {
-                            "type": "number",
-                            "description": "Time the health indicator took to respond, in ms"
-                          }
-                        },
-                        "additionalProperties": true
-                      },
-                      "nullable": true
-                    },
-                    "error": {
-                      "type": "object",
-                      "example": {
-                        "redis": {
-                          "status": "down",
-                          "message": "Could not connect",
-                          "responseTime": 3005
-                        }
-                      },
-                      "additionalProperties": {
-                        "type": "object",
-                        "required": [
-                          "status"
-                        ],
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "up",
-                              "degraded",
-                              "down"
-                            ]
-                          },
-                          "responseTime": {
-                            "type": "number",
-                            "description": "Time the health indicator took to respond, in ms"
-                          }
-                        },
-                        "additionalProperties": true
-                      },
-                      "nullable": true
-                    },
-                    "details": {
-                      "type": "object",
-                      "example": {
-                        "database": {
-                          "status": "up",
-                          "responseTime": 12
-                        },
-                        "redis": {
-                          "status": "down",
-                          "message": "Could not connect",
-                          "responseTime": 3005
-                        }
-                      },
-                      "additionalProperties": {
-                        "type": "object",
-                        "required": [
-                          "status"
-                        ],
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "up",
-                              "degraded",
-                              "down"
-                            ]
-                          },
-                          "responseTime": {
-                            "type": "number",
-                            "description": "Time the health indicator took to respond, in ms"
-                          }
-                        },
-                        "additionalProperties": true
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
                 }
               }
             }
@@ -301,8 +203,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Create a business with its first location and an owner membership",
         "tags": [
           "Businesses"
@@ -372,8 +289,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get a business with its locations (owner only)",
         "tags": [
           "Businesses"
@@ -461,8 +393,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Rename a business (owner only)",
         "tags": [
           "Businesses"
@@ -552,8 +499,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Add another location to an existing business (owner only)",
         "tags": [
           "Businesses"
@@ -653,8 +615,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Hand the business to one of its admins, the owner stays on as admin (ADR 0017)",
         "tags": [
           "Businesses"
@@ -724,8 +701,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get a location's own fields",
         "tags": [
           "Locations"
@@ -813,8 +805,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Update a location's settings",
         "tags": [
           "Locations"
@@ -875,8 +882,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Delete a location for good, owner only (ADR 0017)",
         "tags": [
           "Locations"
@@ -917,8 +939,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get the current user and their location memberships (for onboarding routing)",
         "tags": [
           "Me"
@@ -977,8 +1014,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Change the current user's email language (ADR 0018)",
         "tags": [
           "Me"
@@ -1030,8 +1082,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Delete the current user's account, needs a sign-in in the last 10 minutes (ADR 0018)",
         "tags": [
           "Me"
@@ -1101,8 +1168,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get the location's active workflow and its ordered steps",
         "tags": [
           "Workflow"
@@ -1192,8 +1274,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Create a ticket (with an inline customer or an existing customerId)",
         "tags": [
           "Tickets"
@@ -1354,8 +1451,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "List tickets for a location, newest first",
         "tags": [
           "Tickets"
@@ -1433,8 +1545,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get a ticket's detail with its status timeline",
         "tags": [
           "Tickets"
@@ -1530,8 +1657,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Edit a ticket's title/description",
         "tags": [
           "Tickets"
@@ -1639,8 +1781,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Move a ticket to another step of its workflow, following ADR 0016's rules",
         "tags": [
           "Tickets"
@@ -1728,8 +1885,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Email the customer their tracking link again (ADR 0015)",
         "tags": [
           "Tickets"
@@ -1817,8 +1989,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Undo your own latest status change, within 2 minutes (ADR 0016)",
         "tags": [
           "Tickets"
@@ -1925,8 +2112,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Search/list customers at a location, optionally by partial name (?q=)",
         "tags": [
           "Customers"
@@ -2004,8 +2206,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Get a customer's detail",
         "tags": [
           "Customers"
@@ -2101,8 +2318,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Update a customer's contact info",
         "tags": [
           "Customers"
@@ -2171,8 +2403,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Soft-delete (archive) a customer",
         "tags": [
           "Customers"
@@ -2272,8 +2519,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Invite someone by email to a location with a role (an admin invites employees only)",
         "tags": [
           "Invitations"
@@ -2344,8 +2606,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "List invitations for a location",
         "tags": [
           "Invitations"
@@ -2433,8 +2710,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Revoke a pending invitation (an admin revokes employee invitations only)",
         "tags": [
           "Invitations"
@@ -2522,8 +2814,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Email a pending invitation again, extending its expiry (ADR 0017)",
         "tags": [
           "Invitations"
@@ -2603,8 +2910,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Accept an invitation (creates a real Membership)",
         "tags": [
           "Invitations"
@@ -2677,8 +2999,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "List a location's members",
         "tags": [
           "Memberships"
@@ -2751,8 +3088,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Leave this location, removing your own membership (not the owner, ADR 0017)",
         "tags": [
           "Memberships"
@@ -2860,8 +3212,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Change a member's role between ADMIN and EMPLOYEE (owner only, ADR 0017)",
         "tags": [
           "Memberships"
@@ -2940,8 +3307,23 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Remove a member's access (not the owner, an admin removes employees only)",
         "tags": [
           "Memberships"
@@ -2984,6 +3366,16 @@
           },
           "429": {
             "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
             "content": {
               "application/json": {
                 "schema": {
@@ -3035,6 +3427,16 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
         "summary": "Stop status update emails for this ticket, from the customer's link (ADR 0015)",
@@ -3070,6 +3472,16 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
           }
         },
         "summary": "Every business type with its labels and default workflow",
@@ -3098,6 +3510,16 @@
           },
           "429": {
             "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
             "content": {
               "application/json": {
                 "schema": {

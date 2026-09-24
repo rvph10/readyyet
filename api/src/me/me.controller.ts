@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { Session } from "@thallesp/nestjs-better-auth";
 import type { UserSession } from "@thallesp/nestjs-better-auth";
@@ -11,6 +11,7 @@ import { MeService } from "./me.service";
 
 @ApiTags("Me")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("me")
 export class MeController {
   constructor(private readonly me: MeService) {}

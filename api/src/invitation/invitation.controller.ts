@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
@@ -13,6 +13,7 @@ import { InvitationService } from "./invitation.service";
 
 @ApiTags("Invitations")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("locations/:locationId/invitations")
 @LocationRoles(Role.OWNER, Role.ADMIN)
 @UseGuards(LocationMembershipGuard)

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -12,6 +12,7 @@ import { UpdateBusinessDto } from "./dto/update-business.dto";
 
 @ApiTags("Businesses")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("businesses")
 export class BusinessController {
   constructor(private readonly business: BusinessService) {}

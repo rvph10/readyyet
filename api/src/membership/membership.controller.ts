@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
@@ -12,6 +12,7 @@ import { MembershipService } from "./membership.service";
 
 @ApiTags("Memberships")
 @ApiErrors(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.TOO_MANY_REQUESTS)
+@ApiCookieAuth()
 @Controller("locations/:locationId/memberships")
 @LocationRoles(Role.OWNER, Role.ADMIN)
 @UseGuards(LocationMembershipGuard)
