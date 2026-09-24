@@ -115,7 +115,7 @@ Composite foreign keys (Tenant-scoped foreign keys, above) are expressible direc
 - **Status change**: update `ticket.current_status_id` + insert a `ticket_status_event` row, in one transaction, otherwise the denormalized field and the history can diverge.
 - **Invitation acceptance**: conditional update (`WHERE status = 'PENDING'`), not read-then-write, so two concurrent accepts of the same link can't both succeed. The `Membership` unique constraint is the second safety net.
 - **Workflow edit**: insert the new version, flip `is_active` on old and new, in one transaction, so there's never a moment with zero or two active workflows for that scope.
-- **Stripe webhook processing**: idempotent via a small `processed_stripe_event(event_id PK)` table, checked in the same transaction as the subscription upsert, Stripe redelivers events and a duplicate write here would corrupt billing state.
+- **Stripe webhook processing**: every event re-reads the subscription from Stripe and overwrites the Location's `subscription` row with it, so a redelivered or out-of-order event writes the same latest state again (ADR 0033).
 
 ## Pagination
 
