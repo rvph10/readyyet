@@ -10,6 +10,17 @@ export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
     )
     .setVersion("0.0.0")
     .addCookieAuth("better-auth.session_token")
+    // body-parser answers these before any route runs, for any method.
+    .addGlobalResponse({
+      status: HttpStatus.PAYLOAD_TOO_LARGE,
+      description: "VALIDATION_ERROR: the request body is over the size limit",
+      type: ApiErrorResponseDto,
+    })
+    .addGlobalResponse({
+      status: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+      description: "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+      type: ApiErrorResponseDto,
+    })
     .addGlobalResponse({
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       description: "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
