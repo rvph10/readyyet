@@ -128,6 +128,7 @@ export class BusinessService {
     });
 
     // After the commit, never inside it: an email can't be taken back.
+    await this.billing.ownerChanged(businessId);
     await this.sendTransferEmails(business.name, userId, dto.userId);
     return business;
   }

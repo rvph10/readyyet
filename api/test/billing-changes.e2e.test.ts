@@ -287,3 +287,41 @@ describe("POST /businesses/:businessId/billing/portal", () => {
     expect((await portal(adminCookie)).status).toBe(403);
   });
 });
+
+describe("Transferring a business that pays", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("moves the Stripe customer's email, where invoices go, to the new owner", async () => {
+    const stamp = Date.now();
+    const ownerCookie = await signInViaOtp(app, prisma, `delivered+transfer-billing-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+transfer-billing-admin-${stamp}@resend.dev`;
+    const adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    const { businessId, locationId } = await createBusiness(app, ownerCookie, "Handover Co");
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+    const customerId = `cus_handover_${stamp}`;
+    await prisma.business.update({ where: { id: businessId }, data: { stripeCustomerId: customerId } });
+    const admin = await prisma.user.findUniqueOrThrow({ where: { email: adminEmail } });
+
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/transfer-ownership`)
+      .set("Cookie", ownerCookie)
+      .send({ userId: admin.id });
+
+    expect(response.status).toBe(200);
+    expect(stripe.customers.update).toHaveBeenCalledWith(customerId, { email: adminEmail });
+  });
+});

@@ -147,6 +147,18 @@ export class BillingService {
     return { url: session.url };
   }
 
+  // Invoices and Stripe's payment emails go to the Customer's email, which
+  // has to follow the Business to its new Owner.
+  async ownerChanged(businessId: string) {
+    const business = await this.prisma.business.findUniqueOrThrow({
+      where: { id: businessId },
+      include: { owner: true },
+    });
+    if (business.stripeCustomerId) {
+      await getStripeClient().customers.update(business.stripeCustomerId, { email: business.owner.email });
+    }
+  }
+
   // Deleting a Location ends its subscription at once, without refund
   // (ADR 0033).
   async cancelNow(locationId: string) {
