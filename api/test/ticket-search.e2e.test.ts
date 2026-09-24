@@ -65,6 +65,7 @@ describe("Ticket search and filters", () => {
         location: {
           name: "Search Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550111",
           contactEmail: "shop@searchtest.test",
           locale: "EN",

@@ -41,6 +41,7 @@ describe("Customers", () => {
         location: {
           name: "Main Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@customertest.test",
           locale: "EN",
@@ -212,6 +213,7 @@ describe("Customers", () => {
         location: {
           name: "Other Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550124",
           contactEmail: "shop@othercustomertest.test",
           locale: "EN",

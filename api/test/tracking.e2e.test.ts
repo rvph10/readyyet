@@ -74,6 +74,7 @@ describe("Public tracking", () => {
         location: {
           name: "Tracking Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550199",
           contactEmail: "shop@trackingtest.test",
           locale: "FR",

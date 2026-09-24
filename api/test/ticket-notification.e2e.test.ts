@@ -50,6 +50,7 @@ describe("Ticket tracking link emails", () => {
         location: {
           name: "Garage Lumière",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "atelier@lumiere.test",
           locale: "FR",

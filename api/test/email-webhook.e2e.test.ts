@@ -145,6 +145,7 @@ describe("POST /webhooks/resend", () => {
               contactPhone: "+32470123456",
               contactEmail: "shop@webhook.test",
               locale: "FR",
+              timeZone: "Europe/Brussels",
             },
           },
         },

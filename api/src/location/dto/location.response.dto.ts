@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
+import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
 
 export class LocationDto {
   id!: string;
@@ -12,6 +13,9 @@ export class LocationDto {
   logoUrl!: string | null;
   @ApiProperty({ enum: Locale })
   locale!: Locale;
+  timeZone!: string;
+  address!: PostalAddressDto | null;
+  openingHours!: OpeningHoursSpecificationDto[];
   createdAt!: Date;
   updatedAt!: Date;
 }

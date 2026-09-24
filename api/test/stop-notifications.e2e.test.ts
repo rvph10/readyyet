@@ -70,6 +70,7 @@ describe("Stopping a ticket's status updates", () => {
         location: {
           name: "Cordonnerie Lumière",
           businessTypeCode: "SHOE_REPAIR",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "atelier@lumiere.test",
           locale: "FR",

@@ -39,6 +39,7 @@ describe("GET /me", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@metest.test",
           locale: "EN",

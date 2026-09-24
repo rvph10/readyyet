@@ -34,6 +34,7 @@ describe("GET /locations/:locationId", () => {
         location: {
           name: "Main Street",
           businessTypeCode: "PRESSING",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550199",
           contactEmail: "main@janespressing.test",
           locale: "EN",
@@ -51,6 +52,9 @@ describe("GET /locations/:locationId", () => {
   afterAll(async () => {
     await app.close();
   });
+
+  const patch = (body: object) =>
+    request(app.getHttpServer()).patch(`/locations/${locationId}`).set("Cookie", ownerCookie).send(body);
 
   it("lets the owner read their own location", async () => {
     const response = await request(app.getHttpServer()).get(`/locations/${locationId}`).set("Cookie", ownerCookie);
@@ -122,6 +126,125 @@ describe("GET /locations/:locationId", () => {
       .send({});
 
     expect(response.status).toBe(200);
+  });
+
+  describe("time zone", () => {
+    it.each([
+      ["Europe/Paris", "Europe/Paris"],
+      ["europe/brussels", "Europe/Brussels"],
+      ["US/Eastern", "America/New_York"],
+    ])("stores %s as %s", async (timeZone, stored) => {
+      const response = await patch({ timeZone });
+
+      expect(response.status).toBe(200);
+      expect(response.body.timeZone).toBe(stored);
+    });
+
+    // A fixed offset would show "UTC+1" and miss daylight saving changes.
+    it.each(["UTC", "Etc/GMT+1", "+01:00", "Mars/Olympus"])("rejects %s, it isn't a region", async (timeZone) => {
+      const response = await patch({ timeZone });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("timeZone");
+    });
+  });
+
+  describe("address", () => {
+    const address = {
+      streetAddress: "Rue Neuve 12",
+      postalCode: "1000",
+      addressLocality: "Bruxelles",
+      addressCountry: "BE",
+    };
+
+    it("is set whole, and removed with null", async () => {
+      const set = await patch({ address });
+      expect(set.status).toBe(200);
+      expect(set.body.address).toEqual(address);
+
+      const removed = await patch({ address: null });
+      expect(removed.status).toBe(200);
+      expect(removed.body.address).toBeNull();
+    });
+
+    it("rejects one missing a field", async () => {
+      const response = await patch({ address: { ...address, postalCode: undefined } });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("address.postalCode");
+    });
+
+    it.each(["be", "BEL", "XX"])(
+      "rejects the country %s, it isn't an ISO 3166-1 alpha-2 code",
+      async (addressCountry) => {
+        const response = await patch({ address: { ...address, addressCountry } });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.details[0].property).toBe("address.addressCountry");
+      },
+    );
+  });
+
+  describe("opening hours", () => {
+    it("stores the week in order, two ranges on a day closed at lunch", async () => {
+      const response = await patch({
+        openingHours: [
+          { dayOfWeek: "Saturday", opens: "10:00", closes: "16:00" },
+          { dayOfWeek: "Monday", opens: "13:30", closes: "18:00" },
+          { dayOfWeek: "Monday", opens: "09:00", closes: "12:30" },
+        ],
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.openingHours).toEqual([
+        { dayOfWeek: "Monday", opens: "09:00", closes: "12:30" },
+        { dayOfWeek: "Monday", opens: "13:30", closes: "18:00" },
+        { dayOfWeek: "Saturday", opens: "10:00", closes: "16:00" },
+      ]);
+    });
+
+    it("is removed with an empty list", async () => {
+      await patch({ openingHours: [{ dayOfWeek: "Monday", opens: "09:00", closes: "18:00" }] });
+      const response = await patch({ openingHours: [] });
+
+      expect(response.status).toBe(200);
+      expect(response.body.openingHours).toEqual([]);
+    });
+
+    it.each([
+      [
+        "three ranges on a day",
+        [
+          { dayOfWeek: "Monday", opens: "08:00", closes: "10:00" },
+          { dayOfWeek: "Monday", opens: "11:00", closes: "13:00" },
+          { dayOfWeek: "Monday", opens: "14:00", closes: "18:00" },
+        ],
+      ],
+      [
+        "overlapping ranges",
+        [
+          { dayOfWeek: "Monday", opens: "09:00", closes: "13:00" },
+          { dayOfWeek: "Monday", opens: "12:00", closes: "18:00" },
+        ],
+      ],
+      ["a range closing before it opens", [{ dayOfWeek: "Monday", opens: "18:00", closes: "09:00" }]],
+    ])("rejects %s", async (_, openingHours) => {
+      const response = await patch({ openingHours });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("openingHours");
+    });
+
+    it.each([
+      ["a time without a colon", { dayOfWeek: "Monday", opens: "0900", closes: "18:00" }, "openingHours.0.opens"],
+      ["24:00", { dayOfWeek: "Monday", opens: "09:00", closes: "24:00" }, "openingHours.0.closes"],
+      ["an unknown day", { dayOfWeek: "Mon", opens: "09:00", closes: "18:00" }, "openingHours.0.dayOfWeek"],
+    ])("rejects %s", async (_, range, property) => {
+      const response = await patch({ openingHours: [range] });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details.map((detail: { property: string }) => detail.property)).toContain(property);
+    });
   });
 
   it("rejects an EMPLOYEE updating location settings", async () => {

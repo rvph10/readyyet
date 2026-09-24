@@ -4,6 +4,7 @@ import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { toAddressColumns, toOpeningHoursJson } from "./location-info";
 import { locationSelect, toLocationResponse } from "./location-select";
 
 @Injectable()
@@ -31,6 +32,9 @@ export class LocationService {
         ...(dto.contactEmail !== undefined && { contactEmail: dto.contactEmail }),
         ...(dto.logoUrl !== undefined && { logoUrl: dto.logoUrl }),
         ...(dto.locale !== undefined && { locale: dto.locale }),
+        ...(dto.timeZone !== undefined && { timeZone: dto.timeZone }),
+        ...(dto.address !== undefined && toAddressColumns(dto.address)),
+        ...(dto.openingHours !== undefined && { openingHours: toOpeningHoursJson(dto.openingHours) }),
       },
     });
     return toLocationResponse(location);

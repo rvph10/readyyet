@@ -38,6 +38,7 @@ export async function seedFixtures(db: PrismaClient) {
       contactPhone: "+10000000000",
       contactEmail: "a@example.com",
       locale: "EN",
+      timeZone: "Europe/Brussels",
     },
   });
   const locationB = await db.location.create({
@@ -48,6 +49,7 @@ export async function seedFixtures(db: PrismaClient) {
       contactPhone: "+10000000001",
       contactEmail: "b@example.com",
       locale: "EN",
+      timeZone: "Europe/Brussels",
     },
   });
 
