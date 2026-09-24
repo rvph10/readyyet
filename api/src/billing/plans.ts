@@ -31,7 +31,7 @@ export function memberLimit(subscription: Subscription) {
   return essentiel ? ESSENTIEL_MEMBER_LIMIT : null;
 }
 
-// The lookup keys of the four prices, the same in the sandbox and in live
+// The lookup keys of the four prices, the same in test mode and in live
 // mode (ADR 0033).
 export function lookupKey(plan: Plan, interval: BillingInterval) {
   return `${plan === Plan.PRO ? "pro" : "essentiel"}_${interval === BillingInterval.YEAR ? "yearly" : "monthly"}`;

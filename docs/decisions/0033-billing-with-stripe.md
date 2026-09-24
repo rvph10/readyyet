@@ -9,7 +9,7 @@ Implements the plans and trial of ADR 0031. Replaces the `processed_stripe_event
 ### Stripe objects
 
 - One Stripe Customer per Business, created the first time one of its Locations goes through checkout. One Stripe subscription per Location, on that Customer.
-- Four prices, found by lookup key, never by id: `essentiel_monthly`, `essentiel_yearly`, `pro_monthly`, `pro_yearly`. The same keys exist in the sandbox and in live mode.
+- Four prices, found by lookup key, never by id: `essentiel_monthly`, `essentiel_yearly`, `pro_monthly`, `pro_yearly`. The same keys exist in test mode and in live mode.
 - The Location's id is in the subscription's metadata, which is how a webhook finds its Location.
 
 ### Trial and state
