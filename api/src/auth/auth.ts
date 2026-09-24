@@ -4,6 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@readyyet/db";
+import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail, localeFromAcceptLanguage } from "../notification/staff-email/staff-email";
 
@@ -84,6 +85,9 @@ export const auth: Auth<any> = betterAuth({
       },
     }),
   ],
+  advanced: {
+    ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+  },
   // Disabled by default outside production, so this has to be explicit.
   // Nest's guards (and @nestjs/throttler) never see these routes, see
   // docs/decisions/0009-rate-limiting-and-request-logging.md.
