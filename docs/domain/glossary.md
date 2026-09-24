@@ -21,6 +21,14 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 - **Business type**: the kind of business a location runs as (garage, pressing, maroquinerie, etc.). Determines the location's default workflow.
 - **Tracking link / tracking page**: the public, no-login page a customer reaches at `readyyet.app/t/[code]` (by email link or QR code) to see their ticket's current status and history.
 
+## Billing and growth
+
+- **Plan**: what a Location subscribes to, `Essentiel` or `Pro` (ADR 0031). There is no free plan, a Business's first Location starts with a 14-day trial of Pro.
+- **Sponsor**: an Owner whose referral link brought in a new Business. Rewarded with a credit on their bill.
+- **Sales partner**: a User the platform admin has marked as one, earning a commission on the Businesses their referral link brings in (ADR 0032). Not a Role: it has nothing to do with any Location.
+- **Campaign**: a Stripe promotion code giving a discount to new or existing Businesses.
+- **Platform admin**: the person running ReadyYet itself, identified by email in configuration, not a Role.
+
 ## Access model in one sentence
 
 A user's access to data is entirely determined by which locations they hold a membership at and what role they hold there, not by business membership.
