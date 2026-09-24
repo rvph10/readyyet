@@ -38,7 +38,7 @@ Fill in `api/.env`. The API checks these when it starts and refuses to start if 
 - `SUPPORT_EMAIL`: a monitored inbox. Security emails (an ownership transfer, a deleted account) tell the User to reply if it wasn't them, and replies go here.
 - `WEB_URL` — the web app's origin, `http://localhost:3001` locally. It's the only origin allowed by CORS and by Better Auth's `trustedOrigins`, and the base for links in emails.
 - `NODE_ENV`, `LOG_LEVEL` — defaults are fine locally.
-- `SENTRY_DSN`: leave empty locally, error tracking is then off. Required in production, see ADR 0019.
+- `SENTRY_DSN`: optional locally, from the Sentry project's Client Keys. Set, your errors show in Sentry under the `development` environment. Required in production, see ADR 0019.
 
 Then, from the repo root:
 
