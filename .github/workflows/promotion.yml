@@ -27,16 +27,19 @@ jobs:
         env:
           SHA: ${{ github.event.pull_request.head.sha }}
           HEALTH_URL: https://api-staging-327d.up.railway.app/health
-        # Railway deploys staging a few minutes after the push, so wait for it.
-        # curl -f: anything but a 200 counts as not healthy yet.
+        # Railway deploys staging a few minutes after the push, so wait for it,
+        # up to 15 minutes. Only a 200 counts, a redirect or another 2xx doesn't.
         run: |
-          for attempt in $(seq 1 30); do
-            release=$(curl -fsS -m 10 -o /dev/null -D - "$HEALTH_URL" | tr -d '\r' | awk -F': ' 'tolower($1) == "x-release" { print $2 }') || release=""
-            if [ "$release" = "$SHA" ]; then
+          deadline=$(( $(date +%s) + 900 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            : > headers.txt
+            status=$(curl -sS -m 10 -o /dev/null -D headers.txt -w '%{http_code}' "$HEALTH_URL") || status=""
+            release=$(tr -d '\r' < headers.txt | awk -F': ' 'tolower($1) == "x-release" { print $2 }')
+            if [ "$status" = "200" ] && [ "$release" = "$SHA" ]; then
               echo "Staging runs $SHA and /health answers 200"
               exit 0
             fi
-            echo "Staging runs ${release:-nothing healthy}, waiting for $SHA"
+            echo "Staging answers ${status:-nothing} running ${release:-an unknown commit}, waiting for $SHA"
             sleep 30
           done
           echo "::error::Staging isn't healthy on $SHA after 15 minutes"
