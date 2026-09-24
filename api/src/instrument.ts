@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nestjs";
-import { maskTrackingCode } from "./common/logging/pino-http-options";
+import { maskTrackingCode, withoutQueryArguments } from "./common/logging/redact";
 
 // Loaded by main.ts right after dotenv: Sentry hooks into modules as they
 // are first required. Without SENTRY_DSN (local, tests) this does nothing.
@@ -29,10 +29,3 @@ Sentry.init({
     return event;
   },
 });
-
-// Prisma quotes the whole query, argument values included, between the line
-// naming the call and the last line saying what's wrong with it.
-export function withoutQueryArguments(message: string): string {
-  const lines = message.split("\n").filter((line) => line.trim());
-  return `${lines[0]} ${lines[lines.length - 1]}`;
-}

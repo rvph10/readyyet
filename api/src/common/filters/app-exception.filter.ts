@@ -4,6 +4,7 @@ import { Prisma } from "@readyyet/db";
 import * as Sentry from "@sentry/nestjs";
 import { ApiErrorResponse, ErrorCode } from "@readyyet/shared";
 import { AppError, ConflictError, NotFoundError } from "../errors/app-error";
+import { withoutQueryArguments } from "../logging/redact";
 
 const STATUS_TO_CODE: Partial<Record<number, ErrorCode>> = {
   [HttpStatus.UNAUTHORIZED]: ErrorCode.UNAUTHENTICATED,
@@ -62,8 +63,15 @@ export class AppExceptionFilter implements ExceptionFilter {
       };
     }
 
-    request.log.error(exception instanceof Error ? exception.stack : exception);
+    request.log.error(this.forLog(exception));
     Sentry.captureException(exception);
     return { error: { code: ErrorCode.INTERNAL_ERROR, message: "Internal server error", requestId } };
+  }
+
+  private forLog(exception: unknown): unknown {
+    if (exception instanceof Prisma.PrismaClientValidationError) {
+      return exception.stack?.replace(exception.message, withoutQueryArguments(exception.message));
+    }
+    return exception instanceof Error ? exception.stack : exception;
   }
 }

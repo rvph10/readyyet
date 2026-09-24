@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { maskTrackingCode, pinoHttpOptions } from "../src/common/logging/pino-http-options";
+import { pinoHttpOptions } from "../src/common/logging/pino-http-options";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -186,11 +186,16 @@ describe("Public tracking", () => {
     expect(serializeReq({ url: "/locations/abc/tickets" }).url).toBe("/locations/abc/tickets");
   });
 
-  it("masks the tracking code in a full URL or a transaction name, as error reports carry", () => {
-    expect(maskTrackingCode("https://api.readyyet.app/tracking/AbC-123_xyz0/stop-notifications")).toBe(
-      "https://api.readyyet.app/tracking/[redacted]/stop-notifications",
-    );
-    expect(maskTrackingCode("GET /tracking/AbC-123_xyz0")).toBe("GET /tracking/[redacted]");
+  it("masks the search term in request logs, in the URL and the parsed query", () => {
+    const serializeReq = pinoHttpOptions().serializers!.req as (req: {
+      url: string;
+      query: Record<string, string>;
+    }) => { url: string; query: Record<string, string> };
+
+    expect(serializeReq({ url: "/locations/abc/customers?q=Jane&take=5", query: { q: "Jane", take: "5" } })).toEqual({
+      url: "/locations/abc/customers?q=[redacted]&take=5",
+      query: { q: "[redacted]", take: "5" },
+    });
   });
 });
 

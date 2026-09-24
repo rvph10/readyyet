@@ -122,6 +122,19 @@ describe("AppExceptionFilter", () => {
     expect(log.error).toHaveBeenCalled();
   });
 
+  it("logs a Prisma validation error without the values of the failing query", () => {
+    const { host, status, log } = mockHost();
+    const message =
+      '\nInvalid `prisma.customer.create()` invocation:\n\n{\n  data: { fullName: "Jane Doe" }\n}\n\nArgument `location` is missing.';
+
+    filter.catch(new Prisma.PrismaClientValidationError(message, { clientVersion: Prisma.prismaVersion.client }), host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    const logged = log.error.mock.calls[0][0] as string;
+    expect(logged).toContain("Invalid `prisma.customer.create()` invocation: Argument `location` is missing.");
+    expect(logged).not.toContain("Jane Doe");
+  });
+
   it("hides an unexpected error behind a generic 500, logging it via the request logger", () => {
     const { host, status, json, log } = mockHost();
     const error = new Error("boom");
