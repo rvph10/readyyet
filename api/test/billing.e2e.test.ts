@@ -15,7 +15,7 @@ const stripe = vi.hoisted(() => ({
   customers: { create: vi.fn() },
   prices: { list: vi.fn() },
   checkout: { sessions: { create: vi.fn() } },
-  subscriptions: { retrieve: vi.fn(), update: vi.fn() },
+  subscriptions: { retrieve: vi.fn(), update: vi.fn(), cancel: vi.fn() },
   subscriptionSchedules: { create: vi.fn(), update: vi.fn(), release: vi.fn() },
 }));
 vi.mock("../src/billing/stripe-client", () => ({ getStripeClient: () => stripe }));
@@ -595,5 +595,59 @@ describe("Changing and cancelling a paying location's plan", () => {
 
     onStripe("pro_monthly", { cancel_at_period_end: true });
     expect((await cancel(ownerCookie)).status).toBe(409);
+  });
+});
+
+describe("Deleting a location", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+billing-delete-${Date.now()}@resend.dev`);
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const remove = (locationId: string) =>
+    request(app.getHttpServer()).delete(`/locations/${locationId}`).set("Cookie", ownerCookie);
+
+  it("cancels its subscription at once", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Closing Co");
+    const subscriptionId = `sub_delete_${Date.now()}`;
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", plan: "PRO", interval: "MONTH", stripeSubscriptionId: subscriptionId },
+    });
+
+    expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith(subscriptionId);
+  });
+
+  it("has nothing to cancel during the trial", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Trial Co");
+
+    expect((await remove(locationId)).status).toBe(204);
+    expect(stripe.subscriptions.cancel).not.toHaveBeenCalled();
+  });
+
+  it("keeps the location when Stripe can't cancel, so it's never deleted while still billed", async () => {
+    const { locationId } = await createBusiness(app, ownerCookie, "Stuck Co");
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", stripeSubscriptionId: `sub_stuck_${Date.now()}` },
+    });
+    stripe.subscriptions.cancel.mockRejectedValueOnce(new Error("Stripe is down"));
+
+    expect((await remove(locationId)).status).toBe(500);
+    expect((await prisma.location.findUniqueOrThrow({ where: { id: locationId } })).deletedAt).toBeNull();
   });
 });

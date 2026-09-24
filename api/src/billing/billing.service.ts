@@ -134,6 +134,17 @@ export class BillingService {
     return this.get(locationId);
   }
 
+  // Deleting a Location ends its subscription at once, without refund
+  // (ADR 0033).
+  async cancelNow(locationId: string) {
+    const { status, stripeSubscriptionId } = await this.prisma.subscription.findUniqueOrThrow({
+      where: { locationId },
+    });
+    if (status === SubscriptionStatus.ACTIVE || status === SubscriptionStatus.PAST_DUE) {
+      await getStripeClient().subscriptions.cancel(stripeSubscriptionId!);
+    }
+  }
+
   // What a frozen Location can't do: create Tickets (ADR 0031).
   async assertNotFrozen(locationId: string) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
