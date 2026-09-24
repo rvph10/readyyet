@@ -116,6 +116,10 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       EMAIL_FROM: "ReadyYet <hello@readyyet.app>"
       WEB_URL: http://localhost:3001
+      # Checked at startup (api/src/config/env.ts). A fixed value is fine:
+      # it only signs sessions of a throwaway CI database.
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      BETTER_AUTH_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v7

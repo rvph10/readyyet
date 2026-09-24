@@ -20,13 +20,17 @@ describe("HTTP middleware", () => {
     await app.close();
   });
 
-  it.each(["/health", "/api/auth/get-session"])("sets security headers on %s", async (path) => {
-    const response = await request(app.getHttpServer()).get(path);
+  it.each(["/health", "/api/auth/get-session", "/tracking/unknown-code"])(
+    "sets security headers on %s",
+    async (path) => {
+      const response = await request(app.getHttpServer()).get(path);
 
-    expect(response.headers["x-content-type-options"]).toBe("nosniff");
-    expect(response.headers["content-security-policy"]).toContain("default-src 'self'");
-    expect(response.headers["strict-transport-security"]).toBeDefined();
-  });
+      expect(response.headers["x-content-type-options"]).toBe("nosniff");
+      expect(response.headers["content-security-policy"]).toContain("default-src 'self'");
+      expect(response.headers["strict-transport-security"]).toBeDefined();
+      expect(response.headers["x-robots-tag"]).toBe("noindex, nofollow");
+    },
+  );
 
   // Better Auth's own trustedOrigins check isn't covered here: it disables
   // itself whenever NODE_ENV is "test" (advanced.disableOriginCheck

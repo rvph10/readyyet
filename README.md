@@ -27,7 +27,7 @@ cd api
 cp .env.example .env
 ```
 
-Fill in `api/.env`:
+Fill in `api/.env`. The API checks these when it starts and refuses to start if one is missing or malformed (`api/src/config/env.ts`).
 
 - `DATABASE_URL`, `PORT` — already correct for the `docker compose` setup above, no change needed.
 - `BETTER_AUTH_SECRET` — generate with `pnpm exec better-auth secret`.

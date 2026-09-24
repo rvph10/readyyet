@@ -1,5 +1,6 @@
 import { INestApplication } from "@nestjs/common";
 import express from "express";
+import type { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import pinoHttp from "pino-http";
 import { pinoHttpOptions } from "./logging/pino-http-options";
@@ -15,6 +16,12 @@ import { pinoHttpOptions } from "./logging/pino-http-options";
 // ordering race. See docs/decisions/0009-rate-limiting-and-request-logging.md.
 export function applyHttpMiddleware(app: INestApplication) {
   app.use(helmet());
+  // Nothing here is meant for a search engine, the public tracking data
+  // included (that's the web app's page to show).
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    next();
+  });
   app.use(pinoHttp(pinoHttpOptions()));
   // Done here rather than via Better Auth's trustedOrigins-driven CORS
   // (disableTrustedOriginsCors in app.module.ts): that one only allows
