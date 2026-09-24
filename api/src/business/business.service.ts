@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Role } from "@readyyet/db";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
+import { trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
 import { EmailService } from "../email/email.service";
 import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
@@ -9,6 +10,10 @@ import { locationSelect, toLocationResponse } from "../location/location-select"
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
+
+// Every Business this service returns goes to a client, the Stripe id
+// is ours alone.
+const omitStripe = { stripeCustomerId: true } as const;
 
 @Injectable()
 export class BusinessService {
@@ -22,9 +27,15 @@ export class BusinessService {
       data: {
         ownerId,
         name: dto.name,
-        locations: { create: await this.buildLocationWithOwnerMembership(dto.location, ownerId) },
+        locations: {
+          create: {
+            ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
+            subscription: { create: trialSubscription() },
+          },
+        },
       },
       include: { locations: locationSelect },
+      omit: omitStripe,
     });
     return { ...business, locations: business.locations.map(toLocationResponse) };
   }
@@ -35,6 +46,7 @@ export class BusinessService {
     await this.loadOwned(businessId, userId, "Only the business owner can view it");
     return this.prisma.business.findUniqueOrThrow({
       where: { id: businessId },
+      omit: omitStripe,
       include: {
         locations: {
           where: { deletedAt: null },
@@ -47,14 +59,18 @@ export class BusinessService {
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can rename it");
-    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name } });
+    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, omit: omitStripe });
   }
 
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can add a location");
 
     const location = await this.prisma.location.create({
-      data: { businessId, ...(await this.buildLocationWithOwnerMembership(dto, userId)) },
+      data: {
+        businessId,
+        ...(await this.buildLocationWithOwnerMembership(dto, userId)),
+        subscription: { create: UNPAID_SUBSCRIPTION },
+      },
       ...locationSelect,
     });
     return toLocationResponse(location);
@@ -100,7 +116,7 @@ export class BusinessService {
         });
       }
 
-      return tx.business.findUniqueOrThrow({ where: { id: businessId } });
+      return tx.business.findUniqueOrThrow({ where: { id: businessId }, omit: omitStripe });
     });
 
     // After the commit, never inside it: an email can't be taken back.
