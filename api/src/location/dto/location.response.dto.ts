@@ -4,7 +4,8 @@ import { Locale } from "@readyyet/db";
 export class LocationDto {
   id!: string;
   businessId!: string;
-  businessTypeId!: number;
+  // A code from GET /catalogue/business-types.
+  businessTypeCode!: string;
   name!: string;
   contactPhone!: string;
   contactEmail!: string;
@@ -13,5 +14,4 @@ export class LocationDto {
   locale!: Locale;
   createdAt!: Date;
   updatedAt!: Date;
-  deletedAt!: Date | null;
 }

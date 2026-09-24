@@ -3255,8 +3255,8 @@
           "businessId": {
             "type": "string"
           },
-          "businessTypeId": {
-            "type": "number"
+          "businessTypeCode": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -3278,25 +3278,19 @@
           "updatedAt": {
             "format": "date-time",
             "type": "string"
-          },
-          "deletedAt": {
-            "format": "date-time",
-            "type": "string",
-            "nullable": true
           }
         },
         "required": [
           "locale",
           "id",
           "businessId",
-          "businessTypeId",
+          "businessTypeCode",
           "name",
           "contactPhone",
           "contactEmail",
           "logoUrl",
           "createdAt",
-          "updatedAt",
-          "deletedAt"
+          "updatedAt"
         ]
       },
       "CreatedBusinessDto": {
