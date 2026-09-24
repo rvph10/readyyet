@@ -1,0 +1,22 @@
+name: Feature request
+description: Something ReadyYet should do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who hits it (Owner, Admin, Employee, Customer) and when.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Related decisions
+      description: ADRs in docs/decisions/ this touches or would change.
