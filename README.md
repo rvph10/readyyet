@@ -71,6 +71,7 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 - `docs/domain/` — domain vocabulary (`glossary.md`) and the status/business-type catalogue.
 - `docs/architecture/data-model.md` — schema reasoning: id strategies, constraints Prisma can't express, transaction boundaries.
 - `/docs` (Swagger UI, non-production only, `api/src/main.ts`) — the live API reference, generated from the actual controllers and DTOs. Better Auth's own routes (`/api/auth/*`) aren't in it, they're raw middleware, not Nest controllers, see ADR 0008/0011.
+- `api/openapi.json` — the same spec as a committed file, so every API change shows up in review. Regenerate it with `pnpm --filter @readyyet/api run openapi` after changing a controller or DTO, CI fails if it's out of date.
 
 ## License
 
