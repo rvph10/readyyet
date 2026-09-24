@@ -36,3 +36,11 @@ export function memberLimit(subscription: Subscription) {
 export function lookupKey(plan: Plan, interval: BillingInterval) {
   return `${plan === Plan.PRO ? "pro" : "essentiel"}_${interval === BillingInterval.YEAR ? "yearly" : "monthly"}`;
 }
+
+export function fromLookupKey(key: string | null) {
+  const [plan, interval] = (key ?? "").split("_");
+  return {
+    plan: plan === "pro" ? Plan.PRO : Plan.ESSENTIEL,
+    interval: interval === "yearly" ? BillingInterval.YEAR : BillingInterval.MONTH,
+  };
+}

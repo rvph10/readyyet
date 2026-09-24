@@ -7,6 +7,7 @@ import { BillingDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
 import { isFrozen, lookupKey, memberLimit } from "./plans";
 import { getStripeClient } from "./stripe-client";
+import { toSubscriptionRow } from "./stripe-sync";
 
 // Stripe refuses a Checkout trial ending less than 48 hours away.
 const MIN_CHECKOUT_TRIAL_MS = 48 * 60 * 60 * 1000;
@@ -87,6 +88,28 @@ export class BillingService {
     if (members + invitations > 2) {
       throw new ConflictError("Essentiel allows 2 members, remove members or revoke invitations first");
     }
+  }
+
+  // Every webhook ends here (ADR 0033): Stripe's current state is written
+  // whatever the event said, so a late or repeated event is harmless.
+  async sync(stripeSubscriptionId: string) {
+    const subscription = await getStripeClient().subscriptions.retrieve(stripeSubscriptionId, { expand: ["schedule"] });
+    const locationId = subscription.metadata.locationId;
+    const row = toSubscriptionRow(subscription);
+    if (!locationId || !row) {
+      return;
+    }
+    // A Location that paid again has a new subscription, the end of its
+    // previous one must not freeze it.
+    await this.prisma.subscription.updateMany({
+      where: {
+        locationId,
+        ...(row.status === SubscriptionStatus.ENDED && {
+          OR: [{ stripeSubscriptionId: null }, { stripeSubscriptionId: subscription.id }],
+        }),
+      },
+      data: row,
+    });
   }
 
   private async createCustomer(business: { id: string; name: string; owner: { email: string } }) {
