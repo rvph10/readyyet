@@ -74,7 +74,7 @@ The API runs on Railway, configured by `api/railway.json`. One-time service sett
 - **Config file path**: `/api/railway.json` (Railway doesn't look in subdirectories on its own).
 - **Variables**: everything in `api/.env.example`, with `NODE_ENV=production`, `DATABASE_URL` referencing the Railway Postgres service, and `SENTRY_DSN` and `RESEND_WEBHOOK_SECRET` set (the API refuses to start in production without them). `DATABASE_URL` is also needed at build time, `prisma generate` reads it.
 
-Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
+Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 
 After the first deploy, do the trusted-proxy check at the end of ADR 0009.
 

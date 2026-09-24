@@ -7,7 +7,7 @@
   },
   "deploy": {
     "preDeployCommand": ["pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed"],
-    "startCommand": "node api/dist/main.js",
+    "startCommand": "node --enable-source-maps api/dist/main.js",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
