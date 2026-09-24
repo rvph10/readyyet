@@ -98,10 +98,27 @@ describe("Better Auth email OTP", () => {
     expect(response.body).toBeNull();
   });
 
+  it.each([
+    ["fr-BE,fr;q=0.9,en;q=0.8", "Votre code de connexion ReadyYet"],
+    [undefined, "Your ReadyYet sign-in code"],
+  ])("emails the code in the browser's language (%s)", async (acceptLanguage, subject) => {
+    const email = `delivered+auth-otp-language-${Date.now()}@resend.dev`;
+    const sent = request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp");
+    if (acceptLanguage) {
+      sent.set("Accept-Language", acceptLanguage);
+    }
+    await sent.send({ email, type: "sign-in" });
+
+    const log = await prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } });
+    expect(log.subject).toBe(subject);
+    expect(log.html).toContain(await readOtp(prisma, email));
+  });
+
+  // Last: it uses up the rate limit for every test after it.
   it("rate limits repeated send-verification-otp calls", async () => {
-    // customRules caps /email-otp/send-verification-otp at 5/min (see
-    // api/src/auth/auth.ts); 10 rapid attempts guarantees at least one
-    // 429 regardless of how many calls earlier tests in this file made.
+    // customRules caps /email-otp/send-verification-otp at 10/min (see
+    // api/src/auth/auth.ts); 10 rapid attempts on top of earlier tests'
+    // calls guarantees at least one 429.
     const email = `delivered+auth-otp-ratelimit-${Date.now()}@resend.dev`;
     const attempts = await Promise.all(
       Array.from({ length: 10 }, () =>

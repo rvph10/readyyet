@@ -28,5 +28,8 @@ export const WEBHOOK_EVENT_TO_STATUS: Partial<Record<WebhookEvent, EmailStatus>>
   "email.delivery_delayed": EmailStatus.DELAYED,
   "email.bounced": EmailStatus.BOUNCED,
   "email.complained": EmailStatus.COMPLAINED,
+  // Refused by Resend because the address bounced or complained before,
+  // never delivered and never worth retrying.
+  "email.suppressed": EmailStatus.BOUNCED,
   "email.failed": EmailStatus.FAILED,
 };

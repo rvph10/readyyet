@@ -91,6 +91,50 @@ describe("Customers", () => {
     expect(refetched.body.email).toBe("bob@example.test");
   });
 
+  it("shows staff an address that fails, until they change it", async () => {
+    const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Carol Typo");
+    const path = `/locations/${locationId}/customers/${customerId}`;
+    await prisma.customer.update({
+      where: { id: BigInt(customerId) },
+      data: {
+        email: "delivered+customer-carol-old@resend.dev",
+        emailBouncedAt: new Date(),
+        emailComplainedAt: new Date(),
+      },
+    });
+    const update = (email: string) =>
+      request(app.getHttpServer()).patch(path).set("Cookie", ownerCookie).send({ email });
+
+    const flagged = await request(app.getHttpServer()).get(path).set("Cookie", ownerCookie);
+    expect(flagged.body.emailBouncedAt).toEqual(expect.any(String));
+    expect(flagged.body.emailComplainedAt).toEqual(expect.any(String));
+
+    const unchanged = await update("delivered+customer-carol-old@resend.dev");
+    expect(unchanged.body.emailBouncedAt).toEqual(expect.any(String));
+
+    const fixed = await update("delivered+customer-carol-new@resend.dev");
+    expect(fixed.body).toMatchObject({ emailBouncedAt: null, emailComplainedAt: null });
+  });
+
+  it("won't resend a tracking link to an address that fails, saying why", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Job", customer: { fullName: "Dan Bounce" } });
+    await prisma.customer.update({
+      where: { id: BigInt(created.body.customer.id) },
+      data: { email: "delivered+customer-dan-bounce@resend.dev", emailBouncedAt: new Date() },
+    });
+
+    const response = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets/${created.body.id}/resend-link`)
+      .set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.message).toMatch(/fail/);
+    expect(await prisma.emailLog.count({ where: { to: "delivered+customer-dan-bounce@resend.dev" } })).toBe(0);
+  });
+
   it("soft-deletes a customer, removing it from get and list", async () => {
     const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Carol Deleteme");
 

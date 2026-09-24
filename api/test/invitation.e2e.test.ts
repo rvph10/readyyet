@@ -58,6 +58,27 @@ describe("Invitations", () => {
     expect(response.body.email).toBe(employeeEmail);
   });
 
+  it("emails the invitation as the location, naming who sent it, with replies going to them", async () => {
+    const email = `delivered+invite-email-${Date.now()}@resend.dev`;
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email, role: "ADMIN" });
+
+    // Sent after the response.
+    const log = await vi.waitFor(() =>
+      prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+    );
+    const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy } });
+    expect(log).toMatchObject({
+      subject: "Test User invited you to join Main Shop on ReadyYet",
+      fromName: "Main Shop via ReadyYet",
+      replyTo: owner.email,
+    });
+    expect(log.text).toContain("Main Shop (Invite Test Garage) as an admin");
+    expect(log.html).toContain(`${process.env.WEB_URL}/invitations/${invitation.body.id}`);
+  });
+
   it("rejects a second pending invite to the same email at the same location", async () => {
     const response = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations`)

@@ -217,6 +217,20 @@ describe("Customer status emails", () => {
     expect(await statusEmailsTo("added-later")).toHaveLength(1);
   });
 
+  it("sends nothing to an address that bounced, and forgets the queued email", async () => {
+    const ticket = await createTicket("bounced");
+    await setStatus(ticket.id, "READY");
+    await prisma.customer.updateMany({
+      where: { tickets: { some: { id: BigInt(ticket.id) } } },
+      data: { emailBouncedAt: new Date() },
+    });
+
+    await makeDueAndSweep(ticket.id);
+
+    expect(await statusEmailsTo("bounced")).toHaveLength(0);
+    expect(await pendingFor(ticket.id)).toHaveLength(0);
+  });
+
   it("sends nothing to a customer without an email address, and forgets the queued email", async () => {
     const ticket = await createTicket(null);
     await setStatus(ticket.id, "READY");

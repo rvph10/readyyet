@@ -55,6 +55,10 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 `Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Nothing under a deleted Location is removed, tickets are permanent records. Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
 
+## Undeliverable customer addresses
+
+`Customer.email_bounced_at` and `email_complained_at` are set from Resend's webhook: a permanent bounce or a suppression (Resend refusing an address that failed before) sets the first, a spam report sets the second. They're set on every Customer with that address, whatever Location they belong to, since the problem is the address's, not the shop's. While either is set, no customer email goes to that Customer, and staff see why. Changing the Customer's email address clears both, a temporary bounce sets neither.
+
 ## Tenant-scoped foreign keys
 
 A single-column FK on `Ticket` (e.g. `customer_id -> Customer.id`) doesn't stop a ticket from referencing a customer that belongs to a _different_ location than the ticket itself, the FK only checks the row exists, not that it's the right tenant's row. This was caught in review (see `docs/decisions/` git history) and fixed with composite FKs:

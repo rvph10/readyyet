@@ -5,6 +5,10 @@ import { emailOTP } from "better-auth/plugins";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@readyyet/db";
 import { EmailService } from "../email/email.service";
+import { buildSignInCodeEmail, localeFromAcceptLanguage } from "../notification/staff-email/staff-email";
+
+// Given to the plugin and quoted in the email, so the two can't disagree.
+const OTP_EXPIRES_IN_MINUTES = 5;
 
 // Better Auth owns its own PrismaClient/connection, separate from
 // PrismaService (src/database/prisma.service.ts). It's mounted as raw
@@ -43,7 +47,8 @@ export const auth: Auth<any> = betterAuth({
   // password-reset flow entirely. See ADR 0011.
   plugins: [
     emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
+      expiresIn: OTP_EXPIRES_IN_MINUTES * 60,
+      async sendVerificationOTP({ email, otp, type }, ctx) {
         // The plugin also exposes email-verification/forget-password/
         // change-email OTP types (their routes stay reachable
         // regardless), nothing in this app calls them, forget-password
@@ -51,13 +56,12 @@ export const auth: Auth<any> = betterAuth({
         if (type !== "sign-in") {
           return;
         }
-        await emailService.send({
-          to: email,
-          subject: "Your ReadyYet sign-in code",
-          type: "auth_otp",
-          html: `<p>Your ReadyYet sign-in code is <strong>${otp}</strong>. It expires in 5 minutes.</p>`,
-          text: `Your ReadyYet sign-in code is ${otp}. It expires in 5 minutes.`,
+        const { subject, react } = buildSignInCodeEmail({
+          locale: localeFromAcceptLanguage(ctx?.headers?.get("accept-language")),
+          code: otp,
+          expiresInMinutes: OTP_EXPIRES_IN_MINUTES,
         });
+        await emailService.send({ to: email, subject, react, type: "auth_otp" });
       },
     }),
   ],
