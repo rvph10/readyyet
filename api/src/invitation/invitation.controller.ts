@@ -37,6 +37,7 @@ export class InvitationController {
   }
 
   @Post(":invitationId/revoke")
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Revoke a pending invitation (an admin revokes employee invitations only)" })
   @ApiErrors(HttpStatus.CONFLICT)
   revoke(
@@ -48,7 +49,7 @@ export class InvitationController {
   }
 
   @Post(":invitationId/resend")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   // Each call sends an email, same limit as resending a tracking link.
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: "Email a pending invitation again, extending its expiry (ADR 0017)" })

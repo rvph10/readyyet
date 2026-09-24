@@ -183,7 +183,7 @@ describe("Invitations", () => {
     const revoked = await request(app.getHttpServer())
       .post(`/locations/${locationId}/invitations/${invitationId}/revoke`)
       .set("Cookie", ownerCookie);
-    expect(revoked.status).toBe(201);
+    expect(revoked.status).toBe(200);
     expect(revoked.body.status).toBe("REVOKED");
 
     const accept = await request(app.getHttpServer())
