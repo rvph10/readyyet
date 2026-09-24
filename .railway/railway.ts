@@ -22,7 +22,9 @@ export default defineRailway((ctx) => {
       builder: "RAILPACK",
       buildCommand:
         "pnpm --filter @readyyet/db run generate && pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/api run build",
-      watchPatterns: ["/api/**", "/packages/**", "/package.json", "/pnpm-lock.yaml", "/pnpm-workspace.yaml", "/.nvmrc"],
+      // Every commit deploys, a docs-only one included: promoting to main
+      // checks staging runs exactly the commit being promoted.
+      watchPatterns: [],
     },
     // The seed only adds what's missing, so it's safe on every deploy.
     preDeploy: "pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed",

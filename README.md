@@ -70,7 +70,7 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 ## Deploy
 
-The API runs on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, releasing is merging `staging` into `main`.
+The API runs on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, by a squash-merged PR. Releasing is a PR from `staging` into `main`, merged once staging runs that exact commit and `/health` answers 200 (the `promotion` job), see ADR 0023.
 
 Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api` service, its settings and variables, and a Postgres per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
 
