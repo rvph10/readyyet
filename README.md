@@ -35,6 +35,7 @@ Fill in `api/.env`. The API checks these when it starts and refuses to start if 
 - `RESEND_API_KEY` — from [resend.com/api-keys](https://resend.com/api-keys). The email e2e tests hit the real Resend API using its test-mode addresses (`delivered@resend.dev`, `bounced@resend.dev`), a real key is required for `pnpm test` to pass, not optional.
 - `RESEND_WEBHOOK_SECRET` — only needed to receive real delivery-status webhooks (see `docs/decisions/0010-resend-mail-infrastructure.md`), not needed for local dev or tests.
 - `EMAIL_FROM` — a sender address on a domain verified in Resend.
+- `SUPPORT_EMAIL`: a monitored inbox. Security emails (an ownership transfer, a deleted account) tell the User to reply if it wasn't them, and replies go here.
 - `WEB_URL` — the web app's origin, `http://localhost:3001` locally. It's the only origin allowed by CORS and by Better Auth's `trustedOrigins`, and the base for links in emails.
 - `NODE_ENV`, `LOG_LEVEL` — defaults are fine locally.
 

@@ -13,6 +13,8 @@ const envSchema = z
     RESEND_API_KEY: z.string().startsWith("re_"),
     // Either an address or "Name <address>".
     EMAIL_FROM: z.string().includes("@"),
+    // Where replies to security emails go, it must reach a person.
+    SUPPORT_EMAIL: z.email(),
     // Only production receives Resend's webhooks.
     RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
   })

@@ -30,6 +30,12 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class ReauthenticationRequiredError extends AppError {
+  constructor(message: string, details?: unknown) {
+    super(ErrorCode.REAUTHENTICATION_REQUIRED, message, HttpStatus.FORBIDDEN, details);
+  }
+}
+
 export class NotFoundError extends AppError {
   constructor(message: string, details?: unknown) {
     super(ErrorCode.NOT_FOUND, message, HttpStatus.NOT_FOUND, details);

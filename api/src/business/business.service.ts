@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { Role } from "@readyyet/db";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
+import { EmailService } from "../email/email.service";
+import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
@@ -9,7 +11,10 @@ import { UpdateBusinessDto } from "./dto/update-business.dto";
 
 @Injectable()
 export class BusinessService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly email: EmailService,
+  ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
     return this.prisma.business.create({
@@ -65,7 +70,7 @@ export class BusinessService {
       throw new ValidationError("The new owner must be an admin at one of this business's locations");
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const business = await this.prisma.$transaction(async (tx) => {
       // Conditional on the owner the request started from, so two
       // concurrent transfers can't both apply.
       const { count } = await tx.business.updateMany({
@@ -92,6 +97,40 @@ export class BusinessService {
       }
 
       return tx.business.findUniqueOrThrow({ where: { id: businessId } });
+    });
+
+    // After the commit, never inside it: an email can't be taken back.
+    await this.sendTransferEmails(business.name, userId, dto.userId);
+    return business;
+  }
+
+  // Both people, each in their own language (ADR 0018). The previous
+  // owner's copy is how a hijacked account's real owner would find out.
+  private async sendTransferEmails(businessName: string, previousOwnerId: string, newOwnerId: string) {
+    const [previousOwner, newOwner] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({ where: { id: previousOwnerId } }),
+      this.prisma.user.findUniqueOrThrow({ where: { id: newOwnerId } }),
+    ]);
+    const params = {
+      business: businessName,
+      previousOwner: previousOwner.name,
+      newOwner: newOwner.name,
+      newOwnerEmail: newOwner.email,
+    };
+
+    const toNewOwner = buildNewOwnerEmail({
+      ...params,
+      locale: newOwner.locale,
+      appUrl: process.env.WEB_URL as string,
+    });
+    await this.email.send({ to: newOwner.email, ...toNewOwner, type: "ownership_received" });
+    const toPreviousOwner = buildPreviousOwnerEmail({ ...params, locale: previousOwner.locale });
+    await this.email.send({
+      to: previousOwner.email,
+      ...toPreviousOwner,
+      type: "ownership_transferred",
+      // "Reply if this wasn't you" has to reach someone.
+      replyTo: process.env.SUPPORT_EMAIL,
     });
   }
 

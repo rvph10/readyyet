@@ -106,3 +106,67 @@ export function buildInvitationEmail(input: InvitationEmailInput) {
   );
   return { subject: oneLine(messages.subject(input)), react };
 }
+
+export interface OwnershipTransferInput {
+  locale: Locale;
+  business: string;
+  previousOwner: string;
+  newOwner: string;
+  newOwnerEmail: string;
+}
+
+export function buildNewOwnerEmail(input: OwnershipTransferInput & { appUrl: string }) {
+  const messages = MESSAGES[input.locale].newOwner;
+  const body = messages.body(input);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        {input.business}
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Text style={styles.text}>{messages.powers}</Text>
+      <Section style={{ margin: "24px 0" }}>
+        <Button href={input.appUrl} style={styles.button}>
+          {messages.button}
+        </Button>
+      </Section>
+    </Layout>
+  );
+  return { subject: oneLine(messages.subject(input)), react };
+}
+
+export function buildPreviousOwnerEmail(input: OwnershipTransferInput) {
+  const messages = MESSAGES[input.locale].previousOwner;
+  const body = messages.body(input);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        {input.business}
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Text style={styles.text}>{messages.stillAdmin}</Text>
+      <Hr />
+      {/* Body text, not the small footer: this line is the reason the email exists. */}
+      <Text style={{ ...styles.text, fontWeight: "bold" }}>{messages.notYou}</Text>
+    </Layout>
+  );
+  return { subject: oneLine(messages.subject(input)), react };
+}
+
+export function buildAccountDeletedEmail(input: { locale: Locale; email: string }) {
+  const messages = MESSAGES[input.locale].accountDeleted;
+  const body = messages.body(input.email);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        ReadyYet
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Text style={styles.text}>{messages.history}</Text>
+      <Text style={styles.text}>{messages.newAccount}</Text>
+      <Hr />
+      <Text style={{ ...styles.text, fontWeight: "bold" }}>{messages.notYou}</Text>
+    </Layout>
+  );
+  return { subject: messages.subject, react };
+}

@@ -1,7 +1,10 @@
 import { render } from "@react-email/render";
 import { describe, expect, it } from "vitest";
 import {
+  buildAccountDeletedEmail,
   buildInvitationEmail,
+  buildNewOwnerEmail,
+  buildPreviousOwnerEmail,
   buildSignInCodeEmail,
   type InvitationEmailInput,
   localeFromAcceptLanguage,
@@ -89,5 +92,55 @@ describe("Invitation email", () => {
     const email = buildInvitationEmail(input({ location: "Evil\r\nBcc: victim@example.test" }));
 
     expect(email.subject).not.toMatch(/[\r\n]/);
+  });
+});
+
+describe("Ownership transfer emails", () => {
+  const transfer = {
+    business: "Joe's Garage",
+    previousOwner: "Joe Martin",
+    newOwner: "Sam Leroy",
+    newOwnerEmail: "sam@example.test",
+  };
+
+  it.each([
+    ["EN", "You're now the owner of Joe's Garage on ReadyYet"],
+    ["FR", "Vous êtes maintenant propriétaire de Joe's Garage sur ReadyYet"],
+  ] as const)("tells the new owner in %s what they received, with a way in", async (locale, subject) => {
+    const email = buildNewOwnerEmail({ ...transfer, locale, appUrl: "https://readyyet.app" });
+
+    expect(email.subject).toBe(subject);
+    const [html, text] = await rendered(email.react);
+    expect(text).toContain("Joe Martin");
+    expect(html).toContain('href="https://readyyet.app"');
+  });
+
+  it.each([
+    ["EN", "You transferred Joe's Garage to Sam Leroy", "reply to this email"],
+    ["FR", "Vous avez transféré Joe's Garage à Sam Leroy", "répondez à cet e-mail"],
+  ] as const)(
+    "tells the previous owner in %s who has it now, and what to do if it wasn't them",
+    async (locale, subject, notYou) => {
+      const email = buildPreviousOwnerEmail({ ...transfer, locale });
+
+      expect(email.subject).toBe(subject);
+      const [, text] = await rendered(email.react);
+      expect(text).toContain("sam@example.test");
+      expect(text).toContain(notYou);
+    },
+  );
+});
+
+describe("Account deleted email", () => {
+  it.each([
+    ["EN", "Your ReadyYet account was deleted", "reply to this email"],
+    ["FR", "Votre compte ReadyYet a été supprimé", "répondez à cet e-mail"],
+  ] as const)("in %s, names the account and says what to do if it wasn't them", async (locale, subject, notYou) => {
+    const email = buildAccountDeletedEmail({ locale, email: "sam@example.test" });
+
+    expect(email.subject).toBe(subject);
+    const [, text] = await rendered(email.react);
+    expect(text).toContain("sam@example.test");
+    expect(text).toContain(notYou);
   });
 });
