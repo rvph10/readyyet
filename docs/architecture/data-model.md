@@ -119,7 +119,7 @@ Composite foreign keys (Tenant-scoped foreign keys, above) are expressible direc
 
 ## Pagination
 
-`Ticket` and `TicketStatusEvent` lists use cursor pagination on `(created_at, id)` (id as tiebreaker for stable ordering), not `OFFSET`, both tables are expected to grow unbounded.
+`Ticket` and `TicketStatusEvent` lists use cursor pagination on `(created_at, id)` (id as tiebreaker for stable ordering), not `OFFSET`, both tables are expected to grow unbounded. The Customer list does the same on `(full_name, id)`, the order staff browse it in.
 
 ## Migration safety
 

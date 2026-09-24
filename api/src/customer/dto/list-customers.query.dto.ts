@@ -13,9 +13,8 @@ export class ListCustomersQueryDto {
   @Max(100)
   take?: number;
 
+  // Opaque, the nextCursor of the previous page.
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  skip?: number;
+  @IsString()
+  cursor?: string;
 }

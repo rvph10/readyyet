@@ -1,30 +1,59 @@
 import { Injectable } from "@nestjs/common";
 import type { Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
-import { NotFoundError } from "../common/errors/app-error";
+import { NotFoundError, ValidationError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
 
+// Keyset pagination on (fullName, id), like tickets on (createdAt, id), see
+// docs/architecture/data-model.md#pagination.
+function encodeCursor(fullName: string, id: bigint): string {
+  return Buffer.from(JSON.stringify([fullName, id.toString()])).toString("base64url");
+}
+
+function decodeCursor(cursor: string): { fullName: string; id: bigint } {
+  let value: unknown;
+  try {
+    value = JSON.parse(Buffer.from(cursor, "base64url").toString());
+  } catch {
+    throw new ValidationError("Invalid cursor");
+  }
+  if (!Array.isArray(value) || typeof value[0] !== "string" || !/^\d+$/.test(String(value[1]))) {
+    throw new ValidationError("Invalid cursor");
+  }
+  return { fullName: value[0], id: BigInt(value[1] as string) };
+}
+
 @Injectable()
 export class CustomerService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(locationId: string, query: ListCustomersQueryDto) {
+    const take = query.take ?? DEFAULT_LIST_TAKE;
+    const after = query.cursor ? decodeCursor(query.cursor) : undefined;
     const customers = await this.prisma.customer.findMany({
       where: {
         locationId,
         deletedAt: null,
         ...(query.q && { fullName: { contains: query.q, mode: "insensitive" } }),
+        ...(after && {
+          OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
+        }),
       },
-      orderBy: { fullName: "asc" },
-      take: query.take ?? DEFAULT_LIST_TAKE,
-      skip: query.skip ?? 0,
+      orderBy: [{ fullName: "asc" }, { id: "asc" }],
+      // One extra row says whether there's a next page.
+      take: take + 1,
     });
 
-    return customers.map((customer) => this.serialize(customer));
+    const page = customers.slice(0, take);
+    const last = page[page.length - 1];
+    return {
+      items: page.map((customer) => this.serialize(customer)),
+      nextCursor: customers.length > take ? encodeCursor(last.fullName, last.id) : null,
+    };
   }
 
   async findOne(locationId: string, customerId: string) {

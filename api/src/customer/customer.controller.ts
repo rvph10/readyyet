@@ -5,7 +5,7 @@ import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { CustomerService } from "./customer.service";
-import { CustomerDto } from "./dto/customer.response.dto";
+import { CustomerDto, CustomerPageDto } from "./dto/customer.response.dto";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
@@ -20,7 +20,7 @@ export class CustomerController {
   @Get()
   @ApiOperation({ summary: "Search/list customers at a location, optionally by partial name (?q=)" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
-  list(@Param("locationId") locationId: string, @Query() query: ListCustomersQueryDto): Promise<CustomerDto[]> {
+  list(@Param("locationId") locationId: string, @Query() query: ListCustomersQueryDto): Promise<CustomerPageDto> {
     return this.customer.list(locationId, query);
   }
 

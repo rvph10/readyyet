@@ -1856,12 +1856,11 @@
             }
           },
           {
-            "name": "skip",
+            "name": "cursor",
             "required": false,
             "in": "query",
             "schema": {
-              "minimum": 0,
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -1871,10 +1870,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CustomerDto"
-                  }
+                  "$ref": "#/components/schemas/CustomerPageDto"
                 }
               }
             }
@@ -3985,6 +3981,25 @@
         },
         "required": [
           "sentTo"
+        ]
+      },
+      "CustomerPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "UpdateCustomerDto": {

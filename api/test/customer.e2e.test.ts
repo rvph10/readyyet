@@ -63,8 +63,9 @@ describe("Customers", () => {
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(1);
-    expect(response.body[0].id).toBe(aliceId);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items[0].id).toBe(aliceId);
+    expect(response.body.nextCursor).toBeNull();
   });
 
   it("gets a customer's full detail", async () => {
@@ -152,7 +153,7 @@ describe("Customers", () => {
       .get(`/locations/${locationId}/customers`)
       .query({ q: "Deleteme" })
       .set("Cookie", ownerCookie);
-    expect(list.body).toHaveLength(0);
+    expect(list.body.items).toHaveLength(0);
 
     // Erasure, not a plain flag: the row survives (a Ticket references it,
     // onDelete: Restrict) but its PII is actually redacted, not just
@@ -161,6 +162,34 @@ describe("Customers", () => {
     expect(raw.fullName).not.toContain("Carol");
     expect(raw.email).toBeNull();
     expect(raw.phone).toBeNull();
+  });
+
+  it("pages through customers by name, each one exactly once", async () => {
+    const names: string[] = [];
+    let cursor: string | null = null;
+    do {
+      const response: request.Response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query(cursor ? { take: 1, cursor } : { take: 1 })
+        .set("Cookie", ownerCookie);
+      expect(response.status).toBe(200);
+      names.push(...response.body.items.map((customer: { fullName: string }) => customer.fullName));
+      cursor = response.body.nextCursor;
+    } while (cursor);
+
+    expect(names.length).toBeGreaterThanOrEqual(2);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("rejects a malformed cursor", async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/customers`)
+      .query({ cursor: "not-a-cursor" })
+      .set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("rejects a signed-in user with no membership at that location", async () => {

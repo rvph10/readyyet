@@ -13,3 +13,9 @@ export class CustomerDto {
   emailComplainedAt!: Date | null;
   createdAt!: Date;
 }
+
+export class CustomerPageDto {
+  items!: CustomerDto[];
+  // Pass as ?cursor= for the next page, null on the last one.
+  nextCursor!: string | null;
+}
