@@ -12,5 +12,6 @@ export default defineConfig({
     // real Resend API with 2s of backoff between them (email.service.ts).
     // The 5s default failed a test whenever Resend was briefly slow.
     testTimeout: 15_000,
+    setupFiles: ["test/support/contract-setup.ts"],
   },
 });

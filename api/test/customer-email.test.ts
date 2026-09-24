@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { describe, expect, it } from "vitest";
 import { buildCustomerEmail, type CustomerEmailInput } from "../src/notification/customer-email/customer-email";
 import { type CustomerEmailKind } from "../src/notification/customer-email/messages";
@@ -42,7 +42,10 @@ describe("Customer emails", () => {
       }
       expect(text).toContain("Alice Martin");
       expect(text).toContain("Brake pads");
-      expect(html).toContain(`lang="${locale.toLowerCase()}"`);
+      // Every element that declares a language, not just <html>: a screen
+      // reader switches pronunciation at each one.
+      const langs = new Set(html.match(/ lang="[^"]*"/g));
+      expect([...langs]).toEqual([` lang="${locale.toLowerCase()}"`]);
     });
 
     it("gives every kind its own subject", () => {

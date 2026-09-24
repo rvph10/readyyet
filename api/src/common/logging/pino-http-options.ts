@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Options } from "pino-http";
+import { maskSearchTerm, maskTrackingCode } from "./redact";
 
 export function pinoHttpOptions(): Options {
   return {
@@ -10,19 +11,26 @@ export function pinoHttpOptions(): Options {
       res.setHeader("x-request-id", id);
       return id;
     },
-    redact: ["req.headers.authorization", "req.headers.cookie", 'res.headers["set-cookie"]'],
+    redact: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      'res.headers["set-cookie"]',
+      // The client's IP, personal data, set by Railway's proxy. remoteAddress
+      // stays: behind the proxy it's the proxy's own address.
+      'req.headers["x-forwarded-for"]',
+      'req.headers["x-real-ip"]',
+    ],
     serializers: {
-      // A tracking code is the only thing guarding a ticket's public page
-      // (ADR 0004), so it's treated like the cookie above, not logged.
-      req: (req: { url: string }) => {
-        req.url = maskTrackingCode(req.url);
+      // Treated like the cookie above, see redact.ts. pino logs the parsed
+      // query next to the URL.
+      req: (req: { url: string; query?: Record<string, unknown> }) => {
+        req.url = maskSearchTerm(maskTrackingCode(req.url));
+        if (req.query?.q !== undefined) {
+          req.query = { ...req.query, q: "[redacted]" };
+        }
         return req;
       },
     },
     transport: process.env.NODE_ENV === "production" ? undefined : { target: "pino-pretty" },
   };
-}
-
-function maskTrackingCode(url: string): string {
-  return url.replace(/^\/tracking\/[^/?#]+/, "/tracking/[redacted]");
 }

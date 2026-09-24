@@ -8,3 +8,16 @@ onlyBuiltDependencies:
   - better-sqlite3
   - esbuild
   - prisma
+
+# Advisories that can't reach the running API, each until a Prisma release
+# fixes its exact pin. Checked by tracing every file the API opens: neither
+# package is ever loaded.
+auditConfig:
+  ignoreGhsas:
+    # mysql2, Prisma CLI's MySQL driver, pinned by prisma@7.10.0. We only
+    # connect to Postgres, through @prisma/adapter-pg.
+    - GHSA-3f6p-5ww8-9rcr
+    - GHSA-rgwj-5xj2-c3m3
+    # deepmerge-ts, pinned by @prisma/config@7.10.0 to merge our own
+    # prisma.config.ts, which the Prisma CLI reads, never untrusted input.
+    - GHSA-ggr8-5vv4-36mx

@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { describe, expect, it } from "vitest";
 import {
   buildAccountDeletedEmail,
@@ -42,6 +42,8 @@ describe("Sign-in code email", () => {
       expect(content).toContain("482913");
       expect(content).toContain(expiry);
     }
+    const [html] = await rendered(email.react);
+    expect([...new Set(html.match(/ lang="[^"]*"/g))]).toEqual([` lang="${locale.toLowerCase()}"`]);
   });
 
   it("keeps the code out of the subject and the inbox preview", async () => {

@@ -12,7 +12,11 @@ export default defineConfig(
   tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
-      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+      parserOptions: {
+        // .railway/railway.ts belongs to no package, the Railway CLI runs it.
+        projectService: { allowDefaultProject: [".railway/railway.ts"] },
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
   {

@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Role } from "@readyyet/db";
+import { Locale, Prisma, Role } from "@readyyet/db";
 import { ENDED_STATUS_CODES, isEndedStatus, isNotifyingStatus } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
-import { parseBigIntId } from "../common/parse-bigint-id";
+import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
+import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { WorkflowService } from "../workflow/workflow.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
@@ -15,7 +16,23 @@ import { generateTrackingCode } from "./tracking-code";
 
 const DEFAULT_LIST_TAKE = 50;
 
-const DETAIL_INCLUDE = { customer: true, currentStatus: { include: { translations: true } } } as const;
+// select, not include: mapDetail spreads the customer, so every column fetched
+// here would end up in the response. Same fields as the Customer endpoints.
+const DETAIL_INCLUDE = {
+  customer: {
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      locale: true,
+      emailBouncedAt: true,
+      emailComplainedAt: true,
+      createdAt: true,
+    },
+  },
+  currentStatus: statusSelect,
+} as const;
 
 // Cursor pagination on (createdAt, id), not OFFSET, see
 // docs/architecture/data-model.md#pagination. id breaks createdAt ties.
@@ -26,13 +43,13 @@ function encodeCursor(createdAt: Date, id: bigint): string {
 function decodeCursor(cursor: string): { createdAt: Date; id: bigint } {
   const [createdAt, id] = Buffer.from(cursor, "base64url").toString().split("_");
   const date = new Date(createdAt);
-  if (!/^\d+$/.test(id ?? "") || Number.isNaN(date.getTime())) {
+  if (!isBigIntId(id ?? "") || Number.isNaN(date.getTime())) {
     throw new ValidationError("Invalid cursor");
   }
   return { createdAt: date, id: BigInt(id) };
 }
 
-type Status = { id: number; code: string; translations: { locale: string; label: string }[] };
+type Status = { id: number; code: string; translations: { locale: Locale; label: string }[] };
 
 @Injectable()
 export class TicketService {
@@ -68,8 +85,10 @@ export class TicketService {
         });
         customerId = customer.id;
       } else {
+        // An erased Customer is gone as far as staff can tell (their
+        // /customers endpoints 404 too), no new ticket for "[deleted]".
         const customer = await tx.customer.findUnique({
-          where: { id_locationId: { id: BigInt(dto.customerId!), locationId } },
+          where: { id_locationId: { id: BigInt(dto.customerId!), locationId }, deletedAt: null },
         });
         if (!customer) {
           throw new NotFoundError("Customer not found");
@@ -119,7 +138,7 @@ export class TicketService {
       take: take + 1,
       include: {
         customer: { select: { fullName: true } },
-        currentStatus: { include: { translations: true } },
+        currentStatus: statusSelect,
       },
     });
 
@@ -187,9 +206,11 @@ export class TicketService {
     const ticket = await this.prisma.ticket.findFirst({
       where: { id, locationId },
       include: {
-        customer: true,
-        currentStatus: { include: { translations: true } },
-        statusEvents: { orderBy: { createdAt: "asc" }, include: { status: { include: { translations: true } } } },
+        ...DETAIL_INCLUDE,
+        statusEvents: {
+          orderBy: { createdAt: "asc" },
+          select: { id: true, createdAt: true, changedBy: true, status: statusSelect },
+        },
       },
     });
     if (!ticket) {
@@ -333,7 +354,16 @@ export class TicketService {
     description: string | null;
     notificationsStoppedAt: Date | null;
     createdAt: Date;
-    customer: { id: bigint; fullName: string; email: string | null; phone: string | null };
+    customer: {
+      id: bigint;
+      fullName: string;
+      email: string | null;
+      phone: string | null;
+      locale: Locale | null;
+      emailBouncedAt: Date | null;
+      emailComplainedAt: Date | null;
+      createdAt: Date;
+    };
     currentStatus: Status;
   }) {
     return {

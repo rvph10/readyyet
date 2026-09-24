@@ -63,8 +63,9 @@ describe("Customers", () => {
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(1);
-    expect(response.body[0].id).toBe(aliceId);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items[0].id).toBe(aliceId);
+    expect(response.body.nextCursor).toBeNull();
   });
 
   it("gets a customer's full detail", async () => {
@@ -152,7 +153,7 @@ describe("Customers", () => {
       .get(`/locations/${locationId}/customers`)
       .query({ q: "Deleteme" })
       .set("Cookie", ownerCookie);
-    expect(list.body).toHaveLength(0);
+    expect(list.body.items).toHaveLength(0);
 
     // Erasure, not a plain flag: the row survives (a Ticket references it,
     // onDelete: Restrict) but its PII is actually redacted, not just
@@ -161,6 +162,70 @@ describe("Customers", () => {
     expect(raw.fullName).not.toContain("Carol");
     expect(raw.email).toBeNull();
     expect(raw.phone).toBeNull();
+
+    const ticket = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "For an erased customer", customerId });
+    expect(ticket.status).toBe(404);
+  });
+
+  it("pages through customers by name, each one exactly once", async () => {
+    const names: string[] = [];
+    let cursor: string | null = null;
+    do {
+      const response: request.Response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query(cursor ? { take: 1, cursor } : { take: 1 })
+        .set("Cookie", ownerCookie);
+      expect(response.status).toBe(200);
+      names.push(...response.body.items.map((customer: { fullName: string }) => customer.fullName));
+      cursor = response.body.nextCursor;
+      // Only the id: the cursor is in the URL, which the logs and Railway's
+      // proxy record, so it can't carry the customer's name.
+      if (cursor) {
+        expect(cursor).toBe(response.body.items[0].id);
+      }
+    } while (cursor);
+
+    expect(names.length).toBeGreaterThanOrEqual(2);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it.each(["not-a-cursor", "99999999999999999999", "999999999"])("rejects the malformed cursor %s", async (cursor) => {
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/customers`)
+      .query({ cursor })
+      .set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects another location's customer as a cursor", async () => {
+    const other = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", otherCookie)
+      .send({
+        name: "Other Garage",
+        location: {
+          name: "Other Shop",
+          businessTypeCode: "GARAGE",
+          contactPhone: "+12125550124",
+          contactEmail: "shop@othercustomertest.test",
+          locale: "EN",
+        },
+      });
+    const foreignId = await createTicketWithCustomer(app, otherCookie, other.body.locations[0].id, "Carol Foreign");
+
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/customers`)
+      .query({ cursor: foreignId })
+      .set("Cookie", ownerCookie);
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("rejects a signed-in user with no membership at that location", async () => {
@@ -171,12 +236,15 @@ describe("Customers", () => {
     expect(response.status).toBe(403);
   });
 
-  it("returns 404, not a raw DB error, for a malformed customer id", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}/customers/not-a-number`)
-      .set("Cookie", ownerCookie);
+  it.each(["not-a-number", "99999999999999999999"])(
+    "returns 404, not a raw DB error, for the customer id %s",
+    async (customerId) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers/${customerId}`)
+        .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe("NOT_FOUND");
-  });
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe("NOT_FOUND");
+    },
+  );
 });

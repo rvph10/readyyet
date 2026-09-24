@@ -85,6 +85,19 @@ describe("Tickets", () => {
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
+  it("rejects a title or customer name past its length limit, naming the field", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "t".repeat(201), customer: { fullName: "n".repeat(101) } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.details.map((issue: { property: string }) => issue.property)).toEqual([
+      "title",
+      "customer.fullName",
+    ]);
+  });
+
   it("rejects a request with neither customer nor customerId", async () => {
     const response = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)
@@ -102,6 +115,16 @@ describe("Tickets", () => {
       .send({ title: "Invalid", customerId: "999999999" });
 
     expect(response.status).toBe(404);
+  });
+
+  it.each(["1.5", "99999999999999999999"])("rejects the customerId %s, not a bigint", async (customerId) => {
+    const response = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Invalid", customerId });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("lists tickets for the location, newest first", async () => {
@@ -128,6 +151,32 @@ describe("Tickets", () => {
     expect(response.status).toBe(200);
     expect(response.body.statusEvents).toHaveLength(1);
     expect(response.body.statusEvents[0].status.code).toBe("RECEIVED");
+  });
+
+  it("returns only the documented fields, no internal columns", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Shape check", customer: { fullName: "Dana Shape", email: "delivered+shape@resend.dev" } });
+
+    const response = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie);
+    const status = { id: expect.any(Number), code: "RECEIVED", translations: expect.any(Array) };
+
+    expect(Object.keys(response.body.customer).sort()).toEqual([
+      "createdAt",
+      "email",
+      "emailBouncedAt",
+      "emailComplainedAt",
+      "fullName",
+      "id",
+      "locale",
+      "phone",
+    ]);
+    expect(response.body.currentStatus).toEqual(status);
+    expect(Object.keys(response.body.currentStatus.translations[0]).sort()).toEqual(["label", "locale"]);
+    expect(response.body.statusEvents[0].status).toEqual(status);
   });
 
   it("updates a ticket's title and description", async () => {
@@ -212,12 +261,15 @@ describe("Tickets", () => {
     expect(list.status).toBe(403);
   });
 
-  it("returns 404, not a raw DB error, for a malformed ticket id", async () => {
-    const response = await request(app.getHttpServer())
-      .get(`/locations/${locationId}/tickets/not-a-number`)
-      .set("Cookie", ownerCookie);
+  it.each(["not-a-number", "99999999999999999999"])(
+    "returns 404, not a raw DB error, for the ticket id %s",
+    async (ticketId) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/tickets/${ticketId}`)
+        .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe("NOT_FOUND");
-  });
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe("NOT_FOUND");
+    },
+  );
 });

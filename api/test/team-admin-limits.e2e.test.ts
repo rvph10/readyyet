@@ -89,9 +89,9 @@ describe("What an admin can do to the team", () => {
       const employee = await invite(ownerCookie, "revoke-employee", "EMPLOYEE");
       const admin = await invite(ownerCookie, "revoke-admin", "ADMIN");
 
-      expect((await revoke(adminCookie, employee.body.id)).status).toBe(201);
+      expect((await revoke(adminCookie, employee.body.id)).status).toBe(200);
       expect((await revoke(adminCookie, admin.body.id)).status).toBe(403);
-      expect((await revoke(ownerCookie, admin.body.id)).status).toBe(201);
+      expect((await revoke(ownerCookie, admin.body.id)).status).toBe(200);
     });
 
     it("lets an admin resend an employee invitation, but not an admin one", async () => {

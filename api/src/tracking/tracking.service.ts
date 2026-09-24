@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { NotFoundError } from "../common/errors/app-error";
-import { publicStatusSelect } from "../common/public-status-select";
+import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
 import { isTrackingLinkExpired } from "./tracking-link";
 

@@ -1,5 +1,7 @@
 pnpm-lock.yaml
 **/generated/
 **/dist/
+# Written by pnpm --filter @readyyet/api run openapi, CI compares it byte for byte.
+api/openapi.json
 # ADRs are an append-only record, never reformatted after the fact.
 docs/decisions/

@@ -1,9 +1,11 @@
 import { Type } from "class-transformer";
-import { IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
+import { NAME_MAX_LENGTH } from "../../common/text-limits";
 
 export class ListCustomersQueryDto {
   @IsOptional()
   @IsString()
+  @MaxLength(NAME_MAX_LENGTH)
   q?: string;
 
   @IsOptional()
@@ -13,9 +15,8 @@ export class ListCustomersQueryDto {
   @Max(100)
   take?: number;
 
+  // Opaque, the nextCursor of the previous page.
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  skip?: number;
+  @IsString()
+  cursor?: string;
 }

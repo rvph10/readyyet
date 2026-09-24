@@ -2,12 +2,14 @@
 // module-evaluation time (before NestFactory.create even runs), so
 // DATABASE_URL has to be in process.env before that import is reached.
 import "dotenv/config";
+import "./instrument";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 import { AppModule } from "./app.module";
 import { applyHttpMiddleware } from "./common/http-middleware";
+import { createOpenApiDocument } from "./openapi";
 
 async function bootstrap() {
   // Better Auth needs the raw request body; AuthModule re-adds the default
@@ -26,16 +28,7 @@ async function bootstrap() {
   // Dev tooling, not something the running app needs, same non-production
   // gating pino-pretty already uses (pino-http-options.ts).
   if (process.env.NODE_ENV !== "production") {
-    const config = new DocumentBuilder()
-      .setTitle("ReadyYet API")
-      .setDescription(
-        "Better Auth's own routes (/api/auth/*) aren't included here, they're raw middleware, not Nest controllers. See ADR 0008/0011.",
-      )
-      .setVersion("0.0.0")
-      .addCookieAuth("better-auth.session_token")
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup("docs", app, document);
+    SwaggerModule.setup("docs", app, createOpenApiDocument(app));
   }
 
   const port = process.env.PORT ?? 3000;
