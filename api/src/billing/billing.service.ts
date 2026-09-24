@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus, Plan, SubscriptionStatus } from "@readyyet/db";
+import type Stripe from "stripe";
 import { ConflictError, LocationFrozenError, MemberLimitError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { ChoosePlanDto } from "./dto/choose-plan.dto";
@@ -8,6 +9,10 @@ import { RedirectDto } from "./dto/redirect.response.dto";
 import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit } from "./plans";
 import { getStripeClient } from "./stripe-client";
 import { toSubscriptionRow } from "./stripe-sync";
+
+function perMonth(price: Stripe.Price) {
+  return price.unit_amount! / (price.recurring!.interval === "year" ? 12 : 1);
+}
 
 // Stripe refuses a Checkout trial ending less than 48 hours away.
 const MIN_CHECKOUT_TRIAL_MS = 48 * 60 * 60 * 1000;
@@ -46,11 +51,8 @@ export class BillingService {
       throw new MemberLimitError(ESSENTIEL_MEMBER_LIMIT);
     }
 
-    const stripe = getStripeClient();
     const customer = location.business.stripeCustomerId ?? (await this.createCustomer(location.business));
-    const {
-      data: [price],
-    } = await stripe.prices.list({ lookup_keys: [lookupKey(dto.plan, dto.interval)], active: true });
+    const price = await this.price(lookupKey(dto.plan, dto.interval));
 
     // Choosing during the trial keeps the days left, the card is charged
     // when the trial would have ended (ADR 0033).
@@ -58,7 +60,7 @@ export class BillingService {
     const keepsTrial = trialEnd && trialEnd.getTime() - Date.now() > MIN_CHECKOUT_TRIAL_MS;
 
     const billingPage = `${process.env.WEB_URL}/locations/${locationId}/billing`;
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripeClient().checkout.sessions.create({
       mode: "subscription",
       customer,
       line_items: [{ price: price.id, quantity: 1 }],
@@ -75,6 +77,61 @@ export class BillingService {
       cancel_url: billingPage,
     });
     return { url: session.url! };
+  }
+
+  // A Location that already pays moves to another plan or interval (ADR
+  // 0033), or keeps its own, which undoes a waiting move or cancellation.
+  async changePlan(locationId: string, dto: ChoosePlanDto): Promise<BillingDto> {
+    const stripe = getStripeClient();
+    const subscription = await stripe.subscriptions.retrieve(await this.paidSubscriptionId(locationId), {
+      expand: ["schedule"],
+    });
+    const item = subscription.items.data[0];
+    const key = lookupKey(dto.plan, dto.interval);
+    const same = key === item.price.lookup_key;
+    if (same && !subscription.schedule && !subscription.cancel_at_period_end) {
+      throw new ConflictError("This location is already on this plan");
+    }
+    if (dto.plan === Plan.ESSENTIEL && (await this.countMembers(locationId)) > ESSENTIEL_MEMBER_LIMIT) {
+      throw new MemberLimitError(ESSENTIEL_MEMBER_LIMIT);
+    }
+
+    await this.dropWhatWasWaiting(subscription);
+    if (!same) {
+      const price = await this.price(key);
+      if (perMonth(price) > perMonth(item.price)) {
+        // The change only applies once its prorated invoice is paid.
+        const updated = await stripe.subscriptions.update(subscription.id, {
+          items: [{ id: item.id, price: price.id }],
+          proration_behavior: "always_invoice",
+          payment_behavior: "pending_if_incomplete",
+        });
+        if (updated.pending_update) {
+          throw new ConflictError("The payment for this change failed, update the card and try again");
+        }
+      } else {
+        await this.scheduleAtPeriodEnd(subscription, item, price);
+      }
+    }
+
+    await this.sync(subscription.id);
+    return this.get(locationId);
+  }
+
+  // Stops at the end of the paid period, the Location freezes then.
+  async cancel(locationId: string): Promise<BillingDto> {
+    const stripe = getStripeClient();
+    const subscription = await stripe.subscriptions.retrieve(await this.paidSubscriptionId(locationId), {
+      expand: ["schedule"],
+    });
+    if (subscription.cancel_at_period_end) {
+      throw new ConflictError("This location's subscription is already cancelled");
+    }
+    await this.dropWhatWasWaiting(subscription);
+    await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: true });
+
+    await this.sync(subscription.id);
+    return this.get(locationId);
   }
 
   // What a frozen Location can't do: create Tickets (ADR 0031).
@@ -127,6 +184,62 @@ export class BillingService {
         }),
       },
       data: row,
+    });
+  }
+
+  private async paidSubscriptionId(locationId: string) {
+    const { status, stripeSubscriptionId } = await this.prisma.subscription.findUniqueOrThrow({
+      where: { locationId },
+    });
+    if (status !== SubscriptionStatus.ACTIVE && status !== SubscriptionStatus.PAST_DUE) {
+      throw new ConflictError("This location has no subscription, choose a plan through checkout");
+    }
+    return stripeSubscriptionId!;
+  }
+
+  private async price(key: string) {
+    const {
+      data: [price],
+    } = await getStripeClient().prices.list({ lookup_keys: [key], active: true });
+    return price;
+  }
+
+  // A new choice replaces whatever was waiting for the period end, and a
+  // subscription under a schedule can't be changed directly.
+  private async dropWhatWasWaiting(subscription: Stripe.Subscription) {
+    const stripe = getStripeClient();
+    if (subscription.schedule) {
+      await stripe.subscriptionSchedules.release((subscription.schedule as Stripe.SubscriptionSchedule).id);
+    }
+    if (subscription.cancel_at_period_end) {
+      await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: false });
+    }
+  }
+
+  // The current price until the period ends, then the new one. The phase's
+  // metadata is how the webhook knows what's coming (stripe-sync.ts).
+  private async scheduleAtPeriodEnd(
+    subscription: Stripe.Subscription,
+    item: Stripe.SubscriptionItem,
+    price: Stripe.Price,
+  ) {
+    const stripe = getStripeClient();
+    const schedule = await stripe.subscriptionSchedules.create({ from_subscription: subscription.id });
+    await stripe.subscriptionSchedules.update(schedule.id, {
+      end_behavior: "release",
+      phases: [
+        {
+          items: [{ price: item.price.id }],
+          start_date: schedule.phases[0].start_date,
+          end_date: item.current_period_end,
+        },
+        {
+          items: [{ price: price.id }],
+          duration: { interval: price.recurring!.interval, interval_count: 1 },
+          proration_behavior: "none",
+          metadata: { lookupKey: price.lookup_key! },
+        },
+      ],
     });
   }
 

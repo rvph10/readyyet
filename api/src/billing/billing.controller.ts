@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
@@ -31,5 +31,28 @@ export class BillingController {
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
   checkout(@Param("locationId") locationId: string, @Body() dto: ChoosePlanDto): Promise<RedirectDto> {
     return this.billing.checkout(locationId, dto);
+  }
+
+  @Post("locations/:locationId/billing/plan")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      "Change a paying location's plan or interval: at once when it costs more per month, at the period end otherwise. The current plan undoes a waiting change or cancellation",
+  })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  changePlan(@Param("locationId") locationId: string, @Body() dto: ChoosePlanDto): Promise<BillingDto> {
+    return this.billing.changePlan(locationId, dto);
+  }
+
+  @Post("locations/:locationId/billing/cancel")
+  @LocationRoles(Role.OWNER)
+  @UseGuards(LocationMembershipGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Stop paying for a location at the end of its period, owner only (ADR 0033)" })
+  @ApiErrors(HttpStatus.CONFLICT)
+  cancel(@Param("locationId") locationId: string): Promise<BillingDto> {
+    return this.billing.cancel(locationId);
   }
 }

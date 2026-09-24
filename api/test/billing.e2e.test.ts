@@ -15,7 +15,8 @@ const stripe = vi.hoisted(() => ({
   customers: { create: vi.fn() },
   prices: { list: vi.fn() },
   checkout: { sessions: { create: vi.fn() } },
-  subscriptions: { retrieve: vi.fn() },
+  subscriptions: { retrieve: vi.fn(), update: vi.fn() },
+  subscriptionSchedules: { create: vi.fn(), update: vi.fn(), release: vi.fn() },
 }));
 vi.mock("../src/billing/stripe-client", () => ({ getStripeClient: () => stripe }));
 
@@ -424,5 +425,175 @@ describe("What a location's plan allows", () => {
     await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO" } });
 
     expect((await invite(`delivered+plan-limits-pro-${Date.now()}@resend.dev`)).status).toBe(201);
+  });
+});
+
+describe("Changing and cancelling a paying location's plan", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let ownerCookie: string;
+  let adminCookie: string;
+  let locationId: string;
+  const subscriptionId = `sub_plan_${Date.now()}`;
+  const periodEnd = Math.floor(Date.now() / 1000) + 20 * 24 * 60 * 60;
+
+  const prices: Record<string, object> = {
+    essentiel_monthly: {
+      id: "price_em",
+      lookup_key: "essentiel_monthly",
+      unit_amount: 2900,
+      recurring: { interval: "month" },
+    },
+    essentiel_yearly: {
+      id: "price_ey",
+      lookup_key: "essentiel_yearly",
+      unit_amount: 29000,
+      recurring: { interval: "year" },
+    },
+    pro_monthly: { id: "price_pm", lookup_key: "pro_monthly", unit_amount: 4900, recurring: { interval: "month" } },
+    pro_yearly: { id: "price_py", lookup_key: "pro_yearly", unit_amount: 49000, recurring: { interval: "year" } },
+  };
+  // What Stripe answers for the subscription, on `key`'s price.
+  const onStripe = (key: string, fields: object = {}) =>
+    stripe.subscriptions.retrieve.mockResolvedValue({
+      id: subscriptionId,
+      status: "active",
+      metadata: { locationId },
+      cancel_at_period_end: false,
+      schedule: null,
+      items: { data: [{ id: "si_1", current_period_end: periodEnd, price: prices[key] }] },
+      ...fields,
+    });
+  const choose = (plan: string, interval: string, cookie = ownerCookie) =>
+    request(app.getHttpServer())
+      .post(`/locations/${locationId}/billing/plan`)
+      .set("Cookie", cookie)
+      .send({ plan, interval });
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+    const stamp = Date.now();
+    ownerCookie = await signInViaOtp(app, prisma, `delivered+plan-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+plan-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    ({ locationId } = await createBusiness(app, ownerCookie, "Plan Co"));
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", adminCookie);
+  });
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    stripe.prices.list.mockImplementation(({ lookup_keys: [key] }: { lookup_keys: string[] }) =>
+      Promise.resolve({ data: [prices[key]] }),
+    );
+    stripe.subscriptions.update.mockResolvedValue({ pending_update: null });
+    stripe.subscriptionSchedules.create.mockResolvedValue({ id: "sub_sched_1", phases: [{ start_date: 1000 }] });
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "ACTIVE", plan: "ESSENTIEL", interval: "MONTH", stripeSubscriptionId: subscriptionId },
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("moves to Pro at once, prorated, and only if its invoice is paid", async () => {
+    onStripe("essentiel_monthly");
+
+    const response = await choose("PRO", "MONTH", adminCookie);
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, {
+      items: [{ id: "si_1", price: "price_pm" }],
+      proration_behavior: "always_invoice",
+      payment_behavior: "pending_if_incomplete",
+    });
+    expect(stripe.subscriptionSchedules.create).not.toHaveBeenCalled();
+  });
+
+  it("says so when the payment for a move up fails", async () => {
+    onStripe("essentiel_monthly");
+    stripe.subscriptions.update.mockResolvedValue({ pending_update: { expires_at: 1 } });
+
+    expect((await choose("PRO", "YEAR")).status).toBe(409);
+  });
+
+  it("waits for the period end to move to a cheaper price, through a schedule", async () => {
+    onStripe("pro_monthly");
+
+    const response = await choose("PRO", "YEAR");
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptions.update).not.toHaveBeenCalled();
+    expect(stripe.subscriptionSchedules.create).toHaveBeenCalledWith({ from_subscription: subscriptionId });
+    expect(stripe.subscriptionSchedules.update).toHaveBeenCalledWith("sub_sched_1", {
+      end_behavior: "release",
+      phases: [
+        { items: [{ price: "price_pm" }], start_date: 1000, end_date: periodEnd },
+        {
+          items: [{ price: "price_py" }],
+          duration: { interval: "year", interval_count: 1 },
+          proration_behavior: "none",
+          metadata: { lookupKey: "pro_yearly" },
+        },
+      ],
+    });
+  });
+
+  it("refuses a move to Essentiel while the location has more than 2 members", async () => {
+    onStripe("pro_monthly");
+    await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO" } });
+    const invited = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: `delivered+plan-extra-${Date.now()}@resend.dev`, role: "EMPLOYEE" });
+    expect(invited.status).toBe(201);
+
+    const response = await choose("ESSENTIEL", "MONTH");
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.code).toBe("MEMBER_LIMIT_REACHED");
+    await prisma.invitation.updateMany({ where: { locationId }, data: { status: "REVOKED" } });
+  });
+
+  it("undoes a waiting change or cancellation when the current plan is chosen again", async () => {
+    onStripe("pro_monthly", { cancel_at_period_end: true, schedule: { id: "sub_sched_1", phases: [] } });
+
+    const response = await choose("PRO", "MONTH");
+
+    expect(response.status).toBe(200);
+    expect(stripe.subscriptionSchedules.release).toHaveBeenCalledWith("sub_sched_1");
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, { cancel_at_period_end: false });
+  });
+
+  it("refuses the plan the location is already on, with nothing waiting", async () => {
+    onStripe("pro_monthly");
+
+    expect((await choose("PRO", "MONTH")).status).toBe(409);
+  });
+
+  it("sends a location without a subscription to checkout", async () => {
+    await prisma.subscription.update({ where: { locationId }, data: { status: "ENDED" } });
+
+    expect((await choose("PRO", "MONTH")).status).toBe(409);
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
+  });
+
+  it("lets the owner cancel at the period end, not an admin", async () => {
+    onStripe("pro_monthly");
+    const cancel = (cookie: string) =>
+      request(app.getHttpServer()).post(`/locations/${locationId}/billing/cancel`).set("Cookie", cookie);
+
+    expect((await cancel(adminCookie)).status).toBe(403);
+    expect((await cancel(ownerCookie)).status).toBe(200);
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, { cancel_at_period_end: true });
+
+    onStripe("pro_monthly", { cancel_at_period_end: true });
+    expect((await cancel(ownerCookie)).status).toBe(409);
   });
 });
