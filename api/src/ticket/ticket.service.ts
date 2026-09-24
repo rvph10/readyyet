@@ -85,8 +85,10 @@ export class TicketService {
         });
         customerId = customer.id;
       } else {
+        // An erased Customer is gone as far as staff can tell (their
+        // /customers endpoints 404 too), no new ticket for "[deleted]".
         const customer = await tx.customer.findUnique({
-          where: { id_locationId: { id: BigInt(dto.customerId!), locationId } },
+          where: { id_locationId: { id: BigInt(dto.customerId!), locationId }, deletedAt: null },
         });
         if (!customer) {
           throw new NotFoundError("Customer not found");

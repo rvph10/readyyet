@@ -162,6 +162,12 @@ describe("Customers", () => {
     expect(raw.fullName).not.toContain("Carol");
     expect(raw.email).toBeNull();
     expect(raw.phone).toBeNull();
+
+    const ticket = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "For an erased customer", customerId });
+    expect(ticket.status).toBe(404);
   });
 
   it("pages through customers by name, each one exactly once", async () => {
