@@ -25,6 +25,22 @@ jobs:
       - run: pnpm --filter @readyyet/shared run typecheck
       - run: pnpm --filter @readyyet/shared run build
 
+  # Known vulnerabilities in any dependency, from the lockfile alone.
+  # Ignored advisories are listed in pnpm-workspace.yaml with their reason.
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - run: pnpm audit --audit-level high
+
   lint:
     runs-on: ubuntu-latest
 

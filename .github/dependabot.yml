@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    # One entry per workspace package, the root lockfile covers them all.
+    directories:
+      - "/"
+      - "/api"
+      - "/packages/*"
+    schedule:
+      interval: weekly
+    # Every dependency is pinned to an exact version, keep it that way.
+    versioning-strategy: increase
+    # A release gets a week before we take it: most compromised or broken
+    # releases are pulled within days. Security updates don't wait.
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

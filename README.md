@@ -61,7 +61,9 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 ## CI
 
-`.github/workflows/ci.yml` runs four jobs: `lint` (ESLint and Prettier), and `shared`, `db`, `api`, the last two against a fresh Postgres service container each.
+`.github/workflows/ci.yml` runs five jobs: `audit` (known vulnerabilities in any dependency, high severity and up), `lint` (ESLint and Prettier), and `shared`, `db`, `api`, the last two against a fresh Postgres service container each.
+
+- An advisory that can't reach the running API can be ignored in `pnpm-workspace.yaml`'s `auditConfig`, with the reason next to it. Dependabot (`.github/dependabot.yml`) proposes updates weekly, a week after each release.
 
 - The `api` job needs `RESEND_API_KEY` set as a GitHub Actions repo secret (Settings → Secrets and variables → Actions), for the same reason `pnpm test` needs it locally. Without it, that job fails with a "missing API key" error.
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.
