@@ -5,6 +5,7 @@ Date: 2026-09-24
 ## Decision
 
 - The Railway project (`readyyet`) is described by `.railway/railway.ts`, Railway's Infrastructure as Code, for both environments: the `api` service's source, build, pre-deploy, start and healthcheck settings, its variables, and a Postgres per environment. `api/railway.json` is gone.
+- Both environments run in Railway's EU West region (`europe-west4-drams3a`, Amsterdam), pinned in the file: customer data stays in the EU, like Sentry's (ADR 0019). Railway's default region was US West.
 - Two environments: `staging` deploys the `staging` branch, `production` deploys `main`. Work lands on `staging` first, releasing is merging `staging` into `main`. CI runs on both branches, and Railway only deploys a commit once CI has passed on it.
 - The file is applied by hand, `railway config plan` then `railway config apply`, per environment, after it changes. Not from CI for now.
 - Secrets, and values that differ per environment, are set in Railway and only declared in the file as kept (`preserve()`). The repo is public.

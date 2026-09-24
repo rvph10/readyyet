@@ -2,8 +2,12 @@ import { defineRailway, github, postgres, preserve, project, service } from "rai
 
 // Not applied on deploy: run `railway config plan` then `railway config apply`
 // once per environment after changing it (ADR 0022).
+
+// EU West (Amsterdam): customer data stays in the EU, like Sentry's (ADR 0019).
+const REGION = "europe-west4-drams3a";
+
 export default defineRailway((ctx) => {
-  const db = postgres("postgres");
+  const db = postgres("postgres", { region: REGION });
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
@@ -22,6 +26,7 @@ export default defineRailway((ctx) => {
     preDeploy: "pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed",
     start: "node --enable-source-maps api/dist/main.js",
     healthcheck: "/health",
+    replicas: { [REGION]: 1 },
     deploy: {
       restartPolicyType: "ON_FAILURE",
       restartPolicyMaxRetries: 10,
