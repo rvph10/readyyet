@@ -4282,6 +4282,112 @@
           "Catalogue"
         ]
       }
+    },
+    "/locations/{locationId}/billing": {
+      "get": {
+        "operationId": "BillingController_get",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a location's plan, trial and payment state (ADR 0031)",
+        "tags": [
+          "Billing"
+        ]
+      }
     }
   },
   "info": {
@@ -5593,6 +5699,84 @@
           "code",
           "translations",
           "isSystem"
+        ]
+      },
+      "BillingDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "TRIAL",
+              "ACTIVE",
+              "PAST_DUE",
+              "ENDED"
+            ],
+            "type": "string"
+          },
+          "plan": {
+            "nullable": true,
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "interval": {
+            "nullable": true,
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "scheduledPlan": {
+            "nullable": true,
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "scheduledInterval": {
+            "nullable": true,
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "trialEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "currentPeriodEnd": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "frozen": {
+            "type": "boolean"
+          },
+          "memberLimit": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "plan",
+          "interval",
+          "scheduledPlan",
+          "scheduledInterval",
+          "trialEndsAt",
+          "currentPeriodEnd",
+          "cancelAtPeriodEnd",
+          "frozen",
+          "memberLimit"
         ]
       }
     }
