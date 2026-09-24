@@ -8,6 +8,14 @@
         "responses": {
           "200": {
             "description": "The Health Check is successful",
+            "headers": {
+              "x-release": {
+                "description": "The commit this deploy runs, \"unknown\" outside Railway",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
