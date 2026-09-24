@@ -79,6 +79,19 @@ describe("AppExceptionFilter", () => {
     });
   });
 
+  it("maps a body-parser client error to its own status, without reporting it", () => {
+    const { host, status, json } = mockHost();
+    const tooLarge = Object.assign(new Error("request entity too large"), { status: 413, expose: true });
+
+    filter.catch(tooLarge, host);
+
+    expect(status).toHaveBeenCalledWith(413);
+    expect(json).toHaveBeenCalledWith({
+      error: { code: "VALIDATION_ERROR", message: "request entity too large", requestId: "req-1" },
+    });
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
   it("maps an unlisted 5xx HttpException to INTERNAL_ERROR, not a client error", () => {
     const { host, status, json } = mockHost();
 

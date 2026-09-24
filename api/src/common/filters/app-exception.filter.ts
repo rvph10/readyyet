@@ -24,10 +24,20 @@ function fromPrismaError(exception: unknown): unknown {
   return exception;
 }
 
+// body-parser rejects a body before any route runs (too large, unsupported
+// charset) with an http-errors error, not an HttpException. expose is how
+// http-errors marks a client error whose message is safe to show.
+function fromBodyParserError(exception: unknown): unknown {
+  if (exception instanceof Error && "expose" in exception && exception.expose === true && "status" in exception) {
+    return new HttpException(exception.message, exception.status as number);
+  }
+  return exception;
+}
+
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
   catch(caught: unknown, host: ArgumentsHost): void {
-    const exception = fromPrismaError(caught);
+    const exception = fromBodyParserError(fromPrismaError(caught));
     const request = host.switchToHttp().getRequest<Request>();
     const response = host.switchToHttp().getResponse<Response>();
 

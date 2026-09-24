@@ -56,6 +56,7 @@ Every error from our own routes has one shape, written by `AppExceptionFilter`:
 | 403    | `REAUTHENTICATION_REQUIRED` | The session is too old for this action, sign in again (account deletion).                                                    |
 | 404    | `NOT_FOUND`                 | Doesn't exist: an unknown or deleted Location, or a Ticket, Customer or Invitation id that isn't in the Location of the URL. |
 | 409    | `CONFLICT`                  | Not possible in the resource's current state, or lost a race to a concurrent request.                                        |
+| 413    | `VALIDATION_ERROR`          | The request body is over 100 KB.                                                                                             |
 | 429    | `RATE_LIMITED`              | Too many requests, `Retry-After` gives the seconds to wait.                                                                  |
 | 500    | `INTERNAL_ERROR`            | A bug. Reported to Sentry, the message never says more.                                                                      |
 

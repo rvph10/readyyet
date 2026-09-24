@@ -66,4 +66,14 @@ describe("HTTP middleware", () => {
 
     expect(response.headers["access-control-allow-origin"]).not.toBe(OTHER_ORIGIN);
   });
+
+  it("answers a body over the size limit with a 413, not a 500", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Content-Type", "application/json")
+      .send(JSON.stringify({ name: "x".repeat(200_000) }));
+
+    expect(response.status).toBe(413);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
 });
