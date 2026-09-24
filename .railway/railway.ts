@@ -11,10 +11,12 @@ export default defineRailway((ctx) => {
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
-    // checkSuites: a commit only deploys once CI has passed on it.
+    // checkSuites off: Railway would wait for every GitHub app's checks, and
+    // some installed apps never finish theirs. CI passing is enforced by the
+    // branch rulesets instead, nothing reaches either branch without it.
     source: github("rvph10/readyyet", {
       branch: ctx.environment === "production" ? "main" : "staging",
-      checkSuites: true,
+      checkSuites: false,
     }),
     build: {
       builder: "RAILPACK",
