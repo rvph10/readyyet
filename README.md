@@ -2,7 +2,7 @@
 
 ReadyYet lets businesses that take in physical items for work (repairs, cleaning, etc.) give their customers a way to track progress, without phone calls and without the customer needing an account.
 
-Status: early development, API only, no frontend yet.
+Status: early development. The API is built, the web app is being scaffolded.
 
 ## Stack
 
