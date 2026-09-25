@@ -20,6 +20,8 @@ export class LocationDto {
   openingHours!: OpeningHoursSpecificationDto[];
   // Open days from drop-off to a new Ticket's estimated ready date.
   turnaroundDays!: number | null;
+  // Turns on review requests, on a Pro Location (ADR 0039).
+  googleReviewUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
 }

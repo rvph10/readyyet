@@ -14,7 +14,7 @@ import {
 } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
-import { ApiErrors } from "../common/decorators/api-errors.decorator";
+import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { ImageUpload } from "../storage/image-upload.decorator";
@@ -42,6 +42,7 @@ export class LocationController {
   @UseGuards(LocationMembershipGuard)
   @ApiOperation({ summary: "Update a location's settings" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiError(HttpStatus.PAYMENT_REQUIRED, "PLAN_REQUIRED: a Google review link needs Pro")
   update(@Param("locationId") locationId: string, @Body() dto: UpdateLocationDto): Promise<LocationDto> {
     return this.location.update(locationId, dto);
   }

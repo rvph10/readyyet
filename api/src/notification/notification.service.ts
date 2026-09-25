@@ -6,6 +6,7 @@ import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
+import { asksForFeedback } from "../feedback/asks-for-feedback";
 import { toPostalAddress } from "../location/location-info";
 import { publicImageUrl } from "../storage/image";
 import {
@@ -108,16 +109,29 @@ export class NotificationService {
     // where the ticket stands now (that change queued its own email if
     // it needs one).
     const stillCurrent = ticket.statusEvents[0].id === event.id;
-    if (
-      !stillCurrent ||
-      ticket.notificationsStoppedAt ||
-      !canEmail(ticket.customer) ||
-      ticket.location.deletedAt ||
-      !isNotifyingStatus(event.status.code)
-    ) {
+    if (!stillCurrent || ticket.notificationsStoppedAt || !canEmail(ticket.customer) || ticket.location.deletedAt) {
       return;
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+    if (event.status.code === "COMPLETED") {
+      await this.sendFeedbackRequest(ticket, ticket.customer.email);
+    } else if (isNotifyingStatus(event.status.code)) {
+      await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+    }
+  }
+
+  // ADR 0039: decided when due, with the Location's plan and link then.
+  // Claimed first, a Ticket completed again never gets a second one.
+  private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
+    if (!asksForFeedback(ticket.location)) {
+      return;
+    }
+    const { count } = await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, feedbackEmailSentAt: null },
+      data: { feedbackEmailSentAt: new Date() },
+    });
+    if (count > 0) {
+      await this.sendCustomerEmail(ticket, to, "FEEDBACK_REQUEST", "ticket_feedback_request");
+    }
   }
 
   // Queued by TicketService.update when the estimated ready date moves past
@@ -244,7 +258,7 @@ export class NotificationService {
       include: {
         customer: true,
         currentStatus: true,
-        location: { include: { businessType: true } },
+        location: { include: { businessType: true, subscription: true } },
         // The latest event only: when the ticket reached its current status.
         statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1 },
       },
@@ -269,6 +283,7 @@ export class NotificationService {
       },
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
+      asksForFeedback: asksForFeedback(ticket.location),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
     });
     await this.email.send({

@@ -390,7 +390,8 @@ export class TicketService {
           statusId: step.statusId,
           changedBy: userId,
           // Sent later by NotificationService, only if still current (ADR 0015).
-          ...(isNotifyingStatus(dto.statusCode) && {
+          // COMPLETED may send the feedback email, decided then (ADR 0039).
+          ...((isNotifyingStatus(dto.statusCode) || dto.statusCode === "COMPLETED") && {
             pendingNotification: { create: { sendAfter: new Date(Date.now() + STATUS_NOTIFICATION_DELAY_MS) } },
           }),
         },

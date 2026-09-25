@@ -49,6 +49,12 @@ export class TrackingDto {
   currentStatus!: PublicStatusDto;
   steps!: TrackingStepDto[];
   statusHistory!: TrackingHistoryEntryDto[];
+  // Google's "write a review" link, set only on a COMPLETED ticket of a
+  // Location that asks for feedback. The page then offers it next to
+  // private feedback (ADR 0027, ADR 0039).
+  reviewUrl!: string | null;
+  // When the Customer sent private feedback, the form is hidden once set.
+  feedbackSentAt!: Date | null;
   // Oldest first, who took them isn't shown (ADR 0026).
   photos!: TrackingPhotoDto[];
 }

@@ -26,6 +26,8 @@ export interface CustomerEmailInput {
   trackingUrl: string;
   // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
   collectedUrl: string;
+  // The Location sends a FEEDBACK_REQUEST after COMPLETED (ADR 0039).
+  asksForFeedback: boolean;
   stopUpdatesUrl: string;
 }
 
@@ -75,9 +77,12 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
           {input.kind === "TICKET_CREATED" && input.estimatedReadyDate && (
             <Text style={styles.text}>{messages.readyBy(params)}</Text>
           )}
+          {input.kind === "TICKET_CREATED" && input.asksForFeedback && (
+            <Text style={styles.text}>{messages.feedbackNotice}</Text>
+          )}
           <Section style={{ margin: "24px 0" }}>
             <Button href={input.trackingUrl} style={styles.button}>
-              {messages.trackButton(job)}
+              {input.kind === "FEEDBACK_REQUEST" ? messages.feedbackButton : messages.trackButton(job)}
             </Button>
           </Section>
           {input.kind === "READY_REMINDER" && (

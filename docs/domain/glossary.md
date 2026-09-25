@@ -26,6 +26,9 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 - **Photo**: a picture staff add to a ticket, up to 5, showing the item's condition or progress. The customer sees every photo on the tracking page, and photos are deleted when the tracking link expires (ADR 0026).
 - **Customer says collected**: the customer pressed "I already picked it up" on the tracking page or in a reminder. It stops the reminders but doesn't change the status: staff mark the ticket `COMPLETED`, or dismiss the mark if the item is still there (ADR 0028).
 
+- **Review request**: on a Pro location that set its Google review link, the tracking page of a `COMPLETED` ticket offers two choices side by side: leave a Google review, or send private feedback. The customer also gets one email asking how it went, which links to that page, never to Google (ADR 0027, ADR 0039).
+- **Private feedback**: what a customer tells the shop from the tracking page instead of a public review, free text, once per ticket. Owners and Admins are emailed at once and mark it handled (ADR 0039).
+
 ## Billing and growth
 
 - **Plan**: what a Location subscribes to, `Essentiel` or `Pro` (ADR 0031). There is no free plan, a Business's first Location starts with a 14-day trial of Pro.

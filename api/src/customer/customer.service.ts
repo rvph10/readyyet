@@ -80,6 +80,8 @@ export class CustomerService {
         data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
       }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+      // Their own words (ADR 0039).
+      this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
     ]);
     await this.storage.delete(photos.map((photo) => photo.objectKey));
   }

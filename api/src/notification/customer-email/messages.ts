@@ -3,7 +3,9 @@ import type { NotifyingStatusCode } from "@readyyet/shared";
 
 // READY_DATE_CHANGED: the estimated ready date moved later (ADR 0030).
 // READY_REMINDER: the item is still waiting to be collected (ADR 0028).
-export type CustomerEmailKind = "TICKET_CREATED" | "READY_DATE_CHANGED" | "READY_REMINDER" | NotifyingStatusCode;
+// FEEDBACK_REQUEST: after COMPLETED, how did it go (ADR 0039).
+export type CustomerEmailKind =
+  "TICKET_CREATED" | "READY_DATE_CHANGED" | "READY_REMINDER" | "FEEDBACK_REQUEST" | NotifyingStatusCode;
 
 // What the email calls the customer's job, per business type ("your
 // repair", "votre retouche"). French nouns carry their gender, the
@@ -78,6 +80,10 @@ interface LocaleMessages {
   footer: (params: { location: string; job: JobNoun }) => string;
   readyBy: (params: { job: JobNoun; readyDate: string }) => string;
   alreadyCollected: (job: JobNoun) => string;
+  // In the ticket-created email of a Location that asks for feedback, the
+  // Customer is told at drop-off (ADR 0039).
+  feedbackNotice: string;
+  feedbackButton: string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -93,6 +99,8 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     footer: ({ location, job }) => `${location} uses ReadyYet to keep you updated on your ${job.word}.`,
     readyBy: ({ readyDate }) => `It should be ready on ${readyDate}.`,
     alreadyCollected: () => "I already picked it up",
+    feedbackNotice: "Once you've picked it up, you'll get one email asking how it went.",
+    feedbackButton: "Tell us how it went",
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
@@ -103,6 +111,11 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
         subject: ({ location, job }) => `Reminder: your ${job.word} is waiting for you at ${location}`,
         body: ({ location, title, job }) =>
           `Your ${job.word} "${title}" is ready and waiting for you at ${location}. Already picked it up? Let us know with the link below and the reminders stop.`,
+      },
+      FEEDBACK_REQUEST: {
+        subject: ({ location, job }) => `How did your ${job.word} at ${location} go?`,
+        body: ({ location, title, job }) =>
+          `Thank you for choosing ${location}. How did it go with your ${job.word} "${title}"? Tell us in a few words, it only takes a minute.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `New date for your ${job.word} at ${location}`,
@@ -146,6 +159,8 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     readyBy: ({ job, readyDate }) =>
       `${agree(job, "Il", "Elle")} devrait être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
     alreadyCollected: (job) => `Je ${agree(job, "l'ai déjà récupéré", "l'ai déjà récupérée")}`,
+    feedbackNotice: "Après la récupération, vous recevrez un seul e-mail pour nous dire comment cela s'est passé.",
+    feedbackButton: "Donner mon avis",
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
@@ -157,6 +172,12 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
         subject: ({ location, job }) => `Rappel\u00a0: votre ${job.word} vous attend chez ${location}`,
         body: ({ location, title, job }) =>
           `Votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")} et vous attend chez ${location}. Vous l'avez déjà ${agree(job, "récupéré", "récupérée")}\u00a0? Dites-le-nous avec le lien ci-dessous et les rappels s'arrêtent.`,
+      },
+      FEEDBACK_REQUEST: {
+        subject: ({ location, job }) =>
+          `Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} chez ${location}\u00a0?`,
+        body: ({ location, title, job }) =>
+          `Merci d'avoir choisi ${location}. Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} «\u00a0${title}\u00a0»\u00a0? Dites-le-nous en quelques mots, cela ne prend qu'une minute.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `Nouvelle date pour votre ${job.word} chez ${location}`,
