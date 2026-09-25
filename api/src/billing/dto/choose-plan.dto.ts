@@ -21,3 +21,10 @@ export class CheckoutDto extends ChoosePlanDto {
   @MaxLength(64)
   promotionCode?: string;
 }
+
+export class PromotionCodeDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(64)
+  promotionCode!: string;
+}

@@ -11,6 +11,7 @@ export const stripe = {
   customers: { create: fn(), update: fn() },
   prices: { list: fn() },
   promotionCodes: { list: fn() },
+  invoices: { createPreview: fn() },
   checkout: { sessions: { create: fn(), list: list(), expire: fn() } },
   subscriptions: { retrieve: fn(), update: fn(), cancel: fn(), list: list() },
   subscriptionSchedules: { create: fn(), update: fn(), release: fn() },

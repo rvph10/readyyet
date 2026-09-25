@@ -28,3 +28,9 @@ export class BillingDto {
   // (ADR 0032).
   referralDiscount!: boolean;
 }
+
+export class PromotionCodePreviewDto {
+  // In cents, what the card will be charged, balance credit taken off.
+  nextInvoiceAmount!: number;
+  nextInvoiceAmountWithCode!: number;
+}

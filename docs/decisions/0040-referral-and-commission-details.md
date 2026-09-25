@@ -19,6 +19,7 @@ Implements ADR 0032 on top of the billing of ADR 0033, and settles the points it
 - It's applied to a referred Business's checkouts until one of them completes with it. The Business's first paid invoice is the one it lands on.
 - A campaign code is typed in the web app, before checkout or on a paying Location's billing page, and sent to the API. Stripe Checkout's own code field stays off: it can't be shown on a checkout that already carries a discount, so a referred Business couldn't swap its referral discount for a campaign there.
 - At checkout a campaign code replaces the referral discount, Stripe Checkout then shows the price before paying. On a paying Location, the API first previews the next invoice with the code, then applies it in a second call.
+- A move to a cheaper price waiting in a subscription schedule (ADR 0033) carries the subscription's discounts into both of its phases. A schedule's phases replace the subscription's discounts, so without them a waiting move would drop a campaign still running. Applying a code to a subscription with a waiting move releases the schedule, sets the code, then schedules the move again, the way a plan change does.
 
 ### The first paid invoice
 
