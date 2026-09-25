@@ -20,7 +20,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <Image src={logoImage} alt="" className="size-10" />
         <h1 className="text-3xl font-semibold">{t("title")}</h1>
       </div>
-      <p className="text-zinc-600">{t("tagline")}</p>
+      <p className="text-muted">{t("tagline")}</p>
       <nav aria-label={t("languages")} className="flex gap-3 pt-4 text-sm">
         {routing.locales.map((other) => (
           <Link
@@ -28,7 +28,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             href="/"
             locale={other}
             aria-current={other === locale ? "page" : undefined}
-            className="text-zinc-500 uppercase hover:text-zinc-900 aria-[current=page]:font-medium aria-[current=page]:text-zinc-900"
+            className="text-muted uppercase hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
           >
             {other}
           </Link>
