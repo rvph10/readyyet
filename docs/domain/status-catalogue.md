@@ -4,7 +4,7 @@ The full seeded `Status` and `BusinessType` catalogue, and the default `Workflow
 
 ## Statuses
 
-Every default workflow the seed script creates includes the five system statuses (start, both terminal-positive states, and both terminal-negative states), they're part of every seeded `Workflow`'s steps but omitted from the per-type tables below to keep them readable. **This is a rule the seed script follows, not something the database enforces.** Nothing today stops a future custom workflow (paid tier, not yet buildable, no API exists) from being saved without one or more of these five, `WorkflowStep` accepts any status code. When custom workflow creation is built, that code must validate all five system statuses are present before saving, the same way it must validate the workflow's tenant scope (see `docs/architecture/data-model.md`, Tenant-scoped foreign keys).
+Every default workflow the seed script creates includes the five system statuses (start, both terminal-positive states, and both terminal-negative states), they're part of every seeded `Workflow`'s steps but omitted from the per-type tables below to keep them readable. **The database doesn't enforce this, the code that writes workflows does.** The seed script places them, and a custom workflow (Pro, `PUT /locations/:locationId/workflow`) only takes operational statuses, the API adds the five in the same positions (ADR 0035).
 
 **System** (present in every workflow):
 
