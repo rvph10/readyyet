@@ -7,9 +7,16 @@ import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { toPostalAddress } from "../location/location-info";
-import { isTrackingLinkExpired, oneClickStopUrl, stopUpdatesUrl, trackingUrl } from "../tracking/tracking-link";
+import {
+  collectedUrl,
+  isTrackingLinkExpired,
+  oneClickStopUrl,
+  stopUpdatesUrl,
+  trackingUrl,
+} from "../tracking/tracking-link";
 import { buildCustomerEmail } from "./customer-email/customer-email";
 import type { CustomerEmailKind } from "./customer-email/messages";
+import { isReminderHour, nextReadyReminderAt } from "./ready-reminders";
 
 // How long a sweep holds a due email it's sending before another sweep
 // may retry it, far longer than a send takes, retries included.
@@ -165,6 +172,71 @@ export class NotificationService {
     await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_DATE_CHANGED", "ticket_ready_date_changed");
   }
 
+  // Reminders for items still waiting at READY (ADR 0028, ADR 0037).
+  // Every 15 minutes is precise enough for a reminder counted in days.
+  @Cron("0 */15 * * * *", { name: "customer-ready-reminders" })
+  @CronMonitor("customer-ready-reminders", {
+    schedule: { type: "crontab", value: "*/15 * * * *" },
+    checkinMargin: 5,
+    maxRuntime: 10,
+  })
+  async sendDueReadyReminders() {
+    const now = new Date();
+    const due = await this.prisma.ticket.findMany({
+      where: {
+        nextReadyReminderAt: { lte: now },
+        currentStatus: { code: "READY" },
+        customerCollectedAt: null,
+        notificationsStoppedAt: null,
+        location: { deletedAt: null },
+      },
+      orderBy: { nextReadyReminderAt: "asc" },
+      select: { id: true, nextReadyReminderAt: true, location: { select: { timeZone: true } } },
+    });
+
+    for (const { id, nextReadyReminderAt: dueAt, location } of due) {
+      // Due at night, it stays due and leaves with the first sweep after 9:00.
+      if (!isReminderHour(now, location.timeZone)) {
+        continue;
+      }
+      // Claimed the same way as status emails, see sendDueStatusEmails.
+      const lease = new Date(Date.now() + CLAIM_LEASE_MS);
+      const { count } = await this.prisma.ticket.updateMany({
+        where: { id, nextReadyReminderAt: dueAt },
+        data: { nextReadyReminderAt: lease },
+      });
+      if (count === 0) {
+        continue;
+      }
+
+      const ticket = await this.loadTicket(id);
+      // Changed since the query: handed back as it was, a later READY or a
+      // dismissed mark decides what happens next.
+      if (ticket.currentStatus.code !== "READY" || ticket.customerCollectedAt || ticket.notificationsStoppedAt) {
+        await this.prisma.ticket.updateMany({
+          where: { id, nextReadyReminderAt: lease },
+          data: { nextReadyReminderAt: dueAt },
+        });
+        continue;
+      }
+      if (canEmail(ticket.customer)) {
+        await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_REMINDER", "ticket_ready_reminder");
+      }
+      // Counted even when there was no one to email, so the next one is
+      // scheduled rather than retried every sweep. A READY reached during
+      // the send rescheduled it already, and wins.
+      const sent = ticket.readyRemindersSent + 1;
+      await this.prisma.ticket.updateMany({
+        where: { id, nextReadyReminderAt: lease },
+        data: {
+          readyRemindersSent: sent,
+          // The latest event is the one that set READY, the sweep only takes READY tickets.
+          nextReadyReminderAt: nextReadyReminderAt(ticket.statusEvents[0].createdAt, sent),
+        },
+      });
+    }
+  }
+
   private loadTicket(ticketId: bigint) {
     return this.prisma.ticket.findUniqueOrThrow({
       where: { id: ticketId },
@@ -191,6 +263,7 @@ export class NotificationService {
       estimatedReadyDate,
       location: { ...ticket.location, address: toPostalAddress(ticket.location) },
       trackingUrl: trackingUrl(ticket.trackingCode),
+      collectedUrl: collectedUrl(ticket.trackingCode),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
     });
     await this.email.send({

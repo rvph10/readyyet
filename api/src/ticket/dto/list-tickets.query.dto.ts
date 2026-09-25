@@ -30,6 +30,12 @@ export class ListTicketsQueryDto {
   @IsIn(["true", "false"])
   overdue?: "true" | "false";
 
+  // The Customer said they picked the item up (ADR 0028), staff close
+  // these as COMPLETED or dismiss them. Only "true" filters.
+  @IsOptional()
+  @IsIn(["true", "false"])
+  customerCollected?: "true" | "false";
+
   @IsOptional()
   @IsISO8601()
   createdFrom?: string;

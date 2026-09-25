@@ -19,6 +19,12 @@ export function stopUpdatesUrl(trackingCode: string): string {
   return `${trackingUrl(trackingCode)}/stop-updates`;
 }
 
+// Asks the Customer to confirm before it records anything, a mail
+// scanner opening the link must not mark the item collected (ADR 0037).
+export function collectedUrl(trackingCode: string): string {
+  return `${trackingUrl(trackingCode)}/collected`;
+}
+
 // What mail clients POST to for a one-click unsubscribe (RFC 8058): the
 // API itself, not the web page, since that request has no browser.
 // BETTER_AUTH_URL is the API's own public URL.

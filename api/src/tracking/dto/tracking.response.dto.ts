@@ -32,6 +32,9 @@ export class TrackingDto {
   // A date on the Location's clock, null once the ticket is READY or ended.
   @ApiProperty({ type: String, format: "date", nullable: true })
   estimatedReadyDate!: string | null;
+  // Set once the Customer said they picked the item up, the page then
+  // hides its "I already picked it up" button.
+  customerCollectedAt!: Date | null;
   createdAt!: Date;
   // The Customer's language, or the Location's when they have none.
   @ApiProperty({ enum: Locale })

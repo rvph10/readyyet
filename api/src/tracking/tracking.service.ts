@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
-import { NotFoundError } from "../common/errors/app-error";
+import { ConflictError, NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
 import { mapsUrl, type OpeningHoursSpecification, toPostalAddress } from "../location/location-info";
@@ -21,6 +21,7 @@ export class TrackingService {
         trackingCode: true,
         title: true,
         estimatedReadyDate: true,
+        customerCollectedAt: true,
         createdAt: true,
         location: {
           select: {
@@ -68,6 +69,7 @@ export class TrackingService {
       estimatedReadyDate: showsEstimatedReadyDate(ticket.currentStatus.code)
         ? toCalendarDate(ticket.estimatedReadyDate)
         : null,
+      customerCollectedAt: ticket.customerCollectedAt,
       createdAt: ticket.createdAt,
       // The page opens in the language this ticket's emails use (ADR 0015).
       locale: ticket.customer.locale ?? ticket.location.locale,
@@ -90,6 +92,27 @@ export class TrackingService {
   // The "stop updates" link (ADR 0015), public like the page it belongs
   // to. Repeating it keeps the first stop time.
   async stopNotifications(code: string) {
+    const ticket = await this.findLiveTicket(code);
+    await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, notificationsStoppedAt: null },
+      data: { notificationsStoppedAt: new Date() },
+    });
+  }
+
+  // "I already picked it up" (ADR 0028): stops the reminders, leaves the
+  // Status to staff. Repeating it keeps the first time.
+  async markCollected(code: string) {
+    const ticket = await this.findLiveTicket(code);
+    if (ticket.currentStatus.code !== "READY") {
+      throw new ConflictError("Only a READY ticket can be marked as collected");
+    }
+    await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, customerCollectedAt: null },
+      data: { customerCollectedAt: new Date() },
+    });
+  }
+
+  private async findLiveTicket(code: string) {
     const ticket = await this.prisma.ticket.findUnique({
       where: { trackingCode: code },
       select: {
@@ -107,10 +130,6 @@ export class TrackingService {
     ) {
       throw new NotFoundError("Tracking link not found");
     }
-
-    await this.prisma.ticket.updateMany({
-      where: { id: ticket.id, notificationsStoppedAt: null },
-      data: { notificationsStoppedAt: new Date() },
-    });
+    return ticket;
   }
 }

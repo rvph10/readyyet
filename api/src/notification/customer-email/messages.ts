@@ -2,7 +2,8 @@ import type { Locale } from "@readyyet/db";
 import type { NotifyingStatusCode } from "@readyyet/shared";
 
 // READY_DATE_CHANGED: the estimated ready date moved later (ADR 0030).
-export type CustomerEmailKind = "TICKET_CREATED" | "READY_DATE_CHANGED" | NotifyingStatusCode;
+// READY_REMINDER: the item is still waiting to be collected (ADR 0028).
+export type CustomerEmailKind = "TICKET_CREATED" | "READY_DATE_CHANGED" | "READY_REMINDER" | NotifyingStatusCode;
 
 // What the email calls the customer's job, per business type ("your
 // repair", "votre retouche"). French nouns carry their gender, the
@@ -76,6 +77,7 @@ interface LocaleMessages {
   stopUpdates: (job: JobNoun) => string;
   footer: (params: { location: string; job: JobNoun }) => string;
   readyBy: (params: { job: JobNoun; readyDate: string }) => string;
+  alreadyCollected: (job: JobNoun) => string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -90,11 +92,17 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     stopUpdates: (job) => `Stop email updates for this ${job.word}`,
     footer: ({ location, job }) => `${location} uses ReadyYet to keep you updated on your ${job.word}.`,
     readyBy: ({ readyDate }) => `It should be ready on ${readyDate}.`,
+    alreadyCollected: () => "I already picked it up",
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
         body: ({ location, title, job }) =>
           `${location} has registered your ${job.word} "${title}". You can follow its progress at any time, no account needed.`,
+      },
+      READY_REMINDER: {
+        subject: ({ location, job }) => `Reminder: your ${job.word} is waiting for you at ${location}`,
+        body: ({ location, title, job }) =>
+          `Your ${job.word} "${title}" is ready and waiting for you at ${location}. Already picked it up? Let us know with the link below and the reminders stop.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `New date for your ${job.word} at ${location}`,
@@ -135,6 +143,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     stopUpdates: (job) => `Ne plus recevoir d'e-mails pour ${ceCetCette(job)} ${job.word}`,
     footer: ({ location, job }) =>
       `${location} utilise ReadyYet pour vous tenir informé de l'avancement de votre ${job.word}.`,
+    alreadyCollected: (job) => `Je ${agree(job, "l'ai déjà récupéré", "l'ai déjà récupérée")}`,
     readyBy: ({ job, readyDate }) =>
       `${agree(job, "Il", "Elle")} devrait être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
     kinds: {
@@ -143,6 +152,11 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
           `Votre ${job.word} chez ${location} est ${agree(job, "enregistré", "enregistrée")}`,
         body: ({ location, title, job }) =>
           `${location} a enregistré votre ${job.word} «\u00a0${title}\u00a0». Vous pouvez suivre son avancement à tout moment, sans créer de compte.`,
+      },
+      READY_REMINDER: {
+        subject: ({ location, job }) => `Rappel\u00a0: votre ${job.word} vous attend chez ${location}`,
+        body: ({ location, title, job }) =>
+          `Votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")} et vous attend chez ${location}. Vous l'avez déjà ${agree(job, "récupéré", "récupérée")}\u00a0? Dites-le-nous avec le lien ci-dessous et les rappels s'arrêtent.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `Nouvelle date pour votre ${job.word} chez ${location}`,
