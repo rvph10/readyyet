@@ -96,26 +96,14 @@ describe("GET /locations/:locationId", () => {
     expect(response.body.contactPhone).toBe("+12125550188");
   });
 
-  it("takes an https logo URL", async () => {
-    const response = await request(app.getHttpServer())
-      .patch(`/locations/${locationId}`)
-      .set("Cookie", ownerCookie)
-      .send({ logoUrl: "https://cdn.example.com/logo.png" });
+  // Only PUT /locations/:id/logo sets it, after checking the image (ADR 0026).
+  it.each([{ logoUrl: "https://cdn.example.com/logo.png" }, { logoKey: "tickets/photo.webp" }])(
+    "ignores a logo set by PATCH: %o",
+    async (body) => {
+      const response = await patch(body);
 
-    expect(response.status).toBe(200);
-    expect(response.body.logoUrl).toBe("https://cdn.example.com/logo.png");
-  });
-
-  it.each(["javascript:alert(1)", "http://cdn.example.com/logo.png", "cdn.example.com/logo.png"])(
-    "rejects the logo URL %s",
-    async (logoUrl) => {
-      const response = await request(app.getHttpServer())
-        .patch(`/locations/${locationId}`)
-        .set("Cookie", ownerCookie)
-        .send({ logoUrl });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error.details[0].property).toBe("logoUrl");
+      expect(response.status).toBe(200);
+      expect(response.body.logoUrl).toBeNull();
     },
   );
 
@@ -258,7 +246,7 @@ describe("GET /locations/:locationId", () => {
     });
   });
 
-  // null removes a logo or an address, but these always have a value.
+  // null removes an address, but these always have a value.
   it.each(["name", "contactPhone", "contactEmail", "locale"])("refuses a null %s with a 400", async (field) => {
     const response = await patch({ [field]: null });
 

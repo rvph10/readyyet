@@ -1,4 +1,4 @@
-import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from "react-email";
+import { Body, Button, Container, Head, Heading, Hr, Html, Img, Link, Preview, Section, Text } from "react-email";
 import type { Locale } from "@readyyet/db";
 import type { CalendarDate } from "@readyyet/shared";
 import type { ReactElement } from "react";
@@ -16,7 +16,13 @@ export interface CustomerEmailInput {
   // Shown in the ticket-created email when set, the subject of a
   // READY_DATE_CHANGED one.
   estimatedReadyDate: CalendarDate | null;
-  location: { name: string; contactPhone: string; contactEmail: string; address: PostalAddress | null };
+  location: {
+    name: string;
+    contactPhone: string;
+    contactEmail: string;
+    address: PostalAddress | null;
+    logoUrl: string | null;
+  };
   trackingUrl: string;
   // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
   collectedUrl: string;
@@ -60,6 +66,7 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
       {/* Body sets its own lang, English unless told otherwise. */}
       <Body lang={input.locale.toLowerCase()} style={styles.body}>
         <Container style={styles.container}>
+          {input.location.logoUrl && <Img src={input.location.logoUrl} alt="" height={64} style={styles.logo} />}
           <Heading as="h1" style={styles.heading}>
             {input.location.name}
           </Heading>

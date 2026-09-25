@@ -1,4 +1,5 @@
 import type { Prisma } from "@readyyet/db";
+import { publicImageUrl } from "../storage/image";
 import { type OpeningHoursSpecification, toPostalAddress } from "./location-info";
 
 // A Location as returned by the API: its business type by code, like the
@@ -10,7 +11,7 @@ export const locationSelect = {
     name: true,
     contactPhone: true,
     contactEmail: true,
-    logoUrl: true,
+    logoKey: true,
     locale: true,
     timeZone: true,
     streetAddress: true,
@@ -32,11 +33,13 @@ export function toLocationResponse({
   addressLocality,
   addressCountry,
   openingHours,
+  logoKey,
   ...location
 }: Prisma.LocationGetPayload<typeof locationSelect>) {
   return {
     ...location,
     businessTypeCode: businessType.code,
+    logoUrl: publicImageUrl(logoKey),
     address: toPostalAddress({ streetAddress, postalCode, addressLocality, addressCountry }),
     openingHours: openingHours as OpeningHoursSpecification[],
   };

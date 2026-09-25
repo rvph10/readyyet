@@ -8,7 +8,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 // How long a presigned photo URL works (ADR 0026), created per request.
 const PRESIGNED_URL_SECONDS = 15 * 60;
@@ -16,6 +16,7 @@ const PRESIGNED_URL_SECONDS = 15 * 60;
 // The Railway Bucket (ADR 0026), S3Mock locally and in CI.
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name);
   private readonly bucket = process.env.S3_BUCKET as string;
   private readonly client = new S3Client({
     endpoint: process.env.S3_ENDPOINT,
@@ -39,9 +40,16 @@ export class StorageService {
     );
   }
 
+  // Called once no row points at the objects any more: a failure only
+  // leaves an unused file, which the orphan sweep deletes later, so it's
+  // logged rather than failing what was already done.
   async delete(keys: string[]): Promise<void> {
     for (const key of keys) {
-      await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+      try {
+        await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+      } catch (error) {
+        this.logger.warn(`Couldn't delete ${key}, the orphan sweep will`, error instanceof Error ? error.stack : error);
+      }
     }
   }
 

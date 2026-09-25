@@ -12,7 +12,6 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
-  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -37,13 +36,6 @@ export class UpdateLocationDto {
   @OptionalNotNull()
   @IsEmail()
   contactEmail?: string;
-
-  // Shown as an image in customer emails and on the tracking page, so only
-  // an https address, never a javascript: or data: one.
-  @IsOptional()
-  @IsUrl({ protocols: ["https"], require_protocol: true })
-  @MaxLength(2048)
-  logoUrl?: string;
 
   @OptionalNotNull()
   @IsEnum(Locale)

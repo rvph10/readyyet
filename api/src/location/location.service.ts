@@ -3,6 +3,8 @@ import { InvitationStatus } from "@readyyet/db";
 import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError } from "../common/errors/app-error";
+import { processImage } from "../storage/image";
+import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 import { toAddressColumns, toOpeningHoursJson } from "./location-info";
 import { locationSelect, toLocationResponse } from "./location-select";
@@ -12,6 +14,7 @@ export class LocationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly billing: BillingService,
+    private readonly storage: StorageService,
   ) {}
 
   async findById(locationId: string) {
@@ -30,7 +33,6 @@ export class LocationService {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.contactPhone !== undefined && { contactPhone: dto.contactPhone }),
         ...(dto.contactEmail !== undefined && { contactEmail: dto.contactEmail }),
-        ...(dto.logoUrl !== undefined && { logoUrl: dto.logoUrl }),
         ...(dto.locale !== undefined && { locale: dto.locale }),
         ...(dto.timeZone !== undefined && { timeZone: dto.timeZone }),
         ...(dto.address !== undefined && toAddressColumns(dto.address)),
@@ -38,6 +40,33 @@ export class LocationService {
         ...(dto.turnaroundDays !== undefined && { turnaroundDays: dto.turnaroundDays }),
       },
     });
+    return toLocationResponse(location);
+  }
+
+  async setLogo(locationId: string, file: Buffer) {
+    const image = await processImage(file, "logo");
+    await this.storage.put(image.key, image.body, image.contentType);
+    return this.replaceLogo(locationId, image.key);
+  }
+
+  removeLogo(locationId: string) {
+    return this.replaceLogo(locationId, null);
+  }
+
+  // The row first, the previous object after (ADR 0026).
+  private async replaceLogo(locationId: string, logoKey: string | null) {
+    const { logoKey: previous } = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      select: { logoKey: true },
+    });
+    const location = await this.prisma.location.update({
+      where: { id: locationId },
+      ...locationSelect,
+      data: { logoKey },
+    });
+    if (previous) {
+      await this.storage.delete([previous]);
+    }
     return toLocationResponse(location);
   }
 

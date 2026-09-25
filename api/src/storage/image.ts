@@ -63,3 +63,10 @@ export async function processImage(input: Buffer, kind: ImageKind): Promise<Proc
   const { prefix, extension, contentType } = OUTPUT[kind];
   return { key: `${prefix}/${randomUUID()}.${extension}`, body, contentType };
 }
+
+// Served by ImageController with a one-year cache: emails are read days
+// later, longer than a presigned URL lives (ADR 0026). BETTER_AUTH_URL is
+// the API's own public URL.
+export function publicImageUrl(key: string | null): string | null {
+  return key && `${process.env.BETTER_AUTH_URL}/images/${key}`;
+}

@@ -7,6 +7,7 @@ import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { toPostalAddress } from "../location/location-info";
+import { publicImageUrl } from "../storage/image";
 import {
   collectedUrl,
   isTrackingLinkExpired,
@@ -261,7 +262,11 @@ export class NotificationService {
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
       estimatedReadyDate,
-      location: { ...ticket.location, address: toPostalAddress(ticket.location) },
+      location: {
+        ...ticket.location,
+        address: toPostalAddress(ticket.location),
+        logoUrl: publicImageUrl(ticket.location.logoKey),
+      },
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
