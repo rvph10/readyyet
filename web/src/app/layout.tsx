@@ -16,7 +16,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="bg-white font-sans text-zinc-900 antialiased">
+      <body className="bg-canvas font-sans text-ink antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

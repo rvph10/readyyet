@@ -15,7 +15,7 @@ export default async function HomePage() {
         <Image src={logoImage} alt="" className="size-10" />
         <h1 className="text-3xl font-semibold">{t("title")}</h1>
       </div>
-      <p className="text-zinc-600">{t("tagline")}</p>
+      <p className="text-muted">{t("tagline")}</p>
     </main>
   );
 }
