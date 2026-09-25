@@ -160,7 +160,10 @@ export class TicketService {
     const take = query.take ?? DEFAULT_LIST_TAKE;
     const filters = this.filters(query);
     if (query.overdue === "true") {
-      const { timeZone } = await this.prisma.location.findUniqueOrThrow({ where: { id: locationId } });
+      const { timeZone } = await this.prisma.location.findUniqueOrThrow({
+        where: { id: locationId },
+        select: { timeZone: true },
+      });
       filters.push({
         estimatedReadyDate: { lt: fromCalendarDate(calendarDateIn(new Date(), timeZone)) },
         currentStatus: { code: { notIn: ["READY", ...ENDED_STATUS_CODES] } },

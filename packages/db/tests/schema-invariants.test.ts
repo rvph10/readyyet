@@ -240,3 +240,17 @@ describe("a location's address, all four fields or none", () => {
     });
   });
 });
+
+describe("a location's turnaround time, 1 to 60 days", () => {
+  it.each([0, 61])("rejects %i days", async (turnaroundDays) => {
+    const f = await seedFixtures(db);
+    await expect(db.location.update({ where: { id: f.locationA.id }, data: { turnaroundDays } })).rejects.toThrow(
+      /location_turnaround_days_range/,
+    );
+  });
+
+  it.each([1, 60, null])("accepts %s", async (turnaroundDays) => {
+    const f = await seedFixtures(db);
+    await db.location.update({ where: { id: f.locationA.id }, data: { turnaroundDays } });
+  });
+});

@@ -3,6 +3,7 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
+import { Role } from "@readyyet/db";
 import { calendarDateIn, turnaroundReadyDate } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
@@ -17,6 +18,7 @@ describe("Estimated ready date", () => {
   let prisma: PrismaService;
   let notification: NotificationService;
   let ownerCookie: string;
+  let employeeCookie: string;
   let locationId: string;
   const stamp = Date.now();
   const address = (label: string) => `delivered+ready-date-${stamp}-${label}@resend.dev`;
@@ -33,10 +35,10 @@ describe("Estimated ready date", () => {
     return response;
   }
 
-  function patchTicket(ticketId: string, estimatedReadyDate: string | null) {
+  function patchTicket(ticketId: string, estimatedReadyDate: string | null, cookie = ownerCookie) {
     return request(app.getHttpServer())
       .patch(`/locations/${locationId}/tickets/${ticketId}`)
-      .set("Cookie", ownerCookie)
+      .set("Cookie", cookie)
       .send({ estimatedReadyDate });
   }
 
@@ -89,6 +91,11 @@ describe("Estimated ready date", () => {
         },
       });
     locationId = created.body.locations[0].id;
+
+    const employeeEmail = `delivered+ready-date-employee-${stamp}@resend.dev`;
+    employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
+    const employee = await prisma.user.findUniqueOrThrow({ where: { email: employeeEmail } });
+    await prisma.membership.create({ data: { userId: employee.id, locationId, role: Role.EMPLOYEE } });
   });
 
   afterAll(async () => {
@@ -150,6 +157,15 @@ describe("Estimated ready date", () => {
       expect(list.body.items.find((item: { id: string }) => item.id === ticket.id).estimatedReadyDate).toBe(inDays(2));
 
       expect((await patchTicket(ticket.id, null)).body.estimatedReadyDate).toBeNull();
+    });
+
+    it("is set by any member of the Location, an Employee included", async () => {
+      const ticket = (await createTicket()).body;
+
+      const response = await patchTicket(ticket.id, inDays(3), employeeCookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body.estimatedReadyDate).toBe(inDays(3));
     });
 
     it("can't change once the ticket has ended, but the same date sent back is fine", async () => {
@@ -252,6 +268,18 @@ describe("Estimated ready date", () => {
       const first = (await createTicket({ email: address("first"), estimatedReadyDate: null })).body;
       await patchTicket(first.id, inDays(2));
       expect((await ticketRow(first.id)).readyDateEmailDueAt).toBeNull();
+    });
+
+    it("sends nothing after the Customer stopped updates", async () => {
+      const ticket = (await createTicket({ email: address("stopped"), estimatedReadyDate: inDays(2) })).body;
+      await patchTicket(ticket.id, inDays(5));
+      const stopped = await request(app.getHttpServer()).post(`/tracking/${ticket.trackingCode}/stop-notifications`);
+      expect(stopped.status).toBe(204);
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await emailsTo("stopped", "ticket_ready_date_changed")).toHaveLength(0);
+      expect((await ticketRow(ticket.id)).readyDateEmailDueAt).toBeNull();
     });
 
     it("sends nothing once the ticket reached READY during the delay", async () => {
