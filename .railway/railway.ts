@@ -6,12 +6,22 @@ import { bucket, defineRailway, github, postgres, preserve, project, ref, servic
 // EU West (Amsterdam): customer data stays in the EU, like Sentry's (ADR 0019).
 const REGION = "europe-west4-drams3a";
 
-// Attached to the production service in Railway, not here: Railway's IaC
-// can't register a custom domain. Staging keeps the one Railway generates.
-const PRODUCTION_DOMAIN = "api.readyyet.app";
+// Staging has a domain of its own so production's session cookie never
+// reaches it (ADR 0043). The custom domains are attached in Railway, not here:
+// Railway's IaC can't register them.
+const PRODUCTION_ROOT = "readyyet.app";
+const STAGING_ROOT = "readyyet-staging.app";
 
 export default defineRailway((ctx) => {
   const production = ctx.environment === "production";
+  const root = production ? PRODUCTION_ROOT : STAGING_ROOT;
+  // checkSuites off: Railway would wait for every GitHub app's checks, and
+  // some installed apps never finish theirs. CI passing is enforced by the
+  // branch rulesets instead, nothing reaches either branch without it.
+  const source = github("rvph10/readyyet", {
+    branch: production ? "main" : "staging",
+    checkSuites: false,
+  });
   const db = postgres("postgres", { region: REGION });
   // Photos, logos and avatars (ADR 0026). Amsterdam too, and a bucket's
   // region can't be changed once it exists.
@@ -19,13 +29,7 @@ export default defineRailway((ctx) => {
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
-    // checkSuites off: Railway would wait for every GitHub app's checks, and
-    // some installed apps never finish theirs. CI passing is enforced by the
-    // branch rulesets instead, nothing reaches either branch without it.
-    source: github("rvph10/readyyet", {
-      branch: production ? "main" : "staging",
-      checkSuites: false,
-    }),
+    source,
     build: {
       builder: "RAILPACK",
       buildCommand:
@@ -47,11 +51,11 @@ export default defineRailway((ctx) => {
       S3_BUCKET: ref(images, "BUCKET"),
       S3_ACCESS_KEY_ID: ref(images, "ACCESS_KEY_ID"),
       S3_SECRET_ACCESS_KEY: ref(images, "SECRET_ACCESS_KEY"),
-      BETTER_AUTH_URL: production ? `https://${PRODUCTION_DOMAIN}` : "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+      BETTER_AUTH_URL: `https://api.${root}`,
+      WEB_URL: `https://app.${root}`,
       // Secrets, or values that differ per environment: set in Railway,
       // never here, the repo is public.
       BETTER_AUTH_SECRET: preserve(),
-      WEB_URL: preserve(),
       RESEND_API_KEY: preserve(),
       RESEND_WEBHOOK_SECRET: preserve(),
       EMAIL_FROM: preserve(),
@@ -63,5 +67,34 @@ export default defineRailway((ctx) => {
     },
   });
 
-  return project("readyyet", { resources: [api, db, images] });
+  const web = service("web", {
+    source,
+    build: {
+      builder: "RAILPACK",
+      buildCommand: "pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/web run build",
+    },
+    start: "pnpm --filter @readyyet/web run start",
+    healthcheck: "/",
+    replicas: { [REGION]: 1 },
+    env: {
+      NODE_ENV: "production",
+    },
+  });
+
+  const site = service("site", {
+    source,
+    build: {
+      builder: "RAILPACK",
+      buildCommand: "pnpm --filter @readyyet/site run build",
+    },
+    start: "pnpm --filter @readyyet/site run start",
+    // "/" only redirects to a language.
+    healthcheck: "/en",
+    replicas: { [REGION]: 1 },
+    env: {
+      NODE_ENV: "production",
+    },
+  });
+
+  return project("readyyet", { resources: [api, web, site, db, images] });
 });
