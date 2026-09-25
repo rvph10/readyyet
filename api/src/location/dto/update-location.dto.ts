@@ -13,25 +13,25 @@ import {
   IsString,
   IsUrl,
   MaxLength,
-  ValidateIf,
   ValidateNested,
 } from "class-validator";
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
+import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
 
 export class UpdateLocationDto {
-  @IsOptional()
+  @OptionalNotNull()
   @IsString()
   @IsNotEmpty()
   @MaxLength(NAME_MAX_LENGTH)
   name?: string;
 
-  @IsOptional()
+  @OptionalNotNull()
   @IsPhoneNumber()
   contactPhone?: string;
 
-  @IsOptional()
+  @OptionalNotNull()
   @IsEmail()
   contactEmail?: string;
 
@@ -42,12 +42,11 @@ export class UpdateLocationDto {
   @MaxLength(2048)
   logoUrl?: string;
 
-  @IsOptional()
+  @OptionalNotNull()
   @IsEnum(Locale)
   locale?: Locale;
 
-  // Not IsOptional, which also lets null through to a required column.
-  @ValidateIf((_, value) => value !== undefined)
+  @OptionalNotNull()
   @Transform(({ value }: { value: unknown }) => canonicalTimeZone(value) ?? value)
   @IsRegionTimeZone()
   timeZone?: string;
@@ -60,9 +59,8 @@ export class UpdateLocationDto {
   @Type(() => PostalAddressDto)
   address?: PostalAddressDto | null;
 
-  // The whole week, replacing what was there. An empty list removes it,
-  // null is refused.
-  @ValidateIf((_, value) => value !== undefined)
+  // The whole week, replacing what was there. An empty list removes it.
+  @OptionalNotNull()
   @IsArray()
   @ArrayMaxSize(14)
   @ValidateNested({ each: true })

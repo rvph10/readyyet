@@ -258,6 +258,14 @@ describe("GET /locations/:locationId", () => {
     });
   });
 
+  // null removes a logo or an address, but these always have a value.
+  it.each(["name", "contactPhone", "contactEmail", "locale"])("refuses a null %s with a 400", async (field) => {
+    const response = await patch({ [field]: null });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.details[0].property).toBe(field);
+  });
+
   it("rejects an EMPLOYEE updating location settings", async () => {
     const response = await request(app.getHttpServer())
       .patch(`/locations/${locationId}`)

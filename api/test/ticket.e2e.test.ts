@@ -201,6 +201,21 @@ describe("Tickets", () => {
     expect(detail.body.title).toBe("Brake pads worn");
   });
 
+  it("refuses a null title with a 400, a ticket always has one", async () => {
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Initial title", customer: { fullName: "Hal Null" } });
+
+    const patched = await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie)
+      .send({ title: null });
+
+    expect(patched.status).toBe(400);
+    expect(patched.body.error.details[0].property).toBe("title");
+  });
+
   it("rejects a non-member updating a ticket", async () => {
     const created = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)
