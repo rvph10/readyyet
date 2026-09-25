@@ -24,6 +24,8 @@ const envSchema = z
     // Only deployed environments receive Stripe's webhooks, locally
     // `stripe listen` prints its own secret.
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+    // Comma-separated, the only accounts that reach /admin (ADR 0032).
+    PLATFORM_ADMIN_EMAILS: z.string().optional(),
     // The bucket for photos, logos and avatars (ADR 0026).
     S3_ENDPOINT: z.url(),
     S3_REGION: z.string().min(1),

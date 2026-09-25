@@ -46,9 +46,11 @@ describe("Changing and cancelling a paying location's plan", () => {
     stripe.subscriptions.retrieve.mockResolvedValue({
       id: subscriptionId,
       status: "active",
+      customer: "cus_plan",
       metadata: { locationId },
       cancel_at_period_end: false,
       schedule: null,
+      discounts: [],
       items: { data: [{ id: "si_1", current_period_end: periodEnd, price: prices[key] }] },
       ...fields,
     });
@@ -223,6 +225,140 @@ describe("Changing and cancelling a paying location's plan", () => {
 
     onStripe("pro_monthly", { cancel_at_period_end: true });
     expect((await cancel(ownerCookie)).status).toBe(409);
+  });
+
+  it("keeps a running discount on both phases of a waiting move to a cheaper price", async () => {
+    onStripe("pro_monthly", { discounts: ["di_referral"] });
+
+    await choose("PRO", "YEAR");
+
+    const [, { phases }] = stripe.subscriptionSchedules.update.mock.calls[0];
+    expect(phases[0].discounts).toEqual([{ discount: "di_referral" }]);
+    expect(phases[1].discounts).toEqual([{ discount: "di_referral" }]);
+  });
+
+  describe("a campaign code on a paying location", () => {
+    const waitingSchedule = {
+      id: "sub_sched_0",
+      phases: [
+        { start_date: 1000, metadata: {} },
+        { start_date: periodEnd, metadata: { lookupKey: "essentiel_yearly" } },
+      ],
+    };
+    const preview = (code: string, cookie = adminCookie) =>
+      request(app.getHttpServer())
+        .get(`/locations/${locationId}/billing/promotion-codes/${code}`)
+        .set("Cookie", cookie);
+    const apply = (promotionCode: string) =>
+      request(app.getHttpServer())
+        .post(`/locations/${locationId}/billing/promotion-code`)
+        .set("Cookie", adminCookie)
+        .send({ promotionCode });
+    const refusedByStripe = () =>
+      new Stripe.errors.StripeInvalidRequestError({
+        type: "invalid_request_error",
+        message: "This promotion code cannot be redeemed.",
+        param: "discounts[0][promotion_code]",
+      });
+
+    beforeEach(() => {
+      stripe.promotionCodes.list.mockResolvedValue({ data: [{ id: "promo_autumn" }] });
+      stripe.invoices.createPreview.mockImplementation((params: { discounts?: object[] }) =>
+        Promise.resolve({ amount_due: params.discounts ? 2450 : 4900 }),
+      );
+    });
+
+    it("previews the next invoice without and with the code", async () => {
+      onStripe("pro_monthly");
+
+      const response = await preview("AUTUMN");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ nextInvoiceAmount: 4900, nextInvoiceAmountWithCode: 2450 });
+      expect(stripe.invoices.createPreview).toHaveBeenCalledWith({
+        customer: "cus_plan",
+        subscription: subscriptionId,
+      });
+      expect(stripe.invoices.createPreview).toHaveBeenCalledWith({
+        customer: "cus_plan",
+        subscription: subscriptionId,
+        discounts: [{ promotion_code: "promo_autumn" }],
+      });
+    });
+
+    it("previews the schedule's next phase when a move is waiting", async () => {
+      onStripe("pro_monthly", { schedule: "sub_sched_0" });
+
+      await preview("AUTUMN");
+
+      expect(stripe.invoices.createPreview).toHaveBeenCalledWith({ customer: "cus_plan", schedule: "sub_sched_0" });
+    });
+
+    it("refuses a code that doesn't exist, one Stripe won't apply, and a location that doesn't pay", async () => {
+      onStripe("pro_monthly");
+      stripe.promotionCodes.list.mockResolvedValueOnce({ data: [] });
+      expect((await preview("NOPE")).status).toBe(400);
+
+      stripe.invoices.createPreview.mockImplementation((params: { discounts?: object[] }) =>
+        params.discounts ? Promise.reject(refusedByStripe()) : Promise.resolve({ amount_due: 4900 }),
+      );
+      expect((await preview("FIRST")).status).toBe(400);
+
+      await prisma.subscription.update({ where: { locationId }, data: { status: "TRIAL" } });
+      expect((await preview("AUTUMN")).status).toBe(409);
+      expect((await apply("AUTUMN")).status).toBe(409);
+    });
+
+    it("replaces the subscription's discount with the code", async () => {
+      onStripe("pro_monthly");
+
+      const response = await apply("AUTUMN");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({ status: "ACTIVE", plan: "PRO" });
+      expect(stripe.subscriptions.update).toHaveBeenCalledWith(subscriptionId, {
+        discounts: [{ promotion_code: "promo_autumn" }],
+      });
+    });
+
+    it("schedules a waiting move again, carrying the new discount", async () => {
+      onStripe("pro_monthly", { schedule: waitingSchedule });
+      stripe.subscriptions.update.mockResolvedValueOnce({
+        id: subscriptionId,
+        discounts: ["di_autumn"],
+        items: { data: [{ id: "si_1", price: prices.pro_monthly }] },
+      });
+
+      await apply("AUTUMN");
+
+      expect(stripe.subscriptionSchedules.release).toHaveBeenCalledWith("sub_sched_0");
+      const [, { phases }] = stripe.subscriptionSchedules.update.mock.calls[0];
+      expect(phases[1]).toMatchObject({
+        items: [{ price: "price_ey" }],
+        metadata: { lookupKey: "essentiel_yearly" },
+        discounts: [{ discount: "di_autumn" }],
+      });
+    });
+
+    it("keeps a waiting move when Stripe refuses the code", async () => {
+      onStripe("pro_monthly", { schedule: waitingSchedule });
+      stripe.subscriptions.update.mockRejectedValueOnce(refusedByStripe());
+
+      const response = await apply("FIRST");
+
+      expect(response.status).toBe(400);
+      const [, { phases }] = stripe.subscriptionSchedules.update.mock.calls[0];
+      expect(phases[1]).toMatchObject({ metadata: { lookupKey: "essentiel_yearly" } });
+    });
+
+    it("is kept from employees", async () => {
+      const employeeEmail = `delivered+plan-employee-${Date.now()}@resend.dev`;
+      const employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
+      const { id: userId } = await prisma.user.findUniqueOrThrow({ where: { email: employeeEmail } });
+      await prisma.membership.create({ data: { userId, locationId, role: "EMPLOYEE" } });
+
+      expect((await preview("AUTUMN", employeeCookie)).status).toBe(403);
+    });
   });
 });
 

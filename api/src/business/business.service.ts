@@ -10,12 +10,20 @@ import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from
 import { toAddressColumns, toOpeningHoursJson } from "../location/location-info";
 import { locationSelect, toLocationResponse } from "../location/location-select";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
+import { generateReferralCode } from "./referral-code";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
-// Every Business this service returns goes to a client, the Stripe id
-// is ours alone.
-const omitStripe = { stripeCustomerId: true } as const;
+// Every Business this service returns goes to its Owner. The rest of the
+// row, Stripe's id and who referred it, is only for billing.
+const businessSelect = {
+  id: true,
+  name: true,
+  ownerId: true,
+  referralCode: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 @Injectable()
 export class BusinessService {
@@ -32,6 +40,8 @@ export class BusinessService {
       data: {
         ownerId,
         name: dto.name,
+        referralCode: generateReferralCode(),
+        ...(await this.findReferrer(dto.referralCode, ownerId)),
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
@@ -39,8 +49,7 @@ export class BusinessService {
           },
         },
       },
-      include: { locations: locationSelect },
-      omit: omitStripe,
+      select: { ...businessSelect, locations: locationSelect },
     });
     return { ...business, locations: business.locations.map(toLocationResponse) };
   }
@@ -51,8 +60,8 @@ export class BusinessService {
     await this.loadOwned(businessId, userId, "Only the business owner can view it");
     return this.prisma.business.findUniqueOrThrow({
       where: { id: businessId },
-      omit: omitStripe,
-      include: {
+      select: {
+        ...businessSelect,
         locations: {
           where: { deletedAt: null },
           orderBy: { createdAt: "asc" },
@@ -64,7 +73,7 @@ export class BusinessService {
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can rename it");
-    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, omit: omitStripe });
+    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, select: businessSelect });
   }
 
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
@@ -127,7 +136,7 @@ export class BusinessService {
         });
       }
 
-      return tx.business.findUniqueOrThrow({ where: { id: businessId }, omit: omitStripe });
+      return tx.business.findUniqueOrThrow({ where: { id: businessId }, select: businessSelect });
     });
 
     // After the commit, never inside it: an email can't be taken back.
@@ -171,6 +180,24 @@ export class BusinessService {
       // "Reply if this wasn't you" has to reach someone.
       replyTo: process.env.SUPPORT_EMAIL,
     });
+  }
+
+  // A code that matches nobody, or the caller's own, is ignored rather than
+  // refused: the link can be weeks old (ADR 0040). So is a former sales
+  // partner's, they no longer earn from new Businesses.
+  private async findReferrer(code: string | undefined, userId: string) {
+    if (!code) {
+      return {};
+    }
+    const sponsor = await this.prisma.business.findUnique({ where: { referralCode: code } });
+    if (sponsor) {
+      return sponsor.ownerId === userId ? {} : { referredByBusinessId: sponsor.id };
+    }
+    const salesPartner = await this.prisma.user.findUnique({ where: { referralCode: code } });
+    if (salesPartner?.salesPartnerSince && salesPartner.id !== userId) {
+      return { referredBySalesPartnerId: salesPartner.id };
+    }
+    return {};
   }
 
   private async loadOwned(businessId: string, userId: string, forbidden: string) {

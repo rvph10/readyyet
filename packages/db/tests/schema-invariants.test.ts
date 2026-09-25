@@ -254,3 +254,20 @@ describe("a location's turnaround time, 1 to 60 days", () => {
     await db.location.update({ where: { id: f.locationA.id }, data: { turnaroundDays } });
   });
 });
+
+describe("a business's referrer, a sponsor or a sales partner, never both", () => {
+  it("rejects a business referred by both", async () => {
+    const f = await seedFixtures(db);
+    await expect(
+      db.business.create({
+        data: {
+          ownerId: f.user.id,
+          name: "Referred Business",
+          referralCode: "referred",
+          referredByBusinessId: f.business.id,
+          referredBySalesPartnerId: f.user.id,
+        },
+      }),
+    ).rejects.toThrow(/business_one_referrer/);
+  });
+});

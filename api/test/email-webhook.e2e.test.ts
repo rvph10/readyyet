@@ -138,6 +138,7 @@ describe("POST /webhooks/resend", () => {
         data: {
           ownerId: owner.id,
           name: "Webhook Test",
+          referralCode: randomUUID(),
           locations: {
             create: {
               name: "Shop",

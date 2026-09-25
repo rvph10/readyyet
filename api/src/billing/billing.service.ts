@@ -1,14 +1,38 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus, Plan, SubscriptionStatus } from "@readyyet/db";
 import Stripe from "stripe";
-import { ConflictError, LocationFrozenError, MemberLimitError } from "../common/errors/app-error";
+import { ConflictError, LocationFrozenError, MemberLimitError, ValidationError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
-import { ChoosePlanDto } from "./dto/choose-plan.dto";
-import { BillingDto } from "./dto/billing.response.dto";
+import { CheckoutDto, ChoosePlanDto } from "./dto/choose-plan.dto";
+import { BillingDto, PromotionCodePreviewDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
-import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit } from "./plans";
+import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit, referralCoupon } from "./plans";
 import { getStripeClient } from "./stripe-client";
 import { scheduledLookupKey, toSubscriptionRow } from "./stripe-sync";
+
+function hasReferralDiscount(business: {
+  referredByBusinessId: string | null;
+  referredBySalesPartnerId: string | null;
+  referralDiscountUsedAt: Date | null;
+}) {
+  const referred = business.referredByBusinessId !== null || business.referredBySalesPartnerId !== null;
+  return referred && business.referralDiscountUsedAt === null;
+}
+
+function invalidPromotionCode() {
+  return new ValidationError("This promotion code doesn't exist, has expired or doesn't apply here", [
+    { property: "promotionCode", constraints: { isApplicable: "promotionCode must be a code that applies here" } },
+  ]);
+}
+
+// A code can exist and still not apply here: first-time customers only, a
+// minimum amount, another customer's code.
+function refusedPromotionCode(err: unknown): never {
+  if (err instanceof Stripe.errors.StripeInvalidRequestError && err.param?.startsWith("discounts")) {
+    throw invalidPromotionCode();
+  }
+  throw err;
+}
 
 function perMonth(price: Stripe.Price) {
   return price.unit_amount! / (price.recurring!.interval === "year" ? 12 : 1);
@@ -22,7 +46,10 @@ export class BillingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async get(locationId: string): Promise<BillingDto> {
-    const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({
+      where: { locationId },
+      include: { location: { select: { business: true } } },
+    });
     return {
       status: subscription.status,
       plan: subscription.plan,
@@ -34,11 +61,12 @@ export class BillingService {
       scheduledInterval: subscription.scheduledInterval,
       frozen: isFrozen(subscription),
       memberLimit: memberLimit(subscription),
+      referralDiscount: hasReferralDiscount(subscription.location.business),
     };
   }
 
   // A Location's first payment, or its first since its subscription ended.
-  async checkout(locationId: string, dto: ChoosePlanDto): Promise<RedirectDto> {
+  async checkout(locationId: string, dto: CheckoutDto): Promise<RedirectDto> {
     const location = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
       include: { subscription: true, business: { include: { owner: true } } },
@@ -59,6 +87,12 @@ export class BillingService {
     }
     await this.expireOpenCheckouts(customer, locationId);
     const price = await this.price(lookupKey(dto.plan, dto.interval));
+    // A campaign code replaces the referral discount, a Checkout Session
+    // takes one discount (ADR 0040).
+    const referral = !dto.promotionCode && hasReferralDiscount(location.business);
+    const discount = dto.promotionCode
+      ? { promotion_code: await this.promotionCodeId(dto.promotionCode) }
+      : referral && { coupon: referralCoupon(dto.plan) };
 
     // Choosing during the trial keeps the days left, the card is charged
     // when the trial would have ended (ADR 0033).
@@ -66,24 +100,39 @@ export class BillingService {
     const keepsTrial = trialEnd && trialEnd.getTime() - Date.now() > MIN_CHECKOUT_TRIAL_MS;
 
     const billingPage = `${process.env.WEB_URL}/locations/${locationId}/billing`;
-    const session = await getStripeClient().checkout.sessions.create({
-      mode: "subscription",
-      customer,
-      metadata: { locationId },
-      line_items: [{ price: price.id, quantity: 1 }],
-      subscription_data: {
-        description: location.name,
-        metadata: { locationId },
-        ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
-      },
-      // The shop's VAT number and address, for its own accounting.
-      billing_address_collection: "required",
-      tax_id_collection: { enabled: true },
-      customer_update: { name: "auto", address: "auto" },
-      success_url: `${billingPage}?checkout=success`,
-      cancel_url: billingPage,
-    });
+    const session = await getStripeClient()
+      .checkout.sessions.create({
+        mode: "subscription",
+        customer,
+        // referralDiscount tells the webhook to mark the discount used.
+        metadata: { locationId, ...(referral && { referralDiscount: "true" }) },
+        line_items: [{ price: price.id, quantity: 1 }],
+        ...(discount && { discounts: [discount] }),
+        subscription_data: {
+          description: location.name,
+          metadata: { locationId },
+          ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
+        },
+        // The shop's VAT number and address, for its own accounting.
+        billing_address_collection: "required",
+        tax_id_collection: { enabled: true },
+        customer_update: { name: "auto", address: "auto" },
+        success_url: `${billingPage}?checkout=success`,
+        cancel_url: billingPage,
+      })
+      .catch(refusedPromotionCode);
     return { url: session.url! };
+  }
+
+  // Once a checkout with the referral coupon completes, no other checkout
+  // of the Business gets it (ADR 0040).
+  async checkoutCompleted(session: Stripe.Checkout.Session) {
+    if (session.metadata?.referralDiscount) {
+      await this.prisma.business.updateMany({
+        where: { stripeCustomerId: session.customer as string, referralDiscountUsedAt: null },
+        data: { referralDiscountUsedAt: new Date() },
+      });
+    }
   }
 
   // A Location that already pays moves to another plan or interval (ADR
@@ -119,6 +168,58 @@ export class BillingService {
       if (price) {
         await this.scheduleAtPeriodEnd(subscription, item, price);
       }
+    }
+
+    await this.sync(subscription.id);
+    return this.get(locationId);
+  }
+
+  // What the next invoice of a paying Location comes to without and with a
+  // campaign code, shown before it's applied (ADR 0040). In cents, with any
+  // credit on the Business's balance already taken off.
+  async previewPromotionCode(locationId: string, code: string): Promise<PromotionCodePreviewDto> {
+    const subscription = await getStripeClient().subscriptions.retrieve(await this.paidSubscriptionId(locationId));
+    const promotionCode = await this.promotionCodeId(code);
+    // Under a schedule, the next invoice is the schedule's next phase.
+    const next = {
+      customer: subscription.customer as string,
+      ...(subscription.schedule ? { schedule: subscription.schedule as string } : { subscription: subscription.id }),
+    };
+    const [current, withCode] = await Promise.all([
+      getStripeClient().invoices.createPreview(next),
+      getStripeClient()
+        .invoices.createPreview({ ...next, discounts: [{ promotion_code: promotionCode }] })
+        .catch(refusedPromotionCode),
+    ]);
+    return { nextInvoiceAmount: current.amount_due, nextInvoiceAmountWithCode: withCode.amount_due };
+  }
+
+  // Replaces the subscription's discount, a campaign or what's left of the
+  // referral discount, from the next invoice on (ADR 0032).
+  async applyPromotionCode(locationId: string, code: string): Promise<BillingDto> {
+    const stripe = getStripeClient();
+    const subscription = await stripe.subscriptions.retrieve(await this.paidSubscriptionId(locationId), {
+      expand: ["schedule"],
+    });
+    const promotionCode = await this.promotionCodeId(code);
+
+    // A subscription under a schedule can't be changed directly, the waiting
+    // move is scheduled again once the code is on.
+    const waiting = scheduledLookupKey(subscription);
+    if (subscription.schedule) {
+      await stripe.subscriptionSchedules.release((subscription.schedule as Stripe.SubscriptionSchedule).id);
+    }
+    let updated: Stripe.Subscription;
+    try {
+      updated = await stripe.subscriptions.update(subscription.id, { discounts: [{ promotion_code: promotionCode }] });
+    } catch (err) {
+      if (waiting) {
+        await this.scheduleAtPeriodEnd(subscription, subscription.items.data[0], await this.price(waiting));
+      }
+      refusedPromotionCode(err);
+    }
+    if (waiting) {
+      await this.scheduleAtPeriodEnd(updated, updated.items.data[0], await this.price(waiting));
     }
 
     await this.sync(subscription.id);
@@ -218,6 +319,18 @@ export class BillingService {
     return members + invitations;
   }
 
+  // Also a sponsor's, to hold a credit before they ever paid (ADR 0040).
+  async createCustomer(business: { id: string; name: string; owner: { email: string } }) {
+    // The idempotency key makes two checkouts started at once get the same
+    // Customer from Stripe, instead of one each.
+    const customer = await getStripeClient().customers.create(
+      { name: business.name, email: business.owner.email, metadata: { businessId: business.id } },
+      { idempotencyKey: `customer-${business.id}` },
+    );
+    await this.prisma.business.update({ where: { id: business.id }, data: { stripeCustomerId: customer.id } });
+    return customer.id;
+  }
+
   // Every webhook ends here (ADR 0033): Stripe's current state is written
   // whatever the event said, so a late or repeated event is harmless.
   async sync(stripeSubscriptionId: string) {
@@ -248,6 +361,16 @@ export class BillingService {
       throw new ConflictError("This location has no subscription, choose a plan through checkout");
     }
     return stripeSubscriptionId!;
+  }
+
+  private async promotionCodeId(code: string) {
+    const {
+      data: [promotionCode],
+    } = await getStripeClient().promotionCodes.list({ code, active: true, limit: 1 });
+    if (!promotionCode) {
+      throw invalidPromotionCode();
+    }
+    return promotionCode.id;
   }
 
   private async price(key: string) {
@@ -322,6 +445,11 @@ export class BillingService {
     // Rewritten without the trial, the phase would end it on the spot and
     // bill the rest of the trial days (ADR 0033).
     const [current] = schedule.phases;
+    // Phases written without them would drop a campaign or referral
+    // discount still running (ADR 0040).
+    const discounts = subscription.discounts.map((discount) => ({
+      discount: typeof discount === "string" ? discount : discount.id,
+    }));
     await stripe.subscriptionSchedules.update(schedule.id, {
       end_behavior: "release",
       phases: [
@@ -330,25 +458,16 @@ export class BillingService {
           start_date: current.start_date,
           end_date: current.end_date,
           ...(current.trial_end && { trial_end: current.trial_end }),
+          ...(discounts.length > 0 && { discounts }),
         },
         {
           items: [{ price: price.id }],
           duration: { interval: price.recurring!.interval, interval_count: 1 },
           proration_behavior: "none",
           metadata: { lookupKey: price.lookup_key! },
+          ...(discounts.length > 0 && { discounts }),
         },
       ],
     });
-  }
-
-  private async createCustomer(business: { id: string; name: string; owner: { email: string } }) {
-    // The idempotency key makes two checkouts started at once get the same
-    // Customer from Stripe, instead of one each.
-    const customer = await getStripeClient().customers.create(
-      { name: business.name, email: business.owner.email, metadata: { businessId: business.id } },
-      { idempotencyKey: `customer-${business.id}` },
-    );
-    await this.prisma.business.update({ where: { id: business.id }, data: { stripeCustomerId: customer.id } });
-    return customer.id;
   }
 }

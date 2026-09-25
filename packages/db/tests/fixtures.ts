@@ -27,7 +27,7 @@ export async function seedFixtures(db: PrismaClient) {
   });
 
   const business = await db.business.create({
-    data: { ownerId: user.id, name: "Test Business" },
+    data: { ownerId: user.id, name: "Test Business", referralCode: "fixture1" },
   });
 
   const locationA = await db.location.create({

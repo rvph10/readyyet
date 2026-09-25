@@ -5,8 +5,8 @@ import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { BillingService } from "./billing.service";
-import { BillingDto } from "./dto/billing.response.dto";
-import { ChoosePlanDto } from "./dto/choose-plan.dto";
+import { BillingDto, PromotionCodePreviewDto } from "./dto/billing.response.dto";
+import { CheckoutDto, ChoosePlanDto, PromotionCodeDto } from "./dto/choose-plan.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
 
 @ApiTags("Billing")
@@ -29,7 +29,7 @@ export class BillingController {
   @UseGuards(LocationMembershipGuard)
   @ApiOperation({ summary: "Start paying for a location, returns the Stripe Checkout page to open" })
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
-  checkout(@Param("locationId") locationId: string, @Body() dto: ChoosePlanDto): Promise<RedirectDto> {
+  checkout(@Param("locationId") locationId: string, @Body() dto: CheckoutDto): Promise<RedirectDto> {
     return this.billing.checkout(locationId, dto);
   }
 
@@ -44,6 +44,32 @@ export class BillingController {
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
   changePlan(@Param("locationId") locationId: string, @Body() dto: ChoosePlanDto): Promise<BillingDto> {
     return this.billing.changePlan(locationId, dto);
+  }
+
+  @Get("locations/:locationId/billing/promotion-codes/:code")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @ApiOperation({
+    summary: "Preview a paying location's next invoice with a campaign code, before applying it (ADR 0040)",
+  })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  previewPromotionCode(
+    @Param("locationId") locationId: string,
+    @Param("code") code: string,
+  ): Promise<PromotionCodePreviewDto> {
+    return this.billing.previewPromotionCode(locationId, code);
+  }
+
+  @Post("locations/:locationId/billing/promotion-code")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Apply a campaign code to a paying location, replacing its current discount from the next invoice on",
+  })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  applyPromotionCode(@Param("locationId") locationId: string, @Body() dto: PromotionCodeDto): Promise<BillingDto> {
+    return this.billing.applyPromotionCode(locationId, dto.promotionCode);
   }
 
   @Post("locations/:locationId/billing/cancel")

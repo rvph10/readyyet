@@ -9,32 +9,39 @@ datasource db {
 
 // Managed by Better Auth's Prisma adapter, shown here for relation completeness only.
 model User {
-  id            String    @id
-  email         String    @unique
-  name          String
+  id                String    @id
+  email             String    @unique
+  name              String
   // The avatar's key in the bucket, never a URL (ADR 0026). Better Auth's
   // own name for the column.
-  image         String?
-  emailVerified Boolean   @default(false) @map("email_verified")
+  image             String?
+  emailVerified     Boolean   @default(false) @map("email_verified")
   // Language of the emails this User receives (ADR 0018). Declared to
   // Better Auth as an additionalField in api/src/auth/auth.ts.
-  locale        Locale    @default(EN)
+  locale            Locale    @default(EN)
   // Set when the User deleted their account: name and email are replaced,
   // the row stays for the history that points at it (ADR 0018).
-  deletedAt     DateTime? @map("deleted_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+  // Set by the platform admin, null when not a sales partner (ADR 0032).
+  salesPartnerSince DateTime? @map("sales_partner_since")
+  // Kept when the status is removed, so marking them again brings the same
+  // link back (ADR 0040).
+  referralCode      String?   @unique @map("referral_code")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   sessions Session[]
   accounts Account[]
 
-  ownedBusinesses Business[]          @relation("BusinessOwner")
-  memberships     Membership[]
-  invitationsSent Invitation[]        @relation("InvitedBy")
-  ticketsCreated  Ticket[]            @relation("TicketCreatedBy")
-  statusEvents    TicketStatusEvent[]
-  photosUploaded  TicketPhoto[]       @relation("TicketPhotoUploadedBy")
-  feedbackHandled TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  ownedBusinesses    Business[]          @relation("BusinessOwner")
+  memberships        Membership[]
+  invitationsSent    Invitation[]        @relation("InvitedBy")
+  ticketsCreated     Ticket[]            @relation("TicketCreatedBy")
+  statusEvents       TicketStatusEvent[]
+  photosUploaded     TicketPhoto[]       @relation("TicketPhotoUploadedBy")
+  referredBusinesses Business[]          @relation("SalesPartnerReferral")
+  feedbackHandled    TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  commissions        Commission[]
 
   @@map("user")
 }
@@ -135,15 +142,33 @@ enum SubscriptionStatus {
 }
 
 model Business {
-  id               String   @id @default(uuid()) @db.Uuid
-  ownerId          String   @map("owner_id")
-  name             String
-  stripeCustomerId String?  @unique @map("stripe_customer_id")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                       String    @id @default(uuid()) @db.Uuid
+  ownerId                  String    @map("owner_id")
+  name                     String
+  stripeCustomerId         String?   @unique @map("stripe_customer_id")
+  // The Owner's sponsor link for this Business (ADR 0040).
+  referralCode             String    @unique @map("referral_code")
+  // Set at creation, never changed, at most one of the two
+  // (business_one_referrer, ADR 0032).
+  referredByBusinessId     String?   @map("referred_by_business_id") @db.Uuid
+  referredBySalesPartnerId String?   @map("referred_by_sales_partner_id")
+  // A checkout with the referral coupon completed, it's not offered again
+  // (ADR 0040).
+  referralDiscountUsedAt   DateTime? @map("referral_discount_used_at")
+  // Where the period of the first invoice paid for more than zero starts:
+  // a sales partner's 6 months start here (ADR 0040).
+  paidFrom                 DateTime? @map("paid_from")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
 
-  owner     User       @relation("BusinessOwner", fields: [ownerId], references: [id])
-  locations Location[]
+  owner                  User            @relation("BusinessOwner", fields: [ownerId], references: [id])
+  locations              Location[]
+  referredByBusiness     Business?       @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[]      @relation("BusinessReferral")
+  referredBySalesPartner User?           @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  commissions            Commission[]
+  sponsorCreditEarned    SponsorCredit?  @relation("SponsorCreditEarned")
+  sponsorCreditsReceived SponsorCredit[] @relation("SponsorCreditReceived")
 
   @@map("business")
 }
@@ -521,4 +546,50 @@ model PendingStatusNotification {
 
   @@index([sendAfter])
   @@map("pending_status_notification")
+}
+
+// A sales partner's share of one paid invoice (ADR 0032). Pending, owed or
+// voided is computed from the dates, never stored (ADR 0040).
+model Commission {
+  id              BigInt    @id @default(autoincrement())
+  salesPartnerId  String    @map("sales_partner_id")
+  businessId      String    @map("business_id") @db.Uuid
+  // Unique, so a redelivered invoice.paid records nothing more.
+  stripeInvoiceId String    @unique @map("stripe_invoice_id")
+  // In cents.
+  amount          Int
+  invoicePaidAt   DateTime  @map("invoice_paid_at")
+  // Refunded or disputed within 14 days of invoicePaidAt.
+  voidedAt        DateTime? @map("voided_at")
+  // Marked by the platform admin, the payment itself is made outside.
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  salesPartner User     @relation(fields: [salesPartnerId], references: [id], onDelete: Restrict)
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+
+  @@index([salesPartnerId, invoicePaidAt])
+  @@map("commission")
+}
+
+// What a referred Business earns its sponsor, from its first paid invoice.
+// Held 14 days like a commission before it goes on the sponsor's Stripe
+// balance, voided by a refund or dispute in that time (ADR 0040).
+model SponsorCredit {
+  // One per referred Business: a voided one isn't replaced by a later invoice.
+  businessId        String    @id @map("business_id") @db.Uuid
+  sponsorBusinessId String    @map("sponsor_business_id") @db.Uuid
+  stripeInvoiceId   String    @unique @map("stripe_invoice_id")
+  // In cents, a month of the plan at the monthly price.
+  amount            Int
+  invoicePaidAt     DateTime  @map("invoice_paid_at")
+  voidedAt          DateTime? @map("voided_at")
+  // Stripe accepted the balance transaction.
+  creditedAt        DateTime? @map("credited_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  business        Business @relation("SponsorCreditEarned", fields: [businessId], references: [id], onDelete: Restrict)
+  sponsorBusiness Business @relation("SponsorCreditReceived", fields: [sponsorBusinessId], references: [id], onDelete: Restrict)
+
+  @@map("sponsor_credit")
 }

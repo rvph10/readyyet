@@ -49,6 +49,9 @@ export const auth: Auth<any> = betterAuth({
       // input: false, a sign-in request can't set it, only the hook below
       // and PATCH /me do (ADR 0018).
       locale: { type: "string", required: false, input: false, defaultValue: "EN" },
+      // Only the platform admin sets it (ADR 0032). Declared so the session's
+      // user carries it, /me reads it from there.
+      salesPartnerSince: { type: "date", required: false, input: false },
     },
   },
   databaseHooks: {

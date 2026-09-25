@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { User } from "@readyyet/db";
+import { isPlatformAdmin } from "../admin/platform-admin";
 import { ConflictError, ReauthenticationRequiredError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
@@ -27,6 +28,9 @@ export class MeService {
       name: user.name,
       locale: user.locale,
       avatarUrl: publicImageUrl(user.image),
+      // Which back office sections the web app shows (ADR 0032).
+      salesPartner: user.salesPartnerSince !== null,
+      platformAdmin: isPlatformAdmin(user.email),
     };
   }
 
@@ -103,6 +107,8 @@ export class MeService {
           email: `deleted-${userId}@deleted.invalid`,
           image: null,
           emailVerified: false,
+          // Nobody is left to pay, commissions already recorded stay.
+          salesPartnerSince: null,
           deletedAt: new Date(),
         },
       }),

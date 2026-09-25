@@ -344,7 +344,7 @@ describe("POST /webhooks/stripe", () => {
     stripe.subscriptions.retrieve.mockResolvedValue(subscription({ metadata: {} }));
     expect((await send(subscriptionEvent("customer.subscription.updated"))).status).toBe(200);
 
-    expect((await send({ id: "evt_2", type: "invoice.paid", data: { object: {} } })).status).toBe(200);
+    expect((await send({ id: "evt_2", type: "customer.created", data: { object: {} } })).status).toBe(200);
     expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
   });
 

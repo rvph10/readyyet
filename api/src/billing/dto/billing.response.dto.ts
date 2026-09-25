@@ -24,4 +24,13 @@ export class BillingDto {
   frozen!: boolean;
   // Memberships plus pending invitations, null when unlimited.
   memberLimit!: number | null;
+  // The next checkout takes half a month off, the Business was referred
+  // (ADR 0032).
+  referralDiscount!: boolean;
+}
+
+export class PromotionCodePreviewDto {
+  // In cents, what the card will be charged, balance credit taken off.
+  nextInvoiceAmount!: number;
+  nextInvoiceAmountWithCode!: number;
 }
