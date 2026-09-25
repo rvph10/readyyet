@@ -35,6 +35,7 @@ describe("Invitations", () => {
         location: {
           name: "Main Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@invitetest.test",
           locale: "EN",

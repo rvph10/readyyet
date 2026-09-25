@@ -25,6 +25,7 @@ export async function createBusiness(app: INestApplication, cookie: string, name
       location: {
         name: "Main Shop",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550123",
         contactEmail: "main@billing.test",
         locale: "EN",

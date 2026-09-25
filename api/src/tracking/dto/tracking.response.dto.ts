@@ -1,12 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
 import { PublicStatusDto } from "../../common/dto/status.response.dto";
+import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 
 export class TrackingLocationDto {
   name!: string;
   contactPhone!: string;
   contactEmail!: string;
   logoUrl!: string | null;
+  address!: PostalAddressDto | null;
+  // A Google Maps search for the address, null without one.
+  mapsUrl!: string | null;
+  // Times on the Location's clock, in its timeZone.
+  openingHours!: OpeningHoursSpecificationDto[];
+  timeZone!: string;
 }
 
 export class TrackingStepDto {

@@ -5006,6 +5006,61 @@
           "error"
         ]
       },
+      "PostalAddressDto": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "addressLocality": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "addressCountry": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "required": [
+          "streetAddress",
+          "postalCode",
+          "addressLocality",
+          "addressCountry"
+        ]
+      },
+      "OpeningHoursSpecificationDto": {
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "enum": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ],
+            "type": "string"
+          },
+          "opens": {
+            "type": "string"
+          },
+          "closes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayOfWeek",
+          "opens",
+          "closes"
+        ]
+      },
       "CreateLocationDto": {
         "type": "object",
         "properties": {
@@ -5029,6 +5084,19 @@
               "FR"
             ],
             "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/PostalAddressDto"
+          },
+          "openingHours": {
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
           }
         },
         "required": [
@@ -5036,7 +5104,8 @@
           "businessTypeCode",
           "contactPhone",
           "contactEmail",
-          "locale"
+          "locale",
+          "timeZone"
         ]
       },
       "CreateBusinessDto": {
@@ -5087,6 +5156,24 @@
             "type": "string",
             "nullable": true
           },
+          "timeZone": {
+            "type": "string"
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
+          "openingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -5105,6 +5192,9 @@
           "contactPhone",
           "contactEmail",
           "logoUrl",
+          "timeZone",
+          "address",
+          "openingHours",
           "createdAt",
           "updatedAt"
         ]
@@ -5368,6 +5458,15 @@
       "UpdateLocationDto": {
         "type": "object",
         "properties": {
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
           "name": {
             "type": "string",
             "maxLength": 100
@@ -5390,6 +5489,16 @@
               "EN",
               "FR"
             ]
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "openingHours": {
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
           }
         }
       },
@@ -6168,13 +6277,39 @@
           "logoUrl": {
             "type": "string",
             "nullable": true
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
+          "mapsUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "openingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "timeZone": {
+            "type": "string"
           }
         },
         "required": [
           "name",
           "contactPhone",
           "contactEmail",
-          "logoUrl"
+          "logoUrl",
+          "address",
+          "mapsUrl",
+          "openingHours",
+          "timeZone"
         ]
       },
       "PublicStatusDto": {

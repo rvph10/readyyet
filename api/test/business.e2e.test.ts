@@ -28,6 +28,7 @@ describe("POST /businesses", () => {
     location: {
       name: "Downtown",
       businessTypeCode: "GARAGE",
+      timeZone: "Europe/Brussels",
       contactPhone: "+12125550123",
       contactEmail: "downtown@joesgarage.test",
       locale: "EN",
@@ -78,6 +79,16 @@ describe("POST /businesses", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects a location without a time zone", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: { ...validPayload.location, timeZone: undefined } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.details[0].property).toBe("location.timeZone");
   });
 
   it("rejects the request without a session", async () => {
@@ -141,6 +152,7 @@ describe("POST /businesses/:businessId/locations", () => {
         location: {
           name: "First Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "first@multiloc.test",
           locale: "EN",
@@ -167,6 +179,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Second Shop",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550199",
         contactEmail: "second@multiloc.test",
         locale: "EN",
@@ -186,6 +199,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Third Shop",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550188",
         contactEmail: "third@multiloc.test",
         locale: "EN",
@@ -202,6 +216,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Should not work",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550100",
         contactEmail: "no@multiloc.test",
         locale: "EN",
@@ -218,6 +233,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Third Shop",
         businessTypeCode: "NOT_REAL",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550101",
         contactEmail: "third@multiloc.test",
         locale: "EN",
@@ -233,6 +249,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Nowhere",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550102",
         contactEmail: "nowhere@multiloc.test",
         locale: "EN",
@@ -253,6 +270,7 @@ describe("GET and PATCH /businesses/:businessId", () => {
   const location = (name: string) => ({
     name,
     businessTypeCode: "GARAGE",
+    timeZone: "Europe/Brussels",
     contactPhone: "+12125550123",
     contactEmail: "shop@readrename.test",
     locale: "EN",

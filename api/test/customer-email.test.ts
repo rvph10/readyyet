@@ -19,7 +19,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     businessTypeCode: "GARAGE",
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
-    location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test" },
+    location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test", address: null },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
     ...overrides,
@@ -102,9 +102,37 @@ describe("Customer emails", () => {
 
   it("keeps the subject on one line when a location name contains a line break", () => {
     const { subject } = buildCustomerEmail(
-      input({ location: { name: "Joe's\r\nBcc: victim@example.test", contactPhone: "+32", contactEmail: "a@b.test" } }),
+      input({
+        location: {
+          name: "Joe's\r\nBcc: victim@example.test",
+          contactPhone: "+32",
+          contactEmail: "a@b.test",
+          address: null,
+        },
+      }),
     );
 
     expect(subject).not.toMatch(/[\r\n]/);
+  });
+
+  it("shows the Location's address as a Google Maps link when it has one", async () => {
+    const address = {
+      streetAddress: "Rue Neuve 12",
+      postalCode: "1000",
+      addressLocality: "Bruxelles",
+      addressCountry: "BE",
+    };
+    const html = await render(buildCustomerEmail(input({ location: { ...input().location, address } })).react);
+
+    expect(html).toContain(">Rue Neuve 12, 1000 Bruxelles</a>");
+    expect(html).toContain(
+      "https://www.google.com/maps/search/?api=1&amp;query=Rue%20Neuve%2012%2C%201000%20Bruxelles%2C%20BE",
+    );
+  });
+
+  it("leaves the address out when the Location has none", async () => {
+    const html = await render(buildCustomerEmail(input()).react);
+
+    expect(html).not.toContain("google.com/maps");
   });
 });

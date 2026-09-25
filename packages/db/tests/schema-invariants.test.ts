@@ -220,3 +220,23 @@ describe("one owner membership per location", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("a location's address, all four fields or none", () => {
+  it("rejects an address missing its postal code", async () => {
+    const f = await seedFixtures(db);
+    await expect(
+      db.location.update({
+        where: { id: f.locationA.id },
+        data: { streetAddress: "Rue Neuve 12", addressLocality: "Bruxelles", addressCountry: "BE" },
+      }),
+    ).rejects.toThrow(/location_address_complete/);
+  });
+
+  it("accepts a complete address", async () => {
+    const f = await seedFixtures(db);
+    await db.location.update({
+      where: { id: f.locationA.id },
+      data: { streetAddress: "Rue Neuve 12", postalCode: "1000", addressLocality: "Bruxelles", addressCountry: "BE" },
+    });
+  });
+});

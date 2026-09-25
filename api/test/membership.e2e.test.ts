@@ -36,6 +36,7 @@ describe("Memberships", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@membershiptest.test",
           locale: "EN",

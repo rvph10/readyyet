@@ -1,6 +1,7 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from "react-email";
 import type { Locale } from "@readyyet/db";
 import type { ReactElement } from "react";
+import { mapsUrl, type PostalAddress } from "../../location/location-info";
 import { styles } from "../email-styles";
 import { type CustomerEmailKind, jobNoun, MESSAGES } from "./messages";
 
@@ -11,7 +12,7 @@ export interface CustomerEmailInput {
   businessTypeCode: string;
   customerName: string;
   ticketTitle: string;
-  location: { name: string; contactPhone: string; contactEmail: string };
+  location: { name: string; contactPhone: string; contactEmail: string; address: PostalAddress | null };
   trackingUrl: string;
   stopUpdatesUrl: string;
 }
@@ -46,6 +47,13 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
             {" · "}
             <Link href={`mailto:${input.location.contactEmail}`}>{input.location.contactEmail}</Link>
           </Text>
+          {input.location.address && (
+            <Text style={styles.contact}>
+              <Link href={mapsUrl(input.location.address)}>
+                {`${input.location.address.streetAddress}, ${input.location.address.postalCode} ${input.location.address.addressLocality}`}
+              </Link>
+            </Text>
+          )}
           <Hr />
           <Text style={styles.footer}>
             {messages.footer({ location: input.location.name, job })}{" "}

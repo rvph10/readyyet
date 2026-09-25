@@ -7,6 +7,7 @@ import { trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
 import { EmailService } from "../email/email.service";
 import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
+import { toAddressColumns, toOpeningHoursJson } from "../location/location-info";
 import { locationSelect, toLocationResponse } from "../location/location-select";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
@@ -203,6 +204,9 @@ export class BusinessService {
       contactPhone: dto.contactPhone,
       contactEmail: dto.contactEmail,
       locale: dto.locale,
+      timeZone: dto.timeZone,
+      ...toAddressColumns(dto.address ?? null),
+      openingHours: toOpeningHoursJson(dto.openingHours ?? []),
       memberships: { create: { userId: ownerId, role: Role.OWNER } },
     };
   }

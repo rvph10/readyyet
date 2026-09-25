@@ -11,6 +11,7 @@ import { signInViaOtp } from "./support/sign-in-via-otp";
 const location = {
   name: "Locale Shop",
   businessTypeCode: "PRESSING",
+  timeZone: "Europe/Brussels",
   contactPhone: "+12125550122",
   contactEmail: "shop@localetest.test",
 };

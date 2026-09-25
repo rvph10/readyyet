@@ -105,7 +105,8 @@ Deliberately not indexed: `customer.email` (no uniqueness requirement, low query
 A few things need a raw SQL migration on top of what `schema.prisma` generates, see `packages/db/prisma/migrations/`:
 
 1. `CHECK ((business_type_id IS NOT NULL) <> (location_id IS NOT NULL))` on `workflow`, a workflow is either a business-type default template or a location's custom workflow, never both, never neither.
-2. Four partial unique indexes (two on `workflow`, one on `invitation`, one on `membership`), Prisma's schema language doesn't support filtered/partial unique indexes.
+2. `location_address_complete`, a `CHECK` that a Location's four address columns are all set or all null (ADR 0034).
+3. Four partial unique indexes (two on `workflow`, one on `invitation`, one on `membership`), Prisma's schema language doesn't support filtered/partial unique indexes.
 
 Composite foreign keys (Tenant-scoped foreign keys, above) are expressible directly in `schema.prisma` via multi-field `@relation`, no raw SQL needed for those.
 

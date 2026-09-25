@@ -5,6 +5,7 @@ import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
+import { toPostalAddress } from "../location/location-info";
 import { isTrackingLinkExpired, oneClickStopUrl, stopUpdatesUrl, trackingUrl } from "../tracking/tracking-link";
 import { buildCustomerEmail } from "./customer-email/customer-email";
 import type { CustomerEmailKind } from "./customer-email/messages";
@@ -130,7 +131,7 @@ export class NotificationService {
       businessTypeCode: ticket.location.businessType.code,
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
-      location: ticket.location,
+      location: { ...ticket.location, address: toPostalAddress(ticket.location) },
       trackingUrl: trackingUrl(ticket.trackingCode),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
     });

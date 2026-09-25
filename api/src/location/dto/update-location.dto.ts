@@ -1,6 +1,24 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, IsUrl, MaxLength } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsUrl,
+  MaxLength,
+  ValidateIf,
+  ValidateNested,
+} from "class-validator";
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
+import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
 
 export class UpdateLocationDto {
   @IsOptional()
@@ -27,4 +45,28 @@ export class UpdateLocationDto {
   @IsOptional()
   @IsEnum(Locale)
   locale?: Locale;
+
+  // Not IsOptional, which also lets null through to a required column.
+  @ValidateIf((_, value) => value !== undefined)
+  @Transform(({ value }: { value: unknown }) => canonicalTimeZone(value) ?? value)
+  @IsRegionTimeZone()
+  timeZone?: string;
+
+  // null removes it.
+  @ApiPropertyOptional({ type: PostalAddressDto, nullable: true })
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => PostalAddressDto)
+  address?: PostalAddressDto | null;
+
+  // The whole week, replacing what was there. An empty list removes it,
+  // null is refused.
+  @ValidateIf((_, value) => value !== undefined)
+  @IsArray()
+  @ArrayMaxSize(14)
+  @ValidateNested({ each: true })
+  @Type(() => OpeningHoursSpecificationDto)
+  @IsWeeklyOpeningHours()
+  openingHours?: OpeningHoursSpecificationDto[];
 }

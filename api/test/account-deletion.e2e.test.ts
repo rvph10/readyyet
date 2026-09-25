@@ -41,6 +41,7 @@ describe("Deleting your account", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "shop@deletiontest.test",
           locale: "EN",
@@ -143,6 +144,7 @@ describe("Invitations sent by a deleted account", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "shop@invitertest.test",
           locale: "EN",

@@ -31,6 +31,7 @@ describe("GET /locations/:locationId/workflow", () => {
         location: {
           name: "Main Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@workflowtest.test",
           locale: "EN",

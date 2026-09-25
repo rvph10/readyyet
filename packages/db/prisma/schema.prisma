@@ -168,19 +168,30 @@ model BusinessTypeTranslation {
 }
 
 model Location {
-  id             String    @id @default(uuid()) @db.Uuid
-  businessId     String    @map("business_id") @db.Uuid
-  businessTypeId Int       @map("business_type_id")
-  name           String
-  contactPhone   String    @map("contact_phone")
-  contactEmail   String    @map("contact_email")
-  logoUrl        String?   @map("logo_url")
+  id              String    @id @default(uuid()) @db.Uuid
+  businessId      String    @map("business_id") @db.Uuid
+  businessTypeId  Int       @map("business_type_id")
+  name            String
+  contactPhone    String    @map("contact_phone")
+  contactEmail    String    @map("contact_email")
+  logoUrl         String?   @map("logo_url")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
-  locale         Locale
-  deletedAt      DateTime? @map("deleted_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  locale          Locale
+  // ADR 0034: schema.org's PostalAddress fields, all four or none.
+  streetAddress   String?   @map("street_address")
+  postalCode      String?   @map("postal_code")
+  addressLocality String?   @map("address_locality")
+  // ISO 3166-1 alpha-2.
+  addressCountry  String?   @map("address_country")
+  // A region's IANA name, never an offset, opening hours are wall-clock
+  // times in it.
+  timeZone        String    @map("time_zone")
+  // schema.org OpeningHoursSpecification entries, see ADR 0034.
+  openingHours    Json      @default("[]") @map("opening_hours")
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
   businessType BusinessType  @relation(fields: [businessTypeId], references: [id], onDelete: Restrict)

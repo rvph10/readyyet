@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
+import { mapsUrl, type OpeningHoursSpecification, toPostalAddress } from "../location/location-info";
 import { isTrackingLinkExpired } from "./tracking-link";
 
 @Injectable()
@@ -19,7 +20,20 @@ export class TrackingService {
         title: true,
         createdAt: true,
         location: {
-          select: { name: true, contactPhone: true, contactEmail: true, logoUrl: true, locale: true, deletedAt: true },
+          select: {
+            name: true,
+            contactPhone: true,
+            contactEmail: true,
+            logoUrl: true,
+            locale: true,
+            timeZone: true,
+            streetAddress: true,
+            postalCode: true,
+            addressLocality: true,
+            addressCountry: true,
+            openingHours: true,
+            deletedAt: true,
+          },
         },
         // Only to resolve the page's language, never returned as is.
         customer: { select: { locale: true } },
@@ -43,14 +57,24 @@ export class TrackingService {
       throw new NotFoundError("Tracking link not found");
     }
 
-    const { name, contactPhone, contactEmail, logoUrl } = ticket.location;
+    const { name, contactPhone, contactEmail, logoUrl, timeZone } = ticket.location;
+    const address = toPostalAddress(ticket.location);
     return {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       createdAt: ticket.createdAt,
       // The page opens in the language this ticket's emails use (ADR 0015).
       locale: ticket.customer.locale ?? ticket.location.locale,
-      location: { name, contactPhone, contactEmail, logoUrl },
+      location: {
+        name,
+        contactPhone,
+        contactEmail,
+        logoUrl,
+        address,
+        mapsUrl: address && mapsUrl(address),
+        openingHours: ticket.location.openingHours as OpeningHoursSpecification[],
+        timeZone,
+      },
       currentStatus: ticket.currentStatus,
       steps: ticket.workflow.steps,
       statusHistory: ticket.statusEvents,

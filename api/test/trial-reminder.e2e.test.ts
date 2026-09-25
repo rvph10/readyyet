@@ -26,6 +26,7 @@ describe("Trial reminders", () => {
         location: {
           name,
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@reminder.test",
           locale: "EN",
