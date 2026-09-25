@@ -13,6 +13,7 @@ import {
   IsString,
   IsUrl,
   MaxLength,
+  ValidateIf,
   ValidateNested,
 } from "class-validator";
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
@@ -45,7 +46,8 @@ export class UpdateLocationDto {
   @IsEnum(Locale)
   locale?: Locale;
 
-  @IsOptional()
+  // Not IsOptional, which also lets null through to a required column.
+  @ValidateIf((_, value) => value !== undefined)
   @Transform(({ value }: { value: unknown }) => canonicalTimeZone(value) ?? value)
   @IsRegionTimeZone()
   timeZone?: string;
@@ -58,8 +60,9 @@ export class UpdateLocationDto {
   @Type(() => PostalAddressDto)
   address?: PostalAddressDto | null;
 
-  // The whole week, replacing what was there. An empty list removes it.
-  @IsOptional()
+  // The whole week, replacing what was there. An empty list removes it,
+  // null is refused.
+  @ValidateIf((_, value) => value !== undefined)
   @IsArray()
   @ArrayMaxSize(14)
   @ValidateNested({ each: true })

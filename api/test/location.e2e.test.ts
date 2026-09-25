@@ -141,7 +141,7 @@ describe("GET /locations/:locationId", () => {
     });
 
     // A fixed offset would show "UTC+1" and miss daylight saving changes.
-    it.each(["UTC", "Etc/GMT+1", "+01:00", "Mars/Olympus"])("rejects %s, it isn't a region", async (timeZone) => {
+    it.each(["UTC", "Etc/GMT+1", "+01:00", "Mars/Olympus", null])("rejects %s, it isn't a region", async (timeZone) => {
       const response = await patch({ timeZone });
 
       expect(response.status).toBe(400);
@@ -228,6 +228,7 @@ describe("GET /locations/:locationId", () => {
         ],
       ],
       ["a range closing before it opens", [{ dayOfWeek: "Monday", opens: "18:00", closes: "09:00" }]],
+      ["null, an empty list removes them", null],
     ])("rejects %s", async (_, openingHours) => {
       const response = await patch({ openingHours });
 
