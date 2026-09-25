@@ -10,6 +10,8 @@ export const ErrorCode = {
   LOCATION_FROZEN: "LOCATION_FROZEN",
   // Essentiel's member limit, moving to Pro lifts it.
   MEMBER_LIMIT_REACHED: "MEMBER_LIMIT_REACHED",
+  // A Pro feature asked for on Essentiel, moving to Pro lifts it.
+  PLAN_REQUIRED: "PLAN_REQUIRED",
   RATE_LIMITED: "RATE_LIMITED",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;

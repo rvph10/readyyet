@@ -67,3 +67,9 @@ export class MemberLimitError extends AppError {
     );
   }
 }
+
+export class PlanRequiredError extends AppError {
+  constructor(feature: string) {
+    super(ErrorCode.PLAN_REQUIRED, `${feature} needs the Pro plan`, HttpStatus.PAYMENT_REQUIRED);
+  }
+}
