@@ -177,3 +177,22 @@ jobs:
           pnpm --filter @readyyet/api run openapi
           git diff --exit-code api/openapi.json || { echo "::error::api/openapi.json is out of date, run: pnpm --filter @readyyet/api run openapi"; exit 1; }
       - run: pnpm --filter @readyyet/api run test
+
+  web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @readyyet/shared run build
+      - run: pnpm --filter @readyyet/web run typecheck
+      - run: pnpm --filter @readyyet/web run build
