@@ -33,9 +33,9 @@ export default defineConfig(
     },
   },
   {
-    files: ["web/**/*.{ts,tsx}"],
+    files: ["{web,site}/**/*.{ts,tsx}"],
     extends: [nextPlugin.configs["core-web-vitals"], reactHooks.configs.flat.recommended],
-    settings: { next: { rootDir: "web/" } },
+    settings: { next: { rootDir: ["web/", "site/"] } },
   },
   {
     files: ["**/*.mjs"],

@@ -2,6 +2,7 @@ packages:
   - packages/*
   - api
   - web
+  - site
 onlyBuiltDependencies:
   - "@prisma/client"
   - "@prisma/engines"
