@@ -1,7 +1,3 @@
--- AlterTable
-ALTER TABLE "business" DROP COLUMN "first_invoice_paid_at",
-ADD COLUMN     "paid_from" TIMESTAMP(3);
-
 -- CreateTable
 CREATE TABLE "commission" (
     "id" BIGSERIAL NOT NULL,
