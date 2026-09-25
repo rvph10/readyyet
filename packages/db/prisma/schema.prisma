@@ -158,17 +158,17 @@ model Business {
   // Where the period of the first invoice paid for more than zero starts:
   // a sales partner's 6 months start here (ADR 0040).
   paidFrom                 DateTime? @map("paid_from")
-  // The sponsor's credit was accepted by Stripe, it's never given twice.
-  sponsorCreditedAt        DateTime? @map("sponsor_credited_at")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
-  owner                  User         @relation("BusinessOwner", fields: [ownerId], references: [id])
+  owner                  User            @relation("BusinessOwner", fields: [ownerId], references: [id])
   locations              Location[]
-  referredByBusiness     Business?    @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
-  referredBusinesses     Business[]   @relation("BusinessReferral")
-  referredBySalesPartner User?        @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  referredByBusiness     Business?       @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[]      @relation("BusinessReferral")
+  referredBySalesPartner User?           @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
   commissions            Commission[]
+  sponsorCreditEarned    SponsorCredit?  @relation("SponsorCreditEarned")
+  sponsorCreditsReceived SponsorCredit[] @relation("SponsorCreditReceived")
 
   @@map("business")
 }
@@ -570,4 +570,26 @@ model Commission {
 
   @@index([salesPartnerId, invoicePaidAt])
   @@map("commission")
+}
+
+// What a referred Business earns its sponsor, from its first paid invoice.
+// Held 14 days like a commission before it goes on the sponsor's Stripe
+// balance, voided by a refund or dispute in that time (ADR 0040).
+model SponsorCredit {
+  // One per referred Business: a voided one isn't replaced by a later invoice.
+  businessId        String    @id @map("business_id") @db.Uuid
+  sponsorBusinessId String    @map("sponsor_business_id") @db.Uuid
+  stripeInvoiceId   String    @unique @map("stripe_invoice_id")
+  // In cents, a month of the plan at the monthly price.
+  amount            Int
+  invoicePaidAt     DateTime  @map("invoice_paid_at")
+  voidedAt          DateTime? @map("voided_at")
+  // Stripe accepted the balance transaction.
+  creditedAt        DateTime? @map("credited_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  business        Business @relation("SponsorCreditEarned", fields: [businessId], references: [id], onDelete: Restrict)
+  sponsorBusiness Business @relation("SponsorCreditReceived", fields: [sponsorBusinessId], references: [id], onDelete: Restrict)
+
+  @@map("sponsor_credit")
 }

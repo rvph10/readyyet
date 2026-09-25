@@ -25,7 +25,7 @@ Implements ADR 0032 on top of the billing of ADR 0033, and settles the points it
 
 The first `invoice.paid` for more than zero on a referred Business's Stripe Customer marks the Business as paying. An invoice for zero, like the one a trial starts with or one covered by a full discount, doesn't count. From that moment:
 
-- the sponsor's Business gets its credit, one month of the plan on that invoice at the monthly price, read from Stripe by lookup key. A sponsor without a Stripe Customer gets one, and their first invoice uses the credit,
+- the sponsor's Business earns its credit, one month of the plan on that invoice at the monthly price, read from Stripe by lookup key. It's held 14 days like a commission, then an hourly sweep puts it on the sponsor's Stripe balance. A refund or dispute on that invoice within the 14 days voids it for good, a later invoice doesn't earn it again. A sponsor without a Stripe Customer gets one, and their first invoice uses the credit,
 - a sales partner's 6 months start, from where that invoice's billing period starts, not from when it was paid. Stripe charges an invoice about an hour after creating it and retries a failed charge for days, so the payment date would shift the 6 months off the billing periods: the first month would count a little short and the 7th month's invoice would earn a few cents.
 
 ### Commissions
@@ -38,6 +38,8 @@ The first `invoice.paid` for more than zero on a referred Business's Stripe Cust
 - A sales partner's monthly totals group commissions by the UTC month their invoice was paid in.
 
 ## Why
+
+The sponsor credit is held for the same reason as a commission. Given at once, a first invoice paid and then refunded or disputed would leave a full month of credit on the sponsor's balance for a Business that paid nothing, which is the fake sign-up ADR 0032 says the credit must not reward. The hold doesn't stop an Owner from referring a second Business they control and keeping its first payment: the referral discount and the credit together still leave that Owner half a month ahead. That risk is accepted for now.
 
 A code on the Business keeps the rule "credit on the Business that referred" a plain foreign key, with no guessing which Business of an Owner earns it.
 

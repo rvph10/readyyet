@@ -13,6 +13,7 @@ User (Better Auth)
  │                       │              ├──< Location (1:N)
  │                       │              └──> referrer: Business or User (sales partner)
  ├──< Commission (as sales partner) >── Business
+ Business ──< SponsorCredit (as sponsor, one per referred Business)
  │                       │
  │                       ├──< Customer
  │                       ├──< Invitation
@@ -32,7 +33,7 @@ User (Better Auth)
 Verification (Better Auth, standalone, no relation to User)
 ```
 
-`Business`, `Commission` and `User` (Better Auth's own tables, along with `Session`/`Account`/`Verification`) are the only entities not scoped to a single `Location`. Every other table carries `location_id` as its tenant boundary, enforced as a `NOT NULL` foreign key, not just an application-level filter.
+`Business`, `Commission`, `SponsorCredit` and `User` (Better Auth's own tables, along with `Session`/`Account`/`Verification`) are the only entities not scoped to a single `Location`. Every other table carries `location_id` as its tenant boundary, enforced as a `NOT NULL` foreign key, not just an application-level filter.
 
 ## Primary key choices
 
@@ -122,7 +123,7 @@ Composite foreign keys (Tenant-scoped foreign keys, above) are expressible direc
 - **Status change**: update `ticket.current_status_id` + insert a `ticket_status_event` row, in one transaction, otherwise the denormalized field and the history can diverge.
 - **Invitation acceptance**: conditional update (`WHERE status = 'PENDING'`), not read-then-write, so two concurrent accepts of the same link can't both succeed. The `Membership` unique constraint is the second safety net.
 - **Workflow edit**: insert the new version, flip `is_active` on old and new, in one transaction, so there's never a moment with zero or two active workflows for that scope.
-- **First paid invoice**: `paid_from` is set with a conditional update (`WHERE paid_from IS NULL`), so only the first `invoice.paid` starts the 6 months. The sponsor credit is recorded separately in `sponsor_credited_at`, after Stripe accepted it with an idempotency key: a webhook that failed between the two is retried by Stripe and credits once. A commission is inserted against the unique `stripe_invoice_id`, a redelivery inserts nothing (ADR 0040).
+- **First paid invoice**: `paid_from` is set with a conditional update (`WHERE paid_from IS NULL`), so only the first `invoice.paid` starts the 6 months. The sponsor credit is a `sponsor_credit` row keyed by the referred Business, so only its first paid invoice earns one. The hourly sweep sets `credited_at` after Stripe accepted the balance transaction with an idempotency key: a sweep that failed between the two credits once when it runs again. A commission is inserted against the unique `stripe_invoice_id`, a redelivery inserts nothing (ADR 0040).
 - **Stripe webhook processing**: every event re-reads the subscription from Stripe and overwrites the Location's `subscription` row with it, so a redelivered or out-of-order event writes the same latest state again (ADR 0033).
 
 ## Pagination

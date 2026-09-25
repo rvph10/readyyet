@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import Stripe from "stripe";
+import { ReferralRewardService } from "../src/billing/referral-reward.service";
 import { PrismaService } from "../src/database/prisma.service";
 import { stripe } from "./support/billing";
 import { createTestApp } from "./support/create-test-app";
@@ -259,30 +260,30 @@ describe("Discounts at checkout", () => {
   });
 });
 
-describe("The sponsor's credit, on the referred Business's first paid invoice", () => {
+describe("The sponsor's credit, held 14 days from the referred Business's first paid invoice", () => {
   const secret = "whsec_test_only_used_in_this_suite";
   let app: INestApplication;
   let prisma: PrismaService;
+  let rewards: ReferralRewardService;
   let previousSecret: string | undefined;
+  let ownerId: string;
   let sponsorId: string;
-  let referredId: string;
   const stamp = Date.now();
-  // Charged an hour after its period started, the usual delay.
-  const periodStart = Math.floor(Date.now() / 1000) - 2 * 3600;
   const month = 30 * 24 * 60 * 60;
+  let created = 0;
 
-  const invoice = (customer: string, amountPaid: number, start = periodStart) => ({
-    id: `in_${stamp}_${start}`,
+  const invoice = (customer: string, amountPaid: number, paidAt = Math.floor(Date.now() / 1000)) => ({
+    id: `in_sponsor_${stamp}_${++created}`,
     customer,
     amount_paid: amountPaid,
     total_taxes: [],
-    status_transitions: { paid_at: start + 3600 },
-    lines: { data: [{ period: { start, end: start + month } }] },
+    status_transitions: { paid_at: paidAt },
+    lines: { data: [{ period: { start: paidAt - 3600, end: paidAt - 3600 + month } }] },
     parent: { subscription_details: { subscription: "sub_referred" } },
   });
 
-  function sendInvoicePaid(object: object) {
-    const payload = JSON.stringify({ id: "evt_invoice", type: "invoice.paid", data: { object } });
+  function send(type: string, object: object, eventCreated = Math.floor(Date.now() / 1000)) {
+    const payload = JSON.stringify({ id: "evt_sponsor", type, created: eventCreated, data: { object } });
     return request(app.getHttpServer())
       .post("/webhooks/stripe")
       .set("Content-Type", "application/json")
@@ -290,33 +291,40 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
       .send(payload);
   }
 
-  function business(id: string) {
-    return prisma.business.findUniqueOrThrow({ where: { id } });
+  async function referredBusiness(referredByBusinessId: string | null = sponsorId) {
+    const customer = `cus_referred_${stamp}_${++created}`;
+    const business = await prisma.business.create({
+      data: {
+        ownerId,
+        name: "Referred",
+        referralCode: `cr${stamp}${created}`,
+        referredByBusinessId,
+        stripeCustomerId: customer,
+      },
+    });
+    return { id: business.id, customer };
   }
+
+  const creditOf = (businessId: string) => prisma.sponsorCredit.findUnique({ where: { businessId } });
+  // As if the invoice had been paid 15 days ago.
+  const pastTheHold = (businessId: string) =>
+    prisma.sponsorCredit.update({
+      where: { businessId },
+      data: { invoicePaidAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+    });
 
   beforeAll(async () => {
     previousSecret = process.env.STRIPE_WEBHOOK_SECRET;
     process.env.STRIPE_WEBHOOK_SECRET = secret;
     app = await createTestApp();
     prisma = app.get(PrismaService);
+    rewards = app.get(ReferralRewardService);
 
     const owner = await prisma.user.create({
       data: { id: `credit-owner-${stamp}`, email: `credit-owner-${stamp}@referral.test`, name: "Owner" },
     });
-    const sponsor = await prisma.business.create({
-      data: { ownerId: owner.id, name: "Sponsor", referralCode: `cs${stamp}` },
-    });
-    sponsorId = sponsor.id;
-    const referred = await prisma.business.create({
-      data: {
-        ownerId: owner.id,
-        name: "Referred",
-        referralCode: `cr${stamp}`,
-        referredByBusinessId: sponsor.id,
-        stripeCustomerId: `cus_referred_${stamp}`,
-      },
-    });
-    referredId = referred.id;
+    ownerId = owner.id;
+    sponsorId = (await prisma.business.create({ data: { ownerId, name: "Sponsor", referralCode: `cs${stamp}` } })).id;
   });
 
   beforeEach(() => {
@@ -332,63 +340,117 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
   });
 
   it("ignores an invoice for zero, like the one a trial starts with", async () => {
-    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 0)).expect(200);
+    const business = await referredBusiness();
 
-    expect(await business(referredId)).toMatchObject({ paidFrom: null, sponsorCreditedAt: null });
+    await send("invoice.paid", invoice(business.customer, 0)).expect(200);
+
+    expect(await creditOf(business.id)).toBeNull();
+    expect((await prisma.business.findUniqueOrThrow({ where: { id: business.id } })).paidFrom).toBeNull();
+  });
+
+  it("holds a month of the chosen plan at the monthly price, from the first paid invoice only", async () => {
+    const business = await referredBusiness();
+    const first = invoice(business.customer, 2450);
+
+    await send("invoice.paid", first).expect(200);
+    await send("invoice.paid", invoice(business.customer, 4900)).expect(200);
+
+    // Pro, chosen yearly: a month at Pro's monthly price.
+    expect(stripe.prices.list).toHaveBeenCalledWith({ lookup_keys: ["pro_monthly"], active: true });
+    expect(await creditOf(business.id)).toMatchObject({
+      sponsorBusinessId: sponsorId,
+      stripeInvoiceId: first.id,
+      amount: 4900,
+      invoicePaidAt: new Date(first.status_transitions.paid_at * 1000),
+      voidedAt: null,
+      creditedAt: null,
+    });
+    expect((await prisma.business.findUniqueOrThrow({ where: { id: business.id } })).paidFrom).toEqual(
+      new Date(first.lines.data[0].period.start * 1000),
+    );
+  });
+
+  it("gives nothing before the 14 days are over", async () => {
+    const business = await referredBusiness();
+    await send("invoice.paid", invoice(business.customer, 2450)).expect(200);
+
+    await rewards.creditDueSponsors();
+
     expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
   });
 
-  it("keeps the credit for a later delivery when Stripe fails to take it", async () => {
+  it("puts it on the sponsor's balance after 14 days, on a Customer made for a sponsor who never paid", async () => {
+    const business = await referredBusiness();
+    await send("invoice.paid", invoice(business.customer, 2450)).expect(200);
+    await pastTheHold(business.id);
     stripe.customers.createBalanceTransaction.mockRejectedValueOnce(new Error("Stripe is down"));
 
-    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 4900)).expect(500);
+    await rewards.creditDueSponsors();
+    expect((await creditOf(business.id))!.creditedAt).toBeNull();
 
-    // A sponsor who never paid gets a Customer to hold the credit.
+    await rewards.creditDueSponsors();
     expect(stripe.customers.create).toHaveBeenCalledWith(
       expect.objectContaining({ metadata: { businessId: sponsorId } }),
       { idempotencyKey: `customer-${sponsorId}` },
     );
+    expect(stripe.customers.createBalanceTransaction).toHaveBeenLastCalledWith(
+      `cus_sponsor_${stamp}`,
+      { amount: -4900, currency: "eur", description: "Referral reward" },
+      { idempotencyKey: `sponsor-credit-${business.id}` },
+    );
+    expect((await creditOf(business.id))!.creditedAt).toBeInstanceOf(Date);
 
-    expect(await business(referredId)).toMatchObject({
-      paidFrom: new Date(periodStart * 1000),
-      sponsorCreditedAt: null,
+    vi.clearAllMocks();
+    await rewards.creditDueSponsors();
+    expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), {
+      idempotencyKey: `sponsor-credit-${business.id}`,
     });
   });
 
-  it("credits one month of the chosen plan at the monthly price, on the sponsor's Customer", async () => {
-    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 4900)).expect(200);
+  it("voids it when the invoice is refunded or disputed within 14 days, and never gives it", async () => {
+    for (const type of ["charge.refunded", "charge.dispute.created"]) {
+      const business = await referredBusiness();
+      const paid = invoice(business.customer, 2450);
+      await send("invoice.paid", paid).expect(200);
+      stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: paid.id }] });
 
-    // The plan is Pro, chosen yearly, the credit is a month at Pro's monthly price.
-    expect(stripe.prices.list).toHaveBeenCalledWith({ lookup_keys: ["pro_monthly"], active: true });
-    expect(stripe.customers.createBalanceTransaction).toHaveBeenCalledWith(
-      `cus_sponsor_${stamp}`,
-      { amount: -4900, currency: "eur", description: "Referral reward" },
-      { idempotencyKey: `sponsor-credit-${referredId}` },
-    );
-    expect((await business(sponsorId)).stripeCustomerId).toBe(`cus_sponsor_${stamp}`);
-    expect((await business(referredId)).sponsorCreditedAt).toBeInstanceOf(Date);
+      await send(type, { id: `reversal_${type}`, payment_intent: `pi_${type}` }).expect(200);
+
+      expect((await creditOf(business.id))!.voidedAt).toBeInstanceOf(Date);
+      await pastTheHold(business.id);
+      await send("invoice.paid", invoice(business.customer, 4900)).expect(200);
+      await rewards.creditDueSponsors();
+      expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), {
+        idempotencyKey: `sponsor-credit-${business.id}`,
+      });
+    }
   });
 
-  it("credits once, and keeps where the first paid invoice's period started", async () => {
-    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 4900, periodStart + month)).expect(200);
+  it("keeps it when the refund comes after the 14 days, even if its webhook came in time", async () => {
+    const business = await referredBusiness();
+    const paid = invoice(business.customer, 2450);
+    await send("invoice.paid", paid).expect(200);
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: paid.id }] });
 
-    expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
-    expect((await business(referredId)).paidFrom).toEqual(new Date(periodStart * 1000));
+    const onDay15 = paid.status_transitions.paid_at + 15 * 24 * 60 * 60;
+    await send("charge.refunded", { id: "ch_day15", payment_intent: "pi_day15" }, onDay15).expect(200);
+
+    expect((await creditOf(business.id))!.voidedAt).toBeNull();
   });
 
-  it("marks the first paid invoice of a Business nobody referred, without a credit", async () => {
-    await prisma.business.update({ where: { id: sponsorId }, data: { paidFrom: null } });
+  it("holds nothing for a Business nobody referred", async () => {
+    const business = await referredBusiness(null);
 
-    await sendInvoicePaid(invoice(`cus_sponsor_${stamp}`, 2900)).expect(200);
+    await send("invoice.paid", invoice(business.customer, 2900)).expect(200);
 
-    expect((await business(sponsorId)).paidFrom).toEqual(new Date(periodStart * 1000));
-    expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
+    expect(await creditOf(business.id)).toBeNull();
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
   });
 
   it("ignores a Customer that isn't a Business's", async () => {
-    await sendInvoicePaid(invoice("cus_someone_else", 4900)).expect(200);
+    await send("invoice.paid", invoice("cus_someone_else", 4900)).expect(200);
 
-    expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
   });
 });
 

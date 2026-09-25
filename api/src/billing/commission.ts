@@ -5,8 +5,9 @@ import type Stripe from "stripe";
 export const COMMISSION_RATE = 0.35;
 const COMMISSION_MONTHS = 6;
 // A refund or dispute this soon after the invoice was paid voids its
-// commission, later it's owed whatever happens (ADR 0040).
-export const COMMISSION_HOLD_MS = 14 * 24 * 60 * 60 * 1000;
+// commission and sponsor credit, later they're owed whatever happens
+// (ADR 0040).
+export const REWARD_HOLD_MS = 14 * 24 * 60 * 60 * 1000;
 
 // Where the service an invoice pays for starts, in seconds.
 export function periodStart(invoice: Stripe.Invoice) {
@@ -53,11 +54,11 @@ export function commissionState(
   if (commission.paidAt) {
     return "PAID";
   }
-  return now.getTime() - commission.invoicePaidAt.getTime() >= COMMISSION_HOLD_MS ? "OWED" : "PENDING";
+  return now.getTime() - commission.invoicePaidAt.getTime() >= REWARD_HOLD_MS ? "OWED" : "PENDING";
 }
 
 export function commissionStateWhere(state: CommissionState, now = new Date()): Prisma.CommissionWhereInput {
-  const heldUntil = new Date(now.getTime() - COMMISSION_HOLD_MS);
+  const heldUntil = new Date(now.getTime() - REWARD_HOLD_MS);
   switch (state) {
     case "VOIDED":
       return { voidedAt: { not: null } };
