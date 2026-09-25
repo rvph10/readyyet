@@ -435,8 +435,8 @@ describe("A sales partner's commissions", () => {
     ...fields,
   });
 
-  function send(type: string, object: object) {
-    const payload = JSON.stringify({ id: "evt_partner", type, data: { object } });
+  function send(type: string, object: object, created = Math.floor(Date.now() / 1000)) {
+    const payload = JSON.stringify({ id: "evt_partner", type, created, data: { object } });
     return request(app.getHttpServer())
       .post("/webhooks/stripe")
       .set("Content-Type", "application/json")
@@ -557,6 +557,52 @@ describe("A sales partner's commissions", () => {
     expect(
       (await prisma.commission.findUniqueOrThrow({ where: { stripeInvoiceId: disputed.id } })).voidedAt,
     ).toBeInstanceOf(Date);
+  });
+
+  it("voids by when the refund happened, even when its webhook arrives after the 14 days", async () => {
+    const business = await referredBusiness();
+    const paidAt = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
+    const commission = await prisma.commission.create({
+      data: {
+        salesPartnerId,
+        businessId: business.id,
+        stripeInvoiceId: `in_late_${stamp}`,
+        amount: 1715,
+        invoicePaidAt: paidAt,
+      },
+    });
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: commission.stripeInvoiceId }] });
+    const refundedOnDay13 = Math.floor(paidAt.getTime() / 1000) + 13 * 24 * 60 * 60;
+
+    await send("charge.refunded", { id: "ch_retried", payment_intent: "pi_retried" }, refundedOnDay13).expect(200);
+
+    expect((await prisma.commission.findUniqueOrThrow({ where: { id: commission.id } })).voidedAt).toEqual(
+      new Date(refundedOnDay13 * 1000),
+    );
+  });
+
+  it("leaves a commission already paid out as it is, for the platform admin to sort out", async () => {
+    const business = await referredBusiness();
+    const paidAt = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
+    const commission = await prisma.commission.create({
+      data: {
+        salesPartnerId,
+        businessId: business.id,
+        stripeInvoiceId: `in_paid_out_${stamp}`,
+        amount: 1715,
+        invoicePaidAt: paidAt,
+        paidAt: new Date(),
+      },
+    });
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: commission.stripeInvoiceId }] });
+    const refundedOnDay13 = Math.floor(paidAt.getTime() / 1000) + 13 * 24 * 60 * 60;
+
+    await send("charge.refunded", { id: "ch_paid_out", payment_intent: "pi_paid_out" }, refundedOnDay13).expect(200);
+
+    expect(await prisma.commission.findUniqueOrThrow({ where: { id: commission.id } })).toMatchObject({
+      voidedAt: null,
+      paidAt: expect.any(Date),
+    });
   });
 
   it("leaves a commission owed when the refund comes after 14 days", async () => {

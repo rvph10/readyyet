@@ -44,7 +44,10 @@ export class StripeWebhookController {
       await this.referralRewards.invoicePaid(event.data.object);
     }
     if (event.type === "charge.refunded" || event.type === "charge.dispute.created") {
-      await this.referralRewards.paymentReversed(event.data.object.payment_intent as string | null);
+      await this.referralRewards.paymentReversed(
+        event.data.object.payment_intent as string | null,
+        new Date(event.created * 1000),
+      );
     }
     const subscriptionId = subscriptionOf(event);
     if (subscriptionId) {
