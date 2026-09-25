@@ -73,9 +73,9 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 ## Deploy
 
-The API runs on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, by a squash-merged PR. Releasing is a PR from `staging` into `main`, merged once staging runs that exact commit and `/health` answers 200 (the `promotion` job), see ADR 0023.
+The API, the web app and the sales site run on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, by a squash-merged PR. Releasing is a PR from `staging` into `main`, merged once staging's API, web app and sales site all run that exact commit and answer 200 on `/health` (the `promotion` job), see ADR 0023.
 
-Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api` service, its settings and variables, and a Postgres per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
+Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api`, `web` and `site` services, their settings and variables, a Postgres and an images bucket per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
 
 ```bash
 railway link                    # once, pick the readyyet project
@@ -84,9 +84,9 @@ railway config plan             # review, then
 railway config apply
 ```
 
-Production answers on `api.readyyet.app`. Railway's IaC can't register a custom domain, so it's attached to the production `api` service in Railway, with the CNAME Railway gives added at the DNS provider. Staging keeps the domain Railway generates.
+Production answers on `readyyet.app` (`site`), `app.readyyet.app` (`web`) and `api.readyyet.app` (`api`), staging on the same names under `readyyet-staging.app` (ADR 0043). Railway's IaC can't register a custom domain, so each one is attached to its service in Railway, with the CNAME Railway gives added at the DNS provider.
 
-Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `WEB_URL`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
+Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
 
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 
