@@ -69,4 +69,10 @@ export class CreateBusinessDto {
   @ValidateNested()
   @Type(() => CreateLocationDto)
   location!: CreateLocationDto;
+
+  // From the referral link the web app remembered (ADR 0032).
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  referralCode?: string;
 }

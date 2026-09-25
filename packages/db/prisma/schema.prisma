@@ -9,32 +9,38 @@ datasource db {
 
 // Managed by Better Auth's Prisma adapter, shown here for relation completeness only.
 model User {
-  id            String    @id
-  email         String    @unique
-  name          String
+  id                String    @id
+  email             String    @unique
+  name              String
   // The avatar's key in the bucket, never a URL (ADR 0026). Better Auth's
   // own name for the column.
-  image         String?
-  emailVerified Boolean   @default(false) @map("email_verified")
+  image             String?
+  emailVerified     Boolean   @default(false) @map("email_verified")
   // Language of the emails this User receives (ADR 0018). Declared to
   // Better Auth as an additionalField in api/src/auth/auth.ts.
-  locale        Locale    @default(EN)
+  locale            Locale    @default(EN)
   // Set when the User deleted their account: name and email are replaced,
   // the row stays for the history that points at it (ADR 0018).
-  deletedAt     DateTime? @map("deleted_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+  // Set by the platform admin, null when not a sales partner (ADR 0032).
+  salesPartnerSince DateTime? @map("sales_partner_since")
+  // Kept when the status is removed, so marking them again brings the same
+  // link back (ADR 0040).
+  referralCode      String?   @unique @map("referral_code")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   sessions Session[]
   accounts Account[]
 
-  ownedBusinesses Business[]          @relation("BusinessOwner")
-  memberships     Membership[]
-  invitationsSent Invitation[]        @relation("InvitedBy")
-  ticketsCreated  Ticket[]            @relation("TicketCreatedBy")
-  statusEvents    TicketStatusEvent[]
-  photosUploaded  TicketPhoto[]       @relation("TicketPhotoUploadedBy")
-  feedbackHandled TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  ownedBusinesses    Business[]          @relation("BusinessOwner")
+  memberships        Membership[]
+  invitationsSent    Invitation[]        @relation("InvitedBy")
+  ticketsCreated     Ticket[]            @relation("TicketCreatedBy")
+  statusEvents       TicketStatusEvent[]
+  photosUploaded     TicketPhoto[]       @relation("TicketPhotoUploadedBy")
+  referredBusinesses Business[]          @relation("SalesPartnerReferral")
+  feedbackHandled    TicketFeedback[]    @relation("TicketFeedbackHandledBy")
 
   @@map("user")
 }
@@ -135,15 +141,24 @@ enum SubscriptionStatus {
 }
 
 model Business {
-  id               String   @id @default(uuid()) @db.Uuid
-  ownerId          String   @map("owner_id")
-  name             String
-  stripeCustomerId String?  @unique @map("stripe_customer_id")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                       String   @id @default(uuid()) @db.Uuid
+  ownerId                  String   @map("owner_id")
+  name                     String
+  stripeCustomerId         String?  @unique @map("stripe_customer_id")
+  // The Owner's sponsor link for this Business (ADR 0040).
+  referralCode             String   @unique @map("referral_code")
+  // Set at creation, never changed, at most one of the two
+  // (business_one_referrer, ADR 0032).
+  referredByBusinessId     String?  @map("referred_by_business_id") @db.Uuid
+  referredBySalesPartnerId String?  @map("referred_by_sales_partner_id")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
 
-  owner     User       @relation("BusinessOwner", fields: [ownerId], references: [id])
-  locations Location[]
+  owner                  User       @relation("BusinessOwner", fields: [ownerId], references: [id])
+  locations              Location[]
+  referredByBusiness     Business?  @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[] @relation("BusinessReferral")
+  referredBySalesPartner User?      @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
 
   @@map("business")
 }

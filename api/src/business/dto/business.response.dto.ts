@@ -4,6 +4,8 @@ export class BusinessDto {
   id!: string;
   name!: string;
   ownerId!: string;
+  // The Owner's sponsor link is built from it (ADR 0032).
+  referralCode!: string;
   createdAt!: Date;
   updatedAt!: Date;
 }

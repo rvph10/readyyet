@@ -6753,6 +6753,10 @@
           },
           "location": {
             "$ref": "#/components/schemas/CreateLocationDto"
+          },
+          "referralCode": {
+            "type": "string",
+            "maxLength": 64
           }
         },
         "required": [
@@ -6863,6 +6867,9 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -6877,6 +6884,7 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
           "createdAt",
           "updatedAt"
         ]
@@ -6919,6 +6927,9 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -6933,6 +6944,7 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
           "createdAt",
           "updatedAt"
         ]
@@ -6961,6 +6973,9 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -6974,6 +6989,7 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
           "createdAt",
           "updatedAt"
         ]
