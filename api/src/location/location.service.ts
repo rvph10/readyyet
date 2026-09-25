@@ -78,13 +78,23 @@ export class LocationService {
     // than one still there after its subscription ended, deleting it again
     // finishes the job.
     await this.billing.cancelNow(locationId);
+    // Its pictures go at once, its tracking links stop answering now (ADR 0026).
+    const [location, photos] = await Promise.all([
+      this.prisma.location.findUniqueOrThrow({ where: { id: locationId }, select: { logoKey: true } }),
+      this.prisma.ticketPhoto.findMany({ where: { ticket: { locationId } }, select: { objectKey: true } }),
+    ]);
     await this.prisma.$transaction([
-      this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
+      this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date(), logoKey: null } }),
+      this.prisma.ticketPhoto.deleteMany({ where: { ticket: { locationId } } }),
       this.prisma.invitation.updateMany({
         where: { locationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.REVOKED },
       }),
       this.prisma.pendingStatusNotification.deleteMany({ where: { statusEvent: { ticket: { locationId } } } }),
+    ]);
+    await this.storage.delete([
+      ...(location.logoKey ? [location.logoKey] : []),
+      ...photos.map((photo) => photo.objectKey),
     ]);
   }
 }
