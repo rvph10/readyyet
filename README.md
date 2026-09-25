@@ -6,7 +6,7 @@ Status: early development, API only, no frontend yet.
 
 ## Stack
 
-NestJS API (`api/`) + Postgres via Prisma (`packages/db/`) + Better Auth (email OTP, no passwords) + Resend for transactional email. See `docs/decisions/0001-stack-and-repo-structure.md` for why, and `docs/` generally for the reasoning behind everything else, this README only covers running the thing.
+NestJS API (`api/`) + Next.js web app (`web/`, Tailwind, next-intl) + Postgres via Prisma (`packages/db/`) + Better Auth (email OTP, no passwords) + Resend for transactional email. See `docs/decisions/0001-stack-and-repo-structure.md` for why, and `docs/` generally for the reasoning behind everything else, this README only covers running the thing.
 
 ## Prerequisites
 
@@ -46,6 +46,8 @@ Then, from the repo root:
 pnpm --filter @readyyet/db run migrate:dev
 pnpm --filter @readyyet/db run seed
 pnpm --filter @readyyet/api run start:dev
+pnpm --filter @readyyet/shared run build   # the web app imports its compiled output
+pnpm --filter @readyyet/web run dev        # http://localhost:3001
 ```
 
 ## Testing
