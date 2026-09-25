@@ -1,6 +1,5 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "react-email";
-import { Locale } from "@readyyet/db";
-import type { InvitationRole } from "@readyyet/db";
+import type { InvitationRole, Locale } from "@readyyet/db";
 import type { ReactElement, ReactNode } from "react";
 import { styles } from "../email-styles";
 import { MESSAGES } from "./messages";
@@ -23,21 +22,6 @@ const quoteStyle = {
   paddingLeft: "12px",
   whiteSpace: "pre-wrap" as const,
 };
-
-// A sign-in happens before we know anything about the User, the browser's
-// preferred language is the only hint. English when none we support.
-export function localeFromAcceptLanguage(header: string | null | undefined): Locale {
-  const preferred = (header ?? "")
-    .split(",")
-    .map((part) => {
-      const [tag, q] = part.trim().split(";q=");
-      return { language: tag.split("-")[0].toUpperCase(), q: q === undefined ? 1 : Number(q) };
-    })
-    .filter(({ q }) => q > 0)
-    .sort((a, b) => b.q - a.q)
-    .find(({ language }) => Object.hasOwn(Locale, language));
-  return (preferred?.language as Locale | undefined) ?? Locale.EN;
-}
 
 function Layout({ locale, preview, children }: { locale: Locale; preview: string; children: ReactNode }) {
   return (

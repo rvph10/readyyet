@@ -4,9 +4,10 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@readyyet/db";
+import { localeFromAcceptLanguage } from "@readyyet/shared";
 import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
-import { buildSignInCodeEmail, localeFromAcceptLanguage } from "../notification/staff-email/staff-email";
+import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
 
 // Given to the plugin and quoted in the email, so the two can't disagree.
 const OTP_EXPIRES_IN_MINUTES = 5;

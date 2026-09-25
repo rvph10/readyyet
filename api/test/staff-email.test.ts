@@ -1,4 +1,5 @@
 import { render } from "react-email";
+import { localeFromAcceptLanguage } from "@readyyet/shared";
 import { describe, expect, it } from "vitest";
 import {
   buildAccountDeletedEmail,
@@ -7,7 +8,6 @@ import {
   buildPreviousOwnerEmail,
   buildSignInCodeEmail,
   type InvitationEmailInput,
-  localeFromAcceptLanguage,
 } from "../src/notification/staff-email/staff-email";
 
 async function rendered(react: Parameters<typeof render>[0]) {
