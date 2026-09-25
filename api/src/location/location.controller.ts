@@ -1,9 +1,23 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseFilePipe,
+  Patch,
+  Put,
+  UploadedFile,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
+import { ImageUpload } from "../storage/image-upload.decorator";
 import { LocationDto } from "./dto/location.response.dto";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 import { LocationService } from "./location.service";
@@ -30,6 +44,26 @@ export class LocationController {
   @ApiErrors(HttpStatus.BAD_REQUEST)
   update(@Param("locationId") locationId: string, @Body() dto: UpdateLocationDto): Promise<LocationDto> {
     return this.location.update(locationId, dto);
+  }
+
+  @Put(":locationId/logo")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the location's logo, replacing any previous one (ADR 0026)" })
+  setLogo(
+    @Param("locationId") locationId: string,
+    @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
+  ): Promise<LocationDto> {
+    return this.location.setLogo(locationId, file.buffer);
+  }
+
+  @Delete(":locationId/logo")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  @ApiOperation({ summary: "Remove the location's logo" })
+  removeLogo(@Param("locationId") locationId: string): Promise<LocationDto> {
+    return this.location.removeLogo(locationId);
   }
 
   @Delete(":locationId")

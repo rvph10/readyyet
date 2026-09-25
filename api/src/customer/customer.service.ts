@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import type { Locale } from "@readyyet/db";
 import { PrismaService } from "../database/prisma.service";
+import { StorageService } from "../storage/storage.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
@@ -10,7 +11,10 @@ const DEFAULT_LIST_TAKE = 20;
 
 @Injectable()
 export class CustomerService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   async list(locationId: string, query: ListCustomersQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
@@ -65,10 +69,19 @@ export class CustomerService {
     // it gone, a Ticket referencing this customer can't be deleted
     // (onDelete: Restrict) so the row itself has to survive.
     // See docs/architecture/data-model.md#gdpr-erasure.
-    await this.prisma.customer.update({
-      where: { id: customer.id },
-      data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+    // Their Tickets' photos can show them too: a face, a number plate.
+    const photos = await this.prisma.ticketPhoto.findMany({
+      where: { ticket: { customerId: customer.id } },
+      select: { objectKey: true },
     });
+    await this.prisma.$transaction([
+      this.prisma.customer.update({
+        where: { id: customer.id },
+        data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+      }),
+      this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+    ]);
+    await this.storage.delete(photos.map((photo) => photo.objectKey));
   }
 
   // Keyset pagination on (fullName, id), like tickets on (createdAt, id), see

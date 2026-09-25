@@ -123,9 +123,21 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Stands in for the Railway Bucket, like docker-compose.yml's.
+      s3:
+        image: adobe/s3mock:5.2.3
+        env:
+          COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: readyyet
+        ports:
+          - 9090:9090
 
     env:
       DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+      S3_ENDPOINT: http://localhost:9090
+      S3_REGION: us-east-1
+      S3_BUCKET: readyyet
+      S3_ACCESS_KEY_ID: ci
+      S3_SECRET_ACCESS_KEY: ci
       # The email e2e tests send real (test-mode) emails via Resend, see
       # docs/decisions/0010-resend-mail-infrastructure.md. RESEND_API_KEY
       # must be set as a repo secret.

@@ -17,6 +17,7 @@ User (Better Auth)
  │                       ├──< Ticket >── Customer
  │                       │        │
  │                       │        ├──< TicketStatusEvent >── Status
+ │                       │        ├──< TicketPhoto
  │                       │        └──> Workflow >──< WorkflowStep >── Status
  │                       │
  │                       └──> Subscription (1:1)
@@ -49,13 +50,13 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 ## GDPR erasure
 
-`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`. The ticket keeps a valid reference to "a customer existed," personal data is gone.
+`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`, and delete the photos of their tickets, which can show them too. The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
-A staff `User` who deletes their account is handled the same way (ADR 0018): tickets, Status events and invitations point at the row with `ON DELETE RESTRICT`, so `name` becomes "Former member", `email` becomes `deleted-<id>@deleted.invalid` (a reserved domain, never deliverable, and unique through the id), `deleted_at` is set, and their sessions, sign-in records and memberships are deleted in the same transaction.
+A staff `User` who deletes their account is handled the same way (ADR 0018): tickets, Status events and invitations point at the row with `ON DELETE RESTRICT`, so `name` becomes "Former member", `email` becomes `deleted-<id>@deleted.invalid` (a reserved domain, never deliverable, and unique through the id), `deleted_at` is set, and their sessions, sign-in records and memberships are deleted in the same transaction. Their avatar is deleted, the photos they added stay with the tickets.
 
 ## Deleted Locations
 
-`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Nothing under a deleted Location is removed, tickets are permanent records. Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
+`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Tickets under a deleted Location are permanent records and stay, only its logo and its tickets' photos are deleted (ADR 0026). Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
 
 ## Undeliverable customer addresses
 
@@ -95,6 +96,7 @@ Every default `Workflow` the seed script creates includes all five system status
 | idx_ticket_customer                | customer_id                                        | Customer detail page                                                 |
 | idx_status_event_ticket_created    | (ticket_id, created_at)                            | Ticket timeline / public tracking history                            |
 | idx_customer_location_name         | (location_id, full_name)                           | Customer search within a location                                    |
+| idx_ticket_photo_ticket_created    | (ticket_id, created_at)                            | A ticket's photos, oldest first                                      |
 | invitation partial unique          | (location_id, lower(email)) WHERE status='PENDING' | Prevent duplicate pending invites                                    |
 | workflow partial unique (×2)       | business_type_id / location_id WHERE is_active     | Resolve the current workflow for a new ticket                        |
 

@@ -10,6 +10,8 @@ export class LocationDto {
   name!: string;
   contactPhone!: string;
   contactEmail!: string;
+  // Uploaded with PUT /locations/:id/logo. Safe to cache for good, a new
+  // logo gets a new URL.
   logoUrl!: string | null;
   @ApiProperty({ enum: Locale })
   locale!: Locale;

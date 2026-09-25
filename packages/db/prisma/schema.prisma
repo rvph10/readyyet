@@ -12,6 +12,8 @@ model User {
   id            String    @id
   email         String    @unique
   name          String
+  // The avatar's key in the bucket, never a URL (ADR 0026). Better Auth's
+  // own name for the column.
   image         String?
   emailVerified Boolean   @default(false) @map("email_verified")
   // Language of the emails this User receives (ADR 0018). Declared to
@@ -31,6 +33,7 @@ model User {
   invitationsSent Invitation[]        @relation("InvitedBy")
   ticketsCreated  Ticket[]            @relation("TicketCreatedBy")
   statusEvents    TicketStatusEvent[]
+  photosUploaded  TicketPhoto[]       @relation("TicketPhotoUploadedBy")
 
   @@map("user")
 }
@@ -174,7 +177,8 @@ model Location {
   name            String
   contactPhone    String    @map("contact_phone")
   contactEmail    String    @map("contact_email")
-  logoUrl         String?   @map("logo_url")
+  // The logo's key in the bucket, never a URL (ADR 0026).
+  logoKey         String?   @map("logo_key")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
   locale          Locale
@@ -358,6 +362,7 @@ model Ticket {
   currentStatus Status              @relation(fields: [currentStatusId], references: [id], onDelete: Restrict)
   creator       User                @relation("TicketCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict)
   statusEvents  TicketStatusEvent[]
+  photos        TicketPhoto[]
 
   // Composite FKs enforce the tenant boundary and the workflow/status
   // relationship at the database level, not just in application code.
@@ -372,6 +377,22 @@ model Ticket {
   @@index([readyDateEmailDueAt])
   @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
+}
+
+// At most 5 per Ticket, deleted when its tracking link expires (ADR 0026).
+model TicketPhoto {
+  id         BigInt   @id @default(autoincrement())
+  ticketId   BigInt   @map("ticket_id")
+  // The object's key in the bucket, never a URL.
+  objectKey  String   @unique @map("object_key")
+  uploadedBy String   @map("uploaded_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  uploader User   @relation("TicketPhotoUploadedBy", fields: [uploadedBy], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_photo")
 }
 
 model TicketStatusEvent {

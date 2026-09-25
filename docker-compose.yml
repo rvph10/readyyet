@@ -11,5 +11,15 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql
 
+  # Stands in for the Railway Bucket (ADR 0026), locally and in CI. MinIO
+  # no longer publishes free images.
+  s3:
+    image: adobe/s3mock:5.2.3
+    restart: unless-stopped
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: readyyet
+    ports:
+      - "9090:9090"
+
 volumes:
   postgres-data:

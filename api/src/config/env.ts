@@ -24,6 +24,12 @@ const envSchema = z
     // Only deployed environments receive Stripe's webhooks, locally
     // `stripe listen` prints its own secret.
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+    // The bucket for photos, logos and avatars (ADR 0026).
+    S3_ENDPOINT: z.url(),
+    S3_REGION: z.string().min(1),
+    S3_BUCKET: z.string().min(1),
+    S3_ACCESS_KEY_ID: z.string().min(1),
+    S3_SECRET_ACCESS_KEY: z.string().min(1),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",

@@ -20,6 +20,7 @@ import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
+import { TicketPhotoService } from "./ticket-photo.service";
 import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-rules";
 import { generateTrackingCode } from "./tracking-code";
 
@@ -78,6 +79,7 @@ export class TicketService {
     private readonly workflow: WorkflowService,
     private readonly notification: NotificationService,
     private readonly billing: BillingService,
+    private readonly photos: TicketPhotoService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -269,6 +271,7 @@ export class TicketService {
         changedBy: event.changedBy,
         status: event.status,
       })),
+      photos: await this.photos.forTicket(ticket.id),
     };
   }
 

@@ -1,8 +1,11 @@
 import { Injectable } from "@nestjs/common";
+import type { User } from "@readyyet/db";
 import { ConflictError, ReauthenticationRequiredError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { buildAccountDeletedEmail } from "../notification/staff-email/staff-email";
+import { processImage, publicImageUrl } from "../storage/image";
+import { StorageService } from "../storage/storage.service";
 import { UpdateMeDto } from "./dto/update-me.dto";
 
 // Deleting an account is refused past this long after signing in, so an
@@ -14,7 +17,18 @@ export class MeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly storage: StorageService,
   ) {}
+
+  toMe(user: User) {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      locale: user.locale,
+      avatarUrl: publicImageUrl(user.image),
+    };
+  }
 
   async getMemberships(userId: string) {
     return this.prisma.membership.findMany({
@@ -34,7 +48,35 @@ export class MeService {
 
   async update(userId: string, dto: UpdateMeDto) {
     const user = await this.prisma.user.update({ where: { id: userId }, data: { locale: dto.locale } });
-    return { id: user.id, email: user.email, name: user.name, locale: user.locale };
+    return this.toMe(user);
+  }
+
+  async setAvatar(userId: string, file: Buffer) {
+    const image = await processImage(file, "avatar");
+    await this.storage.put(image.key, image.body, image.contentType);
+    try {
+      return await this.replaceAvatar(userId, image.key);
+    } catch (error) {
+      await this.storage.delete([image.key]);
+      throw error;
+    }
+  }
+
+  removeAvatar(userId: string) {
+    return this.replaceAvatar(userId, null);
+  }
+
+  // The row first, the previous object after (ADR 0026).
+  private async replaceAvatar(userId: string, image: string | null) {
+    const { image: previous } = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { image: true },
+    });
+    const user = await this.prisma.user.update({ where: { id: userId }, data: { image } });
+    if (previous) {
+      await this.storage.delete([previous]);
+    }
+    return this.toMe(user);
   }
 
   // ADR 0018: anonymised, not deleted, tickets and invitations keep
@@ -71,6 +113,10 @@ export class MeService {
       // into a brand new account, fine, but not what was asked.
       this.prisma.verification.deleteMany({ where: { identifier: `sign-in-otp-${user.email}` } }),
     ]);
+
+    if (user.image) {
+      await this.storage.delete([user.image]);
+    }
 
     // After the commit, to the address the account had.
     const { subject, react } = buildAccountDeletedEmail({ locale: user.locale, email: user.email });

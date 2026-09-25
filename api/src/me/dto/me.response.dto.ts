@@ -7,6 +7,9 @@ export class MeDto {
   name!: string;
   @ApiProperty({ enum: Locale })
   locale!: Locale;
+  // Uploaded with PUT /me/avatar. Safe to cache for good, a new avatar
+  // gets a new URL.
+  avatarUrl!: string | null;
 }
 
 export class MyBusinessDto {

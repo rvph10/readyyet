@@ -5,11 +5,16 @@ import { ConflictError, NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
 import { mapsUrl, type OpeningHoursSpecification, toPostalAddress } from "../location/location-info";
+import { publicImageUrl } from "../storage/image";
+import { StorageService } from "../storage/storage.service";
 import { isTrackingLinkExpired } from "./tracking-link";
 
 @Injectable()
 export class TrackingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   async findByCode(code: string) {
     // An explicit select, not include: this is the only unauthenticated
@@ -28,7 +33,7 @@ export class TrackingService {
             name: true,
             contactPhone: true,
             contactEmail: true,
-            logoUrl: true,
+            logoKey: true,
             locale: true,
             timeZone: true,
             streetAddress: true,
@@ -49,6 +54,7 @@ export class TrackingService {
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
           select: { createdAt: true, status: publicStatusSelect },
         },
+        photos: { orderBy: { createdAt: "asc" }, select: { objectKey: true, createdAt: true } },
       },
     });
 
@@ -61,7 +67,7 @@ export class TrackingService {
       throw new NotFoundError("Tracking link not found");
     }
 
-    const { name, contactPhone, contactEmail, logoUrl, timeZone } = ticket.location;
+    const { name, contactPhone, contactEmail, logoKey, timeZone } = ticket.location;
     const address = toPostalAddress(ticket.location);
     return {
       trackingCode: ticket.trackingCode,
@@ -77,7 +83,7 @@ export class TrackingService {
         name,
         contactPhone,
         contactEmail,
-        logoUrl,
+        logoUrl: publicImageUrl(logoKey),
         address,
         mapsUrl: address && mapsUrl(address),
         openingHours: ticket.location.openingHours as OpeningHoursSpecification[],
@@ -86,6 +92,12 @@ export class TrackingService {
       currentStatus: ticket.currentStatus,
       steps: ticket.workflow.steps,
       statusHistory: ticket.statusEvents,
+      photos: await Promise.all(
+        ticket.photos.map(async (photo) => ({
+          url: await this.storage.presignedUrl(photo.objectKey),
+          createdAt: photo.createdAt,
+        })),
+      ),
     };
   }
 

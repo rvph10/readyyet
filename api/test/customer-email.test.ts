@@ -22,7 +22,13 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
     estimatedReadyDate: null,
-    location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test", address: null },
+    location: {
+      name: "Joe's Garage",
+      contactPhone: "+3221234567",
+      contactEmail: "shop@joes.test",
+      address: null,
+      logoUrl: null,
+    },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
     collectedUrl: "https://readyyet.app/t/AbC123xyz789/collected",
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
@@ -163,6 +169,7 @@ describe("Customer emails", () => {
           contactPhone: "+32",
           contactEmail: "a@b.test",
           address: null,
+          logoUrl: null,
         },
       }),
     );
@@ -189,5 +196,18 @@ describe("Customer emails", () => {
     const html = await render(buildCustomerEmail(input()).react);
 
     expect(html).not.toContain("google.com/maps");
+  });
+
+  it("shows the Location's logo above its name when it has one", async () => {
+    const logoUrl = "https://api.readyyet.app/images/logos/0b7c7a9e-3f2a-4d7e-9a53-1c2d3e4f5a6b.png";
+    const html = await render(buildCustomerEmail(input({ location: { ...input().location, logoUrl } })).react);
+
+    expect(html).toMatch(new RegExp(`<img[^>]+src="${logoUrl}"[^>]*>.*Joe&#x27;s Garage</h1>`, "s"));
+  });
+
+  it("shows no image when the Location has no logo", async () => {
+    const html = await render(buildCustomerEmail(input()).react);
+
+    expect(html).not.toContain("<img");
   });
 });

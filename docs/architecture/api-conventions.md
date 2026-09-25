@@ -22,8 +22,8 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 
 ## Bodies
 
-- JSON, camelCase field names, the same names as the domain vocabulary.
-- Ids are strings: uuids as they are, BigInt ids (Ticket, Customer, Membership, Workflow) as decimal strings, since JSON numbers can't hold them. Status ids are small integers and stay numbers.
+- JSON, camelCase field names, the same names as the domain vocabulary. The exception is a picture upload: `multipart/form-data` with the image as its `file` field (ADR 0026).
+- Ids are strings: uuids as they are, BigInt ids (Ticket, Customer, Membership, Workflow, Ticket photo) as decimal strings, since JSON numbers can't hold them. Status ids are small integers and stay numbers.
 - Dates are ISO 8601 strings in UTC. A calendar date with no time, like a Ticket's `estimatedReadyDate`, is `YYYY-MM-DD` on the Location's clock.
 - In a resource, a field with no value is `null`, never left out. An optional request field may be left out.
 - Something the dashboard identifies by name comes with it, not as a bare id: `invitedBy: { id, name }`. Catalogue entries (business types, statuses) are referred to by their `code`.
@@ -58,7 +58,7 @@ Every error from our own routes has one shape, written by `AppExceptionFilter`:
 | 403    | `REAUTHENTICATION_REQUIRED` | The session is too old for this action, sign in again (account deletion).                                                    |
 | 404    | `NOT_FOUND`                 | Doesn't exist: an unknown or deleted Location, or a Ticket, Customer or Invitation id that isn't in the Location of the URL. |
 | 409    | `CONFLICT`                  | Not possible in the resource's current state, or lost a race to a concurrent request.                                        |
-| 413    | `VALIDATION_ERROR`          | The request body is over 100 KB.                                                                                             |
+| 413    | `VALIDATION_ERROR`          | The request body is over 100 KB, or an uploaded image is over 15 MB.                                                         |
 | 429    | `RATE_LIMITED`              | Too many requests, `Retry-After` gives the seconds to wait.                                                                  |
 | 500    | `INTERNAL_ERROR`            | A bug. Reported to Sentry, the message never says more.                                                                      |
 
@@ -72,11 +72,11 @@ A Better Auth session cookie, set by the email OTP sign-in (ADR 0011). There are
 
 ## Rate limits
 
-60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
+60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, uploading a picture 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
 
 ## Caching
 
-Responses set no caching headers by default, and none is meant to be cached. Two set their own: the catalogue is `public, max-age=300`, it only changes with a deploy, and the tracking page is `no-store`, it's one Customer's Ticket.
+Responses set no caching headers by default, and none is meant to be cached. Two set their own: the catalogue is `public, max-age=300`, it only changes with a deploy, and the tracking page is `no-store`, it's one Customer's Ticket. Logos and avatars (`GET /images/...`) are `public, max-age=31536000, immutable`: a new picture always gets a new URL (ADR 0026). That route isn't rate limited.
 
 ## Changing the API
 

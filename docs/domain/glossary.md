@@ -23,6 +23,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 - **Estimated ready date**: the date a ticket's item should be ready, a calendar date on the location's clock with no time (ADR 0030). The shop's own promise, never computed by ReadyYet on its own guess. Shown to the customer until the ticket reaches `READY`.
 - **Turnaround time**: the number of open days a location usually needs for a job, set once in its settings. It prefills a new ticket's estimated ready date, counting only the days the location is open (ADR 0036).
 - **Reminder**: an email to the customer of a ticket still at `READY`, 3 and 10 days after it got there, sent only in the daytime on the location's clock (ADR 0028).
+- **Photo**: a picture staff add to a ticket, up to 5, showing the item's condition or progress. The customer sees every photo on the tracking page, and photos are deleted when the tracking link expires (ADR 0026).
 - **Customer says collected**: the customer pressed "I already picked it up" on the tracking page or in a reminder. It stops the reminders but doesn't change the status: staff mark the ticket `COMPLETED`, or dismiss the mark if the item is still there (ADR 0028).
 
 ## Billing and growth

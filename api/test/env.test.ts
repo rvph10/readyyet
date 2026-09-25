@@ -10,6 +10,11 @@ const valid = {
   EMAIL_FROM: "ReadyYet <hello@readyyet.app>",
   SUPPORT_EMAIL: "support@readyyet.app",
   STRIPE_SECRET_KEY: "sk_test_x",
+  S3_ENDPOINT: "http://localhost:9090",
+  S3_REGION: "us-east-1",
+  S3_BUCKET: "readyyet",
+  S3_ACCESS_KEY_ID: "local",
+  S3_SECRET_ACCESS_KEY: "local",
 };
 
 describe("validateEnv", () => {
@@ -19,9 +24,16 @@ describe("validateEnv", () => {
 
   it("names every missing or malformed variable at once", () => {
     const check = () =>
-      validateEnv({ ...valid, DATABASE_URL: undefined, EMAIL_FROM: undefined, WEB_URL: "readyyet.app" });
+      validateEnv({
+        ...valid,
+        DATABASE_URL: undefined,
+        EMAIL_FROM: undefined,
+        WEB_URL: "readyyet.app",
+        S3_BUCKET: undefined,
+      });
 
     expect(check).toThrow(/DATABASE_URL/);
+    expect(check).toThrow(/S3_BUCKET/);
     expect(check).toThrow(/EMAIL_FROM/);
     expect(check).toThrow(/WEB_URL/);
   });
