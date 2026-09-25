@@ -1,4 +1,4 @@
-import { defineRailway, github, postgres, preserve, project, service } from "railway/iac";
+import { bucket, defineRailway, github, postgres, preserve, project, ref, service } from "railway/iac";
 
 // Not applied on deploy: run `railway config plan` then `railway config apply`
 // once per environment after changing it (ADR 0022).
@@ -13,6 +13,9 @@ const PRODUCTION_DOMAIN = "api.readyyet.app";
 export default defineRailway((ctx) => {
   const production = ctx.environment === "production";
   const db = postgres("postgres", { region: REGION });
+  // Photos, logos and avatars (ADR 0026). Amsterdam too, and a bucket's
+  // region can't be changed once it exists.
+  const images = bucket("images", { region: "ams" });
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
@@ -39,6 +42,11 @@ export default defineRailway((ctx) => {
     env: {
       NODE_ENV: "production",
       DATABASE_URL: db.env.DATABASE_URL,
+      S3_ENDPOINT: ref(images, "ENDPOINT"),
+      S3_REGION: ref(images, "REGION"),
+      S3_BUCKET: ref(images, "BUCKET"),
+      S3_ACCESS_KEY_ID: ref(images, "ACCESS_KEY_ID"),
+      S3_SECRET_ACCESS_KEY: ref(images, "SECRET_ACCESS_KEY"),
       BETTER_AUTH_URL: production ? `https://${PRODUCTION_DOMAIN}` : "https://${{RAILWAY_PUBLIC_DOMAIN}}",
       // Secrets, or values that differ per environment: set in Railway,
       // never here, the repo is public.
@@ -54,5 +62,5 @@ export default defineRailway((ctx) => {
     },
   });
 
-  return project("readyyet", { resources: [api, db] });
+  return project("readyyet", { resources: [api, db, images] });
 });
