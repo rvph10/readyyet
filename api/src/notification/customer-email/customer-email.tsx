@@ -18,7 +18,7 @@ export interface CustomerEmailInput {
   estimatedReadyDate: CalendarDate | null;
   location: { name: string; contactPhone: string; contactEmail: string; address: PostalAddress | null };
   trackingUrl: string;
-  // Only in a READY_REMINDER, to the page asking the Customer to confirm.
+  // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
   collectedUrl: string;
   stopUpdatesUrl: string;
 }

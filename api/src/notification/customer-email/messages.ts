@@ -143,9 +143,9 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     stopUpdates: (job) => `Ne plus recevoir d'e-mails pour ${ceCetCette(job)} ${job.word}`,
     footer: ({ location, job }) =>
       `${location} utilise ReadyYet pour vous tenir informé de l'avancement de votre ${job.word}.`,
-    alreadyCollected: (job) => `Je ${agree(job, "l'ai déjà récupéré", "l'ai déjà récupérée")}`,
     readyBy: ({ job, readyDate }) =>
       `${agree(job, "Il", "Elle")} devrait être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
+    alreadyCollected: (job) => `Je ${agree(job, "l'ai déjà récupéré", "l'ai déjà récupérée")}`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
