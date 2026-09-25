@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+@theme {
+  /* The lime of the logo (src/app/icon.svg). */
+  --color-brand: #c9e260;
+}
