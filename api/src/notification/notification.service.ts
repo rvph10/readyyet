@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { isNotifyingStatus } from "@readyyet/shared";
+import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
+import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -111,6 +112,59 @@ export class NotificationService {
     await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
   }
 
+  // Queued by TicketService.update when the estimated ready date moves past
+  // the last one the Customer was told (ADR 0030).
+  @Cron(CronExpression.EVERY_30_SECONDS, { name: "customer-ready-date-emails" })
+  @CronMonitor("customer-ready-date-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
+  async sendDueReadyDateEmails() {
+    const due = await this.prisma.ticket.findMany({
+      where: { readyDateEmailDueAt: { lte: new Date() } },
+      orderBy: { readyDateEmailDueAt: "asc" },
+      select: { id: true, readyDateEmailDueAt: true },
+    });
+
+    for (const { id, readyDateEmailDueAt } of due) {
+      // Claimed the same way as status emails, see sendDueStatusEmails.
+      const lease = new Date(Date.now() + CLAIM_LEASE_MS);
+      const { count } = await this.prisma.ticket.updateMany({
+        where: { id, readyDateEmailDueAt },
+        data: { readyDateEmailDueAt: lease },
+      });
+      if (count === 0) {
+        continue;
+      }
+      await this.sendReadyDateEmail(id);
+      // A date changed during the send queued its own email, left as is.
+      await this.prisma.ticket.updateMany({
+        where: { id, readyDateEmailDueAt: lease },
+        data: { readyDateEmailDueAt: null },
+      });
+    }
+  }
+
+  private async sendReadyDateEmail(ticketId: bigint) {
+    const ticket = await this.loadTicket(ticketId);
+    const date = toCalendarDate(ticket.estimatedReadyDate);
+    const told = toCalendarDate(ticket.customerToldReadyDate);
+    // Moved back within the delay, or overtaken by the ticket reaching READY.
+    if (
+      !date ||
+      !told ||
+      date <= told ||
+      !showsEstimatedReadyDate(ticket.currentStatus.code) ||
+      ticket.notificationsStoppedAt ||
+      !canEmail(ticket.customer) ||
+      ticket.location.deletedAt
+    ) {
+      return;
+    }
+    await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_DATE_CHANGED", "ticket_ready_date_changed");
+  }
+
   private loadTicket(ticketId: bigint) {
     return this.prisma.ticket.findUniqueOrThrow({
       where: { id: ticketId },
@@ -125,12 +179,16 @@ export class NotificationService {
   }
 
   private async sendCustomerEmail(ticket: LoadedTicket, to: string, kind: CustomerEmailKind, type: string) {
+    const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
+      ? toCalendarDate(ticket.estimatedReadyDate)
+      : null;
     const { subject, react } = buildCustomerEmail({
       kind,
       locale: ticket.customer.locale ?? ticket.location.locale,
       businessTypeCode: ticket.location.businessType.code,
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
+      estimatedReadyDate,
       location: { ...ticket.location, address: toPostalAddress(ticket.location) },
       trackingUrl: trackingUrl(ticket.trackingCode),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
@@ -149,5 +207,13 @@ export class NotificationService {
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
     });
+    // What a later date is compared to. Only the emails that state the date
+    // tell it, a status email doesn't.
+    if (estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED")) {
+      await this.prisma.ticket.update({
+        where: { id: ticket.id },
+        data: { customerToldReadyDate: ticket.estimatedReadyDate },
+      });
+    }
   }
 }

@@ -16,6 +16,8 @@ export class LocationDto {
   timeZone!: string;
   address!: PostalAddressDto | null;
   openingHours!: OpeningHoursSpecificationDto[];
+  // Open days from drop-off to a new Ticket's estimated ready date.
+  turnaroundDays!: number | null;
   createdAt!: Date;
   updatedAt!: Date;
 }

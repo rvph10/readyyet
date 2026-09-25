@@ -6,13 +6,16 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsPhoneNumber,
   IsString,
   IsUrl,
+  Max,
   MaxLength,
+  Min,
   ValidateNested,
 } from "class-validator";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
@@ -67,4 +70,12 @@ export class UpdateLocationDto {
   @Type(() => OpeningHoursSpecificationDto)
   @IsWeeklyOpeningHours()
   openingHours?: OpeningHoursSpecificationDto[];
+
+  // Open days a new Ticket's estimated ready date is set to, null stops
+  // prefilling it (ADR 0036).
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  turnaroundDays?: number | null;
 }

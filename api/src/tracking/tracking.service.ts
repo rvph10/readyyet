@@ -1,4 +1,6 @@
 import { Injectable } from "@nestjs/common";
+import { showsEstimatedReadyDate } from "@readyyet/shared";
+import { toCalendarDate } from "../common/calendar-date";
 import { NotFoundError } from "../common/errors/app-error";
 import { publicStatusSelect } from "../common/status-select";
 import { PrismaService } from "../database/prisma.service";
@@ -18,6 +20,7 @@ export class TrackingService {
       select: {
         trackingCode: true,
         title: true,
+        estimatedReadyDate: true,
         createdAt: true,
         location: {
           select: {
@@ -62,6 +65,9 @@ export class TrackingService {
     return {
       trackingCode: ticket.trackingCode,
       title: ticket.title,
+      estimatedReadyDate: showsEstimatedReadyDate(ticket.currentStatus.code)
+        ? toCalendarDate(ticket.estimatedReadyDate)
+        : null,
       createdAt: ticket.createdAt,
       // The page opens in the language this ticket's emails use (ADR 0015).
       locale: ticket.customer.locale ?? ticket.location.locale,

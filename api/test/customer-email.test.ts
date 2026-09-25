@@ -5,6 +5,7 @@ import { type CustomerEmailKind } from "../src/notification/customer-email/messa
 
 const KINDS: CustomerEmailKind[] = [
   "TICKET_CREATED",
+  "READY_DATE_CHANGED",
   "READY",
   "AWAITING_APPROVAL",
   "AWAITING_CLIENT_INFO",
@@ -19,6 +20,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     businessTypeCode: "GARAGE",
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
+    estimatedReadyDate: null,
     location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test", address: null },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
@@ -86,6 +88,37 @@ describe("Customer emails", () => {
       for (const phrase of phrases) {
         expect(text).toContain(phrase);
       }
+    });
+  });
+
+  describe("estimated ready date", () => {
+    // Tuesday 29 September 2026.
+    const estimatedReadyDate = "2026-09-29";
+    const text = async (overrides: Partial<CustomerEmailInput>) =>
+      (
+        await render(buildCustomerEmail(input({ estimatedReadyDate, ...overrides })).react, { plainText: true })
+      ).replace(/\s+/g, " ");
+
+    it.each([
+      ["EN", "GARAGE", "It should be ready on Tuesday 29 September."],
+      ["FR", "TAILORING", "Elle devrait être prête le mardi 29 septembre."],
+      ["FR", "PRESSING", "Il devrait être prêt le mardi 29 septembre."],
+    ] as const)("is written out in the %s ticket-created email for %s", async (locale, businessTypeCode, sentence) => {
+      expect(await text({ kind: "TICKET_CREATED", locale, businessTypeCode })).toContain(sentence);
+    });
+
+    it("is left out of the ticket-created email when there's none, and of status emails", async () => {
+      expect(await text({ kind: "TICKET_CREATED", estimatedReadyDate: null })).not.toContain("should be ready");
+      expect(await text({ kind: "AWAITING_APPROVAL" })).not.toContain("29 September");
+    });
+
+    it("is the news of a READY_DATE_CHANGED email", async () => {
+      expect(await text({ kind: "READY_DATE_CHANGED" })).toContain(
+        'Joe\'s Garage needs a little more time for your repair "Brake pads". It should now be ready on Tuesday 29 September.',
+      );
+      expect(await text({ kind: "READY_DATE_CHANGED", locale: "FR", businessTypeCode: "TAILORING" })).toContain(
+        "Elle devrait maintenant être prête le mardi 29 septembre.",
+      );
     });
   });
 

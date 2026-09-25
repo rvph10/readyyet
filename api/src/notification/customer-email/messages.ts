@@ -1,7 +1,8 @@
 import type { Locale } from "@readyyet/db";
 import type { NotifyingStatusCode } from "@readyyet/shared";
 
-export type CustomerEmailKind = "TICKET_CREATED" | NotifyingStatusCode;
+// READY_DATE_CHANGED: the estimated ready date moved later (ADR 0030).
+export type CustomerEmailKind = "TICKET_CREATED" | "READY_DATE_CHANGED" | NotifyingStatusCode;
 
 // What the email calls the customer's job, per business type ("your
 // repair", "votre retouche"). French nouns carry their gender, the
@@ -59,6 +60,8 @@ interface MessageParams {
   location: string;
   title: string;
   job: JobNoun;
+  // The estimated ready date, already written out ("Tuesday 29 September").
+  readyDate: string;
 }
 
 interface KindMessages {
@@ -72,6 +75,7 @@ interface LocaleMessages {
   contact: (location: string) => string;
   stopUpdates: (job: JobNoun) => string;
   footer: (params: { location: string; job: JobNoun }) => string;
+  readyBy: (params: { job: JobNoun; readyDate: string }) => string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -85,11 +89,17 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     contact: (location) => `Questions? Contact ${location}:`,
     stopUpdates: (job) => `Stop email updates for this ${job.word}`,
     footer: ({ location, job }) => `${location} uses ReadyYet to keep you updated on your ${job.word}.`,
+    readyBy: ({ readyDate }) => `It should be ready on ${readyDate}.`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
         body: ({ location, title, job }) =>
           `${location} has registered your ${job.word} "${title}". You can follow its progress at any time, no account needed.`,
+      },
+      READY_DATE_CHANGED: {
+        subject: ({ location, job }) => `New date for your ${job.word} at ${location}`,
+        body: ({ location, title, job, readyDate }) =>
+          `${location} needs a little more time for your ${job.word} "${title}". It should now be ready on ${readyDate}.`,
       },
       READY: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is ready`,
@@ -125,12 +135,19 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     stopUpdates: (job) => `Ne plus recevoir d'e-mails pour ${ceCetCette(job)} ${job.word}`,
     footer: ({ location, job }) =>
       `${location} utilise ReadyYet pour vous tenir informé de l'avancement de votre ${job.word}.`,
+    readyBy: ({ job, readyDate }) =>
+      `${agree(job, "Il", "Elle")} devrait être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
           `Votre ${job.word} chez ${location} est ${agree(job, "enregistré", "enregistrée")}`,
         body: ({ location, title, job }) =>
           `${location} a enregistré votre ${job.word} «\u00a0${title}\u00a0». Vous pouvez suivre son avancement à tout moment, sans créer de compte.`,
+      },
+      READY_DATE_CHANGED: {
+        subject: ({ location, job }) => `Nouvelle date pour votre ${job.word} chez ${location}`,
+        body: ({ location, title, job, readyDate }) =>
+          `${location} a besoin d'un peu plus de temps pour votre ${job.word} «\u00a0${title}\u00a0». ${agree(job, "Il", "Elle")} devrait maintenant être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
       },
       READY: {
         subject: ({ location, job }) => `Votre ${job.word} chez ${location} est ${agree(job, "prêt", "prête")}`,

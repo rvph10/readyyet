@@ -24,6 +24,12 @@ export class ListTicketsQueryDto {
   @IsIn(["open", "ended"])
   state?: "open" | "ended";
 
+  // Past their estimated ready date on the Location's clock and not yet
+  // READY or ended (ADR 0030). Only "true" filters.
+  @IsOptional()
+  @IsIn(["true", "false"])
+  overdue?: "true" | "false";
+
   @IsOptional()
   @IsISO8601()
   createdFrom?: string;

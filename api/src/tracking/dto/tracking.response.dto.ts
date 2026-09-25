@@ -29,6 +29,9 @@ export class TrackingHistoryEntryDto {
 export class TrackingDto {
   trackingCode!: string;
   title!: string;
+  // A date on the Location's clock, null once the ticket is READY or ended.
+  @ApiProperty({ type: String, format: "date", nullable: true })
+  estimatedReadyDate!: string | null;
   createdAt!: Date;
   // The Customer's language, or the Location's when they have none.
   @ApiProperty({ enum: Locale })

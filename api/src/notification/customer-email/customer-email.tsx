@@ -1,5 +1,6 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from "react-email";
 import type { Locale } from "@readyyet/db";
+import type { CalendarDate } from "@readyyet/shared";
 import type { ReactElement } from "react";
 import { mapsUrl, type PostalAddress } from "../../location/location-info";
 import { styles } from "../email-styles";
@@ -12,15 +13,42 @@ export interface CustomerEmailInput {
   businessTypeCode: string;
   customerName: string;
   ticketTitle: string;
+  // Shown in the ticket-created email when set, the subject of a
+  // READY_DATE_CHANGED one.
+  estimatedReadyDate: CalendarDate | null;
   location: { name: string; contactPhone: string; contactEmail: string; address: PostalAddress | null };
   trackingUrl: string;
   stopUpdatesUrl: string;
 }
 
+const DATE_LOCALES: Record<Locale, string> = { EN: "en-GB", FR: "fr-BE" };
+
+// A date with no time: formatted in UTC, the zone it's parsed in, so no
+// offset can move it to the day before.
+function formatReadyDate(date: CalendarDate | null, locale: Locale) {
+  return date
+    ? new Intl.DateTimeFormat(DATE_LOCALES[locale], {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "UTC",
+      }).format(new Date(date))
+    : "";
+}
+
+function messageParams(input: CustomerEmailInput) {
+  return {
+    location: input.location.name,
+    title: input.ticketTitle,
+    job: jobNoun(input.locale, input.businessTypeCode),
+    readyDate: formatReadyDate(input.estimatedReadyDate, input.locale),
+  };
+}
+
 function CustomerEmail({ input }: { input: CustomerEmailInput }) {
   const messages = MESSAGES[input.locale];
-  const job = jobNoun(input.locale, input.businessTypeCode);
-  const params = { location: input.location.name, title: input.ticketTitle, job };
+  const params = messageParams(input);
+  const { job } = params;
   const body = messages.kinds[input.kind].body(params);
 
   return (
@@ -35,6 +63,9 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
           </Heading>
           <Text style={styles.text}>{messages.greeting(input.customerName)}</Text>
           <Text style={styles.text}>{body}</Text>
+          {input.kind === "TICKET_CREATED" && input.estimatedReadyDate && (
+            <Text style={styles.text}>{messages.readyBy(params)}</Text>
+          )}
           <Section style={{ margin: "24px 0" }}>
             <Button href={input.trackingUrl} style={styles.button}>
               {messages.trackButton(job)}
@@ -66,11 +97,7 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
 }
 
 export function buildCustomerEmail(input: CustomerEmailInput): { subject: string; react: ReactElement } {
-  const subject = MESSAGES[input.locale].kinds[input.kind].subject({
-    location: input.location.name,
-    title: input.ticketTitle,
-    job: jobNoun(input.locale, input.businessTypeCode),
-  });
+  const subject = MESSAGES[input.locale].kinds[input.kind].subject(messageParams(input));
   // A subject is a single header line, a line break in a Location's name
   // must not become a second header.
   return { subject: subject.replace(/\s+/g, " ").trim(), react: <CustomerEmail input={input} /> };

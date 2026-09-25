@@ -35,6 +35,7 @@ export class LocationService {
         ...(dto.timeZone !== undefined && { timeZone: dto.timeZone }),
         ...(dto.address !== undefined && toAddressColumns(dto.address)),
         ...(dto.openingHours !== undefined && { openingHours: toOpeningHoursJson(dto.openingHours) }),
+        ...(dto.turnaroundDays !== undefined && { turnaroundDays: dto.turnaroundDays }),
       },
     });
     return toLocationResponse(location);

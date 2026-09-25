@@ -48,8 +48,8 @@ export class TicketController {
   }
 
   @Patch(":ticketId")
-  @ApiOperation({ summary: "Edit a ticket's title/description" })
-  @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiOperation({ summary: "Edit a ticket's title, description or estimated ready date" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
   update(
     @Param("locationId") locationId: string,
     @Param("ticketId") ticketId: string,
