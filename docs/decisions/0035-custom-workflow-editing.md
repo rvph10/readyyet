@@ -10,6 +10,7 @@ Implements the custom Workflow of ADR 0003 and ADR 0031.
 - Each edit inserts a new `Workflow` version and deactivates the previous one (`docs/architecture/data-model.md#workflow-versioning`). Tickets already open keep theirs.
 - `DELETE /locations/:locationId/workflow` deactivates the custom Workflow, new Tickets use the Business type's default again.
 - Both are for Owners and Admins, like a Location's other settings. Editing needs Pro, including during the trial, and is refused with `PLAN_REQUIRED` otherwise. Going back to the default works on every plan.
+- A Location frozen after its trial keeps `PRO` as its plan, so it can still edit its Workflow. That's deliberate: ADR 0031 only stops new Tickets and invitations, and a Workflow saved then does nothing until a plan is chosen, on Essentiel it stays stored and unused.
 
 ## Why
 
