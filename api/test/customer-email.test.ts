@@ -6,6 +6,7 @@ import { type CustomerEmailKind } from "../src/notification/customer-email/messa
 const KINDS: CustomerEmailKind[] = [
   "TICKET_CREATED",
   "READY_DATE_CHANGED",
+  "READY_REMINDER",
   "READY",
   "AWAITING_APPROVAL",
   "AWAITING_CLIENT_INFO",
@@ -23,6 +24,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     estimatedReadyDate: null,
     location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test", address: null },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
+    collectedUrl: "https://readyyet.app/t/AbC123xyz789/collected",
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
     ...overrides,
   };
@@ -119,6 +121,26 @@ describe("Customer emails", () => {
       expect(await text({ kind: "READY_DATE_CHANGED", locale: "FR", businessTypeCode: "TAILORING" })).toContain(
         "Elle devrait maintenant être prête le mardi 29 septembre.",
       );
+    });
+  });
+
+  describe("ready reminder", () => {
+    it.each([
+      ["EN", "GARAGE", "I already picked it up"],
+      ["FR", "TAILORING", "Je l'ai déjà récupérée"],
+      ["FR", "PRESSING", "Je l'ai déjà récupéré"],
+    ] as const)("links %s %s to the collected page", async (locale, businessTypeCode, label) => {
+      const html = await render(buildCustomerEmail(input({ kind: "READY_REMINDER", locale, businessTypeCode })).react);
+
+      expect(html).toMatch(
+        new RegExp(`href="https://readyyet.app/t/AbC123xyz789/collected"[^>]*>${label.replace("'", "&#x27;")}</a>`),
+      );
+    });
+
+    it("leaves the collected link out of every other email", async () => {
+      const html = await render(buildCustomerEmail(input({ kind: "READY" })).react);
+
+      expect(html).not.toContain("/collected");
     });
   });
 

@@ -18,6 +18,8 @@ export interface CustomerEmailInput {
   estimatedReadyDate: CalendarDate | null;
   location: { name: string; contactPhone: string; contactEmail: string; address: PostalAddress | null };
   trackingUrl: string;
+  // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
+  collectedUrl: string;
   stopUpdatesUrl: string;
 }
 
@@ -71,6 +73,11 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
               {messages.trackButton(job)}
             </Button>
           </Section>
+          {input.kind === "READY_REMINDER" && (
+            <Text style={styles.text}>
+              <Link href={input.collectedUrl}>{messages.alreadyCollected(job)}</Link>
+            </Text>
+          )}
           <Hr />
           <Text style={styles.contact}>{messages.contact(input.location.name)}</Text>
           <Text style={styles.contact}>

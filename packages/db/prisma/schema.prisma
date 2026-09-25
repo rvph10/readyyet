@@ -345,6 +345,11 @@ model Ticket {
   // is still later then.
   customerToldReadyDate  DateTime? @map("customer_told_ready_date") @db.Date
   readyDateEmailDueAt    DateTime? @map("ready_date_email_due_at")
+  // Uncollected item reminders (ADR 0028, ADR 0037): reaching READY
+  // resets the count and schedules the first one.
+  customerCollectedAt    DateTime? @map("customer_collected_at")
+  readyRemindersSent     Int       @default(0) @map("ready_reminders_sent")
+  nextReadyReminderAt    DateTime? @map("next_ready_reminder_at")
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -365,6 +370,7 @@ model Ticket {
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
   @@index([readyDateEmailDueAt])
+  @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
 }
 

@@ -83,6 +83,17 @@ export class TicketController {
     return this.ticket.resendTrackingLink(locationId, ticketId);
   }
 
+  @Post(":ticketId/customer-collected/dismiss")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Clear the Customer\'s "I already picked it up" mark, the item is still here (ADR 0028)' })
+  @ApiErrors(HttpStatus.CONFLICT)
+  dismissCustomerCollected(
+    @Param("locationId") locationId: string,
+    @Param("ticketId") ticketId: string,
+  ): Promise<TicketDto> {
+    return this.ticket.dismissCustomerCollected(locationId, ticketId);
+  }
+
   @Post(":ticketId/status/undo")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Undo your own latest status change, within 2 minutes (ADR 0016)" })

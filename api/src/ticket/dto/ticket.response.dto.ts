@@ -11,6 +11,9 @@ export class TicketDto {
   notificationsStoppedAt!: Date | null;
   @ApiProperty({ type: String, format: "date", nullable: true })
   estimatedReadyDate!: string | null;
+  // When the Customer said they picked the item up, shown as "Customer
+  // says collected" (ADR 0028).
+  customerCollectedAt!: Date | null;
   createdAt!: Date;
   customer!: CustomerDto;
   currentStatus!: StatusDto;
@@ -38,6 +41,9 @@ export class TicketListItemDto {
   title!: string;
   @ApiProperty({ type: String, format: "date", nullable: true })
   estimatedReadyDate!: string | null;
+  // When the Customer said they picked the item up, shown as "Customer
+  // says collected" (ADR 0028).
+  customerCollectedAt!: Date | null;
   createdAt!: Date;
   customer!: TicketListCustomerDto;
   currentStatus!: StatusDto;

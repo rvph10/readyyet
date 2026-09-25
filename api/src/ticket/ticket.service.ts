@@ -13,6 +13,7 @@ import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
+import { nextReadyReminderAt } from "../notification/ready-reminders";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
@@ -188,6 +189,7 @@ export class TicketService {
         trackingCode: ticket.trackingCode,
         title: ticket.title,
         estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
+        customerCollectedAt: ticket.customerCollectedAt,
         createdAt: ticket.createdAt,
         customer: ticket.customer,
         currentStatus: ticket.currentStatus,
@@ -219,6 +221,9 @@ export class TicketService {
     if (query.state) {
       const ended = { in: [...ENDED_STATUS_CODES] };
       filters.push({ currentStatus: { code: query.state === "ended" ? ended : { not: ended } } });
+    }
+    if (query.customerCollected === "true") {
+      filters.push({ customerCollectedAt: { not: null } });
     }
     if (query.createdFrom) {
       filters.push({ createdAt: { gte: new Date(query.createdFrom) } });
@@ -375,7 +380,7 @@ export class TicketService {
       }
 
       await this.moveStatus(tx, ticket.id, ticket.currentStatusId, step.statusId);
-      await tx.ticketStatusEvent.create({
+      const event = await tx.ticketStatusEvent.create({
         data: {
           ticketId: ticket.id,
           workflowId: ticket.workflowId,
@@ -387,9 +392,42 @@ export class TicketService {
           }),
         },
       });
+      // A new READY starts the reminders over, and a "collected" mark from
+      // an earlier one no longer holds (ADR 0028, ADR 0037).
+      if (dto.statusCode === "READY") {
+        await tx.ticket.update({
+          where: { id },
+          data: {
+            customerCollectedAt: null,
+            readyRemindersSent: 0,
+            nextReadyReminderAt: nextReadyReminderAt(event.createdAt, 0),
+          },
+        });
+      }
       return tx.ticket.findUniqueOrThrow({ where: { id }, include: DETAIL_INCLUDE });
     });
 
+    return this.mapDetail(updated);
+  }
+
+  // "Customer says collected" was wrong, the item is still on the shelf:
+  // the reminders not sent yet go out as scheduled (ADR 0028).
+  async dismissCustomerCollected(locationId: string, ticketId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId }, include: { currentStatus: true } });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+    // Past READY the time is the record of what the Customer said.
+    if (ticket.currentStatus.code !== "READY") {
+      throw new ConflictError("Only a READY ticket's collected mark can be dismissed");
+    }
+
+    const updated = await this.prisma.ticket.update({
+      where: { id },
+      data: { customerCollectedAt: null },
+      include: DETAIL_INCLUDE,
+    });
     return this.mapDetail(updated);
   }
 
@@ -445,6 +483,7 @@ export class TicketService {
     description: string | null;
     notificationsStoppedAt: Date | null;
     estimatedReadyDate: Date | null;
+    customerCollectedAt: Date | null;
     createdAt: Date;
     customer: {
       id: bigint;
@@ -466,6 +505,8 @@ export class TicketService {
       // The Customer used "stop updates", staff see why no email went out.
       notificationsStoppedAt: ticket.notificationsStoppedAt,
       estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
+      // "Customer says collected" (ADR 0028).
+      customerCollectedAt: ticket.customerCollectedAt,
       createdAt: ticket.createdAt,
       customer: { ...ticket.customer, id: ticket.customer.id.toString() },
       currentStatus: ticket.currentStatus,

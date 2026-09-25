@@ -35,4 +35,13 @@ export class TrackingController {
   stopNotifications(@Param("code") code: string) {
     return this.tracking.stopNotifications(code);
   }
+
+  @Post(":code/collected")
+  @HttpCode(204)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({ summary: "The customer says they already picked the item up, stops its reminders (ADR 0028)" })
+  @ApiErrors(HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  markCollected(@Param("code") code: string) {
+    return this.tracking.markCollected(code);
+  }
 }
