@@ -74,7 +74,7 @@ export default defineRailway((ctx) => {
       buildCommand: "pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/web run build",
     },
     start: "pnpm --filter @readyyet/web run start",
-    healthcheck: "/",
+    healthcheck: "/health",
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
@@ -88,8 +88,7 @@ export default defineRailway((ctx) => {
       buildCommand: "pnpm --filter @readyyet/site run build",
     },
     start: "pnpm --filter @readyyet/site run start",
-    // "/" only redirects to a language.
-    healthcheck: "/en",
+    healthcheck: "/health",
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
