@@ -61,10 +61,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Type-aware rules need the Prisma client and @readyyet/shared's
-      # declarations to exist, same as the api job's typecheck does.
+      # Type-aware rules need the Prisma client, @readyyet/shared's
+      # declarations and the sales site's route types (LayoutProps,
+      # PageProps) to exist, same as the typecheck jobs do.
       - run: pnpm --filter @readyyet/db run generate
       - run: pnpm --filter @readyyet/shared run build
+      - run: pnpm --filter @readyyet/site exec next typegen
       - run: pnpm lint
       - run: pnpm format:check
 
@@ -196,3 +198,21 @@ jobs:
       - run: pnpm --filter @readyyet/shared run build
       - run: pnpm --filter @readyyet/web run typecheck
       - run: pnpm --filter @readyyet/web run build
+
+  site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @readyyet/site run typecheck
+      - run: pnpm --filter @readyyet/site run build
