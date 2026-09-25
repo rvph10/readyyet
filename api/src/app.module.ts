@@ -17,6 +17,7 @@ import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { validateEnv } from "./config/env";
 import { CustomerModule } from "./customer/customer.module";
 import { EmailModule } from "./email/email.module";
+import { FeedbackModule } from "./feedback/feedback.module";
 import { HealthModule } from "./health/health.module";
 import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
@@ -63,6 +64,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     CatalogueModule,
     BillingModule,
     StorageModule,
+    FeedbackModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

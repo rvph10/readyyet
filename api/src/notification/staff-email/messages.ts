@@ -21,6 +21,12 @@ interface TrialEndingParams {
   days: number;
 }
 
+interface FeedbackParams {
+  location: string;
+  customer: string;
+  title: string;
+}
+
 interface StaffMessages {
   signInCode: {
     subject: string;
@@ -60,6 +66,11 @@ interface StaffMessages {
     subject: (params: TrialEndingParams) => string;
     body: (params: TrialEndingParams) => string;
     kept: string;
+    button: string;
+  };
+  feedbackReceived: {
+    subject: (params: FeedbackParams) => string;
+    body: (params: FeedbackParams) => string;
     button: string;
   };
 }
@@ -117,6 +128,11 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       kept: "Tickets already open keep working, and your customers' tracking links stay online either way.",
       button: "Choose a plan",
     },
+    feedbackReceived: {
+      subject: ({ location, customer }) => `${customer} sent private feedback to ${location}`,
+      body: ({ customer, title }) => `${customer} wrote about "${title}", only your team can see it:`,
+      button: "See the feedback",
+    },
   },
   FR: {
     signInCode: {
@@ -167,6 +183,12 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
         `L'essai gratuit de ReadyYet pour ${location} se termine dans ${days}\u00a0jour${days > 1 ? "s" : ""}. Choisissez une formule pour continuer à créer des tickets et à inviter votre équipe.`,
       kept: "Les tickets en cours continuent de fonctionner, et les liens de suivi de vos clients restent en ligne dans tous les cas.",
       button: "Choisir une formule",
+    },
+    feedbackReceived: {
+      subject: ({ location, customer }) => `${customer} a envoyé un avis privé à ${location}`,
+      body: ({ customer, title }) =>
+        `${customer} a écrit à propos de «\u00a0${title}\u00a0», seule votre équipe peut le voir\u00a0:`,
+      button: "Voir l'avis",
     },
   },
 };
