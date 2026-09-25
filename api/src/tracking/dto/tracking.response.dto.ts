@@ -26,6 +26,12 @@ export class TrackingHistoryEntryDto {
   createdAt!: Date;
 }
 
+export class TrackingPhotoDto {
+  // A presigned bucket URL that works for 15 minutes, reload the page for a new one.
+  url!: string;
+  createdAt!: Date;
+}
+
 export class TrackingDto {
   trackingCode!: string;
   title!: string;
@@ -43,4 +49,6 @@ export class TrackingDto {
   currentStatus!: PublicStatusDto;
   steps!: TrackingStepDto[];
   statusHistory!: TrackingHistoryEntryDto[];
+  // Oldest first, who took them isn't shown (ADR 0026).
+  photos!: TrackingPhotoDto[];
 }

@@ -27,8 +27,19 @@ export class TicketStatusEventDto {
   createdAt!: Date;
 }
 
+export class TicketPhotoDto {
+  id!: string;
+  // A presigned bucket URL that works for 15 minutes, fetch the Ticket again for a new one.
+  url!: string;
+  // The User who added it.
+  uploadedBy!: string;
+  createdAt!: Date;
+}
+
 export class TicketDetailDto extends TicketDto {
   statusEvents!: TicketStatusEventDto[];
+  // Oldest first, 5 at most (ADR 0026).
+  photos!: TicketPhotoDto[];
 }
 
 export class TicketListCustomerDto {
