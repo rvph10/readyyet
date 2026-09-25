@@ -24,7 +24,7 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 
 - JSON, camelCase field names, the same names as the domain vocabulary.
 - Ids are strings: uuids as they are, BigInt ids (Ticket, Customer, Membership, Workflow) as decimal strings, since JSON numbers can't hold them. Status ids are small integers and stay numbers.
-- Dates are ISO 8601 strings in UTC.
+- Dates are ISO 8601 strings in UTC. A calendar date with no time, like a Ticket's `estimatedReadyDate`, is `YYYY-MM-DD` on the Location's clock.
 - In a resource, a field with no value is `null`, never left out. An optional request field may be left out.
 - Something the dashboard identifies by name comes with it, not as a bare id: `invitedBy: { id, name }`. Catalogue entries (business types, statuses) are referred to by their `code`.
 - A response sends the fields its DTO declares and nothing more. Queries `select` those fields rather than `include` whole rows, see the `statusSelect` and `locationSelect` helpers. The e2e suite fails on any undocumented field.

@@ -1,8 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { Locale, Prisma, Role } from "@readyyet/db";
-import { ENDED_STATUS_CODES, isEndedStatus, isNotifyingStatus } from "@readyyet/shared";
+import {
+  calendarDateIn,
+  ENDED_STATUS_CODES,
+  isEndedStatus,
+  isNotifyingStatus,
+  turnaroundReadyDate,
+} from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
+import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
@@ -52,6 +59,17 @@ function decodeCursor(cursor: string): { createdAt: Date; id: bigint } {
 
 type Status = { id: number; code: string; translations: { locale: Locale; label: string }[] };
 
+// What a Ticket's estimated ready date is checked and computed against.
+const READY_DATE_LOCATION_SELECT = { timeZone: true, openingHours: true, turnaroundDays: true } as const;
+type ReadyDateLocation = Prisma.LocationGetPayload<{ select: typeof READY_DATE_LOCATION_SELECT }>;
+
+// A promise to the Customer can't already be broken when it's made.
+function assertNotPast(date: string, location: ReadyDateLocation) {
+  if (date < calendarDateIn(new Date(), location.timeZone)) {
+    throw new ValidationError("The estimated ready date can't be in the past");
+  }
+}
+
 @Injectable()
 export class TicketService {
   constructor(
@@ -70,6 +88,11 @@ export class TicketService {
     }
 
     await this.billing.assertNotFrozen(locationId);
+    const location = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      select: READY_DATE_LOCATION_SELECT,
+    });
+    const estimatedReadyDate = this.initialReadyDate(location, dto.estimatedReadyDate);
     const activeWorkflow = await this.workflow.getActiveWorkflow(locationId);
     const firstStep = activeWorkflow.steps[0];
     const workflowId = BigInt(activeWorkflow.id);
@@ -108,6 +131,7 @@ export class TicketService {
           trackingCode: generateTrackingCode(),
           title: dto.title,
           description: dto.description,
+          estimatedReadyDate: estimatedReadyDate && fromCalendarDate(estimatedReadyDate),
           createdBy: userId,
           statusEvents: { create: { statusId: firstStep.status.id, changedBy: userId } },
         },
@@ -134,8 +158,19 @@ export class TicketService {
 
   async list(locationId: string, query: ListTicketsQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
+    const filters = this.filters(query);
+    if (query.overdue === "true") {
+      const { timeZone } = await this.prisma.location.findUniqueOrThrow({
+        where: { id: locationId },
+        select: { timeZone: true },
+      });
+      filters.push({
+        estimatedReadyDate: { lt: fromCalendarDate(calendarDateIn(new Date(), timeZone)) },
+        currentStatus: { code: { notIn: ["READY", ...ENDED_STATUS_CODES] } },
+      });
+    }
     const tickets = await this.prisma.ticket.findMany({
-      where: { AND: [{ locationId }, ...this.filters(query)] },
+      where: { AND: [{ locationId }, ...filters] },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       // One extra row tells us whether there's a next page.
       take: take + 1,
@@ -152,6 +187,7 @@ export class TicketService {
         id: ticket.id.toString(),
         trackingCode: ticket.trackingCode,
         title: ticket.title,
+        estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
         createdAt: ticket.createdAt,
         customer: ticket.customer,
         currentStatus: ticket.currentStatus,
@@ -233,7 +269,10 @@ export class TicketService {
 
   async update(locationId: string, ticketId: string, dto: UpdateTicketDto) {
     const id = parseBigIntId(ticketId, "Ticket");
-    const ticket = await this.prisma.ticket.findFirst({ where: { id, locationId } });
+    const ticket = await this.prisma.ticket.findFirst({
+      where: { id, locationId },
+      include: { currentStatus: true, location: { select: READY_DATE_LOCATION_SELECT } },
+    });
     if (!ticket) {
       throw new NotFoundError("Ticket not found");
     }
@@ -243,11 +282,60 @@ export class TicketService {
       data: {
         ...(dto.title !== undefined && { title: dto.title }),
         ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.estimatedReadyDate !== undefined && this.readyDateChange(ticket, dto.estimatedReadyDate)),
       },
       include: DETAIL_INCLUDE,
     });
 
     return this.mapDetail(updated);
+  }
+
+  private initialReadyDate(location: ReadyDateLocation, requested: string | null | undefined) {
+    if (requested === undefined) {
+      return location.turnaroundDays
+        ? turnaroundReadyDate({
+            droppedOffAt: new Date(),
+            turnaroundDays: location.turnaroundDays,
+            timeZone: location.timeZone,
+            openingHours: location.openingHours as { dayOfWeek: string }[],
+          })
+        : null;
+    }
+    if (requested !== null) {
+      assertNotPast(requested, location);
+    }
+    return requested;
+  }
+
+  // ADR 0030: moving the date past the last one the Customer was told
+  // queues an email, delayed like a status email so a quick correction
+  // sends nothing. An earlier date, or a first one, only shows on the
+  // tracking page.
+  private readyDateChange(
+    ticket: {
+      estimatedReadyDate: Date | null;
+      customerToldReadyDate: Date | null;
+      currentStatus: { code: string };
+      location: ReadyDateLocation;
+    },
+    date: string | null,
+  ) {
+    // A form sending back the date it was given, even one now past, changes nothing.
+    if (date === toCalendarDate(ticket.estimatedReadyDate)) {
+      return {};
+    }
+    if (isEndedStatus(ticket.currentStatus.code)) {
+      throw new ConflictError("An ended ticket's estimated ready date can't change");
+    }
+    if (date !== null) {
+      assertNotPast(date, ticket.location);
+    }
+    const told = toCalendarDate(ticket.customerToldReadyDate);
+    const later = date !== null && told !== null && date > told;
+    return {
+      estimatedReadyDate: date && fromCalendarDate(date),
+      readyDateEmailDueAt: later ? new Date(Date.now() + STATUS_NOTIFICATION_DELAY_MS) : null,
+    };
   }
 
   // Rules from docs/decisions/0016-ticket-status-change-rules.md.
@@ -356,6 +444,7 @@ export class TicketService {
     title: string;
     description: string | null;
     notificationsStoppedAt: Date | null;
+    estimatedReadyDate: Date | null;
     createdAt: Date;
     customer: {
       id: bigint;
@@ -376,6 +465,7 @@ export class TicketService {
       description: ticket.description,
       // The Customer used "stop updates", staff see why no email went out.
       notificationsStoppedAt: ticket.notificationsStoppedAt,
+      estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
       createdAt: ticket.createdAt,
       customer: { ...ticket.customer, id: ticket.customer.id.toString() },
       currentStatus: ticket.currentStatus,

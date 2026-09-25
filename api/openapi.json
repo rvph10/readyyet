@@ -2499,6 +2499,18 @@
             }
           },
           {
+            "name": "overdue",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          },
+          {
             "name": "createdFrom",
             "required": false,
             "in": "query",
@@ -2838,6 +2850,16 @@
               }
             }
           },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "413": {
             "description": "VALIDATION_ERROR: the request body is over the size limit",
             "content": {
@@ -2884,7 +2906,7 @@
             "cookie": []
           }
         ],
-        "summary": "Edit a ticket's title/description",
+        "summary": "Edit a ticket's title, description or estimated ready date",
         "tags": [
           "Tickets"
         ]
@@ -5417,6 +5439,10 @@
               "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
             }
           },
+          "turnaroundDays": {
+            "type": "number",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -5438,6 +5464,7 @@
           "timeZone",
           "address",
           "openingHours",
+          "turnaroundDays",
           "createdAt",
           "updatedAt"
         ]
@@ -5742,6 +5769,12 @@
             "items": {
               "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
             }
+          },
+          "turnaroundDays": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 60
           }
         }
       },
@@ -5998,6 +6031,11 @@
       "CreateTicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -6071,6 +6109,11 @@
       "TicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "id": {
             "type": "string"
           },
@@ -6101,6 +6144,7 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "id",
           "trackingCode",
           "title",
@@ -6125,6 +6169,11 @@
       "TicketListItemDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "id": {
             "type": "string"
           },
@@ -6146,6 +6195,7 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "id",
           "trackingCode",
           "title",
@@ -6200,6 +6250,11 @@
       "TicketDetailDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "id": {
             "type": "string"
           },
@@ -6236,6 +6291,7 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "id",
           "trackingCode",
           "title",
@@ -6250,6 +6306,11 @@
       "UpdateTicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -6623,6 +6684,11 @@
       "TrackingDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "locale": {
             "enum": [
               "EN",
@@ -6660,6 +6726,7 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "locale",
           "trackingCode",
           "title",

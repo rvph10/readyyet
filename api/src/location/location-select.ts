@@ -18,6 +18,7 @@ export const locationSelect = {
     addressLocality: true,
     addressCountry: true,
     openingHours: true,
+    turnaroundDays: true,
     createdAt: true,
     updatedAt: true,
     businessType: { select: { code: true } },

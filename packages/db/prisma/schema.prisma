@@ -189,6 +189,9 @@ model Location {
   timeZone        String    @map("time_zone")
   // schema.org OpeningHoursSpecification entries, see ADR 0034.
   openingHours    Json      @default("[]") @map("opening_hours")
+  // Open days to a new Ticket's estimated ready date, null leaves it
+  // empty. 1 to 60, a CHECK enforces it (ADR 0036).
+  turnaroundDays  Int?      @map("turnaround_days")
   deletedAt       DateTime? @map("deleted_at")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
@@ -335,6 +338,13 @@ model Ticket {
   // Set when the Customer used the "stop updates" link, no more status
   // update emails for this ticket from then on (ADR 0015).
   notificationsStoppedAt DateTime? @map("notifications_stopped_at")
+  // A date on the Location's clock, no time (ADR 0030).
+  estimatedReadyDate     DateTime? @map("estimated_ready_date") @db.Date
+  // The last date an email told the Customer: moving the date past it
+  // queues an email due at readyDateEmailDueAt, it's only sent if the date
+  // is still later then.
+  customerToldReadyDate  DateTime? @map("customer_told_ready_date") @db.Date
+  readyDateEmailDueAt    DateTime? @map("ready_date_email_due_at")
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -354,6 +364,7 @@ model Ticket {
   @@index([locationId, createdAt(sort: Desc)])
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
+  @@index([readyDateEmailDueAt])
   @@map("ticket")
 }
 

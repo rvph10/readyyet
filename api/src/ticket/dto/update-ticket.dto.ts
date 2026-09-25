@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
+import { IsOptionalCalendarDate } from "../../common/calendar-date";
 import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
 
 export class UpdateTicketDto {
@@ -13,4 +14,8 @@ export class UpdateTicketDto {
   @IsString()
   @MaxLength(DESCRIPTION_MAX_LENGTH)
   description?: string;
+
+  // null clears it.
+  @IsOptionalCalendarDate()
+  estimatedReadyDate?: string | null;
 }

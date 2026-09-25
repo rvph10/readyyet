@@ -13,6 +13,7 @@ import {
 } from "class-validator";
 import { DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
 import { IsBigIntId } from "../../common/parse-bigint-id";
+import { IsOptionalCalendarDate } from "../../common/calendar-date";
 
 export class CreateCustomerDto {
   @IsString()
@@ -56,4 +57,9 @@ export class CreateTicketDto {
   @ValidateNested()
   @Type(() => CreateCustomerDto)
   customer?: CreateCustomerDto;
+
+  // Left out, it's the Location's turnaround time from today, if it has
+  // one (ADR 0036). null means no date.
+  @IsOptionalCalendarDate()
+  estimatedReadyDate?: string | null;
 }

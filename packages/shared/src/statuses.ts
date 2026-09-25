@@ -24,3 +24,9 @@ export function isEndedStatus(statusCode: string): boolean {
 export function isNotifyingStatus(statusCode: string): statusCode is NotifyingStatusCode {
   return (NOTIFYING_STATUS_CODES as readonly string[]).includes(statusCode);
 }
+
+// A ticket's estimated ready date is shown until it reaches READY or ends
+// (ADR 0030), after that it says nothing the Status doesn't.
+export function showsEstimatedReadyDate(statusCode: string): boolean {
+  return statusCode !== "READY" && !isEndedStatus(statusCode);
+}
