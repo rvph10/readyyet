@@ -15,10 +15,10 @@ import {
   MaxLength,
   ValidateNested,
 } from "class-validator";
+import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
-import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
 
 export class UpdateLocationDto {
   @OptionalNotNull()

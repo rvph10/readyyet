@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
-import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
+import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
 
 export class UpdateTicketDto {
   @OptionalNotNull()
