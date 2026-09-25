@@ -7,6 +7,7 @@ const KINDS: CustomerEmailKind[] = [
   "TICKET_CREATED",
   "READY_DATE_CHANGED",
   "READY_REMINDER",
+  "FEEDBACK_REQUEST",
   "READY",
   "AWAITING_APPROVAL",
   "AWAITING_CLIENT_INFO",
@@ -31,6 +32,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
     collectedUrl: "https://readyyet.app/t/AbC123xyz789/collected",
+    asksForFeedback: false,
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
     ...overrides,
   };
@@ -209,5 +211,37 @@ describe("Customer emails", () => {
     const html = await render(buildCustomerEmail(input()).react);
 
     expect(html).not.toContain("<img");
+  });
+
+  describe("feedback (ADR 0039)", () => {
+    it.each([
+      ["EN", "How did your repair at Joe's Garage go?", "Tell us how it went"],
+      // The subject is flattened to one line, a non-breaking space included.
+      ["FR", "Comment s'est passée votre réparation chez Joe's Garage ?", "Donner mon avis"],
+    ] as const)("asks how it went in %s, with a button to the tracking page", async (locale, subject, button) => {
+      const email = buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST", locale }));
+      const html = await render(email.react);
+
+      expect(email.subject).toBe(subject);
+      expect(html).toContain(button);
+      expect(html).toContain('href="https://readyyet.app/t/AbC123xyz789"');
+    });
+
+    it("never links to Google", async () => {
+      const html = await render(buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST" })).react);
+
+      expect(html).not.toMatch(/google|g\.page|goo\.gl/i);
+    });
+
+    it("tells the Customer at drop-off, only when the Location asks for feedback", async () => {
+      const notice = "Once you've picked it up, you'll get one email asking how it went.";
+      const asks = await render(buildCustomerEmail(input({ kind: "TICKET_CREATED", asksForFeedback: true })).react);
+      const silent = await render(buildCustomerEmail(input({ kind: "TICKET_CREATED" })).react);
+      const status = await render(buildCustomerEmail(input({ kind: "READY", asksForFeedback: true })).react);
+
+      expect(asks).toContain("Once you&#x27;ve picked it up");
+      expect(silent).not.toContain(notice.slice(0, 20));
+      expect(status).not.toContain("Once you&#x27;ve picked it up");
+    });
   });
 });

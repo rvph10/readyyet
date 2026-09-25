@@ -20,6 +20,7 @@ export const locationSelect = {
     addressCountry: true,
     openingHours: true,
     turnaroundDays: true,
+    googleReviewUrl: true,
     createdAt: true,
     updatedAt: true,
     businessType: { select: { code: true } },

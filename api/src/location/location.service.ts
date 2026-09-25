@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InvitationStatus } from "@readyyet/db";
 import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
-import { NotFoundError } from "../common/errors/app-error";
+import { hasPro } from "../billing/plans";
+import { NotFoundError, PlanRequiredError } from "../common/errors/app-error";
 import { processImage } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
@@ -26,6 +27,12 @@ export class LocationService {
   }
 
   async update(locationId: string, dto: UpdateLocationDto) {
+    if (dto.googleReviewUrl) {
+      const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+      if (!hasPro(subscription)) {
+        throw new PlanRequiredError("Review requests");
+      }
+    }
     const location = await this.prisma.location.update({
       where: { id: locationId },
       ...locationSelect,
@@ -38,6 +45,7 @@ export class LocationService {
         ...(dto.address !== undefined && toAddressColumns(dto.address)),
         ...(dto.openingHours !== undefined && { openingHours: toOpeningHoursJson(dto.openingHours) }),
         ...(dto.turnaroundDays !== undefined && { turnaroundDays: dto.turnaroundDays }),
+        ...(dto.googleReviewUrl !== undefined && { googleReviewUrl: dto.googleReviewUrl }),
       },
     });
     return toLocationResponse(location);

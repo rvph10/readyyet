@@ -12,6 +12,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -21,6 +22,16 @@ import { OptionalNotNull } from "../../common/decorators/optional-not-null.decor
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
+
+// Only Google's own hosts: the tracking page sends Customers to this link.
+const GOOGLE_REVIEW_HOSTS = [
+  "g.page",
+  "search.google.com",
+  "www.google.com",
+  "google.com",
+  "maps.google.com",
+  "maps.app.goo.gl",
+];
 
 export class UpdateLocationDto {
   @OptionalNotNull()
@@ -70,4 +81,12 @@ export class UpdateLocationDto {
   @Min(1)
   @Max(60)
   turnaroundDays?: number | null;
+
+  // Google's "write a review" link, Pro only. Setting it turns on the
+  // feedback email and the review choice on the tracking page, null turns
+  // them off (ADR 0039).
+  @IsOptional()
+  @IsUrl({ protocols: ["https"], require_protocol: true, host_whitelist: GOOGLE_REVIEW_HOSTS })
+  @MaxLength(2048)
+  googleReviewUrl?: string | null;
 }

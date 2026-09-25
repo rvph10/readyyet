@@ -24,6 +24,11 @@ export function isFrozen(subscription: Subscription, now = new Date()) {
   return subscription.status === SubscriptionStatus.ENDED;
 }
 
+// Pro's features (ADR 0031): a trial is Pro, a frozen Location isn't.
+export function hasPro(subscription: Subscription, now = new Date()) {
+  return subscription.plan === Plan.PRO && !isFrozen(subscription, now);
+}
+
 // A move to Essentiel waiting for the period to end already holds the
 // Location to its limit, or it could grow past it before the switch.
 export function memberLimit(subscription: Subscription) {
