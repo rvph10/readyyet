@@ -96,6 +96,7 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let ownerCookie: string;
+  let adminCookie: string;
   let employeeCookie: string;
   let locationId: string;
 
@@ -130,6 +131,8 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
 
     const stamp = Date.now();
     ownerCookie = await signInViaOtp(app, prisma, `delivered+workflow-edit-owner-${stamp}@resend.dev`);
+    const adminEmail = `delivered+workflow-edit-admin-${stamp}@resend.dev`;
+    adminCookie = await signInViaOtp(app, prisma, adminEmail);
     const employeeEmail = `delivered+workflow-edit-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
 
@@ -148,8 +151,13 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
         },
       });
     locationId = created.body.locations[0].id;
-    const employee = await prisma.user.findUniqueOrThrow({ where: { email: employeeEmail } });
-    await prisma.membership.create({ data: { userId: employee.id, locationId, role: Role.EMPLOYEE } });
+    for (const [email, role] of [
+      [adminEmail, Role.ADMIN],
+      [employeeEmail, Role.EMPLOYEE],
+    ] as const) {
+      const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+      await prisma.membership.create({ data: { userId: user.id, locationId, role } });
+    }
   });
 
   afterAll(async () => {
@@ -204,6 +212,7 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
   });
 
   it("is for owners and admins only", async () => {
+    expect((await replace(["REPAIRING"], adminCookie)).status).toBe(200);
     expect((await replace(["REPAIRING"], employeeCookie)).status).toBe(403);
     const reset = await request(app.getHttpServer())
       .delete(`/locations/${locationId}/workflow`)
@@ -226,12 +235,23 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
     expect(codes(active.body)).toContain("2:DIAGNOSING");
   });
 
-  it("is refused on Essentiel with PLAN_REQUIRED", async () => {
+  it("is refused on Essentiel with PLAN_REQUIRED, going back to the default still works", async () => {
+    await replace(["QUALITY_CHECK"]);
+    const activeCustom = () =>
+      prisma.workflow.findMany({ where: { locationId, isActive: true }, select: { id: true } });
+    const before = await activeCustom();
     await prisma.subscription.update({ where: { locationId }, data: { status: "ACTIVE", plan: "ESSENTIEL" } });
 
     const response = await replace(["REPAIRING"]);
 
     expect(response.status).toBe(402);
     expect(response.body.error.code).toBe("PLAN_REQUIRED");
+    expect(await activeCustom()).toEqual(before);
+
+    const reset = await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/workflow`)
+      .set("Cookie", ownerCookie);
+    expect(reset.status).toBe(204);
+    expect(await activeCustom()).toEqual([]);
   });
 });

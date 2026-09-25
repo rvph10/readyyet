@@ -4,8 +4,8 @@ import { Role } from "@readyyet/db";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
-import { WorkflowDto } from "./dto/workflow.response.dto";
 import { UpdateWorkflowDto } from "./dto/update-workflow.dto";
+import { WorkflowDto } from "./dto/workflow.response.dto";
 import { WorkflowService } from "./workflow.service";
 
 @ApiTags("Workflow")
