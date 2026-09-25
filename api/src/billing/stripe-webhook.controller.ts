@@ -33,6 +33,9 @@ export class StripeWebhookController {
       return;
     }
 
+    if (event.type === "checkout.session.completed") {
+      await this.billing.checkoutCompleted(event.data.object);
+    }
     const subscriptionId = subscriptionOf(event);
     if (subscriptionId) {
       await this.billing.sync(subscriptionId);

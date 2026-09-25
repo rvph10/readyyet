@@ -6,7 +6,7 @@ import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { BillingService } from "./billing.service";
 import { BillingDto } from "./dto/billing.response.dto";
-import { ChoosePlanDto } from "./dto/choose-plan.dto";
+import { CheckoutDto, ChoosePlanDto } from "./dto/choose-plan.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
 
 @ApiTags("Billing")
@@ -29,7 +29,7 @@ export class BillingController {
   @UseGuards(LocationMembershipGuard)
   @ApiOperation({ summary: "Start paying for a location, returns the Stripe Checkout page to open" })
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
-  checkout(@Param("locationId") locationId: string, @Body() dto: ChoosePlanDto): Promise<RedirectDto> {
+  checkout(@Param("locationId") locationId: string, @Body() dto: CheckoutDto): Promise<RedirectDto> {
     return this.billing.checkout(locationId, dto);
   }
 

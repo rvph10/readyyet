@@ -141,18 +141,21 @@ enum SubscriptionStatus {
 }
 
 model Business {
-  id                       String   @id @default(uuid()) @db.Uuid
-  ownerId                  String   @map("owner_id")
+  id                       String    @id @default(uuid()) @db.Uuid
+  ownerId                  String    @map("owner_id")
   name                     String
-  stripeCustomerId         String?  @unique @map("stripe_customer_id")
+  stripeCustomerId         String?   @unique @map("stripe_customer_id")
   // The Owner's sponsor link for this Business (ADR 0040).
-  referralCode             String   @unique @map("referral_code")
+  referralCode             String    @unique @map("referral_code")
   // Set at creation, never changed, at most one of the two
   // (business_one_referrer, ADR 0032).
-  referredByBusinessId     String?  @map("referred_by_business_id") @db.Uuid
-  referredBySalesPartnerId String?  @map("referred_by_sales_partner_id")
-  createdAt                DateTime @default(now()) @map("created_at")
-  updatedAt                DateTime @updatedAt @map("updated_at")
+  referredByBusinessId     String?   @map("referred_by_business_id") @db.Uuid
+  referredBySalesPartnerId String?   @map("referred_by_sales_partner_id")
+  // A checkout with the referral coupon completed, it's not offered again
+  // (ADR 0040).
+  referralDiscountUsedAt   DateTime? @map("referral_discount_used_at")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
 
   owner                  User       @relation("BusinessOwner", fields: [ownerId], references: [id])
   locations              Location[]

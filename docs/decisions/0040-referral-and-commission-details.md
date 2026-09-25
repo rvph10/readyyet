@@ -15,7 +15,7 @@ Implements ADR 0032 on top of the billing of ADR 0033, and settles the points it
 
 ### Discounts
 
-- The referral discount is a Stripe coupon, `referral-essentiel` (€14.50) or `referral-pro` (€24.50), `duration: once`, the same ids in test mode and in live mode.
+- The referral discount is a Stripe coupon, `referral-essentiel` (€14.50) or `referral-pro` (€24.50), the same ids in test mode and in live mode. It's `duration: repeating` for 1 month, not `once`: a `once` coupon is used up by the subscription's first invoice, which for a checkout keeping the trial is the €0 invoice the trial starts with. A month from checkout covers the invoice at the end of a trial of 14 days at most, and ends before the next monthly renewal.
 - It's applied to a referred Business's checkouts until one of them completes with it. The Business's first paid invoice is the one it lands on.
 - A campaign code is typed in the web app, before checkout or on a paying Location's billing page, and sent to the API. Stripe Checkout's own code field stays off: it can't be shown on a checkout that already carries a discount, so a referred Business couldn't swap its referral discount for a campaign there.
 - At checkout a campaign code replaces the referral discount, Stripe Checkout then shows the price before paying. On a paying Location, the API first previews the next invoice with the code, then applies it in a second call.

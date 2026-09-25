@@ -14,9 +14,16 @@ import { generateReferralCode } from "./referral-code";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
-// Every Business this service returns goes to its Owner. The Stripe id is
-// ours alone, and who referred it is only for billing (ADR 0032).
-const omitPrivate = { stripeCustomerId: true, referredByBusinessId: true, referredBySalesPartnerId: true } as const;
+// Every Business this service returns goes to its Owner. The rest of the
+// row, Stripe's id and who referred it, is only for billing.
+const businessSelect = {
+  id: true,
+  name: true,
+  ownerId: true,
+  referralCode: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 @Injectable()
 export class BusinessService {
@@ -42,8 +49,7 @@ export class BusinessService {
           },
         },
       },
-      include: { locations: locationSelect },
-      omit: omitPrivate,
+      select: { ...businessSelect, locations: locationSelect },
     });
     return { ...business, locations: business.locations.map(toLocationResponse) };
   }
@@ -54,8 +60,8 @@ export class BusinessService {
     await this.loadOwned(businessId, userId, "Only the business owner can view it");
     return this.prisma.business.findUniqueOrThrow({
       where: { id: businessId },
-      omit: omitPrivate,
-      include: {
+      select: {
+        ...businessSelect,
         locations: {
           where: { deletedAt: null },
           orderBy: { createdAt: "asc" },
@@ -67,7 +73,7 @@ export class BusinessService {
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can rename it");
-    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, omit: omitPrivate });
+    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, select: businessSelect });
   }
 
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
@@ -130,7 +136,7 @@ export class BusinessService {
         });
       }
 
-      return tx.business.findUniqueOrThrow({ where: { id: businessId }, omit: omitPrivate });
+      return tx.business.findUniqueOrThrow({ where: { id: businessId }, select: businessSelect });
     });
 
     // After the commit, never inside it: an email can't be taken back.

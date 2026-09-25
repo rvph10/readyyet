@@ -49,3 +49,9 @@ export function fromLookupKey(key: string | null) {
     interval: interval === "yearly" ? BillingInterval.YEAR : BillingInterval.MONTH,
   };
 }
+
+// Half a month of the plan off (ADR 0032). Fixed ids, the same in test mode
+// and in live mode, like the lookup keys (ADR 0040).
+export function referralCoupon(plan: Plan) {
+  return plan === Plan.PRO ? "referral-pro" : "referral-essentiel";
+}

@@ -1006,7 +1006,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ChoosePlanDto"
+                "$ref": "#/components/schemas/CheckoutDto"
               }
             }
           }
@@ -7393,6 +7393,9 @@
           "memberLimit": {
             "type": "number",
             "nullable": true
+          },
+          "referralDiscount": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -7405,7 +7408,35 @@
           "currentPeriodEnd",
           "cancelAtPeriodEnd",
           "frozen",
-          "memberLimit"
+          "memberLimit",
+          "referralDiscount"
+        ]
+      },
+      "CheckoutDto": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "interval": {
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "promotionCode": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "plan",
+          "interval"
         ]
       },
       "ChoosePlanDto": {

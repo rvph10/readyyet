@@ -1,14 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus, Plan, SubscriptionStatus } from "@readyyet/db";
 import Stripe from "stripe";
-import { ConflictError, LocationFrozenError, MemberLimitError } from "../common/errors/app-error";
+import { ConflictError, LocationFrozenError, MemberLimitError, ValidationError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
-import { ChoosePlanDto } from "./dto/choose-plan.dto";
+import { CheckoutDto, ChoosePlanDto } from "./dto/choose-plan.dto";
 import { BillingDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
-import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit } from "./plans";
+import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit, referralCoupon } from "./plans";
 import { getStripeClient } from "./stripe-client";
 import { scheduledLookupKey, toSubscriptionRow } from "./stripe-sync";
+
+function hasReferralDiscount(business: {
+  referredByBusinessId: string | null;
+  referredBySalesPartnerId: string | null;
+  referralDiscountUsedAt: Date | null;
+}) {
+  const referred = business.referredByBusinessId !== null || business.referredBySalesPartnerId !== null;
+  return referred && business.referralDiscountUsedAt === null;
+}
+
+function invalidPromotionCode() {
+  return new ValidationError("This promotion code doesn't exist, has expired or doesn't apply here", [
+    { property: "promotionCode", constraints: { isApplicable: "promotionCode must be a code that applies here" } },
+  ]);
+}
 
 function perMonth(price: Stripe.Price) {
   return price.unit_amount! / (price.recurring!.interval === "year" ? 12 : 1);
@@ -22,7 +37,10 @@ export class BillingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async get(locationId: string): Promise<BillingDto> {
-    const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({
+      where: { locationId },
+      include: { location: { select: { business: true } } },
+    });
     return {
       status: subscription.status,
       plan: subscription.plan,
@@ -34,11 +52,12 @@ export class BillingService {
       scheduledInterval: subscription.scheduledInterval,
       frozen: isFrozen(subscription),
       memberLimit: memberLimit(subscription),
+      referralDiscount: hasReferralDiscount(subscription.location.business),
     };
   }
 
   // A Location's first payment, or its first since its subscription ended.
-  async checkout(locationId: string, dto: ChoosePlanDto): Promise<RedirectDto> {
+  async checkout(locationId: string, dto: CheckoutDto): Promise<RedirectDto> {
     const location = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
       include: { subscription: true, business: { include: { owner: true } } },
@@ -59,6 +78,12 @@ export class BillingService {
     }
     await this.expireOpenCheckouts(customer, locationId);
     const price = await this.price(lookupKey(dto.plan, dto.interval));
+    // A campaign code replaces the referral discount, a Checkout Session
+    // takes one discount (ADR 0040).
+    const referral = !dto.promotionCode && hasReferralDiscount(location.business);
+    const discount = dto.promotionCode
+      ? { promotion_code: await this.promotionCodeId(dto.promotionCode) }
+      : referral && { coupon: referralCoupon(dto.plan) };
 
     // Choosing during the trial keeps the days left, the card is charged
     // when the trial would have ended (ADR 0033).
@@ -66,24 +91,46 @@ export class BillingService {
     const keepsTrial = trialEnd && trialEnd.getTime() - Date.now() > MIN_CHECKOUT_TRIAL_MS;
 
     const billingPage = `${process.env.WEB_URL}/locations/${locationId}/billing`;
-    const session = await getStripeClient().checkout.sessions.create({
-      mode: "subscription",
-      customer,
-      metadata: { locationId },
-      line_items: [{ price: price.id, quantity: 1 }],
-      subscription_data: {
-        description: location.name,
-        metadata: { locationId },
-        ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
-      },
-      // The shop's VAT number and address, for its own accounting.
-      billing_address_collection: "required",
-      tax_id_collection: { enabled: true },
-      customer_update: { name: "auto", address: "auto" },
-      success_url: `${billingPage}?checkout=success`,
-      cancel_url: billingPage,
-    });
+    const session = await getStripeClient()
+      .checkout.sessions.create({
+        mode: "subscription",
+        customer,
+        // referralDiscount tells the webhook to mark the discount used.
+        metadata: { locationId, ...(referral && { referralDiscount: "true" }) },
+        line_items: [{ price: price.id, quantity: 1 }],
+        ...(discount && { discounts: [discount] }),
+        subscription_data: {
+          description: location.name,
+          metadata: { locationId },
+          ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
+        },
+        // The shop's VAT number and address, for its own accounting.
+        billing_address_collection: "required",
+        tax_id_collection: { enabled: true },
+        customer_update: { name: "auto", address: "auto" },
+        success_url: `${billingPage}?checkout=success`,
+        cancel_url: billingPage,
+      })
+      .catch((err: unknown) => {
+        // A code can exist and still not apply here: first-time customers
+        // only, a minimum amount, another customer's code.
+        if (err instanceof Stripe.errors.StripeInvalidRequestError && err.param?.startsWith("discounts")) {
+          throw invalidPromotionCode();
+        }
+        throw err;
+      });
     return { url: session.url! };
+  }
+
+  // Once a checkout with the referral coupon completes, no other checkout
+  // of the Business gets it (ADR 0040).
+  async checkoutCompleted(session: Stripe.Checkout.Session) {
+    if (session.metadata?.referralDiscount) {
+      await this.prisma.business.updateMany({
+        where: { stripeCustomerId: session.customer as string, referralDiscountUsedAt: null },
+        data: { referralDiscountUsedAt: new Date() },
+      });
+    }
   }
 
   // A Location that already pays moves to another plan or interval (ADR
@@ -248,6 +295,16 @@ export class BillingService {
       throw new ConflictError("This location has no subscription, choose a plan through checkout");
     }
     return stripeSubscriptionId!;
+  }
+
+  private async promotionCodeId(code: string) {
+    const {
+      data: [promotionCode],
+    } = await getStripeClient().promotionCodes.list({ code, active: true, limit: 1 });
+    if (!promotionCode) {
+      throw invalidPromotionCode();
+    }
+    return promotionCode.id;
   }
 
   private async price(key: string) {

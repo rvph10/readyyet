@@ -24,4 +24,7 @@ export class BillingDto {
   frozen!: boolean;
   // Memberships plus pending invitations, null when unlimited.
   memberLimit!: number | null;
+  // The next checkout takes half a month off, the Business was referred
+  // (ADR 0032).
+  referralDiscount!: boolean;
 }
