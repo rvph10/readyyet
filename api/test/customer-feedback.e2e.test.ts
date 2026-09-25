@@ -4,8 +4,9 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { Plan, SubscriptionStatus } from "@readyyet/db";
 import request from "supertest";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -135,6 +136,7 @@ describe("Customer feedback", () => {
       "https://g.page/r/CabcDEF123/review",
       "https://search.google.com/local/writereview?placeid=ChIJabc",
       "https://maps.app.goo.gl/abc123",
+      "https://www.google.com/maps/place/Garage+Martin/@50.85,4.35,17z",
     ])("takes %s", async (url) => {
       const response = await patchLocation({ googleReviewUrl: url });
 
@@ -142,15 +144,21 @@ describe("Customer feedback", () => {
       expect(response.body.googleReviewUrl).toBe(url);
     });
 
-    it.each(["https://evil.example/review", "http://g.page/r/abc/review", "https://g.page.evil.example/r"])(
-      "refuses %s",
-      async (url) => {
-        const response = await patchLocation({ googleReviewUrl: url });
+    it.each([
+      "https://evil.example/review",
+      "http://g.page/r/abc/review",
+      "https://g.page.evil.example/r/abc",
+      // Google's redirect, it would send Customers anywhere.
+      "https://www.google.com/url?q=https://evil.example",
+      "https://g.page/somewhere-else",
+      "https://search.google.com/search?q=evil",
+      "https://user@g.page/r/abc/review",
+    ])("refuses %s", async (url) => {
+      const response = await patchLocation({ googleReviewUrl: url });
 
-        expect(response.status).toBe(400);
-        expect(response.body.error.details[0].property).toBe("googleReviewUrl");
-      },
-    );
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("googleReviewUrl");
+    });
 
     it("needs Pro to be set, but can be removed on any plan", async () => {
       await setSubscription({ status: SubscriptionStatus.ACTIVE, plan: Plan.ESSENTIEL, trialEndsAt: null });
@@ -284,17 +292,36 @@ describe("Customer feedback", () => {
       expect(response.status).toBe(204);
       const stored = await prisma.ticketFeedback.findUniqueOrThrow({ where: { ticketId: BigInt(ticket.id) } });
       expect(stored.message).toBe("The car still makes the noise.");
-      const sentTo = (
-        await prisma.emailLog.findMany({
-          where: { type: "feedback_received", html: { contains: `Embrayage ${stamp}` } },
-        })
-      ).map((email) => email.to);
-      expect(sentTo.sort()).toEqual([address("admin"), address("owner")].sort());
+      // Sent in the background, after the response.
+      await vi.waitFor(
+        async () => {
+          const sentTo = (
+            await prisma.emailLog.findMany({
+              where: { type: "feedback_received", html: { contains: `Embrayage ${stamp}` } },
+            })
+          ).map((email) => email.to);
+          expect(sentTo.sort()).toEqual([address("admin"), address("owner")].sort());
+        },
+        { timeout: 10_000, interval: 200 },
+      );
       const tracking = await request(app.getHttpServer()).get(`/tracking/${ticket.trackingCode}`);
       expect(tracking.body.feedbackSentAt).not.toBeNull();
 
       const again = await sendFeedback(ticket.trackingCode, "And another thing");
       expect(again.status).toBe(409);
+    });
+
+    it("answers without waiting for the staff emails", async () => {
+      const ticket = await createTicket("no-wait");
+      await complete(ticket.id);
+      const send = vi.spyOn(app.get(EmailService), "send").mockReturnValue(new Promise(() => undefined));
+
+      const response = await sendFeedback(ticket.trackingCode, "Quick answer please");
+
+      expect(response.status).toBe(204);
+      // The sends start after the response, and never finish here.
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      send.mockRestore();
     });
 
     it("refuses feedback before the Ticket is COMPLETED", async () => {

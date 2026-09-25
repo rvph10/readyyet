@@ -12,7 +12,6 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
-  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -20,18 +19,8 @@ import {
 } from "class-validator";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
 import { NAME_MAX_LENGTH } from "../../common/text-limits";
-import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
+import { canonicalTimeZone, IsGoogleReviewUrl, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
-
-// Only Google's own hosts: the tracking page sends Customers to this link.
-const GOOGLE_REVIEW_HOSTS = [
-  "g.page",
-  "search.google.com",
-  "www.google.com",
-  "google.com",
-  "maps.google.com",
-  "maps.app.goo.gl",
-];
 
 export class UpdateLocationDto {
   @OptionalNotNull()
@@ -86,7 +75,7 @@ export class UpdateLocationDto {
   // feedback email and the review choice on the tracking page, null turns
   // them off (ADR 0039).
   @IsOptional()
-  @IsUrl({ protocols: ["https"], require_protocol: true, host_whitelist: GOOGLE_REVIEW_HOSTS })
+  @IsGoogleReviewUrl()
   @MaxLength(2048)
   googleReviewUrl?: string | null;
 }

@@ -17,7 +17,7 @@ Settles the consent question ADR 0027 left open, and implements it with that cha
 - The feature is on for a Location on Pro that has set its Google review link. A trial is Pro (ADR 0031). A frozen Location (a trial that ended without a plan, or an ended subscription) gets neither the email nor the choices on the tracking page, and neither does Essentiel. This replaces ADR 0027's "free plan or trial" wording, written before ADR 0031 removed the free plan.
 - The email is queued when the Ticket reaches `COMPLETED`, like a Status email (ADR 0015), so an undone `COMPLETED` sends nothing. Whether it's sent is decided when it's due, with the Location's plan and link at that moment.
 - A Ticket gets at most one. A Ticket completed again after being reopened sends no second email.
-- The Google link must be an `https` link on a Google domain: `g.page`, `search.google.com`, `www.google.com`, `google.com`, `maps.google.com` or `maps.app.goo.gl`.
+- The Google link must be one of Google's review or Maps pages, by host and path: `g.page/r/...`, `search.google.com/local/writereview`, `/maps/...` on `www.google.com`, `google.com` or `maps.google.com`, or a `maps.app.goo.gl` short link. Only `https`, no user name or port.
 
 ### Private feedback
 
@@ -38,4 +38,4 @@ A frozen Location has stopped paying for Pro. Its tracking links and Status emai
 
 Staff are emailed for each piece of feedback because the private option exists to let the shop fix a problem before it becomes a public review. That only works if someone reads it the same day.
 
-The Google domains are checked so a Location can't point its Customers to an arbitrary site from the tracking page.
+The link is checked by path as well as host so a Location can't point its Customers to an arbitrary site from the tracking page: `google.com/url?q=` is on a Google host and redirects anywhere.

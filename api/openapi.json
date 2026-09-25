@@ -7150,8 +7150,7 @@
           "googleReviewUrl": {
             "type": "string",
             "nullable": true,
-            "maxLength": 2048,
-            "format": "uri"
+            "maxLength": 2048
           }
         }
       },

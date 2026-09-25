@@ -63,6 +63,45 @@ export function canonicalTimeZone(value: unknown): string | undefined {
   }
 }
 
+// Google's review pages only, by host and path: the tracking page sends
+// Customers to this link, and a Google host alone would let through
+// google.com/url?q=, which redirects anywhere (ADR 0039).
+const GOOGLE_REVIEW_PATHS: Record<string, RegExp> = {
+  "g.page": /^\/r\//,
+  "search.google.com": /^\/local\/writereview$/,
+  "www.google.com": /^\/maps\//,
+  "google.com": /^\/maps\//,
+  "maps.google.com": /^\/maps\//,
+  // Google's own short links, they only open Google Maps.
+  "maps.app.goo.gl": /^\/[A-Za-z0-9]+$/,
+};
+
+function isGoogleReviewUrl(value: unknown) {
+  if (typeof value !== "string" || !URL.canParse(value)) {
+    return false;
+  }
+  const url = new URL(value);
+  return (
+    url.protocol === "https:" &&
+    url.username === "" &&
+    url.password === "" &&
+    url.port === "" &&
+    (GOOGLE_REVIEW_PATHS[url.hostname]?.test(url.pathname) ?? false)
+  );
+}
+
+export function IsGoogleReviewUrl() {
+  return ValidateBy({
+    name: "isGoogleReviewUrl",
+    validator: {
+      validate: isGoogleReviewUrl,
+      defaultMessage: buildMessage(
+        (eachPrefix) => `${eachPrefix}$property must be a Google review link, like https://g.page/r/.../review`,
+      ),
+    },
+  });
+}
+
 export function IsRegionTimeZone() {
   return ValidateBy({
     name: "isRegionTimeZone",

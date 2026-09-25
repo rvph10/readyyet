@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, Role } from "@readyyet/db";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
@@ -19,6 +19,8 @@ type LoadedFeedback = Prisma.TicketFeedbackGetPayload<{ include: typeof FEEDBACK
 // Private feedback from the tracking page (ADR 0027, ADR 0039).
 @Injectable()
 export class FeedbackService {
+  private readonly logger = new Logger(FeedbackService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
@@ -31,9 +33,23 @@ export class FeedbackService {
       data: { ticketId, message },
       include: { ticket: { include: { customer: true, location: true } } },
     });
-    const { location, customer, title } = feedback.ticket;
+    // Not awaited: the Customer's form shouldn't wait on the rate limit or
+    // retries of one send per Owner and Admin. A failed send is recorded
+    // and retried by EmailService, like an invitation's.
+    this.notifyStaff(feedback.ticket, message).catch((err) => {
+      this.logger.error(`Failed to email feedback ${feedback.id} to staff`, err instanceof Error ? err.stack : err);
+    });
+  }
 
-    // After the commit: every Owner and Admin, each in their own language.
+  // Every Owner and Admin, each in their own language.
+  private async notifyStaff(
+    {
+      location,
+      customer,
+      title,
+    }: { location: { id: string; name: string }; customer: { fullName: string }; title: string },
+    message: string,
+  ) {
     const staff = await this.prisma.membership.findMany({
       where: { locationId: location.id, role: { in: [Role.OWNER, Role.ADMIN] } },
       select: { user: { select: { email: true, locale: true } } },
