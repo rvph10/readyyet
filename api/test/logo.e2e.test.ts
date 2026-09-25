@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import sharp from "sharp";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PrismaService } from "../src/database/prisma.service";
 import { StorageService } from "../src/storage/storage.service";
 import { createTestApp } from "./support/create-test-app";
@@ -30,7 +30,15 @@ describe("Location logo", () => {
       .put(`/locations/${locationId}/logo`)
       .set("Cookie", cookie)
       .set("X-Real-IP", ip);
-    return file ? req.attach("file", file, "logo.jpg") : req.field("name", "no file");
+    return file ? req.attach("file", file, "logo.jpg") : req;
+  }
+
+  async function objectKeys() {
+    const keys = [];
+    for await (const object of storage.list()) {
+      keys.push(object.key);
+    }
+    return keys;
   }
 
   function imagePath(url: string) {
@@ -149,6 +157,30 @@ describe("Location logo", () => {
     const response = await upload(ownerCookie, null);
 
     expect(response.status).toBe(400);
+  });
+
+  // Every other part would be held in memory too, up to 1 MB per text field.
+  it.each([
+    ["a text field", (req: request.Test) => req.field("name", "x".repeat(1024))],
+    ["a second file", async (req: request.Test) => req.attach("other", await imageFile("png"), "other.png")],
+  ])("refuses an upload that also carries %s, and stores nothing", async (_, addPart) => {
+    const before = await logoKey();
+
+    const response = await addPart(upload(ownerCookie, await imageFile("png")));
+
+    expect(response.status).toBe(400);
+    expect(await logoKey()).toBe(before);
+  });
+
+  it("deletes the stored file when saving the logo fails", async () => {
+    const before = await objectKeys();
+    const update = vi.spyOn(prisma.location, "update").mockRejectedValueOnce(new Error("connection lost"));
+
+    const response = await upload(ownerCookie, await imageFile("png"));
+
+    update.mockRestore();
+    expect(response.status).toBe(500);
+    expect((await objectKeys()).filter((key) => !before.includes(key))).toEqual([]);
   });
 
   it("refuses a file over 15 MB with a 413", async () => {

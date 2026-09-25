@@ -8,6 +8,7 @@ Implements ADR 0026, and settles the points it leaves open.
 
 ### Uploads
 
+- An upload request carries the image as its only part. Any other file or text field is refused with a 400: Multer's limits on those default to unlimited, and it keeps every text field in memory, up to 1 MB each.
 - An image over 50 million pixels is refused with a 400, whatever its file size. The count is read from the file's header before anything is decoded.
 - The EXIF orientation is applied to the pixels before the metadata is dropped, so a phone photo taken sideways stays upright.
 - A Location's logo is uploaded by an Owner or an Admin, the same people who edit its other settings. `PATCH /locations/:id` no longer takes `logoUrl`, the response still returns it, now built from the stored key.

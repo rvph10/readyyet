@@ -54,7 +54,12 @@ export class MeService {
   async setAvatar(userId: string, file: Buffer) {
     const image = await processImage(file, "avatar");
     await this.storage.put(image.key, image.body, image.contentType);
-    return this.replaceAvatar(userId, image.key);
+    try {
+      return await this.replaceAvatar(userId, image.key);
+    } catch (error) {
+      await this.storage.delete([image.key]);
+      throw error;
+    }
   }
 
   removeAvatar(userId: string) {

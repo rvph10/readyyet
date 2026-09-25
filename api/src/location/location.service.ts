@@ -46,7 +46,12 @@ export class LocationService {
   async setLogo(locationId: string, file: Buffer) {
     const image = await processImage(file, "logo");
     await this.storage.put(image.key, image.body, image.contentType);
-    return this.replaceLogo(locationId, image.key);
+    try {
+      return await this.replaceLogo(locationId, image.key);
+    } catch (error) {
+      await this.storage.delete([image.key]);
+      throw error;
+    }
   }
 
   removeLogo(locationId: string) {

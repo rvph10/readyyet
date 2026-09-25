@@ -4,8 +4,9 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import sharp from "sharp";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PrismaService } from "../src/database/prisma.service";
+import { StorageService } from "../src/storage/storage.service";
 import { createTestApp } from "./support/create-test-app";
 import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -88,6 +89,25 @@ describe("User avatar", () => {
 
     expect(second.body.avatarUrl).not.toBe(first.body.avatarUrl);
     expect((await request(app.getHttpServer()).get(imagePath(first.body.avatarUrl))).status).toBe(404);
+  });
+
+  it("deletes the stored file when saving the avatar fails", async () => {
+    const storage = app.get(StorageService);
+    const keys = async () => {
+      const found = [];
+      for await (const object of storage.list()) {
+        found.push(object.key);
+      }
+      return found;
+    };
+    const before = await keys();
+    const update = vi.spyOn(prisma.user, "update").mockRejectedValueOnce(new Error("connection lost"));
+
+    const response = await upload(await imageFile("png"));
+
+    update.mockRestore();
+    expect(response.status).toBe(500);
+    expect((await keys()).filter((key) => !before.includes(key))).toEqual([]);
   });
 
   it("refuses a file that isn't an image", async () => {

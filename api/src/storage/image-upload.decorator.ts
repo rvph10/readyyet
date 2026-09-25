@@ -6,10 +6,12 @@ import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { MAX_UPLOAD_BYTES } from "./image";
 
 // A route taking one picture as the multipart "file" field (ADR 0026).
-// Held in memory: at 15 MB at most, sharp reads it from there.
+// Held in memory: at 15 MB at most, sharp reads it from there. The file
+// must be the only part: Multer's other limits default to unlimited, and
+// every text field, up to 1 MB each, would be kept in memory too.
 export function ImageUpload() {
   return applyDecorators(
-    UseInterceptors(FileInterceptor("file", { limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 } })),
+    UseInterceptors(FileInterceptor("file", { limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 0, parts: 1 } })),
     // The heaviest requests the API takes, the default 60 a minute would
     // let one client push about 900 MB a minute into the bucket.
     Throttle({ default: { limit: 5, ttl: 60_000 } }),
