@@ -1,13 +1,15 @@
 import eslint from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 // The root typescript devDependency (6.0.x) is what the type-aware rules
 // run on: typescript-eslint doesn't support TypeScript 7 yet, which
 // packages/* build with.
 export default defineConfig(
-  { ignores: ["**/dist/", "**/generated/", "**/node_modules/"] },
+  { ignores: ["**/dist/", "**/generated/", "**/node_modules/", "**/.next/", "**/next-env.d.ts"] },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
@@ -29,6 +31,11 @@ export default defineConfig(
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
     },
+  },
+  {
+    files: ["web/**/*.{ts,tsx}"],
+    extends: [nextPlugin.configs["core-web-vitals"], reactHooks.configs.flat.recommended],
+    settings: { next: { rootDir: "web/" } },
   },
   {
     files: ["**/*.mjs"],
