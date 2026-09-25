@@ -47,6 +47,7 @@ pnpm --filter @readyyet/db run migrate:dev
 pnpm --filter @readyyet/db run seed
 pnpm --filter @readyyet/api run start:dev
 pnpm --filter @readyyet/shared run build   # the web app imports its compiled output
+cp web/.env.example web/.env.local          # once
 pnpm --filter @readyyet/web run dev        # http://localhost:3001
 pnpm --filter @readyyet/site run dev       # the sales site, http://localhost:3002
 ```
@@ -56,11 +57,12 @@ pnpm --filter @readyyet/site run dev       # the sales site, http://localhost:30
 ```bash
 pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
+pnpm --filter @readyyet/web run test
 pnpm lint
 pnpm format:check   # or pnpm format to fix
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
 
 ## CI
 
