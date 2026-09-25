@@ -1,8 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { Plan, type Locale } from "@readyyet/db";
+import { SYSTEM_STATUS_CODES } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
-import { NotFoundError } from "../common/errors/app-error";
+import { NotFoundError, PlanRequiredError, ValidationError } from "../common/errors/app-error";
 import { statusSelect } from "../common/status-select";
+import type { UpdateWorkflowDto } from "./dto/update-workflow.dto";
+
+const [FIRST_STATUS_CODE, ...LAST_STATUS_CODES] = SYSTEM_STATUS_CODES;
 
 @Injectable()
 export class WorkflowService {
@@ -42,6 +46,47 @@ export class WorkflowService {
     }
 
     return this.serialize(workflow);
+  }
+
+  // A Workflow is never edited in place (docs/architecture/data-model.md#workflow-versioning):
+  // a new version replaces the active one, open Tickets keep theirs.
+  async replaceCustomWorkflow(locationId: string, dto: UpdateWorkflowDto) {
+    const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    if (subscription.plan !== Plan.PRO) {
+      throw new PlanRequiredError("A custom workflow");
+    }
+
+    const invalid = dto.statusCodes.filter((code) => (SYSTEM_STATUS_CODES as readonly string[]).includes(code));
+    if (invalid.length > 0) {
+      throw new ValidationError(`System statuses are added automatically: ${invalid.join(", ")}`);
+    }
+    const codes = [FIRST_STATUS_CODE, ...dto.statusCodes, ...LAST_STATUS_CODES];
+    const statuses = await this.prisma.status.findMany({
+      where: { code: { in: codes } },
+      select: { id: true, code: true },
+    });
+    const unknown = dto.statusCodes.filter((code) => !statuses.some((status) => status.code === code));
+    if (unknown.length > 0) {
+      throw new ValidationError(`Unknown status codes: ${unknown.join(", ")}`);
+    }
+    const idByCode = new Map(statuses.map((status) => [status.code, status.id]));
+
+    const workflow = await this.prisma.$transaction(async (tx) => {
+      await tx.workflow.updateMany({ where: { locationId, isActive: true }, data: { isActive: false } });
+      return tx.workflow.create({
+        data: {
+          locationId,
+          name: "Custom",
+          steps: { create: codes.map((code, index) => ({ position: index + 1, statusId: idByCode.get(code)! })) },
+        },
+        include: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
+      });
+    });
+    return this.serialize(workflow);
+  }
+
+  async resetToDefault(locationId: string) {
+    await this.prisma.workflow.updateMany({ where: { locationId, isActive: true }, data: { isActive: false } });
   }
 
   private serialize(workflow: {

@@ -17,6 +17,7 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 | `POST` that creates something (a Ticket, an Invitation, a Membership on accept) | 201                               |
 | `POST` action that creates nothing                                              | 200, with the resource it changed |
 | `PATCH`                                                                         | 200, with the updated resource    |
+| `PUT`, replacing a resource the Location has one of (its custom Workflow)       | 200, with the new resource        |
 | `DELETE`, and an action with nothing to return                                  | 204, no body                      |
 
 ## Bodies
@@ -52,6 +53,7 @@ Every error from our own routes has one shape, written by `AppExceptionFilter`:
 | ------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 400    | `VALIDATION_ERROR`          | Invalid input. `details` lists each rejected property (`customer.email` inside an object) and its failed rules.              |
 | 401    | `UNAUTHENTICATED`           | No valid session.                                                                                                            |
+| 402    | `PLAN_REQUIRED`             | A Pro feature on an Essentiel Location, moving to Pro lifts it.                                                              |
 | 403    | `UNAUTHORIZED`              | Signed in, but not a member of this Location (or not the Business's Owner), or the Role doesn't allow it.                    |
 | 403    | `REAUTHENTICATION_REQUIRED` | The session is too old for this action, sign in again (account deletion).                                                    |
 | 404    | `NOT_FOUND`                 | Doesn't exist: an unknown or deleted Location, or a Ticket, Customer or Invitation id that isn't in the Location of the URL. |
