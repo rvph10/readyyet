@@ -370,7 +370,7 @@ model Ticket {
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
   @@index([readyDateEmailDueAt])
-  @@index([nextReadyReminderAt])
+  @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
 }
 
