@@ -267,13 +267,17 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
   let sponsorId: string;
   let referredId: string;
   const stamp = Date.now();
-  const paidAt = Math.floor(Date.now() / 1000) - 60;
+  // Charged an hour after its period started, the usual delay.
+  const periodStart = Math.floor(Date.now() / 1000) - 2 * 3600;
+  const month = 30 * 24 * 60 * 60;
 
-  const invoice = (customer: string, amountPaid: number, paid = paidAt) => ({
-    id: `in_${stamp}`,
+  const invoice = (customer: string, amountPaid: number, start = periodStart) => ({
+    id: `in_${stamp}_${start}`,
     customer,
     amount_paid: amountPaid,
-    status_transitions: { paid_at: paid },
+    total_taxes: [],
+    status_transitions: { paid_at: start + 3600 },
+    lines: { data: [{ period: { start, end: start + month } }] },
     parent: { subscription_details: { subscription: "sub_referred" } },
   });
 
@@ -330,7 +334,7 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
   it("ignores an invoice for zero, like the one a trial starts with", async () => {
     await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 0)).expect(200);
 
-    expect(await business(referredId)).toMatchObject({ firstInvoicePaidAt: null, sponsorCreditedAt: null });
+    expect(await business(referredId)).toMatchObject({ paidFrom: null, sponsorCreditedAt: null });
     expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
   });
 
@@ -346,7 +350,7 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
     );
 
     expect(await business(referredId)).toMatchObject({
-      firstInvoicePaidAt: new Date(paidAt * 1000),
+      paidFrom: new Date(periodStart * 1000),
       sponsorCreditedAt: null,
     });
   });
@@ -365,19 +369,19 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
     expect((await business(referredId)).sponsorCreditedAt).toBeInstanceOf(Date);
   });
 
-  it("credits once, and keeps the first paid invoice's date", async () => {
-    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 4900, paidAt + 3600)).expect(200);
+  it("credits once, and keeps where the first paid invoice's period started", async () => {
+    await sendInvoicePaid(invoice(`cus_referred_${stamp}`, 4900, periodStart + month)).expect(200);
 
     expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
-    expect((await business(referredId)).firstInvoicePaidAt).toEqual(new Date(paidAt * 1000));
+    expect((await business(referredId)).paidFrom).toEqual(new Date(periodStart * 1000));
   });
 
   it("marks the first paid invoice of a Business nobody referred, without a credit", async () => {
-    await prisma.business.update({ where: { id: sponsorId }, data: { firstInvoicePaidAt: null } });
+    await prisma.business.update({ where: { id: sponsorId }, data: { paidFrom: null } });
 
     await sendInvoicePaid(invoice(`cus_sponsor_${stamp}`, 2900)).expect(200);
 
-    expect((await business(sponsorId)).firstInvoicePaidAt).toEqual(new Date(paidAt * 1000));
+    expect((await business(sponsorId)).paidFrom).toEqual(new Date(periodStart * 1000));
     expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
   });
 
@@ -385,5 +389,191 @@ describe("The sponsor's credit, on the referred Business's first paid invoice", 
     await sendInvoicePaid(invoice("cus_someone_else", 4900)).expect(200);
 
     expect(stripe.customers.createBalanceTransaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("A sales partner's commissions", () => {
+  const secret = "whsec_test_only_used_in_this_suite";
+  let app: INestApplication;
+  let prisma: PrismaService;
+  let previousSecret: string | undefined;
+  let salesPartnerId: string;
+  let ownerId: string;
+  const stamp = Date.now();
+  // A day ago, so every invoice below is already paid.
+  const firstPeriod = Math.floor(Date.now() / 1000) - 24 * 3600;
+  let invoices = 0;
+
+  function monthsAfter(seconds: number, months: number) {
+    const date = new Date(seconds * 1000);
+    date.setUTCMonth(date.getUTCMonth() + months);
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  async function referredBusiness() {
+    const customer = `cus_partner_${stamp}_${++invoices}`;
+    const business = await prisma.business.create({
+      data: {
+        ownerId,
+        name: "Partner Referred",
+        referralCode: `pr${stamp}${invoices}`,
+        referredBySalesPartnerId: salesPartnerId,
+        stripeCustomerId: customer,
+      },
+    });
+    return { id: business.id, customer };
+  }
+
+  const invoice = (customer: string, amountPaid: number, start: number, end: number, fields: object = {}) => ({
+    id: `in_partner_${stamp}_${++invoices}`,
+    customer,
+    amount_paid: amountPaid,
+    total_taxes: [],
+    status_transitions: { paid_at: Math.min(start + 3600, Math.floor(Date.now() / 1000)) },
+    lines: { data: [{ period: { start, end } }] },
+    parent: { subscription_details: { subscription: "sub_partner" } },
+    ...fields,
+  });
+
+  function send(type: string, object: object) {
+    const payload = JSON.stringify({ id: "evt_partner", type, data: { object } });
+    return request(app.getHttpServer())
+      .post("/webhooks/stripe")
+      .set("Content-Type", "application/json")
+      .set("Stripe-Signature", Stripe.webhooks.generateTestHeaderString({ payload, secret }))
+      .send(payload);
+  }
+
+  const commissionsOf = (businessId: string) =>
+    prisma.commission.findMany({ where: { businessId }, orderBy: { invoicePaidAt: "asc" } });
+
+  beforeAll(async () => {
+    previousSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    process.env.STRIPE_WEBHOOK_SECRET = secret;
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+
+    const partner = await prisma.user.create({
+      data: {
+        id: `commission-partner-${stamp}`,
+        email: `commission-partner-${stamp}@referral.test`,
+        name: "Partner",
+        salesPartnerSince: new Date(),
+        referralCode: `cp${stamp}`,
+      },
+    });
+    salesPartnerId = partner.id;
+    const owner = await prisma.user.create({
+      data: { id: `commission-owner-${stamp}`, email: `commission-owner-${stamp}@referral.test`, name: "Owner" },
+    });
+    ownerId = owner.id;
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    process.env.STRIPE_WEBHOOK_SECRET = previousSecret;
+    await app.close();
+  });
+
+  it("records 35% of what the card was charged, VAT excluded, once per invoice", async () => {
+    const business = await referredBusiness();
+    // €49 plus 21% VAT.
+    const paid = invoice(business.customer, 5929, firstPeriod, monthsAfter(firstPeriod, 1), {
+      total_taxes: [{ amount: 1029 }],
+    });
+
+    await send("invoice.paid", paid).expect(200);
+    await send("invoice.paid", paid).expect(200);
+
+    expect(await commissionsOf(business.id)).toEqual([
+      expect.objectContaining({
+        salesPartnerId,
+        stripeInvoiceId: paid.id,
+        amount: 1715,
+        invoicePaidAt: new Date(paid.status_transitions.paid_at * 1000),
+        voidedAt: null,
+        paidAt: null,
+      }),
+    ]);
+  });
+
+  it("counts the 6 monthly invoices from the first paid one, not the 7th", async () => {
+    const business = await referredBusiness();
+    for (let month = 0; month <= 6; month++) {
+      const start = monthsAfter(firstPeriod, month);
+      await send("invoice.paid", invoice(business.customer, 4900, start, monthsAfter(start, 1))).expect(200);
+    }
+
+    const commissions = await commissionsOf(business.id);
+    expect(commissions).toHaveLength(6);
+    expect(commissions.every((commission) => commission.amount === 1715)).toBe(true);
+  });
+
+  it("counts a yearly invoice for its share of months inside the 6", async () => {
+    const business = await referredBusiness();
+
+    await send("invoice.paid", invoice(business.customer, 49000, firstPeriod, monthsAfter(firstPeriod, 12))).expect(
+      200,
+    );
+
+    const [commission] = await commissionsOf(business.id);
+    expect(commission.amount / (49000 * 0.35)).toBeCloseTo(0.5, 1);
+  });
+
+  it("counts nothing for an invoice for zero, and nothing once the status is removed", async () => {
+    const business = await referredBusiness();
+    await send("invoice.paid", invoice(business.customer, 0, firstPeriod, monthsAfter(firstPeriod, 1))).expect(200);
+    expect(await commissionsOf(business.id)).toEqual([]);
+
+    await prisma.user.update({ where: { id: salesPartnerId }, data: { salesPartnerSince: null } });
+    await send("invoice.paid", invoice(business.customer, 4900, firstPeriod, monthsAfter(firstPeriod, 1))).expect(200);
+    expect(await commissionsOf(business.id)).toEqual([]);
+    await prisma.user.update({ where: { id: salesPartnerId }, data: { salesPartnerSince: new Date() } });
+  });
+
+  it("voids a commission when its invoice is refunded or disputed within 14 days", async () => {
+    const business = await referredBusiness();
+    const refunded = invoice(business.customer, 4900, firstPeriod, monthsAfter(firstPeriod, 1));
+    await send("invoice.paid", refunded).expect(200);
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: refunded.id }] });
+
+    await send("charge.refunded", { id: "ch_refunded", payment_intent: "pi_refunded" }).expect(200);
+
+    expect(stripe.invoicePayments.list).toHaveBeenCalledWith({
+      payment: { type: "payment_intent", payment_intent: "pi_refunded" },
+      limit: 1,
+    });
+    expect((await commissionsOf(business.id))[0].voidedAt).toBeInstanceOf(Date);
+
+    const disputed = invoice(business.customer, 4900, monthsAfter(firstPeriod, 1), monthsAfter(firstPeriod, 2), {
+      status_transitions: { paid_at: firstPeriod + 3600 },
+    });
+    await send("invoice.paid", disputed).expect(200);
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: disputed.id }] });
+    await send("charge.dispute.created", { id: "dp_1", payment_intent: "pi_disputed" }).expect(200);
+    expect(
+      (await prisma.commission.findUniqueOrThrow({ where: { stripeInvoiceId: disputed.id } })).voidedAt,
+    ).toBeInstanceOf(Date);
+  });
+
+  it("leaves a commission owed when the refund comes after 14 days", async () => {
+    const business = await referredBusiness();
+    const commission = await prisma.commission.create({
+      data: {
+        salesPartnerId,
+        businessId: business.id,
+        stripeInvoiceId: `in_old_${stamp}`,
+        amount: 1715,
+        invoicePaidAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+      },
+    });
+    stripe.invoicePayments.list.mockResolvedValue({ data: [{ invoice: commission.stripeInvoiceId }] });
+
+    await send("charge.refunded", { id: "ch_late", payment_intent: "pi_late" }).expect(200);
+
+    expect((await prisma.commission.findUniqueOrThrow({ where: { id: commission.id } })).voidedAt).toBeNull();
   });
 });

@@ -41,6 +41,7 @@ model User {
   photosUploaded     TicketPhoto[]       @relation("TicketPhotoUploadedBy")
   referredBusinesses Business[]          @relation("SalesPartnerReferral")
   feedbackHandled    TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  commissions        Commission[]
 
   @@map("user")
 }
@@ -154,19 +155,20 @@ model Business {
   // A checkout with the referral coupon completed, it's not offered again
   // (ADR 0040).
   referralDiscountUsedAt   DateTime? @map("referral_discount_used_at")
-  // The first invoice paid for more than zero: a sales partner's 6 months
-  // start here (ADR 0040).
-  firstInvoicePaidAt       DateTime? @map("first_invoice_paid_at")
+  // Where the period of the first invoice paid for more than zero starts:
+  // a sales partner's 6 months start here (ADR 0040).
+  paidFrom                 DateTime? @map("paid_from")
   // The sponsor's credit was accepted by Stripe, it's never given twice.
   sponsorCreditedAt        DateTime? @map("sponsor_credited_at")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
-  owner                  User       @relation("BusinessOwner", fields: [ownerId], references: [id])
+  owner                  User         @relation("BusinessOwner", fields: [ownerId], references: [id])
   locations              Location[]
-  referredByBusiness     Business?  @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
-  referredBusinesses     Business[] @relation("BusinessReferral")
-  referredBySalesPartner User?      @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  referredByBusiness     Business?    @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[]   @relation("BusinessReferral")
+  referredBySalesPartner User?        @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  commissions            Commission[]
 
   @@map("business")
 }
@@ -544,4 +546,28 @@ model PendingStatusNotification {
 
   @@index([sendAfter])
   @@map("pending_status_notification")
+}
+
+// A sales partner's share of one paid invoice (ADR 0032). Pending, owed or
+// voided is computed from the dates, never stored (ADR 0040).
+model Commission {
+  id              BigInt    @id @default(autoincrement())
+  salesPartnerId  String    @map("sales_partner_id")
+  businessId      String    @map("business_id") @db.Uuid
+  // Unique, so a redelivered invoice.paid records nothing more.
+  stripeInvoiceId String    @unique @map("stripe_invoice_id")
+  // In cents.
+  amount          Int
+  invoicePaidAt   DateTime  @map("invoice_paid_at")
+  // Refunded or disputed within 14 days of invoicePaidAt.
+  voidedAt        DateTime? @map("voided_at")
+  // Marked by the platform admin, the payment itself is made outside.
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  salesPartner User     @relation(fields: [salesPartnerId], references: [id], onDelete: Restrict)
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+
+  @@index([salesPartnerId, invoicePaidAt])
+  @@map("commission")
 }

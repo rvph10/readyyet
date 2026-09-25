@@ -26,7 +26,7 @@ Implements ADR 0032 on top of the billing of ADR 0033, and settles the points it
 The first `invoice.paid` for more than zero on a referred Business's Stripe Customer marks the Business as paying. An invoice for zero, like the one a trial starts with or one covered by a full discount, doesn't count. From that moment:
 
 - the sponsor's Business gets its credit, one month of the plan on that invoice at the monthly price, read from Stripe by lookup key. A sponsor without a Stripe Customer gets one, and their first invoice uses the credit,
-- a sales partner's 6 months start.
+- a sales partner's 6 months start, from where that invoice's billing period starts, not from when it was paid. Stripe charges an invoice about an hour after creating it and retries a failed charge for days, so the payment date would shift the 6 months off the billing periods: the first month would count a little short and the 7th month's invoice would earn a few cents.
 
 ### Commissions
 

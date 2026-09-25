@@ -3,6 +3,14 @@ import { BillingInterval } from "@readyyet/db";
 import type Stripe from "stripe";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "./billing.service";
+import {
+  chargedExcludingTax,
+  COMMISSION_HOLD_MS,
+  COMMISSION_RATE,
+  commissionWindowEnd,
+  periodStart,
+  shareWithin,
+} from "./commission";
 import { fromLookupKey, lookupKey } from "./plans";
 import { getStripeClient } from "./stripe-client";
 
@@ -25,13 +33,65 @@ export class ReferralRewardService {
     if (!business) {
       return;
     }
+    // From the service it pays for, not the payment: a charge retried for
+    // days would otherwise shift the 6 months off the billing periods.
+    const paidFrom = business.paidFrom ?? new Date(periodStart(invoice) * 1000);
     await this.prisma.business.updateMany({
-      where: { id: business.id, firstInvoicePaidAt: null },
-      data: { firstInvoicePaidAt: new Date(invoice.status_transitions.paid_at! * 1000) },
+      where: { id: business.id, paidFrom: null },
+      data: { paidFrom },
     });
+    if (business.referredBySalesPartnerId) {
+      await this.recordCommission(business.id, business.referredBySalesPartnerId, paidFrom, invoice);
+    }
     if (business.referredByBusinessId && !business.sponsorCreditedAt) {
       await this.creditSponsor(business.id, business.referredByBusinessId, invoice);
     }
+  }
+
+  // A refund or dispute on an invoice paid less than 14 days ago voids its
+  // commission (ADR 0040). Charges and disputes name their payment, which
+  // leads to the invoice.
+  async paymentReversed(paymentIntent: string | null) {
+    if (!paymentIntent) {
+      return;
+    }
+    const {
+      data: [payment],
+    } = await getStripeClient().invoicePayments.list({
+      payment: { type: "payment_intent", payment_intent: paymentIntent },
+      limit: 1,
+    });
+    if (!payment) {
+      return;
+    }
+    await this.prisma.commission.updateMany({
+      where: {
+        stripeInvoiceId: payment.invoice as string,
+        voidedAt: null,
+        invoicePaidAt: { gt: new Date(Date.now() - COMMISSION_HOLD_MS) },
+      },
+      data: { voidedAt: new Date() },
+    });
+  }
+
+  // Only while the User is still a sales partner, and only for the part of
+  // the invoice inside the 6 months (ADR 0040).
+  private async recordCommission(businessId: string, salesPartnerId: string, paidFrom: Date, invoice: Stripe.Invoice) {
+    const { salesPartnerSince } = await this.prisma.user.findUniqueOrThrow({ where: { id: salesPartnerId } });
+    const share = shareWithin(invoice, paidFrom, commissionWindowEnd(paidFrom));
+    if (!salesPartnerSince || share === 0) {
+      return;
+    }
+    await this.prisma.commission.createMany({
+      data: {
+        salesPartnerId,
+        businessId,
+        stripeInvoiceId: invoice.id,
+        amount: Math.round(chargedExcludingTax(invoice) * share * COMMISSION_RATE),
+        invoicePaidAt: new Date(invoice.status_transitions.paid_at! * 1000),
+      },
+      skipDuplicates: true,
+    });
   }
 
   // One month of the plan the referred Business chose, at the monthly
