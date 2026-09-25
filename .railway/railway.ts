@@ -59,6 +59,7 @@ export default defineRailway((ctx) => {
       SENTRY_DSN: preserve(),
       STRIPE_SECRET_KEY: preserve(),
       STRIPE_WEBHOOK_SECRET: preserve(),
+      PLATFORM_ADMIN_EMAILS: preserve(),
     },
   });
 

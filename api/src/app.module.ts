@@ -7,6 +7,7 @@ import { AuthModule } from "@thallesp/nestjs-better-auth";
 import type { Request } from "express";
 import { LoggerModule } from "nestjs-pino";
 import { pinoHttpOptions } from "./common/logging/pino-http-options";
+import { AdminModule } from "./admin/admin.module";
 import { auth } from "./auth/auth";
 import { BillingModule } from "./billing/billing.module";
 import { BusinessModule } from "./business/business.module";
@@ -65,6 +66,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     BillingModule,
     StorageModule,
     FeedbackModule,
+    AdminModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

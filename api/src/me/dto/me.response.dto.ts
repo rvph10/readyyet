@@ -10,6 +10,8 @@ export class MeDto {
   // Uploaded with PUT /me/avatar. Safe to cache for good, a new avatar
   // gets a new URL.
   avatarUrl!: string | null;
+  salesPartner!: boolean;
+  platformAdmin!: boolean;
 }
 
 export class MyBusinessDto {

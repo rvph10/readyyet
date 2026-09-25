@@ -31,7 +31,7 @@ The first `invoice.paid` for more than zero on a referred Business's Stripe Cust
 
 - 35% of what the card was charged for the invoice, VAT excluded. A sponsor credit or campaign that lowers the charge lowers the commission.
 - An invoice counts for the part of its billing period inside the 6 months. A monthly invoice falls inside or outside, a yearly one counts for its months inside, a prorated upgrade for its days inside.
-- Only while the User is a sales partner. Removing the status stops commissions on invoices paid afterwards, those already recorded stay.
+- Only while the User is a sales partner. Removing the status stops commissions on invoices paid afterwards, those already recorded stay. A sales partner who deletes their account loses the status the same way.
 - A commission's state is computed from its dates, never stored: pending for 14 days after its invoice was paid, owed after that, paid once the platform admin marks it. A refund or a dispute on the invoice within the 14 days voids it, later ones change nothing.
 - The platform admin marks commissions paid by listing their ids, so one that became owed after the list was loaded isn't marked paid with the rest.
 - A sales partner's monthly totals group commissions by the UTC month their invoice was paid in.
