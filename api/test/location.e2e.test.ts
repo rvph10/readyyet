@@ -174,6 +174,16 @@ describe("GET /locations/:locationId", () => {
       expect(response.body.error.details[0].property).toBe("address.postalCode");
     });
 
+    it("trims the fields, refusing one made of spaces", async () => {
+      const padded = await patch({ address: { ...address, addressLocality: "  Bruxelles " } });
+      expect(padded.status).toBe(200);
+      expect(padded.body.address).toEqual(address);
+
+      const blank = await patch({ address: { ...address, streetAddress: "   " } });
+      expect(blank.status).toBe(400);
+      expect(blank.body.error.details[0].property).toBe("address.streetAddress");
+    });
+
     it.each(["be", "BEL", "XX"])(
       "rejects the country %s, it isn't an ISO 3166-1 alpha-2 code",
       async (addressCountry) => {
