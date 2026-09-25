@@ -93,6 +93,18 @@ describe("Customers", () => {
     expect(refetched.body.email).toBe("bob@example.test");
   });
 
+  it("refuses a null name with a 400, but lets null clear the email", async () => {
+    const path = `/locations/${locationId}/customers/${bobId}`;
+
+    const name = await request(app.getHttpServer()).patch(path).set("Cookie", ownerCookie).send({ fullName: null });
+    expect(name.status).toBe(400);
+    expect(name.body.error.details[0].property).toBe("fullName");
+
+    const email = await request(app.getHttpServer()).patch(path).set("Cookie", ownerCookie).send({ email: null });
+    expect(email.status).toBe(200);
+    expect(email.body.email).toBeNull();
+  });
+
   it("shows staff an address that fails, until they change it", async () => {
     const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Carol Typo");
     const path = `/locations/${locationId}/customers/${customerId}`;
