@@ -2289,6 +2289,188 @@
         ]
       }
     },
+    "/me/avatar": {
+      "put": {
+        "operationId": "MeController_setAvatar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG or WebP, 15 MB at most"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the file is over 15 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Upload the current user's avatar, replacing any previous one (ADR 0026)",
+        "tags": [
+          "Me"
+        ]
+      },
+      "delete": {
+        "operationId": "MeController_removeAvatar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove the current user's avatar",
+        "tags": [
+          "Me"
+        ]
+      }
+    },
     "/locations/{locationId}/workflow": {
       "get": {
         "operationId": "WorkflowController_getActive",
@@ -6666,6 +6848,10 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -6673,7 +6859,8 @@
           "memberships",
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl"
         ]
       },
       "UpdateMeDto": {
@@ -6709,13 +6896,18 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "locale",
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl"
         ]
       },
       "TranslationDto": {
@@ -7381,12 +7573,17 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl"
         ]
       },
       "MemberDto": {

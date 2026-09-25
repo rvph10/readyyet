@@ -60,6 +60,15 @@ export const auth: Auth<any> = betterAuth({
           return Promise.resolve({ data: { ...user, locale } });
         },
       },
+      update: {
+        // Better Auth's own update-user route would store any string as
+        // the avatar, only PUT /me/avatar sets it, writing through Prisma
+        // after checking the image (ADR 0026). Better Auth merges this over
+        // its own data, so dropping the key wouldn't be enough.
+        before(user) {
+          return Promise.resolve({ data: { ...user, image: undefined } });
+        },
+      },
     },
   },
   // No password auth: sign-in is by emailed OTP, which confirms the

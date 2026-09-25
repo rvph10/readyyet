@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
+import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
 // ADR 0018: an account is anonymised, not deleted.
@@ -71,6 +72,28 @@ describe("Deleting your account", () => {
     expect((await request(app.getHttpServer()).get("/me").set("Cookie", cookie)).status).toBe(401);
     const kept = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(ticket.body.id) } });
     expect(kept.createdBy).toBe(id);
+  });
+
+  it("deletes their avatar, but keeps the photos they added to Tickets (ADR 0026)", async () => {
+    const { cookie } = await member("pictures");
+    const { body: me } = await request(app.getHttpServer())
+      .put("/me/avatar")
+      .set("Cookie", cookie)
+      .attach("file", await imageFile("png"), "me.png");
+    const ticket = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", cookie)
+      .send({ title: "Rear bumper", customer: { fullName: "Chloé Dubois" } });
+    const { body: photo } = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets/${ticket.body.id}/photos`)
+      .set("Cookie", cookie)
+      .attach("file", await imageFile("jpeg"), "bumper.jpg");
+
+    expect((await deleteAccount(cookie)).status).toBe(204);
+
+    expect((await request(app.getHttpServer()).get(new URL(me.avatarUrl).pathname)).status).toBe(404);
+    expect(await prisma.ticketPhoto.count({ where: { id: BigInt(photo.id) } })).toBe(1);
+    expect((await fetch(photo.url)).status).toBe(200);
   });
 
   it("confirms it to the address the account had, with replies going to support", async () => {
