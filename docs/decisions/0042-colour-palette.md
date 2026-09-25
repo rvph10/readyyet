@@ -1,4 +1,4 @@
-# 0043: Colour palette
+# 0042: Colour palette
 
 Date: 2026-09-25
 

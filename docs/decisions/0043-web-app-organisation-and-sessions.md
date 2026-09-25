@@ -1,10 +1,10 @@
-# 0044: Web app organisation and sessions
+# 0043: Web app organisation and sessions
 
 Date: 2026-09-25
 
 ## Decision
 
-**Domains.** Production: the sales site on `readyyet.app` (ADR 0042), the web app on `app.readyyet.app`, the API on `api.readyyet.app`. Staging mirrors it on a domain of its own, `readyyet-staging.app`, never on a subdomain of `readyyet.app`: `app.readyyet-staging.app` and `api.readyyet-staging.app`. Locally: the API on `localhost:3000`, the web app on `localhost:3001`.
+**Domains.** Production: the sales site on `readyyet.app`, the web app on `app.readyyet.app`, the API on `api.readyyet.app`. Staging mirrors it on a domain of its own, `readyyet-staging.app`, never on a subdomain of `readyyet.app`: `app.readyyet-staging.app` and `api.readyyet-staging.app`. Locally: the API on `localhost:3000`, the web app on `localhost:3001`.
 
 **Sessions.** Better Auth's session cookie is set for the parent domain (`advanced.crossSubDomainCookies`), so the web app's server receives it along with the API. Sign-in pages live in the web app only.
 
@@ -14,7 +14,7 @@ Date: 2026-09-25
 - Sign-in: `/sign-in`, `/sign-up`, accepting an Invitation.
 - Dashboard, signed in: creating a Business, and everything under `/locations/:locationId/`.
 
-**Code.** Routes in `app/`, with a component used by one page kept next to it. Shared building blocks in `components/ui/`, copied from shadcn/ui and restyled with the palette (ADR 0043), not installed as a library. The typed API client and Better Auth's client in `lib/`. One `messages/` namespace per area.
+**Code.** Routes in `app/`, with a component used by one page kept next to it. Shared building blocks in `components/ui/`, copied from shadcn/ui and restyled with the palette (ADR 0042), not installed as a library. The typed API client and Better Auth's client in `lib/`. One `messages/` namespace per area.
 
 **Data.** Pages load their data on the web app's server, and forms change it through server actions, both calling the API. Sign-in calls Better Auth from the browser, through its client. A link in an email only ever opens a page; the change it offers happens when the person confirms on that page.
 
