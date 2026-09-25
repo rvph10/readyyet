@@ -319,6 +319,18 @@ export class BillingService {
     return members + invitations;
   }
 
+  // Also a sponsor's, to hold a credit before they ever paid (ADR 0040).
+  async createCustomer(business: { id: string; name: string; owner: { email: string } }) {
+    // The idempotency key makes two checkouts started at once get the same
+    // Customer from Stripe, instead of one each.
+    const customer = await getStripeClient().customers.create(
+      { name: business.name, email: business.owner.email, metadata: { businessId: business.id } },
+      { idempotencyKey: `customer-${business.id}` },
+    );
+    await this.prisma.business.update({ where: { id: business.id }, data: { stripeCustomerId: customer.id } });
+    return customer.id;
+  }
+
   // Every webhook ends here (ADR 0033): Stripe's current state is written
   // whatever the event said, so a late or repeated event is harmless.
   async sync(stripeSubscriptionId: string) {
@@ -457,16 +469,5 @@ export class BillingService {
         },
       ],
     });
-  }
-
-  private async createCustomer(business: { id: string; name: string; owner: { email: string } }) {
-    // The idempotency key makes two checkouts started at once get the same
-    // Customer from Stripe, instead of one each.
-    const customer = await getStripeClient().customers.create(
-      { name: business.name, email: business.owner.email, metadata: { businessId: business.id } },
-      { idempotencyKey: `customer-${business.id}` },
-    );
-    await this.prisma.business.update({ where: { id: business.id }, data: { stripeCustomerId: customer.id } });
-    return customer.id;
   }
 }

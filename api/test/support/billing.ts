@@ -8,7 +8,7 @@ const fn = (): Mock => vi.fn();
 // Lists are iterated with for await, an empty array stands for "none".
 const list = (): Mock => vi.fn(() => []);
 export const stripe = {
-  customers: { create: fn(), update: fn() },
+  customers: { create: fn(), update: fn(), createBalanceTransaction: fn() },
   prices: { list: fn() },
   promotionCodes: { list: fn() },
   invoices: { createPreview: fn() },

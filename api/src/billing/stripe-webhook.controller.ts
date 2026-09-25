@@ -5,6 +5,7 @@ import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import type { Request, Response } from "express";
 import Stripe from "stripe";
 import { BillingService } from "./billing.service";
+import { ReferralRewardService } from "./referral-reward.service";
 
 @ApiTags("Billing")
 @AllowAnonymous()
@@ -13,7 +14,10 @@ import { BillingService } from "./billing.service";
 @SkipThrottle()
 @Controller("webhooks/stripe")
 export class StripeWebhookController {
-  constructor(private readonly billing: BillingService) {}
+  constructor(
+    private readonly billing: BillingService,
+    private readonly referralRewards: ReferralRewardService,
+  ) {}
 
   @Post()
   // Called by Stripe, not a client of this API.
@@ -35,6 +39,9 @@ export class StripeWebhookController {
 
     if (event.type === "checkout.session.completed") {
       await this.billing.checkoutCompleted(event.data.object);
+    }
+    if (event.type === "invoice.paid") {
+      await this.referralRewards.invoicePaid(event.data.object);
     }
     const subscriptionId = subscriptionOf(event);
     if (subscriptionId) {

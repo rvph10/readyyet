@@ -154,6 +154,11 @@ model Business {
   // A checkout with the referral coupon completed, it's not offered again
   // (ADR 0040).
   referralDiscountUsedAt   DateTime? @map("referral_discount_used_at")
+  // The first invoice paid for more than zero: a sales partner's 6 months
+  // start here (ADR 0040).
+  firstInvoicePaidAt       DateTime? @map("first_invoice_paid_at")
+  // The sponsor's credit was accepted by Stripe, it's never given twice.
+  sponsorCreditedAt        DateTime? @map("sponsor_credited_at")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
