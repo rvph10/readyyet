@@ -72,7 +72,7 @@ A Better Auth session cookie, set by the email OTP sign-in (ADR 0011). There are
 
 ## Rate limits
 
-60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, uploading a picture 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
+60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, uploading a picture 5 a minute, sending private feedback 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
 
 ## Caching
 

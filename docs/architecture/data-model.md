@@ -18,6 +18,7 @@ User (Better Auth)
  │                       │        │
  │                       │        ├──< TicketStatusEvent >── Status
  │                       │        ├──< TicketPhoto
+ │                       │        ├──o TicketFeedback (0..1)
  │                       │        └──> Workflow >──< WorkflowStep >── Status
  │                       │
  │                       └──> Subscription (1:1)
@@ -50,7 +51,7 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 ## GDPR erasure
 
-`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`, and delete the photos of their tickets, which can show them too. The ticket keeps a valid reference to "a customer existed," personal data is gone.
+`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`, and delete the photos of their tickets, which can show them too, and the private feedback they sent (ADR 0039). The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
 A staff `User` who deletes their account is handled the same way (ADR 0018): tickets, Status events and invitations point at the row with `ON DELETE RESTRICT`, so `name` becomes "Former member", `email` becomes `deleted-<id>@deleted.invalid` (a reserved domain, never deliverable, and unique through the id), `deleted_at` is set, and their sessions, sign-in records and memberships are deleted in the same transaction. Their avatar is deleted, the photos they added stay with the tickets.
 
