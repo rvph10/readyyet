@@ -6,7 +6,7 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 
 - Resources are plural nouns: `/businesses`, `/tickets`, `/customers`.
 - Anything that belongs to a Location is nested under it, `/locations/:locationId/tickets/:ticketId`. `LocationMembershipGuard` checks the caller's Membership and Role there, once, for the whole controller.
-- The only unscoped routes are the caller's own (`/me`), what exists before a Membership does (`/businesses`, `/invitations/:id/accept`), and what needs no account (`/tracking/:code`, `/catalogue/*`, `/health`).
+- The only unscoped routes are the caller's own (`/me`, `/me/sales-partner`), what exists before a Membership does (`/businesses`, `/invitations/:id/accept`), what needs no account (`/tracking/:code`, `/catalogue/*`, `/health`), and the platform admin's back office (`/admin/*`, `PlatformAdminGuard`, ADR 0032).
 - An action that isn't a plain edit is a `POST` on a sub-path named with a verb: `.../status/undo`, `.../invitations/:id/revoke`, `.../transfer-ownership`. A `PATCH` only ever changes fields.
 
 ## Methods and status codes

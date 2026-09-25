@@ -5,8 +5,8 @@ import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "./billing.service";
 import {
   chargedExcludingTax,
-  COMMISSION_HOLD_MS,
   COMMISSION_RATE,
+  commissionStateWhere,
   commissionWindowEnd,
   periodStart,
   shareWithin,
@@ -65,11 +65,7 @@ export class ReferralRewardService {
       return;
     }
     await this.prisma.commission.updateMany({
-      where: {
-        stripeInvoiceId: payment.invoice as string,
-        voidedAt: null,
-        invoicePaidAt: { gt: new Date(Date.now() - COMMISSION_HOLD_MS) },
-      },
+      where: { stripeInvoiceId: payment.invoice as string, ...commissionStateWhere("PENDING") },
       data: { voidedAt: new Date() },
     });
   }

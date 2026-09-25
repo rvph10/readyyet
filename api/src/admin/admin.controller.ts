@@ -1,6 +1,13 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
+import { CommissionService } from "./commission.service";
+import {
+  AdminCommissionDto,
+  AdminCommissionPageDto,
+  AdminListCommissionsQueryDto,
+  MarkCommissionsPaidDto,
+} from "./dto/commission.dto";
 import { MarkSalesPartnerDto, SalesPartnerDto } from "./dto/sales-partner.dto";
 import { PlatformAdminGuard } from "./platform-admin";
 import { SalesPartnerService } from "./sales-partner.service";
@@ -11,7 +18,10 @@ import { SalesPartnerService } from "./sales-partner.service";
 @Controller("admin")
 @UseGuards(PlatformAdminGuard)
 export class AdminController {
-  constructor(private readonly salesPartners: SalesPartnerService) {}
+  constructor(
+    private readonly salesPartners: SalesPartnerService,
+    private readonly commissions: CommissionService,
+  ) {}
 
   @Get("sales-partners")
   @ApiOperation({ summary: "List the sales partners (platform admin only, ADR 0032)" })
@@ -33,5 +43,22 @@ export class AdminController {
   @ApiErrors(HttpStatus.NOT_FOUND)
   removeSalesPartner(@Param("userId") userId: string): Promise<void> {
     return this.salesPartners.remove(userId);
+  }
+
+  @Get("commissions")
+  @ApiOperation({ summary: "List commissions, newest first, by state and sales partner (ADR 0040)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST)
+  listCommissions(@Query() query: AdminListCommissionsQueryDto): Promise<AdminCommissionPageDto> {
+    return this.commissions.listForAdmin(query);
+  }
+
+  @Post("commissions/mark-paid")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Record that owed commissions were paid, all or none: one no longer owed refuses the request",
+  })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  markCommissionsPaid(@Body() dto: MarkCommissionsPaidDto): Promise<AdminCommissionDto[]> {
+    return this.commissions.markPaid(dto.commissionIds);
   }
 }

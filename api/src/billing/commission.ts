@@ -1,3 +1,4 @@
+import type { Prisma } from "@readyyet/db";
 import type Stripe from "stripe";
 
 // ADR 0032.
@@ -35,4 +36,36 @@ export function shareWithin(invoice: Stripe.Invoice, from: Date, to: Date) {
 export function chargedExcludingTax(invoice: Stripe.Invoice) {
   const taxes = (invoice.total_taxes ?? []).reduce((sum, tax) => sum + tax.amount, 0);
   return invoice.amount_paid - taxes;
+}
+
+export const COMMISSION_STATES = ["PENDING", "OWED", "PAID", "VOIDED"] as const;
+export type CommissionState = (typeof COMMISSION_STATES)[number];
+
+// Computed from the dates, never stored: no job has to run for a
+// commission to become owed (ADR 0040).
+export function commissionState(
+  commission: { invoicePaidAt: Date; voidedAt: Date | null; paidAt: Date | null },
+  now = new Date(),
+): CommissionState {
+  if (commission.voidedAt) {
+    return "VOIDED";
+  }
+  if (commission.paidAt) {
+    return "PAID";
+  }
+  return now.getTime() - commission.invoicePaidAt.getTime() >= COMMISSION_HOLD_MS ? "OWED" : "PENDING";
+}
+
+export function commissionStateWhere(state: CommissionState, now = new Date()): Prisma.CommissionWhereInput {
+  const heldUntil = new Date(now.getTime() - COMMISSION_HOLD_MS);
+  switch (state) {
+    case "VOIDED":
+      return { voidedAt: { not: null } };
+    case "PAID":
+      return { voidedAt: null, paidAt: { not: null } };
+    case "OWED":
+      return { voidedAt: null, paidAt: null, invoicePaidAt: { lte: heldUntil } };
+    case "PENDING":
+      return { voidedAt: null, paidAt: null, invoicePaidAt: { gt: heldUntil } };
+  }
 }

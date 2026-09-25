@@ -11,4 +11,7 @@ export class SalesPartnerDto {
   email!: string;
   salesPartnerSince!: Date;
   referralCode!: string;
+  // In cents (ADR 0040).
+  pendingAmount!: number;
+  owedAmount!: number;
 }
