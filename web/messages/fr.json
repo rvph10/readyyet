@@ -12,5 +12,27 @@
   "notFound": {
     "title": "Page introuvable",
     "body": "Vérifiez l'adresse ou le lien que vous avez suivi. Il est peut-être mal saisi ou n'est plus valable."
+  },
+  "signIn": {
+    "title": "Connectez-vous ou créez votre compte",
+    "emailIntro": "Entrez votre adresse e-mail. Nous vous envoyons un code, pas besoin de mot de passe.",
+    "email": "Adresse e-mail",
+    "continue": "Continuer",
+    "codeTitle": "Consultez vos e-mails",
+    "codeIntro": "Nous avons envoyé un code à 6 chiffres à {email}. Il est valable 5 minutes.",
+    "code": "Code",
+    "signIn": "Se connecter",
+    "changeEmail": "Utiliser une autre adresse",
+    "resend": "Envoyer un nouveau code",
+    "resendIn": "Nouveau code dans {seconds} s",
+    "nameTitle": "Comment vous appelez-vous ?",
+    "nameIntro": "Votre équipe le voit à côté des modifications que vous faites.",
+    "name": "Votre nom",
+    "errors": {
+      "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
+      "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
+      "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+      "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+    }
   }
 }

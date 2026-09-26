@@ -12,5 +12,27 @@
   "notFound": {
     "title": "Page not found",
     "body": "Check the address, or the link you followed. It may be mistyped or no longer valid."
+  },
+  "signIn": {
+    "title": "Sign in or create your account",
+    "emailIntro": "Enter your email address. We'll send you a code, no password needed.",
+    "email": "Email address",
+    "continue": "Continue",
+    "codeTitle": "Check your email",
+    "codeIntro": "We sent a 6-digit code to {email}. It's valid for 5 minutes.",
+    "code": "Code",
+    "signIn": "Sign in",
+    "changeEmail": "Use a different email",
+    "resend": "Send a new code",
+    "resendIn": "Send a new code in {seconds}s",
+    "nameTitle": "What's your name?",
+    "nameIntro": "Your team sees it next to the changes you make.",
+    "name": "Your name",
+    "errors": {
+      "invalidCode": "That code isn't right. Check it and try again.",
+      "expiredCode": "This code can't be used anymore. Send a new one.",
+      "rateLimited": "Too many attempts. Wait a minute, then try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
   }
 }
