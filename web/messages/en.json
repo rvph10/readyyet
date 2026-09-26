@@ -21,6 +21,7 @@
     "changeEmail": "Use a different email",
     "resend": "Send a new code",
     "resendIn": "Send a new code in {seconds}s",
+    "notReceived": "Nothing yet? Check your spam folder, or send a new code.",
     "nameTitle": "What's your name?",
     "nameIntro": "Your team sees it next to the changes you make.",
     "name": "Your name",

@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { InputOtp } from "@/components/ui/input-otp";
 import { authClient } from "@/lib/auth-client";
 
 type Step = "email" | "code" | "name";
@@ -32,11 +33,19 @@ function errorKey(error: AuthError) {
   }
 }
 
-export function SignInForm({ next, needsName }: { next: string; needsName: boolean }) {
+interface Props {
+  next: string;
+  needsName: boolean;
+  nonce: string;
+}
+
+export function SignInForm({ next, needsName, nonce }: Props) {
   const t = useTranslations("signIn");
+  const locale = useLocale();
   const router = useRouter();
   const [step, setStep] = useState<Step>(needsName ? "name" : "email");
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [resendIn, setResendIn] = useState(0);
@@ -48,6 +57,10 @@ export function SignInForm({ next, needsName }: { next: string; needsName: boole
     const timer = setTimeout(() => setResendIn(resendIn - 1), 1000);
     return () => clearTimeout(timer);
   }, [resendIn]);
+
+  // The code email, and the User a first sign-in creates, take the page's
+  // language rather than the browser's (ADR 0047).
+  const inPageLanguage = { headers: { "Accept-Language": locale } };
 
   // Resolves to the call's data, or null once its error is shown.
   async function call<T>(action: () => Promise<{ data: T | null; error: AuthError | null }>) {
@@ -63,8 +76,9 @@ export function SignInForm({ next, needsName }: { next: string; needsName: boole
   }
 
   async function sendCode() {
-    if (await call(() => authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }))) {
+    if (await call(() => authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }, inPageLanguage))) {
       setStep("code");
+      setCode("");
       setResendIn(RESEND_AFTER_SECONDS);
     }
   }
@@ -75,8 +89,9 @@ export function SignInForm({ next, needsName }: { next: string; needsName: boole
   }
 
   async function signIn(otp: string) {
-    const data = await call(() => authClient.signIn.emailOtp({ email, otp }));
+    const data = await call(() => authClient.signIn.emailOtp({ email, otp }, inPageLanguage));
     if (!data) {
+      setCode("");
       return;
     }
     // A first sign-in creates the User without a name (ADR 0011).
@@ -89,7 +104,7 @@ export function SignInForm({ next, needsName }: { next: string; needsName: boole
 
   function submitCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void signIn(new FormData(event.currentTarget).get("code") as string);
+    void signIn(code);
   }
 
   async function saveName(name: string) {
@@ -145,21 +160,23 @@ export function SignInForm({ next, needsName }: { next: string; needsName: boole
       <form key="code" onSubmit={submitCode} className="flex flex-col gap-4">
         <h1 className="text-2xl font-semibold">{t("codeTitle")}</h1>
         <p className="text-muted">{t("codeIntro", { email })}</p>
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">{t("code")}</span>
-          <input
-            name="code"
-            required
-            autoComplete="one-time-code"
-            autoFocus
-            inputMode="numeric"
-            pattern={`[0-9]{${CODE_LENGTH}}`}
-            maxLength={CODE_LENGTH}
-            className="rounded border border-border bg-surface px-3 py-2 font-mono tracking-widest"
-          />
-        </label>
+        <InputOtp
+          length={CODE_LENGTH}
+          value={code}
+          onChange={setCode}
+          // Never disabled while checking: it would lose focus, and a wrong
+          // code should leave the cursor in the first box.
+          onComplete={(otp) => void signIn(otp)}
+          nonce={nonce}
+          aria-label={t("code")}
+        />
         {errorMessage}
-        <button type="submit" disabled={pending} className="rounded bg-ink px-3 py-2 text-surface disabled:opacity-60">
+        {resendIn === 0 && <p className="text-sm text-muted">{t("notReceived")}</p>}
+        <button
+          type="submit"
+          disabled={pending || code.length < CODE_LENGTH}
+          className="rounded bg-ink px-3 py-2 text-surface disabled:opacity-60"
+        >
           {t("signIn")}
         </button>
         <div className="flex justify-between text-sm">

@@ -20,8 +20,9 @@
     "signIn": "Se connecter",
     "changeEmail": "Utiliser une autre adresse",
     "resend": "Envoyer un nouveau code",
-    "resendIn": "Nouveau code dans {seconds} s",
-    "nameTitle": "Comment vous appelez-vous ?",
+    "resendIn": "Nouveau code dans {seconds} s",
+    "notReceived": "Toujours rien ? Regardez dans vos spams, ou demandez un nouveau code.",
+    "nameTitle": "Comment vous appelez-vous ?",
     "nameIntro": "Votre équipe le voit à côté des modifications que vous faites.",
     "name": "Votre nom",
     "errors": {

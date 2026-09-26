@@ -19,8 +19,9 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
 
   // The page checks the session itself, not the proxy: a User who signed in
   // but never gave their name comes back here for it (ADR 0046).
+  const requestHeaders = await headers();
   let needsName = false;
-  if (getSessionCookie(await headers())) {
+  if (getSessionCookie(requestHeaders)) {
     const result = await (await api()).GET("/me");
     // A cookie whose session has ended is a visitor like any other.
     if (result.response.status !== 401) {
@@ -32,5 +33,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
     }
   }
 
-  return <SignInForm next={nextPath} needsName={needsName} />;
+  // Set by the proxy, for the <style> the code field adds.
+  const nonce = requestHeaders.get("x-nonce") as string;
+  return <SignInForm next={nextPath} needsName={needsName} nonce={nonce} />;
 }
