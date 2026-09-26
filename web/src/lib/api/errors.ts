@@ -37,7 +37,8 @@ function toApiError({ error, response }: ApiResult<unknown>): ApiError {
 // For a page's data: a missing session goes to sign-in, a missing resource
 // to the not-found page, anything else to the area's error.tsx.
 export function pageData<T>(result: ApiResult<T>): T {
-  if (result.error === undefined) {
+  // openapi-fetch leaves error undefined for an empty-bodied failure.
+  if (result.response.ok) {
     return result.data as T;
   }
   const error = toApiError(result);
@@ -64,7 +65,7 @@ export interface ActionFailure {
 // in its own words per code, never the API's message. A 5xx is thrown
 // instead, so it's reported and logged with its requestId, like a page's.
 export function actionResult(result: ApiResult<unknown>): ActionResult {
-  if (result.error === undefined) {
+  if (result.response.ok) {
     return { ok: true };
   }
   const error = toApiError(result);

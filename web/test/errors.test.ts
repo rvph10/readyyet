@@ -42,6 +42,11 @@ describe("pageData", () => {
     const run = () => pageData({ error: "<html>Bad gateway</html>", response: new Response(null, { status: 502 }) });
     expect(run).toThrow("502 INTERNAL_ERROR");
   });
+
+  it("throws a failure with an empty body", () => {
+    const response = new Response(null, { status: 503, headers: { "content-length": "0" } });
+    expect(() => pageData({ error: undefined, response })).toThrow("503 INTERNAL_ERROR");
+  });
 });
 
 describe("actionResult", () => {
@@ -81,5 +86,10 @@ describe("actionResult", () => {
     expect(() =>
       actionResult({ error: "<html>Bad gateway</html>", response: new Response(null, { status: 502 }) }),
     ).toThrow(ApiError);
+  });
+
+  it("doesn't report a failure with an empty body as ok", () => {
+    const response = new Response(null, { status: 409, headers: { "content-length": "0" } });
+    expect(actionResult({ error: undefined, response })).toMatchObject({ ok: false, code: ErrorCode.INTERNAL_ERROR });
   });
 });
