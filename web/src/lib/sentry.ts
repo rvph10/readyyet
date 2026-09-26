@@ -33,7 +33,8 @@ export const sentryOptions: BrowserOptions & NodeOptions = {
     return event;
   },
   // Navigation and fetch breadcrumbs record every URL the visitor went
-  // through before the error.
+  // through before the error. The server's http breadcrumbs strip the query
+  // from url but keep it, and the fragment, in keys of their own.
   beforeBreadcrumb(breadcrumb) {
     const data = breadcrumb.data;
     if (data) {
@@ -42,6 +43,8 @@ export const sentryOptions: BrowserOptions & NodeOptions = {
           data[key] = redactUrl(data[key]);
         }
       }
+      delete data["url.query"];
+      delete data["url.fragment"];
     }
     return breadcrumb;
   },

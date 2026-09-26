@@ -37,4 +37,18 @@ describe("sentryOptions", () => {
       to: "/t/[redacted]/collected",
     });
   });
+
+  it("drops the query and fragment a server http breadcrumb keeps apart from its url", () => {
+    const breadcrumb: Breadcrumb = {
+      category: "http",
+      data: {
+        url: "http://api.railway.internal:8080/locations/l1/tickets",
+        "url.query": "?q=Jane",
+        "url.fragment": "#x",
+      },
+    };
+    expect(sentryOptions.beforeBreadcrumb!(breadcrumb)?.data).toEqual({
+      url: "http://api.railway.internal:8080/locations/l1/tickets",
+    });
+  });
 });
