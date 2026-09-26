@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createTestApp } from "./support/create-test-app";
 import { PrismaService } from "../src/database/prisma.service";
@@ -109,7 +109,8 @@ describe("Better Auth email OTP", () => {
     }
     await sent.send({ email, type: "sign-in" });
 
-    const log = await prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } });
+    // Sent after the answer (ADR 0047).
+    const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } }));
     expect(log.subject).toBe(subject);
     expect(log.html).toContain(await readOtp(prisma, email));
   });
@@ -120,13 +121,17 @@ describe("Better Auth email OTP", () => {
     // api/src/auth/auth.ts); 10 rapid attempts on top of earlier tests'
     // calls guarantees at least one 429.
     const email = `delivered+auth-otp-ratelimit-${Date.now()}@resend.dev`;
-    const attempts = await Promise.all(
-      Array.from({ length: 10 }, () =>
-        request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" }),
-      ),
-    );
+    // One after another: supertest opens and closes the unlistened server
+    // around each request, so parallel ones can find it closed under them.
+    const statuses: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      const response = await request(app.getHttpServer())
+        .post("/api/auth/email-otp/send-verification-otp")
+        .send({ email, type: "sign-in" });
+      statuses.push(response.status);
+    }
 
-    expect(attempts.some((response) => response.status === 429)).toBe(true);
+    expect(statuses).toContain(429);
   });
 
   // An invalid email: the rate limiter runs before validation, and no email is sent.
