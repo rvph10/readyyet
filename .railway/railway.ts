@@ -45,6 +45,9 @@ export default defineRailway((ctx) => {
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
+      // Set rather than left to Railway, so the web app can address the API
+      // on the private network.
+      PORT: "8080",
       DATABASE_URL: db.env.DATABASE_URL,
       S3_ENDPOINT: ref(images, "ENDPOINT"),
       S3_REGION: ref(images, "REGION"),
@@ -78,6 +81,15 @@ export default defineRailway((ctx) => {
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
+      // The private network: no public hop, and no edge to overwrite the
+      // X-Real-IP the web app forwards (ADR 0043).
+      API_URL: "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}",
+      // Set in Railway. The DSN is the API's (ADR 0045), read at build time
+      // too, for the browser. The rest let the build upload source maps.
+      NEXT_PUBLIC_SENTRY_DSN: preserve(),
+      SENTRY_AUTH_TOKEN: preserve(),
+      SENTRY_ORG: preserve(),
+      SENTRY_PROJECT: preserve(),
     },
   });
 

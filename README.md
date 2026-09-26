@@ -47,6 +47,7 @@ pnpm --filter @readyyet/db run migrate:dev
 pnpm --filter @readyyet/db run seed
 pnpm --filter @readyyet/api run start:dev
 pnpm --filter @readyyet/shared run build   # the web app imports its compiled output
+cp web/.env.example web/.env.local          # once
 pnpm --filter @readyyet/web run dev        # http://localhost:3001
 pnpm --filter @readyyet/site run dev       # the sales site, http://localhost:3002
 ```
@@ -56,11 +57,12 @@ pnpm --filter @readyyet/site run dev       # the sales site, http://localhost:30
 ```bash
 pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
+pnpm --filter @readyyet/web run test
 pnpm lint
 pnpm format:check   # or pnpm format to fix
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
 
 ## CI
 
@@ -87,6 +89,8 @@ railway config apply
 Production answers on `readyyet.app` (`site`), `app.readyyet.app` (`web`) and `api.readyyet.app` (`api`), staging on the same names under `readyyet-staging.app` (ADR 0043). Railway's IaC can't register a custom domain, so each one is attached to its service in Railway, with the CNAME Railway gives added at the DNS provider.
 
 Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
+
+The `web` service also needs `NEXT_PUBLIC_SENTRY_DSN` (the API's DSN, read at build time for the browser) and, for readable browser stack traces, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` and `SENTRY_PROJECT` so the build uploads source maps. Without them the web app runs and reports nothing.
 
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 
