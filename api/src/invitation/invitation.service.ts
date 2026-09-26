@@ -123,17 +123,21 @@ export class InvitationService {
     return serialize(updated);
   }
 
+  async findForInvitee(invitationId: string, user: User) {
+    const invitation = await this.loadForInvitee(invitationId, user);
+    const lapsed = invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date();
+    return {
+      id: invitation.id,
+      role: invitation.role,
+      status: lapsed ? InvitationStatus.EXPIRED : invitation.status,
+      invitedBy: invitation.inviter,
+      location: invitation.location,
+      expiresAt: invitation.expiresAt,
+    };
+  }
+
   async accept(invitationId: string, user: User) {
-    if (!isUUID(invitationId)) {
-      throw new NotFoundError("Invitation not found");
-    }
-    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
-    if (!invitation) {
-      throw new NotFoundError("Invitation not found");
-    }
-    if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
-      throw new UnauthorizedError("This invitation was not sent to your account's email address");
-    }
+    const invitation = await this.loadForInvitee(invitationId, user);
 
     if (invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date()) {
       await this.prisma.invitation.update({ where: { id: invitationId }, data: { status: InvitationStatus.EXPIRED } });
@@ -168,6 +172,27 @@ export class InvitationService {
         throw err;
       }
     });
+  }
+
+  // Only the User it was sent to may read or accept it.
+  private async loadForInvitee(invitationId: string, user: User) {
+    if (!isUUID(invitationId)) {
+      throw new NotFoundError("Invitation not found");
+    }
+    const invitation = await this.prisma.invitation.findUnique({
+      where: { id: invitationId },
+      include: {
+        inviter: { select: { id: true, name: true } },
+        location: { select: { id: true, name: true, business: { select: { id: true, name: true } } } },
+      },
+    });
+    if (!invitation) {
+      throw new NotFoundError("Invitation not found");
+    }
+    if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
+      throw new UnauthorizedError("This invitation was not sent to your account's email address");
+    }
+    return invitation;
   }
 
   private async loadInLocation(locationId: string, invitationId: string) {
