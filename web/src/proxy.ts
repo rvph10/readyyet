@@ -1,5 +1,7 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
+import { REF_COOKIE, REF_MAX_AGE_SECONDS, REF_MAX_LENGTH } from "@/lib/referral";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
 // check, this only spares a signed-out visitor a round trip (ADR 0045).
@@ -7,6 +9,28 @@ const DASHBOARD_PATHS = ["/businesses/", "/locations/", "/invitations/"];
 
 function needsSession(pathname: string) {
   return pathname === "/" || DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix));
+}
+
+const YEAR_SECONDS = 365 * 24 * 60 * 60;
+
+// ?lang= and ?ref= work on any page (ADR 0047).
+function keepChoices(request: NextRequest, response: NextResponse) {
+  const { searchParams } = request.nextUrl;
+  const secure = process.env.NODE_ENV === "production";
+  const locale = parseLocale(searchParams.get("lang"));
+  if (locale) {
+    response.cookies.set(LOCALE_COOKIE, locale, { maxAge: YEAR_SECONDS, sameSite: "lax", secure });
+  }
+  const ref = searchParams.get("ref");
+  if (ref && ref.length <= REF_MAX_LENGTH && !request.cookies.has(REF_COOKIE)) {
+    response.cookies.set(REF_COOKIE, ref, {
+      maxAge: REF_MAX_AGE_SECONDS,
+      sameSite: "lax",
+      httpOnly: true,
+      secure,
+    });
+  }
+  return response;
 }
 
 // The nonce lets through the inline scripts Next.js writes into every page
@@ -19,7 +43,13 @@ export function proxy(request: NextRequest) {
     if (pathname !== "/") {
       signIn.searchParams.set("next", `${pathname}${search}`);
     }
-    return NextResponse.redirect(signIn);
+    return keepChoices(request, NextResponse.redirect(signIn));
+  }
+
+  // On the request too, so this very page is already shown in it.
+  const locale = parseLocale(request.nextUrl.searchParams.get("lang"));
+  if (locale) {
+    request.cookies.set(LOCALE_COOKIE, locale);
   }
 
   const api = new URL(process.env.NEXT_PUBLIC_API_URL as string).origin;
@@ -48,7 +78,7 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("Content-Security-Policy", csp);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
-  return response;
+  return keepChoices(request, response);
 }
 
 export const config = {
