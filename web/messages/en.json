@@ -1,8 +1,4 @@
 {
-  "home": {
-    "title": "ReadyYet",
-    "tagline": "Know when your item is ready, without calling the shop."
-  },
   "error": {
     "title": "Something went wrong",
     "body": "Please try again. If it keeps happening, contact us.",
@@ -32,6 +28,39 @@
       "invalidCode": "That code isn't right. Check it and try again.",
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "dashboard": {
+    "signOut": "Sign out",
+    "comingSoon": "{business}. The dashboard is on its way."
+  },
+  "createBusiness": {
+    "title": "Create your Business",
+    "intro": "Tell us about your shop. You can add more Locations later.",
+    "name": "Business name",
+    "locationName": "Location name",
+    "locationNameHint": "The shop your customers visit, shown on their tracking page.",
+    "businessType": "Type of business",
+    "contactPhone": "Phone number",
+    "contactPhoneHint": "With the country code, for example +32 470 12 34 56.",
+    "contactEmail": "Contact email",
+    "locale": "Language of customer emails",
+    "localeHint": "Customers receive their updates in this language.",
+    "timeZone": "Time zone",
+    "submit": "Create",
+    "invalid": "Check this field.",
+    "rateLimited": "Too many attempts. Wait a minute, then try again.",
+    "unexpected": "Something went wrong. Please try again."
+  },
+  "invitation": {
+    "title": "You've been invited",
+    "body": "Accept to join the team and see its Tickets.",
+    "accept": "Accept the invitation",
+    "errors": {
+      "NOT_FOUND": "This invitation doesn't exist or was withdrawn.",
+      "UNAUTHORIZED": "This invitation was sent to another email address. Sign out, then sign in with that one.",
+      "CONFLICT": "This invitation has expired or was already used, or you're already on this team.",
       "unexpected": "Something went wrong. Please try again."
     }
   }

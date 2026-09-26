@@ -1,8 +1,4 @@
 {
-  "home": {
-    "title": "ReadyYet",
-    "tagline": "Sachez quand votre article est prêt, sans appeler le magasin."
-  },
   "error": {
     "title": "Une erreur s'est produite",
     "body": "Veuillez réessayer. Si cela se reproduit, contactez-nous.",
@@ -32,6 +28,39 @@
       "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+      "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "dashboard": {
+    "signOut": "Se déconnecter",
+    "comingSoon": "{business}. Le tableau de bord arrive bientôt."
+  },
+  "createBusiness": {
+    "title": "Créez votre entreprise",
+    "intro": "Parlez-nous de votre magasin. Vous pourrez ajouter d'autres établissements plus tard.",
+    "name": "Nom de l'entreprise",
+    "locationName": "Nom de l'établissement",
+    "locationNameHint": "Le magasin où viennent vos clients, affiché sur leur page de suivi.",
+    "businessType": "Type d'activité",
+    "contactPhone": "Numéro de téléphone",
+    "contactPhoneHint": "Avec l'indicatif du pays, par exemple +32 470 12 34 56.",
+    "contactEmail": "E-mail de contact",
+    "locale": "Langue des e-mails aux clients",
+    "localeHint": "Vos clients reçoivent leurs nouvelles dans cette langue.",
+    "timeZone": "Fuseau horaire",
+    "submit": "Créer",
+    "invalid": "Vérifiez ce champ.",
+    "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+    "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "invitation": {
+    "title": "Vous êtes invité",
+    "body": "Acceptez pour rejoindre l'équipe et voir ses tickets.",
+    "accept": "Accepter l'invitation",
+    "errors": {
+      "NOT_FOUND": "Cette invitation n'existe pas ou a été retirée.",
+      "UNAUTHORIZED": "Cette invitation a été envoyée à une autre adresse. Déconnectez-vous, puis connectez-vous avec celle-ci.",
+      "CONFLICT": "Cette invitation a expiré ou a déjà été utilisée, ou vous faites déjà partie de cette équipe.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer."
     }
   }
