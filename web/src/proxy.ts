@@ -28,7 +28,9 @@ export function proxy(request: NextRequest) {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
-    `style-src 'self' 'nonce-${nonce}'`,
+    // Next.js's dev indicator writes its styles without the nonce. Browsers
+    // ignore 'unsafe-inline' next to a nonce, so development drops the nonce.
+    `style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
     // Better Auth's client signs in against the API, whose /images serves
     // logos and avatars.
     `connect-src 'self' ${api}`,
