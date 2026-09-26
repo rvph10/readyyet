@@ -55,14 +55,22 @@
     "contactEmailHint": "Shown to your customers, so they can reach you."
   },
   "invitation": {
-    "title": "You've been invited",
-    "body": "Accept to join the team and see its Tickets.",
+    "title": "{inviter} invited you",
+    "body": "Join {location} ({business}) as {role}. You'll see its Tickets and can update them.",
     "accept": "Accept the invitation",
     "errors": {
       "NOT_FOUND": "This invitation doesn't exist or was withdrawn.",
       "UNAUTHORIZED": "This invitation was sent to another email address. Sign out, then sign in with that one.",
       "CONFLICT": "This invitation has expired or was already used, or you're already on this team.",
       "unexpected": "Something went wrong. Please try again."
+    },
+    "otherAccountTitle": "This invitation is for another account",
+    "unavailableTitle": "This invitation can't be used anymore",
+    "accepted": "It was already accepted. You'll find {location} ({business}) in your dashboard.",
+    "lapsed": "It expired or was withdrawn. Ask {inviter} to invite you to {location} ({business}) again.",
+    "roles": {
+      "ADMIN": "an admin",
+      "EMPLOYEE": "an employee"
     }
   }
 }

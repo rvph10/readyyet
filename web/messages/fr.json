@@ -55,14 +55,22 @@
     "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre."
   },
   "invitation": {
-    "title": "Vous êtes invité",
-    "body": "Acceptez pour rejoindre l'équipe et voir ses tickets.",
+    "title": "{inviter} vous a invité",
+    "body": "Rejoignez {location} ({business}) en tant que {role}. Vous verrez ses tickets et pourrez les mettre à jour.",
     "accept": "Accepter l'invitation",
     "errors": {
       "NOT_FOUND": "Cette invitation n'existe pas ou a été retirée.",
       "UNAUTHORIZED": "Cette invitation a été envoyée à une autre adresse. Déconnectez-vous, puis connectez-vous avec celle-ci.",
       "CONFLICT": "Cette invitation a expiré ou a déjà été utilisée, ou vous faites déjà partie de cette équipe.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "otherAccountTitle": "Cette invitation est destinée à un autre compte",
+    "unavailableTitle": "Cette invitation n'est plus utilisable",
+    "accepted": "Elle a déjà été acceptée. Vous retrouverez {location} ({business}) dans votre tableau de bord.",
+    "lapsed": "Elle a expiré ou a été retirée. Demandez à {inviter} de vous inviter à nouveau à {location} ({business}).",
+    "roles": {
+      "ADMIN": "administrateur",
+      "EMPLOYEE": "employé"
     }
   }
 }
