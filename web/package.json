@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@readyyet/shared": "workspace:*",
+    "@sentry/nextjs": "11.0.0",
     "next": "16.3.6",
     "next-intl": "4.14.7",
     "openapi-fetch": "0.17.0",

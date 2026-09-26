@@ -90,6 +90,8 @@ Production answers on `readyyet.app` (`site`), `app.readyyet.app` (`web`) and `a
 
 Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
 
+The `web` service also needs `NEXT_PUBLIC_SENTRY_DSN` (the API's DSN, read at build time for the browser) and, for readable browser stack traces, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` and `SENTRY_PROJECT` so the build uploads source maps. Without them the web app runs and reports nothing.
+
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 
 After the first deploy, do the trusted-proxy check at the end of ADR 0009.
