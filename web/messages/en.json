@@ -38,21 +38,21 @@
   },
   "createBusiness": {
     "title": "Create your Business",
-    "intro": "Tell us about your shop. You can add more Locations later.",
     "name": "Business name",
     "locationName": "Location name",
-    "locationNameHint": "The shop your customers visit, shown on their tracking page.",
+    "locationNameHint": "Your shop's name, shown on your customers' tracking page. Change it if it differs from the Business.",
     "businessType": "Type of business",
     "contactPhone": "Phone number",
-    "contactPhoneHint": "With the country code, for example +32 470 12 34 56.",
     "contactEmail": "Contact email",
-    "locale": "Language of customer emails",
-    "localeHint": "Customers receive their updates in this language.",
-    "timeZone": "Time zone",
     "submit": "Create",
     "invalid": "Check this field.",
     "rateLimited": "Too many attempts. Wait a minute, then try again.",
-    "unexpected": "Something went wrong. Please try again."
+    "unexpected": "Something went wrong. Please try again.",
+    "stepOf": "Step {step} of {steps}",
+    "next": "Next",
+    "back": "Back",
+    "phoneInvalid": "Enter a valid phone number.",
+    "contactEmailHint": "Shown to your customers, so they can reach you."
   },
   "invitation": {
     "title": "You've been invited",

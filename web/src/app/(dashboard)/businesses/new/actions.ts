@@ -1,28 +1,23 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { actionResult, type ActionResult } from "@/lib/api/errors";
+import type { components } from "@/lib/api/schema";
+import { REF_COOKIE } from "@/lib/referral";
 
-export async function createBusiness(_previous: ActionResult | null, form: FormData): Promise<ActionResult> {
-  // Every input of the form is text, so each value is a string.
-  const field = (name: string) => form.get(name) as string;
+export type NewBusiness = Omit<components["schemas"]["CreateBusinessDto"], "referralCode">;
+
+export async function createBusiness(business: NewBusiness): Promise<ActionResult> {
+  const jar = await cookies();
   const result = await (
     await api()
   ).POST("/businesses", {
-    body: {
-      name: field("name"),
-      location: {
-        name: field("location.name"),
-        businessTypeCode: field("location.businessTypeCode"),
-        contactPhone: field("location.contactPhone"),
-        contactEmail: field("location.contactEmail"),
-        locale: field("location.locale") as "EN" | "FR",
-        timeZone: field("location.timeZone"),
-      },
-    },
+    body: { ...business, referralCode: jar.get(REF_COOKIE)?.value },
   });
   if (result.data) {
+    jar.delete(REF_COOKIE);
     redirect(`/locations/${result.data.locations[0].id}`);
   }
   return actionResult(result);

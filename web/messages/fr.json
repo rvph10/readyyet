@@ -38,21 +38,21 @@
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
-    "intro": "Parlez-nous de votre magasin. Vous pourrez ajouter d'autres établissements plus tard.",
     "name": "Nom de l'entreprise",
     "locationName": "Nom de l'établissement",
-    "locationNameHint": "Le magasin où viennent vos clients, affiché sur leur page de suivi.",
+    "locationNameHint": "Le nom de votre magasin, affiché sur la page de suivi de vos clients. Modifiez-le s'il diffère de l'entreprise.",
     "businessType": "Type d'activité",
     "contactPhone": "Numéro de téléphone",
-    "contactPhoneHint": "Avec l'indicatif du pays, par exemple +32 470 12 34 56.",
     "contactEmail": "E-mail de contact",
-    "locale": "Langue des e-mails aux clients",
-    "localeHint": "Vos clients reçoivent leurs nouvelles dans cette langue.",
-    "timeZone": "Fuseau horaire",
     "submit": "Créer",
     "invalid": "Vérifiez ce champ.",
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
-    "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+    "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
+    "stepOf": "Étape {step} sur {steps}",
+    "next": "Suivant",
+    "back": "Retour",
+    "phoneInvalid": "Entrez un numéro de téléphone valide.",
+    "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre."
   },
   "invitation": {
     "title": "Vous êtes invité",
