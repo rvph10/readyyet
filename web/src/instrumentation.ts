@@ -8,6 +8,9 @@ export function register() {
   if (!URL.canParse(process.env.API_URL ?? "")) {
     throw new Error("API_URL must be the API's URL");
   }
+  if (!URL.canParse(process.env.NEXT_PUBLIC_API_URL ?? "")) {
+    throw new Error("NEXT_PUBLIC_API_URL must be the API's public URL");
+  }
   Sentry.init(sentryOptions);
 }
 

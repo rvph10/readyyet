@@ -100,6 +100,16 @@ export const auth: Auth<any> = betterAuth({
   ],
   advanced: {
     ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+    // The code email is sent after the answer, the page shouldn't wait on
+    // Resend (ADR 0047). Better Auth logs a failure itself, and EmailService
+    // records it in EmailLog.
+    backgroundTasks: { handler: () => undefined },
+    // The root domain on Railway, so the web app's server receives the
+    // cookie too (ADR 0046). Unset locally, where cookies ignore ports.
+    crossSubDomainCookies: {
+      enabled: !!process.env.AUTH_COOKIE_DOMAIN,
+      domain: process.env.AUTH_COOKIE_DOMAIN,
+    },
   },
   // Disabled by default outside production, so this has to be explicit.
   // Nest's guards (and @nestjs/throttler) never see these routes, see

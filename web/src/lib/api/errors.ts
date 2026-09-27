@@ -1,5 +1,6 @@
 import { ErrorCode, type ApiErrorResponse } from "@readyyet/shared";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { redirectToSignIn } from "../next-path";
 
 type ApiErrorBody = ApiErrorResponse["error"];
 
@@ -36,14 +37,14 @@ function toApiError({ error, response }: ApiResult<unknown>): ApiError {
 
 // For a page's data: a missing session goes to sign-in, a missing resource
 // to the not-found page, anything else to the area's error.tsx.
-export function pageData<T>(result: ApiResult<T>): T {
+export async function pageData<T>(result: ApiResult<T>): Promise<T> {
   // openapi-fetch leaves error undefined for an empty-bodied failure.
   if (result.response.ok) {
     return result.data as T;
   }
   const error = toApiError(result);
   if (error.body.code === ErrorCode.UNAUTHENTICATED) {
-    redirect("/sign-in");
+    return redirectToSignIn();
   }
   if (error.body.code === ErrorCode.NOT_FOUND) {
     notFound();
@@ -64,7 +65,7 @@ export interface ActionFailure {
 // For a server action: the form shows a failure it can do something about,
 // in its own words per code, never the API's message. A 5xx is thrown
 // instead, so it's reported and logged with its requestId, like a page's.
-export function actionResult(result: ApiResult<unknown>): ActionResult {
+export async function actionResult(result: ApiResult<unknown>): Promise<ActionResult> {
   if (result.response.ok) {
     return { ok: true };
   }
@@ -74,7 +75,7 @@ export function actionResult(result: ApiResult<unknown>): ActionResult {
   }
   const { body, retryAfter } = error;
   if (body.code === ErrorCode.UNAUTHENTICATED) {
-    redirect("/sign-in");
+    return redirectToSignIn();
   }
   const fields = Array.isArray(body.details)
     ? Object.fromEntries(

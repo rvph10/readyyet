@@ -1,5 +1,5 @@
 import { ErrorCode } from "@readyyet/shared";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ApiError, actionResult, pageData } from "../src/lib/api/errors";
 
 function failure(status: number, code: ErrorCode, extra: object = {}, headers: HeadersInit = {}) {
@@ -9,10 +9,14 @@ function failure(status: number, code: ErrorCode, extra: object = {}, headers: H
   };
 }
 
+vi.mock("next/headers", () => ({
+  headers: () => Promise.resolve(new Headers({ "x-path": "/invitations/i1?lang=fr" })),
+}));
+
 // redirect() and notFound() throw an error whose digest says where to go.
-function digestOf(run: () => unknown): string {
+async function digestOf(run: () => Promise<unknown>): Promise<string> {
   try {
-    run();
+    await run();
   } catch (error) {
     return (error as { digest: string }).digest;
   }
@@ -20,43 +24,45 @@ function digestOf(run: () => unknown): string {
 }
 
 describe("pageData", () => {
-  it("returns the data of a successful call", () => {
-    expect(pageData({ data: { id: "t1" }, response: new Response() })).toEqual({ id: "t1" });
+  it("returns the data of a successful call", async () => {
+    expect(await pageData({ data: { id: "t1" }, response: new Response() })).toEqual({ id: "t1" });
   });
 
-  it("sends a visitor without a session to sign-in", () => {
-    expect(digestOf(() => pageData(failure(401, ErrorCode.UNAUTHENTICATED)))).toContain("/sign-in");
+  it("sends a visitor without a session to sign-in, then back to the page", async () => {
+    expect(await digestOf(() => pageData(failure(401, ErrorCode.UNAUTHENTICATED)))).toContain(
+      "/sign-in?next=%2Finvitations%2Fi1%3Flang%3Dfr",
+    );
   });
 
-  it("renders the not-found page for NOT_FOUND", () => {
-    expect(digestOf(() => pageData(failure(404, ErrorCode.NOT_FOUND)))).toContain("404");
+  it("renders the not-found page for NOT_FOUND", async () => {
+    expect(await digestOf(() => pageData(failure(404, ErrorCode.NOT_FOUND)))).toContain("404");
   });
 
-  it("throws anything else as an ApiError carrying the requestId", () => {
+  it("throws anything else as an ApiError carrying the requestId", async () => {
     const run = () => pageData(failure(409, ErrorCode.CONFLICT));
-    expect(run).toThrow(ApiError);
-    expect(run).toThrow("request req-1");
+    await expect(run()).rejects.toThrow(ApiError);
+    await expect(run()).rejects.toThrow("request req-1");
   });
 
-  it("treats a body that isn't the API's envelope as an internal error", () => {
+  it("treats a body that isn't the API's envelope as an internal error", async () => {
     const run = () => pageData({ error: "<html>Bad gateway</html>", response: new Response(null, { status: 502 }) });
-    expect(run).toThrow("502 INTERNAL_ERROR");
+    await expect(run()).rejects.toThrow("502 INTERNAL_ERROR");
   });
 
-  it("throws a failure with an empty body", () => {
+  it("throws a failure with an empty body", async () => {
     const response = new Response(null, { status: 503, headers: { "content-length": "0" } });
-    expect(() => pageData({ error: undefined, response })).toThrow("503 INTERNAL_ERROR");
+    await expect(pageData({ error: undefined, response })).rejects.toThrow("503 INTERNAL_ERROR");
   });
 });
 
 describe("actionResult", () => {
-  it("is ok for a successful call", () => {
-    expect(actionResult({ data: {}, response: new Response() })).toEqual({ ok: true });
+  it("is ok for a successful call", async () => {
+    expect(await actionResult({ data: {}, response: new Response() })).toEqual({ ok: true });
   });
 
-  it("lists the rules each input failed", () => {
+  it("lists the rules each input failed", async () => {
     const details = [{ property: "customer.email", constraints: { isEmail: "customer.email must be an email" } }];
-    expect(actionResult(failure(400, ErrorCode.VALIDATION_ERROR, { details }))).toEqual({
+    expect(await actionResult(failure(400, ErrorCode.VALIDATION_ERROR, { details }))).toEqual({
       ok: false,
       code: ErrorCode.VALIDATION_ERROR,
       fields: { "customer.email": ["isEmail"] },
@@ -64,32 +70,37 @@ describe("actionResult", () => {
     });
   });
 
-  it("says how long to wait when rate limited", () => {
-    expect(actionResult(failure(429, ErrorCode.RATE_LIMITED, {}, { "retry-after": "42" }))).toMatchObject({
+  it("says how long to wait when rate limited", async () => {
+    expect(await actionResult(failure(429, ErrorCode.RATE_LIMITED, {}, { "retry-after": "42" }))).toMatchObject({
       ok: false,
       code: ErrorCode.RATE_LIMITED,
       retryAfter: 42,
     });
   });
 
-  it("sends a visitor without a session to sign-in", () => {
-    expect(digestOf(() => actionResult(failure(401, ErrorCode.UNAUTHENTICATED)))).toContain("/sign-in");
+  it("sends a visitor without a session to sign-in, then back to the page", async () => {
+    expect(await digestOf(() => actionResult(failure(401, ErrorCode.UNAUTHENTICATED)))).toContain(
+      "/sign-in?next=%2Finvitations%2Fi1%3Flang%3Dfr",
+    );
   });
 
-  it("throws a server error, so it's reported rather than shown as a form error", () => {
+  it("throws a server error, so it's reported rather than shown as a form error", async () => {
     const run = () => actionResult(failure(500, ErrorCode.INTERNAL_ERROR));
-    expect(run).toThrow(ApiError);
-    expect(run).toThrow("request req-1");
+    await expect(run()).rejects.toThrow(ApiError);
+    await expect(run()).rejects.toThrow("request req-1");
   });
 
-  it("throws a response that isn't the API's envelope", () => {
-    expect(() =>
+  it("throws a response that isn't the API's envelope", async () => {
+    await expect(
       actionResult({ error: "<html>Bad gateway</html>", response: new Response(null, { status: 502 }) }),
-    ).toThrow(ApiError);
+    ).rejects.toThrow(ApiError);
   });
 
-  it("doesn't report a failure with an empty body as ok", () => {
+  it("doesn't report a failure with an empty body as ok", async () => {
     const response = new Response(null, { status: 409, headers: { "content-length": "0" } });
-    expect(actionResult({ error: undefined, response })).toMatchObject({ ok: false, code: ErrorCode.INTERNAL_ERROR });
+    expect(await actionResult({ error: undefined, response })).toMatchObject({
+      ok: false,
+      code: ErrorCode.INTERNAL_ERROR,
+    });
   });
 });

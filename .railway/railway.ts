@@ -56,6 +56,7 @@ export default defineRailway((ctx) => {
       S3_SECRET_ACCESS_KEY: ref(images, "SECRET_ACCESS_KEY"),
       BETTER_AUTH_URL: `https://api.${root}`,
       WEB_URL: `https://app.${root}`,
+      AUTH_COOKIE_DOMAIN: root,
       // Secrets, or values that differ per environment: set in Railway,
       // never here, the repo is public.
       BETTER_AUTH_SECRET: preserve(),
@@ -84,6 +85,8 @@ export default defineRailway((ctx) => {
       // The private network: no public hop, and no edge to overwrite the
       // X-Real-IP the web app forwards (ADR 0043).
       API_URL: "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}",
+      // Better Auth's client in the browser, read at build time (ADR 0046).
+      NEXT_PUBLIC_API_URL: `https://api.${root}`,
       // Set in Railway. The DSN is the API's (ADR 0045), read at build time
       // too, for the browser. The rest let the build upload source maps.
       NEXT_PUBLIC_SENTRY_DSN: preserve(),

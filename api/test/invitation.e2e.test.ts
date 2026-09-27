@@ -14,6 +14,7 @@ describe("Invitations", () => {
   let ownerCookie: string;
   let employeeCookie: string;
   let employeeEmail: string;
+  let otherEmail: string;
   let otherCookie: string;
   let locationId: string;
 
@@ -25,7 +26,8 @@ describe("Invitations", () => {
     ownerCookie = await signInViaOtp(app, prisma, `delivered+invite-owner-${stamp}@resend.dev`);
     employeeEmail = `delivered+invite-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
-    otherCookie = await signInViaOtp(app, prisma, `delivered+invite-other-${stamp}@resend.dev`);
+    otherEmail = `delivered+invite-other-${stamp}@resend.dev`;
+    otherCookie = await signInViaOtp(app, prisma, otherEmail);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -123,6 +125,63 @@ describe("Invitations", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.some((i: { email: string }) => i.email === employeeEmail)).toBe(true);
+  });
+
+  describe("reading an invitation before accepting it", () => {
+    async function pendingInvitationId() {
+      const list = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie);
+      return list.body.find((i: { email: string }) => i.email === employeeEmail).id as string;
+    }
+
+    it("shows the invited user who invited them, where, and as what", async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${await pendingInvitationId()}`)
+        .set("Cookie", employeeCookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        role: "EMPLOYEE",
+        status: "PENDING",
+        invitedBy: { name: "Test User" },
+        location: { id: locationId, name: "Main Shop", business: { name: "Invite Test Garage" } },
+      });
+      expect(response.body).not.toHaveProperty("email");
+    });
+
+    it("hides it from any other signed-in user", async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${await pendingInvitationId()}`)
+        .set("Cookie", otherCookie);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe("UNAUTHORIZED");
+    });
+
+    it("says a lapsed invitation expired, even before anyone tried to accept it", async () => {
+      const invited = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email: otherEmail, role: "EMPLOYEE" });
+      await prisma.invitation.update({
+        where: { id: invited.body.id },
+        data: { expiresAt: new Date(Date.now() - 1000) },
+      });
+
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${invited.body.id}`)
+        .set("Cookie", otherCookie);
+
+      expect(response.body.status).toBe("EXPIRED");
+    });
+
+    it("returns 404 for an unknown or malformed id", async () => {
+      for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid"]) {
+        const response = await request(app.getHttpServer()).get(`/invitations/${id}`).set("Cookie", employeeCookie);
+        expect(response.status).toBe(404);
+      }
+    });
   });
 
   it("rejects accepting with a mismatched signed-in user", async () => {

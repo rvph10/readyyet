@@ -1,8 +1,4 @@
 {
-  "home": {
-    "title": "ReadyYet",
-    "tagline": "Know when your item is ready, without calling the shop."
-  },
   "error": {
     "title": "Something went wrong",
     "body": "Please try again. If it keeps happening, contact us.",
@@ -12,5 +8,69 @@
   "notFound": {
     "title": "Page not found",
     "body": "Check the address, or the link you followed. It may be mistyped or no longer valid."
+  },
+  "signIn": {
+    "title": "Sign in or create your account",
+    "emailIntro": "Enter your email address. We'll send you a code, no password needed.",
+    "email": "Email address",
+    "continue": "Continue",
+    "codeTitle": "Check your email",
+    "codeIntro": "We sent a 6-digit code to {email}. It's valid for 5 minutes.",
+    "code": "Code",
+    "signIn": "Sign in",
+    "changeEmail": "Use a different email",
+    "resend": "Send a new code",
+    "resendIn": "Send a new code in {seconds}s",
+    "notReceived": "Nothing yet? Check your spam folder, or send a new code.",
+    "nameTitle": "What's your name?",
+    "nameIntro": "Your team sees it next to the changes you make.",
+    "name": "Your name",
+    "errors": {
+      "invalidCode": "That code isn't right. Check it and try again.",
+      "expiredCode": "This code can't be used anymore. Send a new one.",
+      "rateLimited": "Too many attempts. Wait a minute, then try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "dashboard": {
+    "signOut": "Sign out",
+    "comingSoon": "{business}. The dashboard is on its way."
+  },
+  "createBusiness": {
+    "title": "Create your Business",
+    "name": "Business name",
+    "locationName": "Location name",
+    "locationNameHint": "Your shop's name, shown on your customers' tracking page. Change it if it differs from the Business.",
+    "businessType": "Type of business",
+    "contactPhone": "Phone number",
+    "contactEmail": "Contact email",
+    "submit": "Create",
+    "invalid": "Check this field.",
+    "rateLimited": "Too many attempts. Wait a minute, then try again.",
+    "unexpected": "Something went wrong. Please try again.",
+    "stepOf": "Step {step} of {steps}",
+    "next": "Next",
+    "back": "Back",
+    "phoneInvalid": "Enter a valid phone number.",
+    "contactEmailHint": "Shown to your customers, so they can reach you."
+  },
+  "invitation": {
+    "title": "{inviter} invited you",
+    "body": "Join {location} ({business}) as {role}. You'll see its Tickets and can update them.",
+    "accept": "Accept the invitation",
+    "errors": {
+      "NOT_FOUND": "This invitation doesn't exist or was withdrawn.",
+      "UNAUTHORIZED": "This invitation was sent to another email address. Sign out, then sign in with that one.",
+      "CONFLICT": "This invitation has expired or was already used, or you're already on this team.",
+      "unexpected": "Something went wrong. Please try again."
+    },
+    "otherAccountTitle": "This invitation is for another account",
+    "unavailableTitle": "This invitation can't be used anymore",
+    "accepted": "It was already accepted. You'll find {location} ({business}) in your dashboard.",
+    "lapsed": "It expired or was withdrawn. Ask {inviter} to invite you to {location} ({business}) again.",
+    "roles": {
+      "ADMIN": "an admin",
+      "EMPLOYEE": "an employee"
+    }
   }
 }

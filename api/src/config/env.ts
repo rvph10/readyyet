@@ -10,6 +10,8 @@ const envSchema = z
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     WEB_URL: z.url(),
+    // The session cookie's domain, shared by the API and the web app (ADR 0046).
+    AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
     RESEND_API_KEY: z.string().startsWith("re_"),
     // Either an address or "Name <address>".
     EMAIL_FROM: z.string().includes("@"),
