@@ -140,9 +140,9 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   if (step === "email") {
     return (
       <form key="email" onSubmit={submitEmail} className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted">{t("emailIntro")}</p>
-        <label className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted">{t("emailIntro")}</p>
+        <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t("email")}</span>
           <input
             type="email"
@@ -152,11 +152,15 @@ export function SignInForm({ next, needsName, nonce }: Props) {
             autoFocus
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="rounded border border-border bg-surface px-3 py-2"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-base transition-colors hover:border-muted/40 sm:text-sm"
           />
         </label>
         {errorMessage}
-        <button type="submit" disabled={pending} className="rounded bg-ink px-3 py-2 text-surface disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={pending}
+          className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
+        >
           {t("continue")}
         </button>
       </form>
@@ -166,8 +170,8 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   if (step === "code") {
     return (
       <form key="code" onSubmit={submitCode} className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold">{t("codeTitle")}</h1>
-        <p className="text-muted">{t("codeIntro", { email })}</p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("codeTitle")}</h1>
+        <p className="text-sm text-muted">{t("codeIntro", { email })}</p>
         <InputOtp
           length={CODE_LENGTH}
           value={code}
@@ -183,19 +187,19 @@ export function SignInForm({ next, needsName, nonce }: Props) {
         <button
           type="submit"
           disabled={pending || code.length < CODE_LENGTH}
-          className="rounded bg-ink px-3 py-2 text-surface disabled:opacity-60"
+          className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
         >
           {t("signIn")}
         </button>
         <div className="flex justify-between text-sm">
-          <button type="button" onClick={changeEmail} className="underline">
+          <button type="button" onClick={changeEmail} className="font-medium underline-offset-4 hover:underline">
             {t("changeEmail")}
           </button>
           <button
             type="button"
             onClick={() => void sendCode()}
             disabled={pending || resendIn > 0}
-            className="underline disabled:no-underline disabled:opacity-60"
+            className="font-medium underline-offset-4 hover:underline disabled:text-muted disabled:no-underline"
           >
             {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
           </button>
@@ -206,9 +210,9 @@ export function SignInForm({ next, needsName, nonce }: Props) {
 
   return (
     <form key="name" onSubmit={submitName} className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">{t("nameTitle")}</h1>
-      <p className="text-muted">{t("nameIntro")}</p>
-      <label className="flex flex-col gap-1">
+      <h1 className="text-2xl font-semibold tracking-tight">{t("nameTitle")}</h1>
+      <p className="text-sm text-muted">{t("nameIntro")}</p>
+      <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">{t("name")}</span>
         <input
           name="name"
@@ -217,11 +221,15 @@ export function SignInForm({ next, needsName, nonce }: Props) {
           pattern=".*\S.*"
           autoComplete="name"
           autoFocus
-          className="rounded border border-border bg-surface px-3 py-2"
+          className="h-10 rounded-lg border border-border bg-surface px-3 text-base transition-colors hover:border-muted/40 sm:text-sm"
         />
       </label>
       {errorMessage}
-      <button type="submit" disabled={pending} className="rounded bg-ink px-3 py-2 text-surface disabled:opacity-60">
+      <button
+        type="submit"
+        disabled={pending}
+        className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
+      >
         {t("continue")}
       </button>
     </form>

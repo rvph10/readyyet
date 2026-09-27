@@ -37,7 +37,7 @@ export function InputOtp({ length, ...props }: Props) {
 function Slot({ char, isActive, hasFakeCaret }: SlotProps) {
   return (
     <div
-      className={`relative flex size-12 items-center justify-center rounded border bg-surface font-mono text-xl ${
+      className={`relative flex size-12 items-center justify-center rounded-lg border bg-surface font-mono text-xl ${
         isActive ? "border-highlight ring-2 ring-highlight/20" : "border-border"
       }`}
     >
