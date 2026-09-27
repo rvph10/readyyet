@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
+import { FormAlert } from "@/components/ui/form-alert";
 import { InputOtp } from "@/components/ui/input-otp";
 import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
@@ -110,7 +111,7 @@ export function SignInForm({ next, needsName, nonce }: Props) {
     } catch {
       // Better Auth's client throws, rather than returning an error, when
       // the request never reaches the API.
-      setError(t("errors.unexpected"));
+      setError(t("errors.unreachable"));
       return null;
     } finally {
       setPending(false);
@@ -171,17 +172,14 @@ export function SignInForm({ next, needsName, nonce }: Props) {
     setFieldError(null);
   }
 
-  const errorMessage = error && (
-    <p role="alert" className="text-center text-p-sm text-red-700">
-      {error}
-    </p>
-  );
+  const errorMessage = error && <FormAlert>{error}</FormAlert>;
 
   if (step === "email") {
     return (
       <form key="email" onSubmit={submitEmail} noValidate>
         <StepHeader title={t("title")}>{t("emailIntro")}</StepHeader>
         <div className="flex flex-col gap-4.5">
+          {errorMessage}
           <Field
             label={t("email")}
             hideLabel
@@ -198,7 +196,6 @@ export function SignInForm({ next, needsName, nonce }: Props) {
             }}
             error={fieldError}
           />
-          {errorMessage}
           <Button type="submit" size="lg" disabled={pending}>
             {t("continue")}
           </Button>
@@ -221,6 +218,7 @@ export function SignInForm({ next, needsName, nonce }: Props) {
           })}
         </StepHeader>
         <div className="flex flex-col gap-4.5">
+          {errorMessage}
           <InputOtp
             length={CODE_LENGTH}
             value={code}
@@ -231,7 +229,6 @@ export function SignInForm({ next, needsName, nonce }: Props) {
             nonce={nonce}
             aria-label={t("code")}
           />
-          {errorMessage}
           <Button type="submit" size="lg" disabled={pending || code.length < CODE_LENGTH}>
             {t("signIn")}
           </Button>
@@ -258,6 +255,7 @@ export function SignInForm({ next, needsName, nonce }: Props) {
     <form key="name" onSubmit={submitName} noValidate>
       <StepHeader title={t("nameTitle")}>{t("nameIntro")}</StepHeader>
       <div className="flex flex-col gap-4.5">
+        {errorMessage}
         <Field
           label={t("name")}
           hideLabel
@@ -271,7 +269,6 @@ export function SignInForm({ next, needsName, nonce }: Props) {
           onChange={(event) => recheck(event, nameMessages)}
           error={fieldError}
         />
-        {errorMessage}
         <Button type="submit" size="lg" disabled={pending}>
           {t("continue")}
         </Button>

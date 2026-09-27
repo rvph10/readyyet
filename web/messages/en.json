@@ -33,7 +33,8 @@
       "invalidCode": "That code isn't right. Check it and try again.",
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
-      "unexpected": "Something went wrong. Please try again."
+      "unexpected": "Something went wrong. Please try again.",
+      "unreachable": "We couldn't reach ReadyYet. Check your connection and try again."
     },
     "help": "Need help? Write to {email}",
     "panel": {

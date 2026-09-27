@@ -33,7 +33,8 @@
       "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
-      "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+      "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
+      "unreachable": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
     },
     "help": "Besoin d'aide ? Écrivez à {email}",
     "panel": {
