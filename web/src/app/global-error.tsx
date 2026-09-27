@@ -21,7 +21,7 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
           <button
             type="button"
             onClick={() => location.reload()}
-            className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink"
           >
             Try again · Réessayer
           </button>

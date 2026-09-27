@@ -30,11 +30,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
     <ErrorMessage title={t("title")}>
       <p className="text-muted">{t("body")}</p>
       {error.digest && <p className="font-mono text-sm">{t("reference", { digest: error.digest })}</p>}
-      <button
-        type="button"
-        onClick={retry}
-        className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-      >
+      <button type="button" onClick={retry} className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink">
         {t("retry")}
       </button>
     </ErrorMessage>
