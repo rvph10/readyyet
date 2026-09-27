@@ -66,13 +66,21 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   async function call<T>(action: () => Promise<{ data: T | null; error: AuthError | null }>) {
     setPending(true);
     setError(null);
-    const { data, error } = await action();
-    setPending(false);
-    if (error) {
-      setError(t(errorKey(error)));
+    try {
+      const { data, error } = await action();
+      if (error) {
+        setError(t(errorKey(error)));
+        return null;
+      }
+      return data;
+    } catch {
+      // Better Auth's client throws, rather than returning an error, when
+      // the request never reaches the API.
+      setError(t("errors.unexpected"));
       return null;
+    } finally {
+      setPending(false);
     }
-    return data;
   }
 
   async function sendCode() {
