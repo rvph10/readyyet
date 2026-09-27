@@ -213,6 +213,8 @@ export function SignInForm({ next, needsName, nonce }: Props) {
         <input
           name="name"
           required
+          // Spaces alone would be saved as an empty name.
+          pattern=".*\S.*"
           autoComplete="name"
           autoFocus
           className="rounded border border-border bg-surface px-3 py-2"
