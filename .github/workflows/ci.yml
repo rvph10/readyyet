@@ -196,7 +196,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm --filter @readyyet/shared run build
+      - name: Check web/src/lib/api/schema.d.ts is up to date
+        run: |
+          pnpm run api-types
+          git diff --exit-code web/src/lib/api/schema.d.ts || { echo "::error::web/src/lib/api/schema.d.ts is out of date, run: pnpm run api-types"; exit 1; }
       - run: pnpm --filter @readyyet/web run typecheck
+      - run: pnpm --filter @readyyet/web run test
       - run: pnpm --filter @readyyet/web run build
 
   site:

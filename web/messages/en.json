@@ -2,5 +2,15 @@
   "home": {
     "title": "ReadyYet",
     "tagline": "Know when your item is ready, without calling the shop."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "Please try again. If it keeps happening, contact us.",
+    "reference": "Reference: {digest}",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "Check the address, or the link you followed. It may be mistyped or no longer valid."
   }
 }

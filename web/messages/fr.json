@@ -2,5 +2,15 @@
   "home": {
     "title": "ReadyYet",
     "tagline": "Sachez quand votre article est prêt, sans appeler le magasin."
+  },
+  "error": {
+    "title": "Une erreur s'est produite",
+    "body": "Veuillez réessayer. Si cela se reproduit, contactez-nous.",
+    "reference": "Référence : {digest}",
+    "retry": "Réessayer"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "Vérifiez l'adresse ou le lien que vous avez suivi. Il est peut-être mal saisi ou n'est plus valable."
   }
 }

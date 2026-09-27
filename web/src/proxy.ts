@@ -30,7 +30,9 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico).*)",
+      // The Sentry tunnel is excluded, so a redirect added here later can't
+      // swallow error reports.
+      source: "/((?!_next/static|_next/image|favicon.ico|monitoring$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
