@@ -16,7 +16,7 @@
     "email": "Email address",
     "continue": "Continue",
     "codeTitle": "Check your email",
-    "codeIntro": "We sent a 6-digit code to {email}. It's valid for 5 minutes.",
+    "codeIntro": "We sent a 6-digit code to<br></br>{email}",
     "code": "Code",
     "signIn": "Sign in",
     "changeEmail": "Use a different email",
@@ -32,8 +32,7 @@
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "Something went wrong. Please try again."
     },
-    "backToSite": "Back to {site}",
-    "help": "Need help? <email></email>",
+    "help": "Need help? Write to {email}",
     "panel": {
       "title": "Your customers know when it's ready.",
       "text": "No calls to the shop, no account to create.",
@@ -57,7 +56,12 @@
           "text": "Everyone at the counter sees the same Tickets, at every Location."
         }
       ]
-    }
+    },
+    "website": "Website",
+    "visitWebsite": "Visit our website",
+    "emailPlaceholder": "Enter your email",
+    "namePlaceholder": "Enter your name",
+    "codeValidity": "The code is valid for 5 minutes."
   },
   "dashboard": {
     "signOut": "Sign out",

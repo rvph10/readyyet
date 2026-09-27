@@ -16,7 +16,7 @@
     "email": "Adresse e-mail",
     "continue": "Continuer",
     "codeTitle": "Consultez vos e-mails",
-    "codeIntro": "Nous avons envoyé un code à 6 chiffres à {email}. Il est valable 5 minutes.",
+    "codeIntro": "Nous avons envoyé un code à 6 chiffres à<br></br>{email}",
     "code": "Code",
     "signIn": "Se connecter",
     "changeEmail": "Utiliser une autre adresse",
@@ -32,8 +32,7 @@
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer."
     },
-    "backToSite": "Retour sur {site}",
-    "help": "Besoin d'aide ? <email></email>",
+    "help": "Besoin d'aide ? Écrivez à {email}",
     "panel": {
       "title": "Vos clients savent quand c'est prêt.",
       "text": "Pas d'appels au magasin, pas de compte à créer.",
@@ -57,7 +56,12 @@
           "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque établissement."
         }
       ]
-    }
+    },
+    "website": "Site web",
+    "visitWebsite": "Visitez notre site",
+    "emailPlaceholder": "Entrez votre e-mail",
+    "namePlaceholder": "Entrez votre nom",
+    "codeValidity": "Le code est valable 5 minutes."
   },
   "dashboard": {
     "signOut": "Se déconnecter",

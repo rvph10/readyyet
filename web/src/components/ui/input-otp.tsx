@@ -21,7 +21,7 @@ export function InputOtp({ length, ...props }: Props) {
       pattern={REGEXP_ONLY_DIGITS}
       autoComplete="one-time-code"
       autoFocus
-      containerClassName="flex gap-2"
+      containerClassName="flex w-full gap-2"
       render={({ slots }) => (
         <>
           {slots.map((slot, index) => (
@@ -37,8 +37,8 @@ export function InputOtp({ length, ...props }: Props) {
 function Slot({ char, isActive, hasFakeCaret }: SlotProps) {
   return (
     <div
-      className={`relative flex size-12 items-center justify-center rounded-lg border bg-surface font-mono text-xl ${
-        isActive ? "border-highlight ring-2 ring-highlight/20" : "border-border"
+      className={`relative flex h-16 flex-1 items-center justify-center rounded-xl border bg-surface text-title-h5 transition-colors ${
+        isActive ? "border-highlight" : "border-border"
       }`}
     >
       {char}

@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { InputOtp } from "@/components/ui/input-otp";
 import { authClient } from "@/lib/auth-client";
 
@@ -132,74 +132,69 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   }
 
   const errorMessage = error && (
-    <p role="alert" className="text-sm text-red-700">
+    <p role="alert" className="text-center text-p-sm text-red-700">
       {error}
     </p>
   );
 
   if (step === "email") {
     return (
-      <form key="email" onSubmit={submitEmail} className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-sm text-muted">{t("emailIntro")}</p>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t("email")}</span>
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            autoFocus
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="h-10 rounded-lg border border-border bg-surface px-3 text-base transition-colors hover:border-muted/40 sm:text-sm"
-          />
-        </label>
-        {errorMessage}
-        <button
-          type="submit"
-          disabled={pending}
-          className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
-        >
-          {t("continue")}
-        </button>
+      <form key="email" onSubmit={submitEmail}>
+        <StepHeader title={t("title")}>{t("emailIntro")}</StepHeader>
+        <div className="flex flex-col gap-4.5">
+          <label>
+            <span className="sr-only">{t("email")}</span>
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              autoFocus
+              placeholder={t("emailPlaceholder")}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+          {errorMessage}
+          <button type="submit" disabled={pending} className={buttonClass}>
+            {t("continue")}
+          </button>
+        </div>
       </form>
     );
   }
 
   if (step === "code") {
     return (
-      <form key="code" onSubmit={submitCode} className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("codeTitle")}</h1>
-        <p className="text-sm text-muted">{t("codeIntro", { email })}</p>
-        <InputOtp
-          length={CODE_LENGTH}
-          value={code}
-          onChange={setCode}
-          // Never disabled while checking: it would lose focus, and a wrong
-          // code should leave the cursor in the first box.
-          onComplete={(otp) => void signIn(otp)}
-          nonce={nonce}
-          aria-label={t("code")}
-        />
-        {errorMessage}
-        {resendIn === 0 && <p className="text-sm text-muted">{t("notReceived")}</p>}
-        <button
-          type="submit"
-          disabled={pending || code.length < CODE_LENGTH}
-          className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
-        >
-          {t("signIn")}
-        </button>
-        <div className="flex justify-between text-sm">
-          <button type="button" onClick={changeEmail} className="font-medium underline-offset-4 hover:underline">
+      <form key="code" onSubmit={submitCode}>
+        <StepHeader title={t("codeTitle")}>{t.rich("codeIntro", { email, br: () => <br /> })}</StepHeader>
+        <div className="flex flex-col gap-4.5">
+          <InputOtp
+            length={CODE_LENGTH}
+            value={code}
+            onChange={setCode}
+            // Never disabled while checking: it would lose focus, and a wrong
+            // code should leave the cursor in the first box.
+            onComplete={(otp) => void signIn(otp)}
+            nonce={nonce}
+            aria-label={t("code")}
+          />
+          {errorMessage}
+          <p className="text-center text-p-sm text-muted">{resendIn === 0 ? t("notReceived") : t("codeValidity")}</p>
+          <button type="submit" disabled={pending || code.length < CODE_LENGTH} className={buttonClass}>
+            {t("signIn")}
+          </button>
+        </div>
+        <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <button type="button" onClick={changeEmail} className={linkClass}>
             {t("changeEmail")}
           </button>
           <button
             type="button"
             onClick={() => void sendCode()}
             disabled={pending || resendIn > 0}
-            className="font-medium underline-offset-4 hover:underline disabled:text-muted disabled:no-underline"
+            className={`${linkClass} tabular-nums disabled:text-muted`}
           >
             {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
           </button>
@@ -209,29 +204,43 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   }
 
   return (
-    <form key="name" onSubmit={submitName} className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("nameTitle")}</h1>
-      <p className="text-sm text-muted">{t("nameIntro")}</p>
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">{t("name")}</span>
-        <input
-          name="name"
-          required
-          // Spaces alone would be saved as an empty name.
-          pattern=".*\S.*"
-          autoComplete="name"
-          autoFocus
-          className="h-10 rounded-lg border border-border bg-surface px-3 text-base transition-colors hover:border-muted/40 sm:text-sm"
-        />
-      </label>
-      {errorMessage}
-      <button
-        type="submit"
-        disabled={pending}
-        className="h-10 rounded-lg bg-ink px-4 text-sm font-medium text-surface transition-colors hover:bg-ink/85 disabled:pointer-events-none disabled:opacity-60"
-      >
-        {t("continue")}
-      </button>
+    <form key="name" onSubmit={submitName}>
+      <StepHeader title={t("nameTitle")}>{t("nameIntro")}</StepHeader>
+      <div className="flex flex-col gap-4.5">
+        <label>
+          <span className="sr-only">{t("name")}</span>
+          <input
+            name="name"
+            required
+            // Spaces alone would be saved as an empty name.
+            pattern=".*\S.*"
+            autoComplete="name"
+            autoFocus
+            placeholder={t("namePlaceholder")}
+            className={inputClass}
+          />
+        </label>
+        {errorMessage}
+        <button type="submit" disabled={pending} className={buttonClass}>
+          {t("continue")}
+        </button>
+      </div>
     </form>
+  );
+}
+
+// The sign-in controls of ADR 0049: 48px, rounded-xl, one block with the form.
+const inputClass =
+  "h-12 w-full rounded-xl border border-border bg-surface px-4 text-label-md text-ink transition-colors placeholder:text-muted/70 hover:border-border-strong focus:border-highlight focus-visible:outline-none";
+const buttonClass =
+  "h-12 w-full rounded-xl bg-ink text-label-sm text-surface transition-colors hover:bg-ink/90 disabled:pointer-events-none disabled:opacity-60";
+const linkClass = "text-label-sm text-brand-text transition-colors hover:text-ink";
+
+function StepHeader({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="mb-4 text-center md:mb-7">
+      <h1 className="font-display text-label-xl text-balance md:text-title-h3">{title}</h1>
+      <p className="mt-1.5 text-label-md text-balance md:text-title-h6">{children}</p>
+    </div>
   );
 }
