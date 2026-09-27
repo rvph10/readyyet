@@ -37,7 +37,7 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
         {tips.map((tip, i) => (
           <div key={tip.title} inert={i !== index} className="w-full shrink-0">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-surface/20 bg-surface/15">
+              <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-border bg-surface">
                 {tip.icon}
               </div>
               <h2 className="text-label-lg">{tip.title}</h2>
@@ -49,7 +49,7 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
               >
                 {i + 1}/{tips.length}
                 <svg viewBox="0 0 36 36" aria-hidden="true" className="size-6.5 -rotate-90">
-                  <circle cx="18" cy="18" r="16" fill="none" strokeWidth="3" className="stroke-surface/20" />
+                  <circle cx="18" cy="18" r="16" fill="none" strokeWidth="3" className="stroke-ink/10" />
                   <circle
                     cx="18"
                     cy="18"
@@ -61,7 +61,7 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
                     strokeDasharray="100"
                     strokeDashoffset="100"
                     onAnimationEnd={next}
-                    className={`stroke-surface ${
+                    className={`stroke-ink ${
                       i === index
                         ? "animate-fill-ring group-focus-within:[animation-play-state:paused] group-hover:[animation-play-state:paused] motion-reduce:animate-none"
                         : ""
@@ -70,7 +70,7 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
                 </svg>
               </button>
             </div>
-            <p className="line-clamp-2 min-h-12 pl-13 text-label-sm text-surface/75">{tip.text}</p>
+            <p className="line-clamp-2 min-h-12 pl-13 text-label-sm text-muted">{tip.text}</p>
           </div>
         ))}
       </div>

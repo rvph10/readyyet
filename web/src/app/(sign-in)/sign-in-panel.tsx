@@ -13,12 +13,10 @@ export async function SignInPanel() {
   });
 
   return (
-    // bg-ink stands in for the picture to come, which will need to keep the
-    // white title readable in the same way.
-    <aside className="relative hidden w-1/2 overflow-hidden rounded-3xl bg-ink text-surface lg:block">
+    <aside className="relative hidden w-1/2 overflow-hidden rounded-3xl bg-[#f7f7f7] lg:block">
       <div className="absolute inset-x-8 top-8 xl:inset-x-10 xl:top-19">
         <p className="mb-4 text-title-h3 font-bold text-balance xl:text-title-h1">{t("title")}</p>
-        <p className="text-p-md xl:text-p-lg">{t("text")}</p>
+        <p className="text-p-md text-muted xl:text-p-lg">{t("text")}</p>
       </div>
       <div className="absolute inset-x-8 bottom-8 xl:inset-x-10 xl:bottom-15">
         <TipsCarousel tips={tips} label={t("tipsLabel")} nextLabel={t("nextTip")} />
