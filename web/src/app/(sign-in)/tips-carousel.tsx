@@ -6,6 +6,7 @@ interface Tip {
   title: string;
   text: string;
   icon: ReactNode;
+  image: ReactNode;
 }
 
 interface Props {
@@ -40,8 +41,9 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
             inert={i !== index}
             className="relative w-full shrink-0 rounded-2xl border border-surface/20 bg-surface/15 p-5.5 backdrop-blur-md xl:pl-45"
           >
-            {/* Where the tip's picture goes once there is one. */}
-            <div className="absolute inset-y-4 left-4 hidden w-36 rounded-xl bg-surface/10 xl:block" />
+            <div className="absolute inset-y-4 left-4 hidden w-36 overflow-hidden rounded-xl bg-surface/10 xl:block">
+              {tip.image}
+            </div>
             <div className="mb-2 flex items-center gap-3">
               <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-surface/20 bg-surface/15">
                 {tip.icon}

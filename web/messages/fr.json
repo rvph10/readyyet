@@ -58,7 +58,14 @@
           "title": "Une liste pour votre équipe",
           "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque établissement."
         }
-      ]
+      ],
+      "illustrations": {
+        "now": "maintenant",
+        "emailTitle": "Votre vélo est prêt",
+        "received": "Reçu",
+        "repairing": "En réparation",
+        "ready": "Prêt"
+      }
     },
     "website": "Site web",
     "visitWebsite": "Visitez notre site",

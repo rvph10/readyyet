@@ -58,7 +58,14 @@
           "title": "One list for your team",
           "text": "Everyone at the counter sees the same Tickets, at every Location."
         }
-      ]
+      ],
+      "illustrations": {
+        "now": "now",
+        "emailTitle": "Your bike is ready",
+        "received": "Received",
+        "repairing": "Repairing",
+        "ready": "Ready"
+      }
     },
     "website": "Website",
     "visitWebsite": "Visit our website",

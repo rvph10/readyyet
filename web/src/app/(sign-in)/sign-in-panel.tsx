@@ -1,5 +1,6 @@
 import { CircleCheck, Mail, QrCode, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { EmailIllustration, TagsIllustration, TeamIllustration, WorkflowIllustration } from "./tip-illustrations";
 import { TipsCarousel } from "./tips-carousel";
 
 // In the order of signIn.panel.tips.
@@ -7,9 +8,18 @@ const tipIcons = [QrCode, Mail, CircleCheck, Users];
 
 export async function SignInPanel() {
   const t = await getTranslations("signIn.panel");
+  const images = [
+    <TagsIllustration key="tags" />,
+    <EmailIllustration key="email" now={t("illustrations.now")} title={t("illustrations.emailTitle")} />,
+    <WorkflowIllustration
+      key="workflow"
+      steps={[t("illustrations.received"), t("illustrations.repairing"), t("illustrations.ready")]}
+    />,
+    <TeamIllustration key="team" />,
+  ];
   const tips = (t.raw("tips") as { title: string; text: string }[]).map((tip, index) => {
     const Icon = tipIcons[index];
-    return { ...tip, icon: <Icon aria-hidden="true" strokeWidth={1.5} className="size-5" /> };
+    return { ...tip, icon: <Icon aria-hidden="true" strokeWidth={1.5} className="size-5" />, image: images[index] };
   });
 
   return (
