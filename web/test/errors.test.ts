@@ -10,7 +10,7 @@ function failure(status: number, code: ErrorCode, extra: object = {}, headers: H
 }
 
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers({ "x-path": "/invitations/i1?lang=fr" }),
+  headers: () => Promise.resolve(new Headers({ "x-path": "/invitations/i1?lang=fr" })),
 }));
 
 // redirect() and notFound() throw an error whose digest says where to go.
@@ -98,6 +98,9 @@ describe("actionResult", () => {
 
   it("doesn't report a failure with an empty body as ok", async () => {
     const response = new Response(null, { status: 409, headers: { "content-length": "0" } });
-    expect(await actionResult({ error: undefined, response })).toMatchObject({ ok: false, code: ErrorCode.INTERNAL_ERROR });
+    expect(await actionResult({ error: undefined, response })).toMatchObject({
+      ok: false,
+      code: ErrorCode.INTERNAL_ERROR,
+    });
   });
 });
