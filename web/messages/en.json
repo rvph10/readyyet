@@ -27,6 +27,9 @@
     "nameIntro": "Your team sees it next to the changes you make.",
     "name": "Your name",
     "errors": {
+      "emailMissing": "Enter your email address.",
+      "emailInvalid": "Enter a valid email, like name@example.com.",
+      "nameMissing": "Enter your name.",
       "invalidCode": "That code isn't right. Check it and try again.",
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",

@@ -27,6 +27,9 @@
     "nameIntro": "Votre équipe le voit à côté des modifications que vous faites.",
     "name": "Votre nom",
     "errors": {
+      "emailMissing": "Entrez votre adresse e-mail.",
+      "emailInvalid": "Entrez un e-mail valide, comme nom@exemple.be.",
+      "nameMissing": "Entrez votre nom.",
       "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",

@@ -3,8 +3,11 @@
 import { PenLine } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Field, validityMessage } from "@/components/ui/field";
 import { InputOtp } from "@/components/ui/input-otp";
+import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 
 type Step = "email" | "code" | "name";
@@ -29,10 +32,18 @@ function errorKey(error: AuthError) {
     case "OTP_EXPIRED":
     case "TOO_MANY_ATTEMPTS":
       return "errors.expiredCode";
+    case "INVALID_EMAIL":
+      return "errors.emailInvalid";
     default:
       return "errors.unexpected";
   }
 }
+
+type Messages = Parameters<typeof validityMessage>[1];
+
+// The API's refusals that are about what was typed in the step's field, so
+// they show under it rather than above the button.
+const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL"]);
 
 interface Props {
   next: string;
@@ -48,6 +59,7 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [resendIn, setResendIn] = useState(0);
 
@@ -63,6 +75,27 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   // language rather than the browser's (ADR 0047).
   const inPageLanguage = { headers: { "Accept-Language": locale } };
 
+  const emailMessages = { valueMissing: t("errors.emailMissing"), typeMismatch: t("errors.emailInvalid") };
+  const nameMessages = { valueMissing: t("errors.nameMissing"), patternMismatch: t("errors.nameMissing") };
+
+  // Checked on submit, then again as it's typed while an error shows, so the
+  // message goes as soon as the value is right, but never appears mid-word.
+  function recheck(event: ChangeEvent<HTMLInputElement>, messages: Messages) {
+    if (fieldError) {
+      setFieldError(validityMessage(event.target, messages));
+    }
+  }
+
+  // The field's own check, before anything is sent. Focuses it when it fails.
+  function fieldIsValid(input: HTMLInputElement, messages: Messages) {
+    const message = validityMessage(input, messages);
+    setFieldError(message);
+    if (message) {
+      input.focus();
+    }
+    return !message;
+  }
+
   // Resolves to the call's data, or null once its error is shown.
   async function call<T>(action: () => Promise<{ data: T | null; error: AuthError | null }>) {
     setPending(true);
@@ -70,7 +103,7 @@ export function SignInForm({ next, needsName, nonce }: Props) {
     try {
       const { data, error } = await action();
       if (error) {
-        setError(t(errorKey(error)));
+        (FIELD_ERROR_CODES.has(error.code ?? "") ? setFieldError : setError)(t(errorKey(error)));
         return null;
       }
       return data;
@@ -94,7 +127,9 @@ export function SignInForm({ next, needsName, nonce }: Props) {
 
   function submitEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void sendCode();
+    if (fieldIsValid(event.currentTarget.elements.namedItem("email") as HTMLInputElement, emailMessages)) {
+      void sendCode();
+    }
   }
 
   async function signIn(otp: string) {
@@ -124,12 +159,16 @@ export function SignInForm({ next, needsName, nonce }: Props) {
 
   function submitName(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void saveName((new FormData(event.currentTarget).get("name") as string).trim());
+    const input = event.currentTarget.elements.namedItem("name") as HTMLInputElement;
+    if (fieldIsValid(input, nameMessages)) {
+      void saveName(input.value.trim());
+    }
   }
 
   function changeEmail() {
     setStep("email");
     setError(null);
+    setFieldError(null);
   }
 
   const errorMessage = error && (
@@ -140,27 +179,29 @@ export function SignInForm({ next, needsName, nonce }: Props) {
 
   if (step === "email") {
     return (
-      <form key="email" onSubmit={submitEmail}>
+      <form key="email" onSubmit={submitEmail} noValidate>
         <StepHeader title={t("title")}>{t("emailIntro")}</StepHeader>
         <div className="flex flex-col gap-4.5">
-          <label>
-            <span className="sr-only">{t("email")}</span>
-            <input
-              type="email"
-              name="email"
-              required
-              autoComplete="email"
-              autoFocus
-              placeholder={t("emailPlaceholder")}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className={inputClass}
-            />
-          </label>
+          <Field
+            label={t("email")}
+            hideLabel
+            type="email"
+            name="email"
+            required
+            autoComplete="email"
+            autoFocus
+            placeholder={t("emailPlaceholder")}
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              recheck(event, emailMessages);
+            }}
+            error={fieldError}
+          />
           {errorMessage}
-          <button type="submit" disabled={pending} className={buttonClass}>
+          <Button type="submit" size="lg" disabled={pending}>
             {t("continue")}
-          </button>
+          </Button>
         </div>
       </form>
     );
@@ -191,21 +232,21 @@ export function SignInForm({ next, needsName, nonce }: Props) {
             aria-label={t("code")}
           />
           {errorMessage}
-          <button type="submit" disabled={pending || code.length < CODE_LENGTH} className={buttonClass}>
+          <Button type="submit" size="lg" disabled={pending || code.length < CODE_LENGTH}>
             {t("signIn")}
-          </button>
+          </Button>
         </div>
         <p className="mt-5 text-center text-label-sm text-balance text-muted">
           {t.rich("notReceived", {
             resend: () => (
-              <button
-                type="button"
+              <Button
+                variant="link"
                 onClick={() => void sendCode()}
                 disabled={pending || resendIn > 0}
-                className={`${linkClass} tabular-nums disabled:text-muted`}
+                className="tabular-nums"
               >
                 {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
-              </button>
+              </Button>
             ),
           })}
         </p>
@@ -214,37 +255,30 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   }
 
   return (
-    <form key="name" onSubmit={submitName}>
+    <form key="name" onSubmit={submitName} noValidate>
       <StepHeader title={t("nameTitle")}>{t("nameIntro")}</StepHeader>
       <div className="flex flex-col gap-4.5">
-        <label>
-          <span className="sr-only">{t("name")}</span>
-          <input
-            name="name"
-            required
-            // Spaces alone would be saved as an empty name.
-            pattern=".*\S.*"
-            autoComplete="name"
-            autoFocus
-            placeholder={t("namePlaceholder")}
-            className={inputClass}
-          />
-        </label>
+        <Field
+          label={t("name")}
+          hideLabel
+          name="name"
+          required
+          // Spaces alone would be saved as an empty name.
+          pattern=".*\S.*"
+          autoComplete="name"
+          autoFocus
+          placeholder={t("namePlaceholder")}
+          onChange={(event) => recheck(event, nameMessages)}
+          error={fieldError}
+        />
         {errorMessage}
-        <button type="submit" disabled={pending} className={buttonClass}>
+        <Button type="submit" size="lg" disabled={pending}>
           {t("continue")}
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
-
-// The sign-in controls of ADR 0049: 48px, rounded-xl, one block with the form.
-const inputClass =
-  "h-12 w-full rounded-xl border border-border bg-surface px-4 text-label-md text-ink transition-colors placeholder:text-muted/70 hover:border-border-strong focus:border-highlight focus-visible:outline-none";
-const buttonClass =
-  "h-12 w-full rounded-xl bg-ink text-label-sm text-surface transition-colors hover:bg-ink/90 disabled:pointer-events-none disabled:opacity-60";
-const linkClass = "text-label-sm text-brand-text transition-colors hover:text-ink";
 
 function StepHeader({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -265,10 +299,10 @@ function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string
       className="group relative font-medium break-all text-brand-text transition-colors hover:text-ink"
     >
       {email}
-      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 flex -translate-x-1/2 -translate-y-1 items-center gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-label-xs whitespace-nowrap text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:bottom-full before:h-2 after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-b-ink">
+      <Tooltip>
         <PenLine aria-hidden="true" strokeWidth={1.5} className="size-3.5" />
         {hint}
-      </span>
+      </Tooltip>
     </button>
   );
 }
