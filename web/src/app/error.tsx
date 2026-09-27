@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { startTransition, useEffect } from "react";
 import { ErrorMessage } from "@/components/error-message";
+import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations("error");
@@ -30,9 +31,9 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
     <ErrorMessage title={t("title")}>
       <p className="text-muted">{t("body")}</p>
       {error.digest && <p className="font-mono text-sm">{t("reference", { digest: error.digest })}</p>}
-      <button type="button" onClick={retry} className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink">
+      <Button onClick={retry} className="self-start">
         {t("retry")}
-      </button>
+      </Button>
     </ErrorMessage>
   );
 }

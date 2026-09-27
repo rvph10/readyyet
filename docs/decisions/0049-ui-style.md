@@ -52,6 +52,8 @@ Headings are medium (500) rather than bold, and the larger steps are slightly ti
 - Buttons are pills 44px high (`h-11`), with `text-label-sm`. Primary is `ink` with `surface` text, secondary is `surface` with a `border` outline and `muted` text that turn `border-strong` and `ink` on hover. Icon buttons are 44px circles.
 - On the sign-in page, the full-width button and the inputs are 48px (`h-12`) with `rounded-xl`, so the form reads as one block.
 - Inputs are 48px, `rounded-xl`, a `border` outline and `text-label-md`. A small variant is 36px, `rounded-lg`, `text-label-sm`, for filters and dense forms. A focused input turns its border `highlight`.
+- Forms show their own errors, not the browser's: they set `noValidate`, check each field on submit with the browser's own constraints (`required`, `type`, `pattern`), and show the first problem under the field in `red-700`, with the field's border red and the cursor moved to it. While an error shows, the field is checked again as it's typed, so the message goes as soon as the value is right. A refusal from the API about a field shows there too; the others show above the submit button.
+- `Button`, `Field` and `Tooltip` in `web/src/components/ui/` carry these rules, so pages use them rather than restyling a `<button>` or `<input>`.
 - Navigation items are 40px, `rounded-xl`, an icon and `text-label-sm`. The current page is `ink` on `subtle`, the others `muted`. Groups are headed by a `text-label-xs text-muted` label.
 - List rows are `subtle` blocks, `rounded-2xl`, with their icon in a `surface` tile. Cards are `surface` with a `border`, `rounded-xl`.
 - Tabs are a `subtle` pill track with a `surface` pill under the current tab.
@@ -72,5 +74,7 @@ Figtree is a free, open-licensed geometric sans with the same friendly, rounded 
 Naming each step of the type scale by its role (`label`, `p`, `title`) bundles size, line height and weight, so a label can't end up with body text's weight by accident, the same approach as established design systems like AlignUI and Vercel's Geist.
 
 Most screens will be used on laptops and desktop monitors at a shop's counter. Without scaling, a 4K monitor shows the app as a small island in the middle; scaling the root font size keeps it comfortable without a second set of layouts.
+
+The browser's validation bubbles follow the browser's language rather than the page's, can't be styled, look different in every browser and vanish after a few seconds. Keeping its constraint checks and only drawing the messages ourselves costs no library and keeps the right keyboard on phones.
 
 `border-strong` is Tailwind's olive-300, the next step of ADR 0042's neutral scale, added because outlined controls need a darker outline on hover than `border` gives.
