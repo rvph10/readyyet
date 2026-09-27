@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getMe } from "@/lib/me";
 import { redirectToSignIn } from "@/lib/next-path";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton } from "@/components/sign-out-button";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const me = await getMe();
