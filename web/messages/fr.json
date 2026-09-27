@@ -10,8 +10,9 @@
     "body": "Vérifiez l'adresse ou le lien que vous avez suivi. Il est peut-être mal saisi ou n'est plus valable."
   },
   "signIn": {
-    "title": "Connectez-vous ou créez votre compte",
-    "emailIntro": "Entrez votre adresse e-mail. Nous vous envoyons un code, pas besoin de mot de passe.",
+    "pageTitle": "Connexion",
+    "title": "Bienvenue sur ReadyYet",
+    "emailIntro": "Connectez-vous ou créez votre compte avec votre e-mail.",
     "email": "Adresse e-mail",
     "continue": "Continuer",
     "codeTitle": "Consultez vos e-mails",
@@ -30,6 +31,32 @@
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "backToSite": "Retour sur {site}",
+    "help": "Besoin d'aide ? <email></email>",
+    "panel": {
+      "title": "Vos clients savent quand c'est prêt.",
+      "text": "Pas d'appels au magasin, pas de compte à créer.",
+      "tipsLabel": "À propos de ReadyYet",
+      "nextTip": "Conseil suivant",
+      "tips": [
+        {
+          "title": "Un suivi sans compte",
+          "text": "Vos clients suivent leur ticket depuis un lien ou un QR code."
+        },
+        {
+          "title": "Des e-mails utiles",
+          "text": "Ils n'ont de vos nouvelles que quand c'est prêt, ou quand il vous faut leur réponse."
+        },
+        {
+          "title": "Prêt, en un coup d'œil",
+          "text": "Passer un ticket à Prêt dit au client qu'il peut passer."
+        },
+        {
+          "title": "Une liste pour votre équipe",
+          "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque établissement."
+        }
+      ]
     }
   },
   "dashboard": {

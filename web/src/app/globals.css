@@ -18,6 +18,17 @@
      the olive neutrals. Only menus and dialogs float, cards use a border. */
   --shadow-float: 0 1px 2px rgb(30 30 20 / 0.06), 0 4px 12px rgb(30 30 20 / 0.08);
   --shadow-overlay: 0 2px 4px rgb(30 30 20 / 0.06), 0 16px 40px rgb(30 30 20 / 0.16);
+
+  /* Fills a circle drawn with pathLength="100", from empty to full. */
+  --animate-fill-ring: fill-ring 6s linear forwards;
+  @keyframes fill-ring {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 
 @layer base {

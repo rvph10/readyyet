@@ -10,7 +10,7 @@ import { SignInForm } from "./sign-in-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("signIn");
-  return { title: t("title") };
+  return { title: t("pageTitle") };
 }
 
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {

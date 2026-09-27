@@ -10,8 +10,9 @@
     "body": "Check the address, or the link you followed. It may be mistyped or no longer valid."
   },
   "signIn": {
-    "title": "Sign in or create your account",
-    "emailIntro": "Enter your email address. We'll send you a code, no password needed.",
+    "pageTitle": "Sign in",
+    "title": "Welcome to ReadyYet",
+    "emailIntro": "Sign in or create your account with your email.",
     "email": "Email address",
     "continue": "Continue",
     "codeTitle": "Check your email",
@@ -30,6 +31,32 @@
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "Something went wrong. Please try again."
+    },
+    "backToSite": "Back to {site}",
+    "help": "Need help? <email></email>",
+    "panel": {
+      "title": "Your customers know when it's ready.",
+      "text": "No calls to the shop, no account to create.",
+      "tipsLabel": "About ReadyYet",
+      "nextTip": "Next tip",
+      "tips": [
+        {
+          "title": "Tracking without an account",
+          "text": "Your Customers follow their Ticket from a link or a QR code."
+        },
+        {
+          "title": "Emails that matter",
+          "text": "They only hear from you when it's ready, or when you need their answer."
+        },
+        {
+          "title": "Ready, at a glance",
+          "text": "Moving a Ticket to Ready tells the Customer they can come by."
+        },
+        {
+          "title": "One list for your team",
+          "text": "Everyone at the counter sees the same Tickets, at every Location."
+        }
+      ]
     }
   },
   "dashboard": {
