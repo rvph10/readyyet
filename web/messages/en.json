@@ -88,7 +88,7 @@
   },
   "invitation": {
     "title": "{inviter} invited you",
-    "body": "Join {location} ({business}) as {role}. You'll see its Tickets and can update them.",
+    "body": "Join the team at {business} and follow its Tickets with them.",
     "accept": "Accept the invitation",
     "errors": {
       "NOT_FOUND": "This invitation doesn't exist or was withdrawn.",
@@ -100,9 +100,15 @@
     "unavailableTitle": "This invitation can't be used anymore",
     "accepted": "It was already accepted. You'll find {location} ({business}) in your dashboard.",
     "lapsed": "It expired or was withdrawn. Ask {inviter} to invite you to {location} ({business}) again.",
-    "roles": {
-      "ADMIN": "an admin",
-      "EMPLOYEE": "an employee"
-    }
+    "location": "Location",
+    "role": "Your role",
+    "expires": "Expires on",
+    "roleNames": {
+      "ADMIN": "Admin",
+      "EMPLOYEE": "Employee"
+    },
+    "signedInAs": "You'll join as {email}.",
+    "otherAccount": "You're signed in as {email}, but it was sent to another address. Sign out, then sign in with that one.",
+    "toDashboard": "Go to ReadyYet"
   }
 }
