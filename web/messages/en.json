@@ -28,6 +28,7 @@
     "errors": {
       "invalidCode": "That code isn't right. Check it and try again.",
       "expiredCode": "This code can't be used anymore. Send a new one.",
+      "disposableEmail": "Disposable email addresses can't be used. Use your work or personal email.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "Something went wrong. Please try again."
     }

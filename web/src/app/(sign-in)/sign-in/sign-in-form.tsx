@@ -28,6 +28,8 @@ function errorKey(error: AuthError) {
     case "OTP_EXPIRED":
     case "TOO_MANY_ATTEMPTS":
       return "errors.expiredCode";
+    case "DISPOSABLE_EMAIL":
+      return "errors.disposableEmail";
     default:
       return "errors.unexpected";
   }
