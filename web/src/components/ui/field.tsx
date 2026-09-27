@@ -1,5 +1,5 @@
-import { CircleAlert } from "lucide-react";
 import { useId, type InputHTMLAttributes } from "react";
+import { Icon } from "./icon";
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -33,7 +33,7 @@ export function Field({ label, hideLabel, error, className, ...props }: Props) {
       />
       {error && (
         <p id={errorId} className="mt-1.5 flex gap-1.5 text-p-sm text-red-700">
-          <CircleAlert aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-4 shrink-0" />
+          <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
           {error}
         </p>
       )}

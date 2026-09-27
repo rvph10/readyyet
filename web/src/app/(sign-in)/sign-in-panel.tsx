@@ -1,15 +1,14 @@
-import { CircleCheck, Mail, QrCode, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { TipsCarousel } from "./tips-carousel";
 
 // In the order of signIn.panel.tips.
-const tipIcons = [QrCode, Mail, CircleCheck, Users];
+const tipIcons: IconName[] = ["qrcode", "message", "check", "user"];
 
 export async function SignInPanel() {
   const t = await getTranslations("signIn.panel");
   const tips = (t.raw("tips") as { title: string; text: string }[]).map((tip, index) => {
-    const Icon = tipIcons[index];
-    return { ...tip, icon: <Icon aria-hidden="true" strokeWidth={1.5} className="size-5" /> };
+    return { ...tip, icon: <Icon name={tipIcons[index]} className="size-4" /> };
   });
 
   return (

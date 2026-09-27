@@ -4,7 +4,7 @@ Date: 2026-09-27
 
 ## Decision
 
-Replaces ADR 0048's type, corners, depth and controls, and the fonts of ADR 0044. ADR 0048's spacing scale, touch targets and icon library still apply. The palette of ADR 0042 is unchanged, so are its rules: lime is a fill for READY, ink carries the main action, violet marks focus.
+Replaces ADR 0048's type, corners, depth, controls and icon library, and the fonts of ADR 0044. ADR 0048's spacing scale and touch targets still apply. The palette of ADR 0042 is unchanged, so are its rules: lime is a fill for READY, ink carries the main action, violet marks focus.
 
 **Fonts**, the same in the web app and the sales site, all from Google Fonts through `next/font`:
 
@@ -63,7 +63,7 @@ Headings are medium (500) rather than bold, and the larger steps are slightly ti
 
 **Motion.** 200ms by default for every transition. Menus scale in from 95% while fading. Reduced motion is still respected (ADR 0048).
 
-**Icons** are Lucide with a 1.5 stroke, 20px in navigation and icon buttons, 16px to 18px inside text and buttons.
+**Icons** are the Be Bold essentials set (80.design, bought on UI8), solid shapes on a 14px grid, drawn in the text's colour through `Icon` in `web/src/components/ui/`. Only the icons in use are copied in. 16px to 20px in navigation and icon buttons, 12px to 16px inside text and buttons.
 
 ## Why
 
@@ -76,5 +76,7 @@ Naming each step of the type scale by its role (`label`, `p`, `title`) bundles s
 Most screens will be used on laptops and desktop monitors at a shop's counter. Without scaling, a 4K monitor shows the app as a small island in the middle; scaling the root font size keeps it comfortable without a second set of layouts.
 
 The browser's validation bubbles follow the browser's language rather than the page's, can't be styled, look different in every browser and vanish after a few seconds. Keeping its constraint checks and only drawing the messages ourselves costs no library and keeps the right keyboard on phones.
+
+Solid icons match the weight of the medium headings and pill buttons better than thin outlined ones like Lucide's, which read as unfinished at small sizes next to them.
 
 `border-strong` is Tailwind's olive-300, the next step of ADR 0042's neutral scale, added because outlined controls need a darker outline on hover than `border` gives.

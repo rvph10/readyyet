@@ -1,7 +1,7 @@
-import { CircleChevronRight, Mail } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import { Icon } from "@/components/ui/icon";
 import logo from "../icon.svg";
 import { SignInPanel } from "./sign-in-panel";
 
@@ -25,7 +25,9 @@ export default async function SignInLayout({ children }: { children: ReactNode }
             className="flex h-10 items-center gap-3 rounded-xl border border-border bg-surface px-4 text-label-sm text-muted transition-colors hover:border-border-strong hover:text-ink"
           >
             {site.host}
-            <CircleChevronRight aria-hidden="true" strokeWidth={1.5} className="size-4.5" />
+            <span className="flex size-5 items-center justify-center rounded-full border-[1.5px] border-current">
+              <Icon name="arrow-right" className="size-2.5" />
+            </span>
           </a>
         </div>
         <main className="mx-auto my-6 w-full max-w-89">
@@ -40,7 +42,7 @@ export default async function SignInLayout({ children }: { children: ReactNode }
             aria-label={t("help", { email: supportEmail })}
             className="flex items-center gap-2 transition-colors hover:text-ink"
           >
-            <Mail aria-hidden="true" strokeWidth={1.5} className="size-4.5" />
+            <Icon name="message" className="size-4" />
             {supportEmail}
           </a>
         </footer>

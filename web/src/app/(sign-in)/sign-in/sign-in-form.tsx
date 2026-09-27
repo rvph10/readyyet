@@ -1,12 +1,12 @@
 "use client";
 
-import { PenLine } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
+import { Icon } from "@/components/ui/icon";
 import { InputOtp } from "@/components/ui/input-otp";
 import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
@@ -297,7 +297,7 @@ function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string
     >
       {email}
       <Tooltip>
-        <PenLine aria-hidden="true" strokeWidth={1.5} className="size-3.5" />
+        <Icon name="edit" className="size-3" />
         {hint}
       </Tooltip>
     </button>
