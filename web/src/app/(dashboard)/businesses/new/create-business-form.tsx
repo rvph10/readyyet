@@ -16,15 +16,20 @@ const COUNTRY_BY_TIME_ZONE: Record<string, Country> = {
   "Europe/Amsterdam": "NL",
 };
 const FALLBACK_COUNTRY = "BE";
+const FALLBACK_TIME_ZONE = "Europe/Brussels";
 const STEP_ONE_FIELDS = ["name", "location.businessTypeCode"];
+const SHOWN_FIELDS = [...STEP_ONE_FIELDS, "location.name", "location.contactPhone", "location.contactEmail"];
 
 function browserCountry(timeZone: string): Country {
   const region = new Intl.Locale(navigator.language).region;
   return COUNTRY_BY_TIME_ZONE[timeZone] ?? (region && isSupportedCountry(region) ? region : FALLBACK_COUNTRY);
 }
 
+// The API takes a region's zone only, never UTC, which Linux machines and
+// anti-fingerprinting browsers report.
 function browserTimeZone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return timeZone === "UTC" || timeZone.startsWith("Etc/") ? FALLBACK_TIME_ZONE : timeZone;
 }
 
 interface Props {
@@ -175,7 +180,7 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
         <span className="text-sm text-muted">{t("contactEmailHint")}</span>
         {invalid("location.contactEmail")}
       </label>
-      {failure && !failure.fields && (
+      {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
         <p role="alert" className="text-sm text-red-700">
           {t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}
         </p>
