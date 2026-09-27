@@ -22,7 +22,7 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
     );
   }
 
-  const { status, invitedBy, location, role } = pageData(result);
+  const { status, invitedBy, location, role } = await pageData(result);
   const place = { location: location.name, business: location.business.name };
   if (status !== "PENDING") {
     return (

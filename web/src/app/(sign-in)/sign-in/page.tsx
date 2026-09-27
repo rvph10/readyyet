@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
     const result = await (await api()).GET("/me");
     // A cookie whose session has ended is a visitor like any other.
     if (result.response.status !== 401) {
-      const me = pageData(result);
+      const me = await pageData(result);
       if (me.name) {
         redirect(nextPath);
       }
