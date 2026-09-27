@@ -76,6 +76,17 @@
   --text-p-xs: 0.75rem;
   --text-p-xs--line-height: 1.33;
   --text-p-xs--font-weight: 400;
+
+  /* Fills a circle drawn with pathLength="100", from empty to full. */
+  --animate-fill-ring: fill-ring 6s linear forwards;
+  @keyframes fill-ring {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 
 @layer base {

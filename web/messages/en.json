@@ -39,7 +39,27 @@
     "help": "Need help? Write to {email}",
     "panel": {
       "title": "Your customers know when it's ready.",
-      "text": "No calls to the shop, no account to create."
+      "text": "No calls to the shop, no account to create.",
+      "tipsLabel": "About ReadyYet",
+      "nextTip": "Next tip",
+      "tips": [
+        {
+          "title": "Tracking without an account",
+          "text": "Your Customers follow their Ticket from a link or a QR code."
+        },
+        {
+          "title": "Emails that matter",
+          "text": "They only hear from you when it's ready, or when you need their answer."
+        },
+        {
+          "title": "Ready, at a glance",
+          "text": "Moving a Ticket to Ready tells the Customer they can come by."
+        },
+        {
+          "title": "One list for your team",
+          "text": "Everyone at the counter sees the same Tickets, at every Location."
+        }
+      ]
     },
     "emailPlaceholder": "Enter your email",
     "namePlaceholder": "Enter your name"
