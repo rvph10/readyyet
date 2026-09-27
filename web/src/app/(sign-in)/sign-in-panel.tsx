@@ -8,14 +8,16 @@ const tipIcons = [QrCode, Mail, CircleCheck, Users];
 
 export async function SignInPanel() {
   const t = await getTranslations("signIn.panel");
+  const statuses = {
+    received: t("illustrations.received"),
+    working: t("illustrations.repairing"),
+    ready: t("illustrations.ready"),
+  };
   const images = [
     <TagsIllustration key="tags" />,
     <EmailIllustration key="email" now={t("illustrations.now")} title={t("illustrations.emailTitle")} />,
-    <WorkflowIllustration
-      key="workflow"
-      steps={[t("illustrations.received"), t("illustrations.repairing"), t("illustrations.ready")]}
-    />,
-    <TeamIllustration key="team" />,
+    <WorkflowIllustration key="workflow" {...statuses} />,
+    <TeamIllustration key="team" {...statuses} />,
   ];
   const tips = (t.raw("tips") as { title: string; text: string }[]).map((tip, index) => {
     const Icon = tipIcons[index];

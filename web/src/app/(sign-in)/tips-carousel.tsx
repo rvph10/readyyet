@@ -34,16 +34,17 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
 
   return (
     <section aria-label={label} className="group">
-      <div ref={track} className="relative flex gap-14 overflow-hidden">
+      {/* The padding above the cards is room for their drawings to rise over
+          the top edge: overflow-hidden clips at the padding's edge, not the
+          cards'. Sideways, it keeps the other tips out of sight. */}
+      <div ref={track} className="relative -mt-8 flex gap-14 overflow-hidden pt-8">
         {tips.map((tip, i) => (
           <div
             key={tip.title}
             inert={i !== index}
             className="relative w-full shrink-0 rounded-2xl border border-surface/20 bg-surface/15 p-5.5 backdrop-blur-md xl:pl-45"
           >
-            <div className="absolute inset-y-4 left-4 hidden w-36 overflow-hidden rounded-xl bg-surface/10 xl:block">
-              {tip.image}
-            </div>
+            <div className="absolute -top-5 bottom-4 left-4 hidden w-36 xl:block">{tip.image}</div>
             <div className="mb-2 flex items-center gap-3">
               <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-surface/20 bg-surface/15">
                 {tip.icon}
