@@ -6,7 +6,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "api-types": "openapi-typescript api/openapi.json -o web/src/lib/api/schema.d.ts"
+    "api-types": "openapi-typescript api/openapi.json -o web/src/lib/api/schema.d.ts",
+    "disposable-domains": "curl -sSfL https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/main/disposable_email_blocklist.conf -o api/src/auth/disposable-domains.txt"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

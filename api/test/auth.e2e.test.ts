@@ -115,6 +115,34 @@ describe("Better Auth email OTP", () => {
     expect(log.html).toContain(await readOtp(prisma, email));
   });
 
+  // Their own client IP, so they don't count toward the default one's rate limit.
+  const sendFromOwnIp = (email: string) =>
+    request(app.getHttpServer())
+      .post("/api/auth/email-otp/send-verification-otp")
+      .set("X-Real-IP", "203.0.113.50")
+      .send({ email, type: "sign-in" });
+
+  it("refuses a disposable address before sending a code", async () => {
+    const email = `someone-${Date.now()}@yopmail.com`;
+
+    const response = await sendFromOwnIp(email);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+    expect(await prisma.verification.count({ where: { identifier: `sign-in-otp-${email}` } })).toBe(0);
+  });
+
+  it("refuses a subdomain of a disposable domain, whatever its case", async () => {
+    const response = await sendFromOwnIp(`someone-${Date.now()}@Mail.YOPMAIL.com`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+  });
+
+  it("still sends a code to an ordinary address", async () => {
+    expect((await sendFromOwnIp(`delivered+auth-otp-ordinary-${Date.now()}@resend.dev`)).status).toBe(200);
+  });
+
   // Last: it uses up the rate limit for every test after it.
   it("rate limits repeated send-verification-otp calls", async () => {
     // customRules caps /email-otp/send-verification-otp at 10/min (see
