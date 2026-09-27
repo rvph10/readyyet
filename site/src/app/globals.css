@@ -32,6 +32,10 @@
   --text-title-h3--line-height: 1.2;
   --text-title-h3--letter-spacing: -0.01em;
   --text-title-h3--font-weight: 500;
+  --text-title-h4: 2rem;
+  --text-title-h4--line-height: 1.25;
+  --text-title-h4--letter-spacing: -0.01em;
+  --text-title-h4--font-weight: 500;
   --text-title-h5: 1.75rem;
   --text-title-h5--line-height: 1.5;
   --text-title-h5--font-weight: 700;

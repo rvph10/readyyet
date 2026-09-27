@@ -22,7 +22,7 @@ export default async function SignInLayout({ children }: { children: ReactNode }
         <div className="mb-auto flex items-center justify-between gap-4">
           <div>
             <p className="text-label-lg font-bold">{t("website")}</p>
-            <p className="-mt-1 text-p-sm text-muted">{t("visitWebsite")}</p>
+            <p className="-mt-1 text-p-sm text-muted/70">{t("visitWebsite")}</p>
           </div>
           <a
             href={new URL(`/${locale}`, site).href}

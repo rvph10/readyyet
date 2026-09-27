@@ -1,5 +1,6 @@
 "use client";
 
+import { PenLine } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
@@ -168,7 +169,16 @@ export function SignInForm({ next, needsName, nonce }: Props) {
   if (step === "code") {
     return (
       <form key="code" onSubmit={submitCode}>
-        <StepHeader title={t("codeTitle")}>{t.rich("codeIntro", { email, br: () => <br /> })}</StepHeader>
+        <StepHeader title={t("codeTitle")}>
+          {t.rich("codeIntro", {
+            email: () => (
+              <>
+                <br />
+                <ChangeableEmail email={email} hint={t("changeEmail")} onClick={changeEmail} />
+              </>
+            ),
+          })}
+        </StepHeader>
         <div className="flex flex-col gap-4.5">
           <InputOtp
             length={CODE_LENGTH}
@@ -181,24 +191,24 @@ export function SignInForm({ next, needsName, nonce }: Props) {
             aria-label={t("code")}
           />
           {errorMessage}
-          <p className="text-center text-p-sm text-muted">{resendIn === 0 ? t("notReceived") : t("codeValidity")}</p>
           <button type="submit" disabled={pending || code.length < CODE_LENGTH} className={buttonClass}>
             {t("signIn")}
           </button>
         </div>
-        <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
-          <button type="button" onClick={changeEmail} className={linkClass}>
-            {t("changeEmail")}
-          </button>
-          <button
-            type="button"
-            onClick={() => void sendCode()}
-            disabled={pending || resendIn > 0}
-            className={`${linkClass} tabular-nums disabled:text-muted`}
-          >
-            {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
-          </button>
-        </div>
+        <p className="mt-5 text-center text-label-sm text-balance text-muted">
+          {t.rich("notReceived", {
+            resend: () => (
+              <button
+                type="button"
+                onClick={() => void sendCode()}
+                disabled={pending || resendIn > 0}
+                className={`${linkClass} tabular-nums disabled:text-muted`}
+              >
+                {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
+              </button>
+            ),
+          })}
+        </p>
       </form>
     );
   }
@@ -238,9 +248,27 @@ const linkClass = "text-label-sm text-brand-text transition-colors hover:text-in
 
 function StepHeader({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="mb-4 text-center md:mb-7">
-      <h1 className="font-display text-label-xl text-balance md:text-title-h3">{title}</h1>
-      <p className="mt-1.5 text-label-md text-balance md:text-title-h6">{children}</p>
+    <div className="mb-7 text-center">
+      <h1 className="font-display text-title-h4">{title}</h1>
+      <p className="mt-2 text-p-md text-balance text-muted">{children}</p>
     </div>
+  );
+}
+
+// The address a code went to, which a click on it, or on the hint that shows
+// under it, changes. The hint is inside the button, so it's part of its name.
+function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative font-medium break-all text-brand-text transition-colors hover:text-ink"
+    >
+      {email}
+      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 flex -translate-x-1/2 -translate-y-1 items-center gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-label-xs whitespace-nowrap text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:bottom-full before:h-2 after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-b-ink">
+        <PenLine aria-hidden="true" strokeWidth={1.5} className="size-3.5" />
+        {hint}
+      </span>
+    </button>
   );
 }

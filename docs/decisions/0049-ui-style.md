@@ -17,7 +17,8 @@ Replaces ADR 0048's type, corners, depth and controls, and the fonts of ADR 0044
 | Utility            | Size / line height | Weight | For                                             |
 | ------------------ | ------------------ | ------ | ----------------------------------------------- |
 | `text-title-h1`    | 64 / 70            | 700    | The headline on the sign-in picture             |
-| `text-title-h3`    | 40 / 48            | 500    | Page headings on sign-in, in `font-display`     |
+| `text-title-h3`    | 40 / 48            | 500    | The sign-in picture's headline on smaller screens     |
+| `text-title-h4`    | 32 / 40            | 500    | Sign-in form headings, in `font-display`        |
 | `text-title-h5`    | 28 / 42            | 700    | Large figures, the code boxes                   |
 | `text-title-h6`    | 20 / 30            | 500    | Subtitles under a large heading                 |
 | `text-label-xl`    | 24 / 32            | 500    | Page titles in the dashboard                    |

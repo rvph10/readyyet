@@ -12,17 +12,17 @@
   "signIn": {
     "pageTitle": "Connexion",
     "title": "Bienvenue sur ReadyYet",
-    "emailIntro": "Connectez-vous ou créez votre compte avec votre e-mail.",
+    "emailIntro": "Connectez-vous ou créez un compte, simplement avec votre e-mail.",
     "email": "Adresse e-mail",
     "continue": "Continuer",
     "codeTitle": "Consultez vos e-mails",
-    "codeIntro": "Nous avons envoyé un code à 6 chiffres à<br></br>{email}",
+    "codeIntro": "Entrez le code à 6 chiffres envoyé à <email></email>",
     "code": "Code",
     "signIn": "Se connecter",
     "changeEmail": "Utiliser une autre adresse",
-    "resend": "Envoyer un nouveau code",
-    "resendIn": "Nouveau code dans {seconds} s",
-    "notReceived": "Toujours rien ? Regardez dans vos spams, ou demandez un nouveau code.",
+    "resend": "demandez un nouveau code",
+    "resendIn": "nouveau code dans {seconds} s",
+    "notReceived": "Toujours rien ? Regardez dans vos spams, ou <resend></resend>",
     "nameTitle": "Comment vous appelez-vous ?",
     "nameIntro": "Votre équipe le voit à côté des modifications que vous faites.",
     "name": "Votre nom",
@@ -60,8 +60,7 @@
     "website": "Site web",
     "visitWebsite": "Visitez notre site",
     "emailPlaceholder": "Entrez votre e-mail",
-    "namePlaceholder": "Entrez votre nom",
-    "codeValidity": "Le code est valable 5 minutes."
+    "namePlaceholder": "Entrez votre nom"
   },
   "dashboard": {
     "signOut": "Se déconnecter",
