@@ -7,7 +7,7 @@ type Tone = "info" | "error";
 
 const tones: Record<Tone, string> = {
   info: "bg-surface text-ink shadow-panel",
-  error: "bg-red-50 text-red-700",
+  error: "bg-danger-subtle text-danger",
 };
 
 interface Props {

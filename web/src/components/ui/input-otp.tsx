@@ -40,7 +40,7 @@ export function InputOtp({ length, error, ...props }: Props) {
         {...props}
       />
       {error && (
-        <p id={errorId} className="mt-1.5 flex gap-1.5 text-p-sm text-red-700">
+        <p id={errorId} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
           {error}
         </p>
@@ -51,7 +51,7 @@ export function InputOtp({ length, error, ...props }: Props) {
 
 function Slot({ char, isActive, hasFakeCaret, invalid }: SlotProps & { invalid: boolean }) {
   const border = invalid
-    ? `border-red-700 ${isActive ? "ring-3 ring-red-700/15" : ""}`
+    ? `border-danger ${isActive ? "ring-3 ring-danger/15" : ""}`
     : isActive
       ? "border-ink ring-3 ring-ink/10"
       : "border-border";

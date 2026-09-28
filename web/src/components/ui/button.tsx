@@ -28,7 +28,7 @@ const variants: Record<Exclude<Variant, "link">, string> = {
   // Only for moving a Ticket to READY (ADR 0042).
   brand: "bg-brand text-ink not-disabled:hover:bg-brand-hover not-disabled:active:brightness-95",
   // Only for the action that confirms something can't be undone.
-  danger: "bg-red-700 text-surface not-disabled:hover:bg-red-800 not-disabled:active:bg-red-900",
+  danger: "bg-danger text-surface not-disabled:hover:bg-danger-hover not-disabled:active:bg-danger-active",
 };
 
 // For a <Link> or <a> that has to look like a button.

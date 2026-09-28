@@ -51,7 +51,7 @@ export function RadioCards({
           <label
             key={option.value}
             className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-surface p-3.5 transition has-checked:border-ink has-checked:ring-3 has-checked:ring-ink/10 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink has-disabled:cursor-not-allowed has-disabled:border-border has-disabled:bg-subtle has-disabled:text-muted has-disabled:ring-0 ${
-              error ? "border-red-700" : "border-border hover:border-border-strong"
+              error ? "border-danger" : "border-border hover:border-border-strong"
             }`}
           >
             <input
@@ -82,7 +82,7 @@ export function RadioCards({
         ))}
       </div>
       {error && (
-        <p id={errorId} className="mt-1.5 flex gap-1.5 text-p-sm text-red-700">
+        <p id={errorId} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
           {error}
         </p>

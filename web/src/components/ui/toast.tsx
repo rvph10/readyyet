@@ -29,9 +29,9 @@ interface ShownToast extends ToastOptions {
 }
 
 const icons: Record<Tone, { name: IconName; className: string }> = {
-  success: { name: "check", className: "bg-emerald-50 text-emerald-700" },
-  info: { name: "info", className: "bg-blue-50 text-blue-700" },
-  error: { name: "info-triangle", className: "bg-red-50 text-red-700" },
+  success: { name: "check", className: "bg-success-subtle text-success" },
+  info: { name: "info", className: "bg-info-subtle text-info" },
+  error: { name: "info-triangle", className: "bg-danger-subtle text-danger" },
 };
 
 // A confirmation is read at a glance, an error needs longer, and an action

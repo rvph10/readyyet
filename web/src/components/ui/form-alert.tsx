@@ -6,7 +6,7 @@ type Tone = "error" | "success" | "info";
 // ADR 0057: only an error is coloured. Success and info stay neutral, so red
 // and the Status tones are the only colours that ask for attention.
 const tones: Record<Tone, { className: string; icon: IconName }> = {
-  error: { className: "bg-red-50 text-red-700", icon: "info-triangle" },
+  error: { className: "bg-danger-subtle text-danger", icon: "info-triangle" },
   success: { className: "bg-subtle text-ink", icon: "check" },
   info: { className: "bg-subtle text-muted", icon: "info" },
 };

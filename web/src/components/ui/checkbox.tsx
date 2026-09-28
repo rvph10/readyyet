@@ -36,7 +36,7 @@ export function Checkbox({ label, description, indeterminate = false, error, cla
             aria-describedby={error ? errorId : undefined}
             {...props}
             className={`peer size-5 cursor-pointer appearance-none rounded-md border bg-surface transition not-disabled:group-hover:border-ink checked:border-ink checked:bg-ink indeterminate:border-ink indeterminate:bg-ink disabled:cursor-not-allowed disabled:border-border-strong/60 disabled:bg-canvas disabled:checked:border-muted disabled:checked:bg-muted ${
-              error ? "border-red-700" : "border-border-strong"
+              error ? "border-danger" : "border-border-strong"
             }`}
           />
           <Icon
@@ -51,7 +51,7 @@ export function Checkbox({ label, description, indeterminate = false, error, cla
         <Text label={label} description={description} />
       </label>
       {error && (
-        <p id={errorId} className="mt-1.5 ml-8 flex gap-1.5 text-p-sm text-red-700">
+        <p id={errorId} className="mt-1.5 ml-8 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
           {error}
         </p>

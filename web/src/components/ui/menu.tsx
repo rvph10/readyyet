@@ -91,7 +91,7 @@ export function Menu({ label, items, trigger }: Props) {
             }}
             className={`flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-label-sm transition-colors outline-none focus-visible:bg-subtle disabled:cursor-not-allowed disabled:text-muted/60 ${
               item.danger
-                ? "text-red-700 hover:bg-red-50 focus-visible:bg-red-50"
+                ? "text-danger hover:bg-danger-subtle focus-visible:bg-danger-subtle"
                 : "text-muted hover:bg-subtle hover:text-ink focus-visible:text-ink"
             }`}
           >

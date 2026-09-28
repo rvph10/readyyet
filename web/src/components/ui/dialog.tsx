@@ -75,7 +75,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
         <div className="p-6">
           <div className="flex items-start justify-between gap-4">
             {variant === "destructive" ? (
-              <span className="flex size-11 items-center justify-center rounded-full bg-red-50 text-red-700">
+              <span className="flex size-11 items-center justify-center rounded-full bg-danger-subtle text-danger">
                 <Icon name="info-triangle" className="size-5" />
               </span>
             ) : (

@@ -38,7 +38,7 @@ export function PhoneField({ label, value, onChange, defaultCountry, error }: Pr
         autoComplete="tel"
         className={`h-12 gap-1 rounded-xl border bg-surface pr-4 pl-4 transition has-focus:ring-3 ${
           error
-            ? "border-red-700 has-focus:ring-red-700/15"
+            ? "border-danger has-focus:ring-danger/15"
             : "border-border hover:border-border-strong has-focus:border-ink has-focus:ring-ink/10"
         }`}
         numberInputProps={{

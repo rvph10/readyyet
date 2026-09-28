@@ -23,7 +23,7 @@ interface FrameProps {
 function controlClass(error: string | null | undefined) {
   return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
     error
-      ? "border-red-700 focus:ring-3 focus:ring-red-700/15"
+      ? "border-danger focus:ring-3 focus:ring-danger/15"
       : "border-border hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-border"
   }`;
 }
@@ -51,7 +51,7 @@ export function FieldFrame({
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-red-700">
+        <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
           {error}
         </p>

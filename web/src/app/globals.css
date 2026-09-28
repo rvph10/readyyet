@@ -16,6 +16,18 @@
   --color-brand-hover: #bfe632;
   --color-brand-text: #4b6a00;
 
+  /* ADR 0063: the only other colours, each a strong one for text, icons and
+     outlines and a subtle one to fill behind it. Red for errors and what
+     can't be undone, green and blue for a toast's success and info. */
+  --color-danger: #c10007;
+  --color-danger-hover: #9f0712;
+  --color-danger-active: #82181a;
+  --color-danger-subtle: #fef2f2;
+  --color-success: #007a55;
+  --color-success-subtle: #ecfdf5;
+  --color-info: #1447e6;
+  --color-info-subtle: #eff6ff;
+
   /* ADR 0061: the Status tones, as the dot on a white pill and the current
      workflow step. Only READY is a fill, in the brand lime. */
   --color-status-received: #0ab8cc;
