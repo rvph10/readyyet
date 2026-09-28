@@ -26,7 +26,7 @@ export function Tabs({ label, tabs }: { label: string; tabs: Tab[] }) {
               }`}
             >
               {tab.label}
-              {tab.count !== undefined && <Count value={tab.count} />}
+              {tab.count !== undefined && <Count value={tab.count} current={tab.current} />}
             </Link>
           </li>
         ))}
