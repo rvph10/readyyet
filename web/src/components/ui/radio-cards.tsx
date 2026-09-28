@@ -72,8 +72,8 @@ export function RadioCards({
               </span>
             )}
             <span className="min-w-0 flex-1 pt-0.5">
-              <span className="block text-label-sm">{option.label}</span>
-              {option.description && <span className="block text-p-xs text-muted">{option.description}</span>}
+              <span className="block text-label-sm font-semibold">{option.label}</span>
+              {option.description && <span className="mt-1 block text-p-xs text-muted">{option.description}</span>}
             </span>
             <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border-strong text-surface transition peer-checked:border-ink peer-checked:bg-ink peer-disabled:peer-checked:border-muted peer-disabled:peer-checked:bg-muted">
               <Icon name="check" className="size-2.5" />
