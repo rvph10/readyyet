@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 
 // ADR 0053 and 0058: soft tints with a deep text of the same hue, and
 // deep fills with white text, kept away from the lime and from the cyan,
@@ -38,8 +41,8 @@ export function initials(name: string) {
   return letters.map((word) => Array.from(word)[0].toLocaleUpperCase()).join("");
 }
 
-// FNV-1a over the User's id: the same colour on every screen and device, and
-// it doesn't change when they rename themselves.
+// FNV-1a over the id of the User or Business: the same colour on every
+// screen and device, and it doesn't change when they're renamed.
 export function avatarColor(id: string) {
   let hash = 0x811c9dc5;
   for (let i = 0; i < id.length; i++) {
@@ -48,26 +51,52 @@ export function avatarColor(id: string) {
   return colors[(hash >>> 0) % colors.length];
 }
 
+// ADR 0065: a circle for a User, a rounded square for a Business, so the two
+// can't be taken for each other where both show, like on an invitation. The
+// corners follow the size, about a quarter of its side.
+const squares: Record<AvatarSize, string> = {
+  xs: "rounded-md",
+  sm: "rounded-lg",
+  md: "rounded-xl",
+  lg: "rounded-2xl",
+  xl: "rounded-3xl",
+};
+
 interface Props {
   id: string;
   name: string;
   src: string | null;
   size?: AvatarSize;
+  shape?: "circle" | "square";
   // For placing it, like a ring or overlap in a stack, not resizing it.
   className?: string;
 }
 
-// A User's picture, or their initials without one. Decorative: their name
-// is always written next to it or in the text around it.
-export function Avatar({ id, name, src, size = "md", className }: Props) {
+// A User's picture or a Business's logo, or their initials in a colour of
+// their own without one, or when it can't be loaded. Decorative: the name is
+// always written next to it or in the text around it. A photo fills its
+// circle, a logo sits whole inside its square, since logos have their own
+// shapes and margins.
+export function Avatar({ id, name, src, size = "md", shape = "circle", className }: Props) {
+  const [failed, setFailed] = useState(false);
+  const picture = src && !failed;
+  const square = shape === "square";
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full leading-none font-semibold select-none ${sizes[size]} ${src ? "bg-subtle" : avatarColor(id)} ${className ?? ""}`}
+      className={`flex shrink-0 items-center justify-center overflow-hidden leading-none font-semibold select-none ${sizes[size]} ${square ? squares[size] : "rounded-full"} ${picture ? (square ? "border border-border bg-surface" : "bg-subtle") : avatarColor(id)} ${className ?? ""}`}
     >
-      {src ? (
+      {picture ? (
         // Served by the API, already resized when uploaded (ADR 0026).
-        <Image src={src} alt="" width={80} height={80} unoptimized className="size-full object-cover" />
+        <Image
+          src={src}
+          alt=""
+          width={80}
+          height={80}
+          unoptimized
+          onError={() => setFailed(true)}
+          className={square ? "size-full object-contain p-[12%]" : "size-full object-cover"}
+        />
       ) : (
         initials(name)
       )}

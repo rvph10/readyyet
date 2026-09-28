@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SignOutButton } from "@/components/sign-out-button";
-import { BusinessAvatar } from "@/components/business-avatar";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { buttonClass } from "@/components/ui/button";
@@ -99,10 +98,12 @@ export default async function InvitationPage({ params, searchParams }: PageProps
 
   const header = (
     <>
-      <BusinessAvatar
+      <Avatar
+        id={location.business.id}
         name={location.business.name}
-        logoUrl={location.business.logoUrl}
-        size="lg"
+        src={location.business.logoUrl}
+        size="xl"
+        shape="square"
         className="mx-auto mb-5"
       />
       <div className="mb-4 flex justify-center">
