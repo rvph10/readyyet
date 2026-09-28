@@ -130,6 +130,7 @@
   },
   "common": {
     "close": "Fermer",
-    "stepDone": "terminé"
+    "stepDone": "terminé",
+    "clearSearch": "Effacer la recherche"
   }
 }
