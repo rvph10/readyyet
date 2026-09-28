@@ -16,7 +16,7 @@ export default async function SignInLayout({ children }: { children: ReactNode }
   const supportEmail = process.env.SUPPORT_EMAIL as string;
 
   return (
-    <div className="flex min-h-dvh bg-surface p-4 md:p-5">
+    <div className="flex min-h-dvh p-4 md:p-5">
       <SignInPanel />
       <div className="flex w-full flex-col lg:w-1/2 lg:pl-12">
         <div className="mb-auto flex justify-end">
