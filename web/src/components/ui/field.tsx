@@ -11,6 +11,8 @@ interface FrameProps {
   label: string;
   // For a form whose heading already says what the field is for.
   hideLabel?: boolean;
+  // A line under the control on what the value is for.
+  hint?: string;
   error?: string | null;
   className?: string;
 }
@@ -26,13 +28,28 @@ function controlClass(error: string | null | undefined) {
   }`;
 }
 
-function Frame({ id, label, hideLabel, error, className, children }: FrameProps & { id: string; children: ReactNode }) {
+// The label, hint and error around a control. Exported for a control drawn
+// by a library, like the phone number's, so it reads as one of these.
+export function FieldFrame({
+  id,
+  label,
+  hideLabel,
+  hint,
+  error,
+  className,
+  children,
+}: FrameProps & { id: string; children: ReactNode }) {
   return (
     <div className={className}>
       <label htmlFor={id} className={hideLabel ? "sr-only" : "mb-1.5 block text-label-sm"}>
         {label}
       </label>
       {children}
+      {hint && (
+        <p id={`${id}-hint`} className="mt-1.5 text-p-xs text-muted">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-red-700">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
@@ -43,26 +60,28 @@ function Frame({ id, label, hideLabel, error, className, children }: FrameProps 
   );
 }
 
-function describedBy(id: string, error: string | null | undefined) {
+export function describedBy(id: string, hint: string | undefined, error: string | null | undefined) {
+  const described = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ");
   return {
     id,
     "aria-invalid": error ? true : undefined,
-    "aria-describedby": error ? `${id}-error` : undefined,
+    "aria-describedby": described || undefined,
   };
 }
 
 export function Field({
   label,
   hideLabel,
+  hint,
   error,
   className,
   ...props
 }: FrameProps & InputHTMLAttributes<HTMLInputElement>) {
   const id = useId();
   return (
-    <Frame id={id} label={label} hideLabel={hideLabel} error={error} className={className}>
-      <input {...describedBy(id, error)} {...props} className={`h-12 px-4 ${controlClass(error)}`} />
-    </Frame>
+    <FieldFrame id={id} label={label} hideLabel={hideLabel} hint={hint} error={error} className={className}>
+      <input {...describedBy(id, hint, error)} {...props} className={`h-12 px-4 ${controlClass(error)}`} />
+    </FieldFrame>
   );
 }
 
@@ -70,20 +89,21 @@ export function Field({
 export function TextareaField({
   label,
   hideLabel,
+  hint,
   error,
   className,
   ...props
 }: FrameProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const id = useId();
   return (
-    <Frame id={id} label={label} hideLabel={hideLabel} error={error} className={className}>
+    <FieldFrame id={id} label={label} hideLabel={hideLabel} hint={hint} error={error} className={className}>
       <textarea
         rows={3}
-        {...describedBy(id, error)}
+        {...describedBy(id, hint, error)}
         {...props}
         className={`field-sizing-content max-h-60 min-h-24 resize-none px-4 py-3 ${controlClass(error)}`}
       />
-    </Frame>
+    </FieldFrame>
   );
 }
 
@@ -91,6 +111,7 @@ export function TextareaField({
 export function SelectField({
   label,
   hideLabel,
+  hint,
   error,
   className,
   children,
@@ -98,10 +119,10 @@ export function SelectField({
 }: FrameProps & SelectHTMLAttributes<HTMLSelectElement>) {
   const id = useId();
   return (
-    <Frame id={id} label={label} hideLabel={hideLabel} error={error} className={className}>
+    <FieldFrame id={id} label={label} hideLabel={hideLabel} hint={hint} error={error} className={className}>
       <div className="relative">
         <select
-          {...describedBy(id, error)}
+          {...describedBy(id, hint, error)}
           {...props}
           // An empty value is the "Choose one" prompt, muted like a placeholder.
           className={`select-field peer h-12 cursor-pointer pr-11 pl-4 has-[option[value='']:checked]:text-muted ${controlClass(error)}`}
@@ -113,7 +134,7 @@ export function SelectField({
           className="pointer-events-none absolute top-1/2 right-4 size-3 -translate-y-1/2 text-muted transition-transform peer-open:rotate-180"
         />
       </div>
-    </Frame>
+    </FieldFrame>
   );
 }
 
