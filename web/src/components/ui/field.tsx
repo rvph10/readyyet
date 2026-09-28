@@ -19,7 +19,7 @@ interface FrameProps {
 // noValidate and show their errors here, not in the browser's bubbles, which
 // follow the browser's language rather than the page's and can't be styled.
 function controlClass(error: string | null | undefined) {
-  return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted/70 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
+  return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
     error
       ? "border-red-700 focus:ring-3 focus:ring-red-700/15"
       : "border-border hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-border"
@@ -103,13 +103,14 @@ export function SelectField({
         <select
           {...describedBy(id, error)}
           {...props}
-          className={`select-field h-12 cursor-pointer pr-11 pl-4 ${controlClass(error)}`}
+          // An empty value is the "Choose one" prompt, muted like a placeholder.
+          className={`select-field peer h-12 cursor-pointer pr-11 pl-4 has-[option[value='']:checked]:text-muted ${controlClass(error)}`}
         >
           {children}
         </select>
         <Icon
           name="arrow-down-1"
-          className="pointer-events-none absolute top-1/2 right-4 size-3 -translate-y-1/2 text-muted"
+          className="pointer-events-none absolute top-1/2 right-4 size-3 -translate-y-1/2 text-muted transition-transform peer-open:rotate-180"
         />
       </div>
     </Frame>
