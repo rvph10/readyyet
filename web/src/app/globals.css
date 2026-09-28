@@ -167,6 +167,19 @@
       @apply cursor-not-allowed text-muted/60;
     }
   }
+
+  /* ADR 0059: a Menu under its trigger, right edges lined up since triggers
+     sit at the end of a row, flipped above or leftward when it would leave
+     the screen. The popover's own centring is undone first. */
+  .menu-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    position-area: bottom span-left;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
 }
 
 /* inline, so the utilities use next/font's variables, set on <html>. */
