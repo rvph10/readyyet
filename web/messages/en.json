@@ -65,7 +65,8 @@
     "namePlaceholder": "Enter your name",
     "sendingCode": "Sending the code…",
     "signingIn": "Signing in…",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "codeResent": "We sent a new code to {email}."
   },
   "dashboard": {
     "signOut": "Sign out",

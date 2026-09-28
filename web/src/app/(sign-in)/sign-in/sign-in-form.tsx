@@ -8,6 +8,7 @@ import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { InputOtp } from "@/components/ui/input-otp";
+import { useToast } from "@/components/ui/toast";
 import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 
@@ -58,6 +59,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const t = useTranslations("signIn");
   const locale = useLocale();
   const router = useRouter();
+  const toast = useToast();
   const [step, setStep] = useState<Step>(needsName ? "name" : sentTo ? "code" : "email");
   const [email, setEmail] = useState(sentTo ?? "");
   const [code, setCode] = useState("");
@@ -125,13 +127,24 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
     }
   }
 
+  // Resolves to whether the code went out.
   async function sendCode() {
-    if (
-      await call("sendCode", () => authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }, inPageLanguage))
-    ) {
+    const sent = await call("sendCode", () =>
+      authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }, inPageLanguage),
+    );
+    if (sent) {
       setStep("code");
       setCode("");
       setResendIn(RESEND_AFTER_SECONDS);
+    }
+    return Boolean(sent);
+  }
+
+  // A new code changes nothing on the page but the countdown, so a toast
+  // says it went (ADR 0062).
+  async function resendCode() {
+    if (await sendCode()) {
+      toast({ message: t("codeResent", { email }) });
     }
   }
 
@@ -257,7 +270,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
             resend: () => (
               <Button
                 variant="link"
-                onClick={() => void sendCode()}
+                onClick={() => void resendCode()}
                 disabled={pending || resendIn > 0}
                 pending={busy === "sendCode"}
                 pendingLabel={t("sendingCode")}
