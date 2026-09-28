@@ -129,6 +129,7 @@
     "sendingCode": "Envoi du code…"
   },
   "common": {
-    "close": "Fermer"
+    "close": "Fermer",
+    "stepDone": "terminé"
   }
 }

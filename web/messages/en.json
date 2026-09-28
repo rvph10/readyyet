@@ -129,6 +129,7 @@
     "sendingCode": "Sending the code…"
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "stepDone": "done"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Icon } from "./ui/icon";
 import { statusTone, type StatusTone } from "./status-pill";
 
@@ -17,6 +18,26 @@ interface Props {
 }
 
 type State = "done" | "current" | "upcoming";
+
+// The current step's label stands out in weight too, not only its marker's
+// colour (ADR 0057).
+const labelClasses: Record<State, string> = {
+  done: "text-ink",
+  current: "font-semibold text-ink",
+  upcoming: "text-muted",
+};
+
+// Done is only drawn as a check, so it's also said. aria-current marks the
+// current step, and upcoming is what's left.
+function StepLabel({ state, label, className }: { state: State; label: string; className?: string }) {
+  const t = useTranslations("common");
+  return (
+    <p className={`truncate text-label-sm ${labelClasses[state]} ${className ?? ""}`}>
+      {label}
+      {state === "done" && <span className="sr-only">, {t("stepDone")}</span>}
+    </p>
+  );
+}
 
 const currentMarkers: Record<StatusTone, string> = {
   received: "bg-status-received ring-status-received/40",
@@ -74,9 +95,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
                   <span className={`mx-2 h-0.5 flex-1 rounded-full ${state === "done" ? "bg-ink" : "bg-border"}`} />
                 )}
               </div>
-              <p className={`mt-2 truncate pr-3 text-label-sm ${state === "upcoming" ? "text-muted" : "text-ink"}`}>
-                {step.label}
-              </p>
+              <StepLabel state={state} label={step.label} className="mt-2 pr-3" />
               {step.at && <p className="truncate pr-3 text-p-xs text-muted">{step.at}</p>}
             </li>
           );
@@ -103,9 +122,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
             )}
             <Marker state={state} code={step.code} />
             <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 pt-0.5">
-              <p className={`truncate text-label-sm ${state === "upcoming" ? "text-muted" : "text-ink"}`}>
-                {step.label}
-              </p>
+              <StepLabel state={state} label={step.label} />
               {step.at && <p className="shrink-0 text-p-xs text-muted">{step.at}</p>}
             </div>
           </li>
