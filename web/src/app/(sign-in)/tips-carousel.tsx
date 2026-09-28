@@ -35,9 +35,9 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
     <section aria-label={label} className="group">
       <div ref={track} className="relative flex gap-14 overflow-hidden">
         {tips.map((tip, i) => (
-          <div key={tip.title} inert={i !== index} className="w-full shrink-0">
+          <div key={tip.title} inert={i !== index} className="w-full shrink-0 rounded-xl bg-surface p-3">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-border bg-surface">
+              <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-border bg-subtle">
                 {tip.icon}
               </div>
               <h2 className="text-label-lg">{tip.title}</h2>

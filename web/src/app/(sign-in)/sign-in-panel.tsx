@@ -12,7 +12,7 @@ export async function SignInPanel() {
   });
 
   return (
-    <aside className="relative hidden w-1/2 overflow-hidden rounded-3xl bg-[#f7f7f7] lg:block">
+    <aside className="relative hidden w-1/2 overflow-hidden rounded-3xl bg-subtle lg:block">
       <div className="absolute inset-x-8 top-8 xl:inset-x-10 xl:top-19">
         <p className="mb-4 text-title-h3 font-bold text-balance xl:text-title-h1">{t("title")}</p>
         <p className="text-p-md text-muted xl:text-p-lg">{t("text")}</p>
