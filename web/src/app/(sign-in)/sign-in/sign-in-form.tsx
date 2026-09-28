@@ -44,7 +44,7 @@ type Messages = Parameters<typeof validityMessage>[1];
 
 // The API's refusals that are about what was typed in the step's field, so
 // they show under it rather than above the button.
-const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL"]);
+const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL", "INVALID_OTP"]);
 
 interface Props {
   next: string;
@@ -231,12 +231,16 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
           <InputOtp
             length={CODE_LENGTH}
             value={code}
-            onChange={setCode}
+            onChange={(value) => {
+              setCode(value);
+              setFieldError(null);
+            }}
             // Never disabled while checking: it would lose focus, and a wrong
             // code should leave the cursor in the first box.
             onComplete={(otp) => void signIn(otp)}
             nonce={nonce}
             aria-label={t("code")}
+            error={fieldError}
           />
           <Button
             type="submit"
