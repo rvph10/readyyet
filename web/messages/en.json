@@ -87,8 +87,8 @@
     "contactEmailHint": "Shown to your customers, so they can reach you."
   },
   "invitation": {
-    "title": "{inviter} invited you",
-    "body": "Join the team at {business} and follow its Tickets with them.",
+    "title": "{inviter} invited you to join {location}",
+    "body": "at {business}, as {role}.",
     "accept": "Accept the invitation",
     "errors": {
       "NOT_FOUND": "This invitation doesn't exist or was withdrawn.",
@@ -100,16 +100,27 @@
     "unavailableTitle": "This invitation can't be used anymore",
     "accepted": "It was already accepted. You'll find {location} ({business}) in your dashboard.",
     "lapsed": "It expired or was withdrawn. Ask {inviter} to invite you to {location} ({business}) again.",
-    "location": "Location",
-    "role": "Your role",
-    "expires": "Expires on",
-    "roleNames": {
-      "ADMIN": "Admin",
-      "EMPLOYEE": "Employee"
-    },
     "signedInAs": "You'll join as {email}.",
     "otherAccount": "You're signed in as {email}, but it was sent to another address. Sign out, then sign in with that one.",
-    "toDashboard": "Go to ReadyYet"
+    "toDashboard": "Go to ReadyYet",
+    "roles": {
+      "ADMIN": "an admin",
+      "EMPLOYEE": "an employee"
+    },
+    "pending": "Pending",
+    "invitedWhen": "Invited {when}",
+    "team": "{count, plural, one {# person is} other {# people are}} already on the team",
+    "decline": "Decline",
+    "keep": "Keep it",
+    "declineConfirm": "Decline this invitation? You'd need a new one to join later.",
+    "declinedTitle": "You declined this invitation",
+    "declined": "If you change your mind, ask {inviter} to invite you again.",
+    "continueAs": "Continue as {email}",
+    "continueHint": "We'll send a code to this address to make sure it's you.",
+    "continueErrors": {
+      "rateLimited": "Too many attempts. Wait a minute, then try again.",
+      "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
+    }
   },
   "common": {
     "close": "Close"

@@ -49,20 +49,22 @@ const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL"]);
 interface Props {
   next: string;
   needsName: boolean;
+  // The address a code was already sent to, which opens on the code step.
+  sentTo?: string;
   nonce: string;
 }
 
-export function SignInForm({ next, needsName, nonce }: Props) {
+export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const t = useTranslations("signIn");
   const locale = useLocale();
   const router = useRouter();
-  const [step, setStep] = useState<Step>(needsName ? "name" : "email");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<Step>(needsName ? "name" : sentTo ? "code" : "email");
+  const [email, setEmail] = useState(sentTo ?? "");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [resendIn, setResendIn] = useState(0);
+  const [resendIn, setResendIn] = useState(sentTo ? RESEND_AFTER_SECONDS : 0);
 
   useEffect(() => {
     if (resendIn === 0) {

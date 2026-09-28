@@ -4,8 +4,9 @@ import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
 import { REF_COOKIE, REF_MAX_AGE_SECONDS, REF_MAX_LENGTH } from "@/lib/referral";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
-// check, this only spares a signed-out visitor a round trip (ADR 0045).
-const DASHBOARD_PATHS = ["/businesses/", "/locations/", "/invitations/"];
+// check, this only spares a signed-out visitor a round trip (ADR 0045). An
+// invitation's page is shown signed out too (ADR 0051).
+const DASHBOARD_PATHS = ["/businesses/", "/locations/"];
 
 function needsSession(pathname: string) {
   return pathname === "/" || DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix));

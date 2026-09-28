@@ -15,3 +15,16 @@ export async function acceptInvitation(invitationId: string): Promise<ActionResu
   }
   return actionResult(result);
 }
+
+// The page then shows the invitation as declined (ADR 0051).
+export async function declineInvitation(invitationId: string): Promise<ActionResult> {
+  const result = await (
+    await api()
+  ).POST("/invitations/{invitationId}/decline", {
+    params: { path: { invitationId } },
+  });
+  if (result.response.ok) {
+    redirect(`/invitations/${invitationId}`);
+  }
+  return actionResult(result);
+}
