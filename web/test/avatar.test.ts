@@ -23,6 +23,6 @@ describe("avatarColor", () => {
 
   it("spreads ids over the palette", () => {
     const seen = new Set(Array.from({ length: 200 }, (_, i) => avatarColor(`usr_${i}`)));
-    expect(seen.size).toBe(8);
+    expect(seen.size).toBe(5);
   });
 });
