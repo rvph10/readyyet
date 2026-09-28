@@ -13,7 +13,9 @@ const sides = {
 // over it when there's no room below. The trigger is the nearest
 // `group relative` ancestor, a button or link, so the hint is part of its
 // accessible name and clicking the hint clicks it. Escape hides it until the
-// next hover or focus, as WCAG 1.4.13 asks (ADR 0057).
+// next hover or focus, as WCAG 1.4.13 asks (ADR 0057). Near either edge of
+// the screen it lines up with that side of its trigger instead of centring,
+// since even hidden it would widen the page (ADR 0064).
 export function Tooltip({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [dismissed, setDismissed] = useState(false);
@@ -22,7 +24,15 @@ export function Tooltip({ children }: { children: ReactNode }) {
   useEffect(() => {
     const hint = ref.current!;
     const trigger = hint.parentElement!;
+    function align() {
+      const { left, right } = trigger.getBoundingClientRect();
+      const reach = (hint.offsetWidth - (right - left)) / 2 + 8;
+      const width = document.documentElement.clientWidth;
+      hint.dataset.align = right + reach > width ? "end" : left - reach < 0 ? "start" : "center";
+    }
+    align();
     function show() {
+      align();
       setDismissed(false);
       const room = window.innerHeight - trigger.getBoundingClientRect().bottom;
       setSide(room < hint.offsetHeight + 16 ? "above" : "below");
@@ -43,7 +53,7 @@ export function Tooltip({ children }: { children: ReactNode }) {
   return (
     <span
       ref={ref}
-      className={`pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-label-xs whitespace-nowrap text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:h-2 after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent ${sides[side]} ${dismissed ? "invisible" : ""}`}
+      className={`pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center data-[align=end]:right-0 data-[align=end]:left-auto data-[align=end]:translate-x-0 data-[align=start]:left-0 data-[align=start]:translate-x-0 data-[align=end]:after:right-4.5 data-[align=end]:after:left-auto data-[align=end]:after:translate-x-0 data-[align=start]:after:left-4.5 data-[align=start]:after:translate-x-0 gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-label-xs whitespace-nowrap text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:h-2 after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent ${sides[side]} ${dismissed ? "invisible" : ""}`}
     >
       {children}
     </span>
