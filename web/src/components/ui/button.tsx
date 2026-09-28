@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "brand" | "danger" | "link";
+type Variant = "primary" | "secondary" | "brand" | "danger" | "danger-secondary" | "link";
 type Size = "sm" | "md" | "lg" | "icon";
 
 interface Options {
@@ -29,6 +29,10 @@ const variants: Record<Exclude<Variant, "link">, string> = {
   brand: "bg-brand text-ink not-disabled:hover:bg-brand-hover not-disabled:active:brightness-95",
   // Only for the action that confirms something can't be undone.
   danger: "bg-danger text-surface not-disabled:hover:bg-danger-hover not-disabled:active:bg-danger-active",
+  // ADR 0064: a destructive action that's offered, not the one confirming
+  // it, like Decline or Sign out, quieter than the red fill.
+  "danger-secondary":
+    "border border-border bg-surface text-danger not-disabled:hover:border-danger/30 not-disabled:hover:bg-danger-subtle not-disabled:active:bg-danger-subtle",
 };
 
 // For a <Link> or <a> that has to look like a button.
