@@ -118,23 +118,21 @@
       "EMPLOYEE": "an employee"
     },
     "pending": "Pending",
-    "invitedWhen": "Invited {when}",
     "team": "{count, plural, one {# person is} other {# people are}} already on the team",
     "decline": "Decline",
     "keep": "Keep it",
     "declineConfirm": "Decline this invitation? You'd need a new one to join later.",
     "declinedTitle": "You declined this invitation",
     "declined": "If you change your mind, ask {inviter} to invite you again.",
-    "continueAs": "Continue as {email}",
-    "continueHint": "We'll send a code to this address to make sure it's you.",
-    "continueErrors": {
-      "rateLimited": "Too many attempts. Wait a minute, then try again.",
-      "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
-    },
     "accepting": "Accepting…",
     "declining": "Declining…",
     "sendingCode": "Sending the code…",
-    "joined": "You joined {location} at {business}."
+    "joined": "You joined {location} at {business}.",
+    "codeErrors": {
+      "rateLimited": "Too many attempts. Wait a minute, then try again.",
+      "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
+    },
+    "codeHint": "To answer, you'll sign in with a code sent to {email}."
   },
   "common": {
     "close": "Close",

@@ -118,23 +118,21 @@
       "EMPLOYEE": "qu'employé"
     },
     "pending": "En attente",
-    "invitedWhen": "Invitation envoyée {when}",
     "team": "{count, plural, one {# personne fait} other {# personnes font}} déjà partie de l'équipe",
     "decline": "Refuser",
     "keep": "La garder",
     "declineConfirm": "Refuser cette invitation ? Il vous en faudra une nouvelle pour rejoindre l'équipe plus tard.",
     "declinedTitle": "Vous avez refusé cette invitation",
     "declined": "Si vous changez d'avis, demandez à {inviter} de vous inviter à nouveau.",
-    "continueAs": "Continuer en tant que {email}",
-    "continueHint": "Nous enverrons un code à cette adresse pour vérifier que c'est bien vous.",
-    "continueErrors": {
-      "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
-      "unexpected": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
-    },
     "accepting": "Acceptation…",
     "declining": "Refus en cours…",
     "sendingCode": "Envoi du code…",
-    "joined": "Vous avez rejoint {location} chez {business}."
+    "joined": "Vous avez rejoint {location} chez {business}.",
+    "codeErrors": {
+      "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+      "unexpected": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
+    },
+    "codeHint": "Pour répondre, vous vous connecterez avec un code envoyé à {email}."
   },
   "common": {
     "close": "Fermer",
