@@ -29,8 +29,8 @@ interface ShownToast extends ToastOptions {
 }
 
 const icons: Record<Tone, { name: IconName; className: string }> = {
-  success: { name: "check", className: "bg-ink text-surface" },
-  info: { name: "info", className: "bg-subtle text-muted" },
+  success: { name: "check", className: "bg-emerald-50 text-emerald-700" },
+  info: { name: "info", className: "bg-blue-50 text-blue-700" },
   error: { name: "info-triangle", className: "bg-red-50 text-red-700" },
 };
 
