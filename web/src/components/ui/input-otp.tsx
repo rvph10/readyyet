@@ -38,7 +38,7 @@ function Slot({ char, isActive, hasFakeCaret }: SlotProps) {
   return (
     <div
       className={`relative flex h-16 flex-1 items-center justify-center rounded-xl border bg-surface text-title-h5 transition-colors ${
-        isActive ? "border-highlight" : "border-border"
+        isActive ? "border-ink ring-3 ring-ink/10" : "border-border"
       }`}
     >
       {char}

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start --port ${PORT:-3001}",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "icon": "node --env-file-if-exists=.env.local scripts/icon.mjs"
   },
   "dependencies": {
     "@readyyet/shared": "workspace:*",

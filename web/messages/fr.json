@@ -110,5 +110,8 @@
     "signedInAs": "Vous rejoindrez l'équipe en tant que {email}.",
     "otherAccount": "Vous êtes connecté avec {email}, mais l'invitation a été envoyée à une autre adresse. Déconnectez-vous, puis connectez-vous avec celle-ci.",
     "toDashboard": "Aller sur ReadyYet"
+  },
+  "common": {
+    "close": "Fermer"
   }
 }

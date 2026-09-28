@@ -110,5 +110,8 @@
     "signedInAs": "You'll join as {email}.",
     "otherAccount": "You're signed in as {email}, but it was sent to another address. Sign out, then sign in with that one.",
     "toDashboard": "Go to ReadyYet"
+  },
+  "common": {
+    "close": "Close"
   }
 }

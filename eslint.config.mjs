@@ -41,6 +41,11 @@ export default defineConfig(
     files: ["**/*.mjs"],
     extends: [tseslint.configs.disableTypeChecked],
   },
+  {
+    // Run by Node from the command line, like pnpm icon.
+    files: ["**/scripts/**/*.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly", URL: "readonly" } },
+  },
   // Last, so formatting is left to Prettier alone.
   eslintConfigPrettier,
 );
