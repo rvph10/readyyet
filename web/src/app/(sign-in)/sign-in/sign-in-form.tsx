@@ -63,7 +63,9 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  // Which call is running, so only its button says so.
+  const [busy, setBusy] = useState<"sendCode" | "signIn" | "saveName" | null>(null);
+  const pending = busy !== null;
   const [resendIn, setResendIn] = useState(sentTo ? RESEND_AFTER_SECONDS : 0);
 
   useEffect(() => {
@@ -100,8 +102,11 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   }
 
   // Resolves to the call's data, or null once its error is shown.
-  async function call<T>(action: () => Promise<{ data: T | null; error: AuthError | null }>) {
-    setPending(true);
+  async function call<T>(
+    kind: NonNullable<typeof busy>,
+    action: () => Promise<{ data: T | null; error: AuthError | null }>,
+  ) {
+    setBusy(kind);
     setError(null);
     try {
       const { data, error } = await action();
@@ -116,12 +121,14 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
       setError(t("errors.unreachable"));
       return null;
     } finally {
-      setPending(false);
+      setBusy(null);
     }
   }
 
   async function sendCode() {
-    if (await call(() => authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }, inPageLanguage))) {
+    if (
+      await call("sendCode", () => authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" }, inPageLanguage))
+    ) {
       setStep("code");
       setCode("");
       setResendIn(RESEND_AFTER_SECONDS);
@@ -136,7 +143,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   }
 
   async function signIn(otp: string) {
-    const data = await call(() => authClient.signIn.emailOtp({ email, otp }, inPageLanguage));
+    const data = await call("signIn", () => authClient.signIn.emailOtp({ email, otp }, inPageLanguage));
     if (!data) {
       setCode("");
       return;
@@ -155,7 +162,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   }
 
   async function saveName(name: string) {
-    if (await call(() => authClient.updateUser({ name }))) {
+    if (await call("saveName", () => authClient.updateUser({ name }))) {
       router.replace(next);
     }
   }
@@ -198,7 +205,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
             }}
             error={fieldError}
           />
-          <Button type="submit" size="lg" disabled={pending}>
+          <Button type="submit" size="lg" pending={busy === "sendCode"} pendingLabel={t("sendingCode")}>
             {t("continue")}
           </Button>
         </div>
@@ -231,7 +238,13 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
             nonce={nonce}
             aria-label={t("code")}
           />
-          <Button type="submit" size="lg" disabled={pending || code.length < CODE_LENGTH}>
+          <Button
+            type="submit"
+            size="lg"
+            disabled={pending || code.length < CODE_LENGTH}
+            pending={busy === "signIn"}
+            pendingLabel={t("signingIn")}
+          >
             {t("signIn")}
           </Button>
         </div>
@@ -242,6 +255,8 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
                 variant="link"
                 onClick={() => void sendCode()}
                 disabled={pending || resendIn > 0}
+                pending={busy === "sendCode"}
+                pendingLabel={t("sendingCode")}
                 className="tabular-nums"
               >
                 {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
@@ -271,7 +286,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
           onChange={(event) => recheck(event, nameMessages)}
           error={fieldError}
         />
-        <Button type="submit" size="lg" disabled={pending}>
+        <Button type="submit" size="lg" pending={busy === "saveName"} pendingLabel={t("saving")}>
           {t("continue")}
         </Button>
       </div>

@@ -62,7 +62,10 @@
       ]
     },
     "emailPlaceholder": "Enter your email",
-    "namePlaceholder": "Enter your name"
+    "namePlaceholder": "Enter your name",
+    "sendingCode": "Sending the code…",
+    "signingIn": "Signing in…",
+    "saving": "Saving…"
   },
   "dashboard": {
     "signOut": "Sign out",
@@ -120,7 +123,10 @@
     "continueErrors": {
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
-    }
+    },
+    "accepting": "Accepting…",
+    "declining": "Declining…",
+    "sendingCode": "Sending the code…"
   },
   "common": {
     "close": "Close"

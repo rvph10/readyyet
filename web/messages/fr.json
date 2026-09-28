@@ -62,7 +62,10 @@
       ]
     },
     "emailPlaceholder": "Entrez votre e-mail",
-    "namePlaceholder": "Entrez votre nom"
+    "namePlaceholder": "Entrez votre nom",
+    "sendingCode": "Envoi du code…",
+    "signingIn": "Connexion…",
+    "saving": "Enregistrement…"
   },
   "dashboard": {
     "signOut": "Se déconnecter",
@@ -120,7 +123,10 @@
     "continueErrors": {
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
-    }
+    },
+    "accepting": "Acceptation…",
+    "declining": "Refus en cours…",
+    "sendingCode": "Envoi du code…"
   },
   "common": {
     "close": "Fermer"

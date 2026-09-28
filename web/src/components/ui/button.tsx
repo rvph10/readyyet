@@ -38,12 +38,15 @@ export function buttonClass({ variant = "primary", size = "md" }: Options = {}) 
 }
 
 interface Props extends Options, ButtonHTMLAttributes<HTMLButtonElement> {
-  // While its action runs: no second click, and the pointer says it's busy.
+  // While its action runs: no second click, the pointer says it's busy, and
+  // pendingLabel ("Saving…") replaces the label, for touch screens where
+  // there's no pointer to see (ADR 0057).
   pending?: boolean;
+  pendingLabel?: string;
 }
 
 // className is for placing the button in its layout, not restyling it.
-export function Button({ variant, size, pending, disabled, className, ...props }: Props) {
+export function Button({ variant, size, pending, pendingLabel, disabled, className, children, ...props }: Props) {
   return (
     <button
       type="button"
@@ -51,6 +54,8 @@ export function Button({ variant, size, pending, disabled, className, ...props }
       disabled={disabled || pending}
       aria-busy={pending || undefined}
       className={`${buttonClass({ variant, size })} ${className ?? ""}`}
-    />
+    >
+      {pending && pendingLabel ? pendingLabel : children}
+    </button>
   );
 }

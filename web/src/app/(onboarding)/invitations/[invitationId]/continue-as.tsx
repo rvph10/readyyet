@@ -40,7 +40,7 @@ export function ContinueAs({ email, invitationId }: { email: string; invitationI
   return (
     <div className="mt-7 flex flex-col gap-4 text-left">
       {failed && <FormAlert>{t(`continueErrors.${failed}`)}</FormAlert>}
-      <Button size="lg" disabled={pending} onClick={continueAs}>
+      <Button size="lg" pending={pending} pendingLabel={t("sendingCode")} onClick={continueAs}>
         {t("continueAs", { email })}
       </Button>
       <p className="text-center text-p-xs text-muted">{t("continueHint")}</p>

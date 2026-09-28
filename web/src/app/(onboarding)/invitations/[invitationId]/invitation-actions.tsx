@@ -17,8 +17,10 @@ export function InvitationActions({ invitationId }: { invitationId: string }) {
   const [result, setResult] = useState<ActionResult | null>(null);
   const [confirmingDecline, setConfirmingDecline] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [running, setRunning] = useState<"accept" | "decline" | null>(null);
 
-  function run(action: (id: string) => Promise<ActionResult>) {
+  function run(kind: "accept" | "decline", action: (id: string) => Promise<ActionResult>) {
+    setRunning(kind);
     startTransition(async () => setResult(await action(invitationId)));
   }
 
@@ -34,7 +36,13 @@ export function InvitationActions({ invitationId }: { invitationId: string }) {
             <Button variant="secondary" size="lg" disabled={pending} onClick={() => setConfirmingDecline(false)}>
               {t("keep")}
             </Button>
-            <Button size="lg" disabled={pending} onClick={() => run(declineInvitation)}>
+            <Button
+              size="lg"
+              disabled={pending}
+              pending={pending && running === "decline"}
+              pendingLabel={t("declining")}
+              onClick={() => run("decline", declineInvitation)}
+            >
               {t("decline")}
             </Button>
           </div>
@@ -44,7 +52,13 @@ export function InvitationActions({ invitationId }: { invitationId: string }) {
           <Button variant="secondary" size="lg" disabled={pending} onClick={() => setConfirmingDecline(true)}>
             {t("decline")}
           </Button>
-          <Button size="lg" disabled={pending} onClick={() => run(acceptInvitation)}>
+          <Button
+            size="lg"
+            disabled={pending}
+            pending={pending && running === "accept"}
+            pendingLabel={t("accepting")}
+            onClick={() => run("accept", acceptInvitation)}
+          >
             <Icon name="check" className="size-3.5" />
             {t("accept")}
           </Button>
