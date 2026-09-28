@@ -4,8 +4,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar, initials } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { buttonClass } from "@/components/ui/button";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { getOptionalMe } from "@/lib/me";
@@ -15,8 +17,12 @@ import { InvitationActions } from "./invitation-actions";
 // Past this, the rest of the team is a count.
 const TEAM_SHOWN = 5;
 
-function Panel({ children }: { children: ReactNode }) {
-  return <div className="w-full max-w-md rounded-3xl bg-surface p-6 text-center shadow-panel md:p-8">{children}</div>;
+function Card({ children }: { children: ReactNode }) {
+  return (
+    <Panel padding="lg" className="w-full max-w-md text-center md:p-8">
+      {children}
+    </Panel>
+  );
 }
 
 function Heading({ title, children }: { title: string; children: ReactNode }) {
@@ -86,25 +92,25 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
               text: t("lapsed", { ...place, inviter: invitedBy.name }),
             };
     return (
-      <Panel>
+      <Card>
         <Notice icon={notice.icon} />
         <Heading title={notice.title}>{notice.text}</Heading>
         <Link href="/" className={`${buttonClass({ size: "lg" })} mt-7`}>
           {t("toDashboard")}
         </Link>
-      </Panel>
+      </Card>
     );
   }
 
   if (me && me.email.toLowerCase() !== email.toLowerCase()) {
     return (
-      <Panel>
+      <Card>
         <Notice icon="user" />
         <Heading title={t("otherAccountTitle")}>{t("otherAccount", { email: me.email })}</Heading>
         <div className="mt-7 flex justify-center">
           <SignOutButton labelled />
         </div>
-      </Panel>
+      </Card>
     );
   }
 
@@ -112,7 +118,7 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
     <>
       <BusinessMark name={location.business.name} logoUrl={location.business.logoUrl} />
       <div className="mb-4 flex items-center justify-center gap-2 text-p-xs text-muted">
-        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-label-xs text-amber-800">{t("pending")}</span>
+        <Badge>{t("pending")}</Badge>
         {t("invitedWhen", { when: format.relativeTime(new Date(preview.createdAt)) })}
       </div>
       <Heading title={t("title", { inviter: invitedBy.name, location: location.name })}>
@@ -123,10 +129,10 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
 
   if (!me) {
     return (
-      <Panel>
+      <Card>
         {header}
         <ContinueAs email={email} invitationId={invitationId} />
-      </Panel>
+      </Card>
     );
   }
 
@@ -134,7 +140,7 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
     await (await api()).GET("/invitations/{invitationId}", { params: { path: { invitationId } } }),
   );
   return (
-    <Panel>
+    <Card>
       {header}
       <div className="mt-6 flex flex-col items-center gap-2">
         <div className="flex">
@@ -157,6 +163,6 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
       </div>
       <InvitationActions invitationId={invitationId} />
       <p className="mt-4 text-p-xs text-muted">{t("signedInAs", { email: me.email })}</p>
-    </Panel>
+    </Card>
   );
 }
