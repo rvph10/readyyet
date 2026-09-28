@@ -1,20 +1,22 @@
 import type { ButtonHTMLAttributes } from "react";
 
 type Variant = "primary" | "secondary" | "brand" | "danger" | "link";
-type Size = "md" | "lg" | "icon";
+type Size = "sm" | "md" | "lg" | "icon";
 
 interface Options {
   variant?: Variant;
   size?: Size;
 }
 
-// ADR 0049: a 44px pill, a 48px full-width block that reads as one with the
-// inputs of a form, or a 44px circle around an icon. A link-styled button
-// sits inline in text, sizeless.
+// ADR 0049 and 0057: a 44px pill, a 32px one for the rows of a dense list, a
+// 48px full-width block that reads as one with the inputs of a form, or a
+// 44px circle around an icon. A link-styled button sits inline in text,
+// sizeless.
 const sizes: Record<Size, string> = {
-  md: "h-11 rounded-full px-5",
-  lg: "h-12 w-full rounded-xl px-5",
-  icon: "size-11 shrink-0 rounded-full",
+  sm: "h-8 rounded-full px-3.5 text-label-xs",
+  md: "h-11 rounded-full px-5 text-label-sm",
+  lg: "h-12 w-full rounded-xl px-5 text-label-sm",
+  icon: "size-11 shrink-0 rounded-full text-label-sm",
 };
 
 // not-disabled: a disabled button keeps its look under the pointer, which
@@ -34,7 +36,7 @@ export function buttonClass({ variant = "primary", size = "md" }: Options = {}) 
   if (variant === "link") {
     return "cursor-pointer text-label-sm text-brand-text underline-offset-4 transition-colors not-disabled:hover:text-ink not-disabled:hover:underline disabled:cursor-not-allowed disabled:text-muted";
   }
-  return `inline-flex cursor-pointer items-center justify-center gap-2 text-label-sm transition disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-progress aria-busy:opacity-70 ${variants[variant]} ${sizes[size]}`;
+  return `inline-flex cursor-pointer items-center justify-center gap-2 transition disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-progress aria-busy:opacity-70 ${variants[variant]} ${sizes[size]}`;
 }
 
 interface Props extends Options, ButtonHTMLAttributes<HTMLButtonElement> {
