@@ -161,7 +161,10 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
         </div>
         <p className="text-p-xs text-muted">{t("team", { count: team.length })}</p>
       </div>
-      <InvitationActions invitationId={invitationId} />
+      <InvitationActions
+        invitationId={invitationId}
+        joined={t("joined", { location: location.name, business: location.business.name })}
+      />
       <p className="mt-4 text-p-xs text-muted">{t("signedInAs", { email: me.email })}</p>
     </Card>
   );

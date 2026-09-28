@@ -1,10 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
+import { useToast } from "@/components/ui/toast";
 import type { ActionResult } from "@/lib/api/errors";
 import { acceptInvitation, declineInvitation } from "./actions";
 
@@ -12,16 +14,34 @@ const KNOWN_ERRORS = ["NOT_FOUND", "UNAUTHORIZED", "CONFLICT"];
 
 // Declining can't be undone, only a new invitation brings it back, so it
 // asks once more before (ADR 0051).
-export function InvitationActions({ invitationId }: { invitationId: string }) {
+// Accepting leads to the Location, whose page doesn't say it was just
+// joined, so a toast does (ADR 0062). `joined` comes translated from the page,
+// which has the names.
+export function InvitationActions({ invitationId, joined }: { invitationId: string; joined: string }) {
   const t = useTranslations("invitation");
+  const router = useRouter();
+  const toast = useToast();
   const [result, setResult] = useState<ActionResult | null>(null);
   const [confirmingDecline, setConfirmingDecline] = useState(false);
   const [pending, startTransition] = useTransition();
   const [running, setRunning] = useState<"accept" | "decline" | null>(null);
 
-  function run(kind: "accept" | "decline", action: (id: string) => Promise<ActionResult>) {
-    setRunning(kind);
-    startTransition(async () => setResult(await action(invitationId)));
+  function decline() {
+    setRunning("decline");
+    startTransition(async () => setResult(await declineInvitation(invitationId)));
+  }
+
+  function accept() {
+    setRunning("accept");
+    startTransition(async () => {
+      const outcome = await acceptInvitation(invitationId);
+      if (!outcome.ok) {
+        setResult(outcome);
+        return;
+      }
+      toast({ message: joined });
+      router.push(`/locations/${outcome.locationId}`);
+    });
   }
 
   return (
@@ -41,7 +61,7 @@ export function InvitationActions({ invitationId }: { invitationId: string }) {
               disabled={pending}
               pending={pending && running === "decline"}
               pendingLabel={t("declining")}
-              onClick={() => run("decline", declineInvitation)}
+              onClick={decline}
             >
               {t("decline")}
             </Button>
@@ -57,7 +77,7 @@ export function InvitationActions({ invitationId }: { invitationId: string }) {
             disabled={pending}
             pending={pending && running === "accept"}
             pendingLabel={t("accepting")}
-            onClick={() => run("accept", acceptInvitation)}
+            onClick={accept}
           >
             <Icon name="check" className="size-3.5" />
             {t("accept")}

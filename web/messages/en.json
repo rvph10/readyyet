@@ -126,7 +126,8 @@
     },
     "accepting": "Accepting…",
     "declining": "Declining…",
-    "sendingCode": "Sending the code…"
+    "sendingCode": "Sending the code…",
+    "joined": "You joined {location} at {business}."
   },
   "common": {
     "close": "Close",

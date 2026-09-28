@@ -126,7 +126,8 @@
     },
     "accepting": "Acceptation…",
     "declining": "Refus en cours…",
-    "sendingCode": "Envoi du code…"
+    "sendingCode": "Envoi du code…",
+    "joined": "Vous avez rejoint {location} chez {business}."
   },
   "common": {
     "close": "Fermer",
