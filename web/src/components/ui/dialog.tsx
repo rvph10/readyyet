@@ -79,7 +79,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
                 <Icon name="info-triangle" className="size-5" />
               </span>
             ) : (
-              <h2 id={titleId} className="pt-1.5 text-label-lg">
+              <h2 id={titleId} className="pt-2 text-label-lg">
                 {title}
               </h2>
             )}
@@ -98,6 +98,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
 }
 
 // Ink on a panel, white over a picture so it stays visible on any photo.
+// 44px like an icon button, the target size a thumb needs (ADR 0057).
 function CloseButton({ onClose, light, className }: { onClose: () => void; light?: boolean; className?: string }) {
   const t = useTranslations("common");
   return (
@@ -105,7 +106,7 @@ function CloseButton({ onClose, light, className }: { onClose: () => void; light
       type="button"
       onClick={onClose}
       aria-label={t("close")}
-      className={`flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full shadow-float transition-colors ${
+      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full shadow-float transition-colors ${
         light ? "bg-surface text-ink hover:bg-canvas" : "bg-ink text-surface hover:bg-ink/80"
       } ${className ?? ""}`}
     >
