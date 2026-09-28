@@ -1,4 +1,6 @@
-import type { InputHTMLAttributes } from "react";
+"use client";
+
+import { useEffect, useId, useRef, type InputHTMLAttributes } from "react";
 import { Icon } from "./icon";
 
 interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
@@ -6,24 +8,55 @@ interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
   description?: string;
 }
 
+interface CheckboxProps extends Props {
+  // Some, not all, of a list is checked, like "select all" over part of it.
+  indeterminate?: boolean;
+  error?: string | null;
+}
+
 // Native checkboxes drawn over, so forms, keyboards and screen readers treat
 // them as they would any other.
-export function Checkbox({ label, description, className, ...props }: Props) {
+export function Checkbox({ label, description, indeterminate = false, error, className, ...props }: CheckboxProps) {
+  const ref = useRef<HTMLInputElement>(null);
+  const errorId = useId();
+
+  // Only a property, with no attribute React could set.
+  useEffect(() => {
+    ref.current!.indeterminate = indeterminate;
+  }, [indeterminate]);
+
   return (
-    <label className={`group flex cursor-pointer gap-3 has-disabled:cursor-not-allowed ${className ?? ""}`}>
-      <span className="relative mt-0.5 flex size-5 shrink-0">
-        <input
-          type="checkbox"
-          {...props}
-          className="peer size-5 cursor-pointer appearance-none rounded-md border border-border-strong bg-surface transition not-disabled:group-hover:border-ink checked:border-ink checked:bg-ink disabled:cursor-not-allowed disabled:border-border disabled:bg-subtle disabled:checked:border-muted disabled:checked:bg-muted"
-        />
-        <Icon
-          name="check"
-          className="pointer-events-none absolute inset-1 size-3 text-surface opacity-0 transition peer-checked:opacity-100"
-        />
-      </span>
-      <Text label={label} description={description} />
-    </label>
+    <div className={className}>
+      <label className="group flex cursor-pointer gap-3 has-disabled:cursor-not-allowed">
+        <span className="relative mt-0.5 flex size-5 shrink-0">
+          <input
+            ref={ref}
+            type="checkbox"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? errorId : undefined}
+            {...props}
+            className={`peer size-5 cursor-pointer appearance-none rounded-md border bg-surface transition not-disabled:group-hover:border-ink checked:border-ink checked:bg-ink indeterminate:border-ink indeterminate:bg-ink disabled:cursor-not-allowed disabled:border-border-strong/60 disabled:bg-canvas disabled:checked:border-muted disabled:checked:bg-muted ${
+              error ? "border-red-700" : "border-border-strong"
+            }`}
+          />
+          <Icon
+            name="check"
+            className="pointer-events-none absolute inset-1 size-3 text-surface opacity-0 transition peer-checked:opacity-100 peer-indeterminate:opacity-0"
+          />
+          <Icon
+            name="minus"
+            className="pointer-events-none absolute inset-1 size-3 text-surface opacity-0 transition peer-indeterminate:opacity-100"
+          />
+        </span>
+        <Text label={label} description={description} />
+      </label>
+      {error && (
+        <p id={errorId} className="mt-1.5 ml-8 flex gap-1.5 text-p-sm text-red-700">
+          <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 
