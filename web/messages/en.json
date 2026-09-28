@@ -70,7 +70,8 @@
   },
   "dashboard": {
     "signOut": "Sign out",
-    "comingSoon": "{business}. The dashboard is on its way."
+    "comingSoon": "Tickets, your team and your settings will show here.",
+    "comingSoonTitle": "Your dashboard is on its way"
   },
   "createBusiness": {
     "title": "Create your Business",

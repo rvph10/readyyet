@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Panel } from "@/components/ui/panel";
 import { getMe } from "@/lib/me";
 
 export default async function LocationPage({ params }: PageProps<"/locations/[locationId]">) {
@@ -12,8 +14,13 @@ export default async function LocationPage({ params }: PageProps<"/locations/[lo
   const { location } = membership;
   return (
     <>
-      <h1 className="text-2xl font-semibold">{location.name}</h1>
-      <p className="text-muted">{t("comingSoon", { business: location.business.name })}</p>
+      <div>
+        <h1 className="font-display text-title-h4">{location.name}</h1>
+        <p className="text-p-md text-muted">{location.business.name}</p>
+      </div>
+      <Panel padding="none">
+        <EmptyState icon="inbox" title={t("comingSoonTitle")} description={t("comingSoon")} />
+      </Panel>
     </>
   );
 }

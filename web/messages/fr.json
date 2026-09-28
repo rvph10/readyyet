@@ -70,7 +70,8 @@
   },
   "dashboard": {
     "signOut": "Se déconnecter",
-    "comingSoon": "{business}. Le tableau de bord arrive bientôt."
+    "comingSoon": "Les tickets, votre équipe et vos réglages s'afficheront ici.",
+    "comingSoonTitle": "Votre tableau de bord arrive bientôt"
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
