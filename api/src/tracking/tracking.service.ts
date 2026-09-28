@@ -36,7 +36,8 @@ export class TrackingService {
             name: true,
             contactPhone: true,
             contactEmail: true,
-            logoKey: true,
+            // The Business's, the same for all its Locations (ADR 0051).
+            business: { select: { logoKey: true } },
             locale: true,
             timeZone: true,
             streetAddress: true,
@@ -73,7 +74,7 @@ export class TrackingService {
       throw new NotFoundError("Tracking link not found");
     }
 
-    const { name, contactPhone, contactEmail, logoKey, timeZone } = ticket.location;
+    const { name, contactPhone, contactEmail, business, timeZone } = ticket.location;
     const address = toPostalAddress(ticket.location);
     return {
       trackingCode: ticket.trackingCode,
@@ -89,7 +90,7 @@ export class TrackingService {
         name,
         contactPhone,
         contactEmail,
-        logoUrl: publicImageUrl(logoKey),
+        logoUrl: publicImageUrl(business.logoKey),
         address,
         mapsUrl: address && mapsUrl(address),
         openingHours: ticket.location.openingHours as OpeningHoursSpecification[],

@@ -12,14 +12,16 @@ import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
 // ADR 0026: a logo is uploaded, stored as a PNG in the bucket, and served
-// publicly from the API with a long cache.
-describe("Location logo", () => {
+// publicly from the API with a long cache. ADR 0051: it's the Business's,
+// set by its Owner and shown for every one of its Locations.
+describe("Business logo", () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let storage: StorageService;
   let ownerCookie: string;
   let adminCookie: string;
   let employeeCookie: string;
+  let businessId: string;
   let locationId: string;
   const stamp = Date.now();
   let ipCounter = 0;
@@ -27,7 +29,7 @@ describe("Location logo", () => {
   // Uploads are limited to 5 a minute per client, each test is its own client.
   function upload(cookie: string, file: Buffer | null, ip = `198.51.100.${++ipCounter}`) {
     const req = request(app.getHttpServer())
-      .put(`/locations/${locationId}/logo`)
+      .put(`/businesses/${businessId}/logo`)
       .set("Cookie", cookie)
       .set("X-Real-IP", ip);
     return file ? req.attach("file", file, "logo.jpg") : req;
@@ -46,8 +48,8 @@ describe("Location logo", () => {
   }
 
   async function logoKey() {
-    const location = await prisma.location.findUniqueOrThrow({ where: { id: locationId } });
-    return location.logoKey;
+    const business = await prisma.business.findUniqueOrThrow({ where: { id: businessId } });
+    return business.logoKey;
   }
 
   async function join(email: string, role: "ADMIN" | "EMPLOYEE") {
@@ -80,6 +82,7 @@ describe("Location logo", () => {
           locale: "FR",
         },
       });
+    businessId = created.body.id;
     locationId = created.body.locations[0].id;
     adminCookie = await join(`delivered+logo-admin-${stamp}@resend.dev`, "ADMIN");
     employeeCookie = await join(`delivered+logo-employee-${stamp}@resend.dev`, "EMPLOYEE");
@@ -106,7 +109,7 @@ describe("Location logo", () => {
   });
 
   it("shows the logo on the tracking page", async () => {
-    const { body: location } = await upload(ownerCookie, await imageFile("png"));
+    const { body: business } = await upload(ownerCookie, await imageFile("png"));
     const ticket = await request(app.getHttpServer())
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
@@ -114,7 +117,7 @@ describe("Location logo", () => {
 
     const tracking = await request(app.getHttpServer()).get(`/tracking/${ticket.body.trackingCode}`);
 
-    expect(tracking.body.location.logoUrl).toBe(location.logoUrl);
+    expect(tracking.body.location.logoUrl).toBe(business.logoUrl);
   });
 
   it("gives a new logo a new URL and deletes the previous one from the bucket", async () => {
@@ -128,16 +131,33 @@ describe("Location logo", () => {
     expect(old.headers["cache-control"]).toBe("no-store");
   });
 
-  it("lets an Admin upload the logo", async () => {
-    const response = await upload(adminCookie, await imageFile("png"));
+  it("shows the same logo for every Location of the Business", async () => {
+    const second = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Cordonnerie Dupont Ixelles",
+        businessTypeCode: "SHOE_REPAIR",
+        timeZone: "Europe/Brussels",
+        contactPhone: "+32470123457",
+        contactEmail: "ixelles@dupont.test",
+        locale: "FR",
+      });
+    const { body: business } = await upload(ownerCookie, await imageFile("png"));
 
-    expect(response.status).toBe(200);
+    for (const id of [locationId, second.body.id]) {
+      const location = await request(app.getHttpServer()).get(`/locations/${id}`).set("Cookie", ownerCookie);
+      expect(location.body.logoUrl).toBe(business.logoUrl);
+    }
   });
 
-  it("refuses an Employee, and stores nothing", async () => {
+  it.each([
+    ["an Admin", () => adminCookie],
+    ["an Employee", () => employeeCookie],
+  ])("refuses %s, and stores nothing", async (_, cookie) => {
     const before = await logoKey();
 
-    const response = await upload(employeeCookie, await imageFile("png"));
+    const response = await upload(cookie(), await imageFile("png"));
 
     expect(response.status).toBe(403);
     expect(await logoKey()).toBe(before);
@@ -174,7 +194,7 @@ describe("Location logo", () => {
 
   it("deletes the stored file when saving the logo fails", async () => {
     const before = await objectKeys();
-    const update = vi.spyOn(prisma.location, "update").mockRejectedValueOnce(new Error("connection lost"));
+    const update = vi.spyOn(prisma.business, "update").mockRejectedValueOnce(new Error("connection lost"));
 
     const response = await upload(ownerCookie, await imageFile("png"));
 
@@ -203,7 +223,7 @@ describe("Location logo", () => {
     const { body: uploaded } = await upload(ownerCookie, await imageFile("png"));
 
     const response = await request(app.getHttpServer())
-      .delete(`/locations/${locationId}/logo`)
+      .delete(`/businesses/${businessId}/logo`)
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(200);
@@ -211,10 +231,10 @@ describe("Location logo", () => {
     expect((await request(app.getHttpServer()).get(imagePath(uploaded.logoUrl))).status).toBe(404);
   });
 
-  it("refuses an Employee removing the logo", async () => {
+  it("refuses an Admin removing the logo", async () => {
     const response = await request(app.getHttpServer())
-      .delete(`/locations/${locationId}/logo`)
-      .set("Cookie", employeeCookie);
+      .delete(`/businesses/${businessId}/logo`)
+      .set("Cookie", adminCookie);
 
     expect(response.status).toBe(403);
   });

@@ -135,19 +135,40 @@ describe("Invitations", () => {
       return list.body.find((i: { email: string }) => i.email === employeeEmail).id as string;
     }
 
-    it("shows the invited user who invited them, where, and as what", async () => {
+    it("shows the invited user who invited them, where, as what, and the team they'd join", async () => {
       const response = await request(app.getHttpServer())
         .get(`/invitations/${await pendingInvitationId()}`)
         .set("Cookie", employeeCookie);
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
+        email: employeeEmail,
         role: "EMPLOYEE",
         status: "PENDING",
         invitedBy: { name: "Test User" },
-        location: { id: locationId, name: "Main Shop", business: { name: "Invite Test Garage" } },
+        location: { id: locationId, name: "Main Shop", business: { name: "Invite Test Garage", logoUrl: null } },
+        team: [{ name: "Test User", avatarUrl: null }],
       });
-      expect(response.body).not.toHaveProperty("email");
+      expect(Date.parse(response.body.createdAt)).not.toBeNaN();
+    });
+
+    it("shows a signed-out visitor who invites which address, but not the team", async () => {
+      const response = await request(app.getHttpServer()).get(`/invitations/${await pendingInvitationId()}/preview`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        email: employeeEmail,
+        status: "PENDING",
+        invitedBy: { name: "Test User" },
+        location: { name: "Main Shop", business: { name: "Invite Test Garage" } },
+      });
+      expect(response.body).not.toHaveProperty("team");
+    });
+
+    it("previews nothing for an unknown or malformed id", async () => {
+      for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid"]) {
+        expect((await request(app.getHttpServer()).get(`/invitations/${id}/preview`)).status).toBe(404);
+      }
     });
 
     it("hides it from any other signed-in user", async () => {
@@ -250,6 +271,50 @@ describe("Invitations", () => {
       .post(`/invitations/${invitationId}/accept`)
       .set("Cookie", revokeeCookie);
     expect(accept.status).toBe(409);
+  });
+
+  describe("declining", () => {
+    async function invite() {
+      const email = `delivered+invite-decline-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const invited = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email, role: "EMPLOYEE" });
+      return { id: invited.body.id as string, cookie };
+    }
+
+    it("marks it declined for the Location's staff, and it can't be accepted after", async () => {
+      const { id, cookie } = await invite();
+
+      const response = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      expect(response.status).toBe(204);
+      const list = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie);
+      expect(list.body.find((i: { id: string }) => i.id === id).status).toBe("DECLINED");
+      const accept = await request(app.getHttpServer()).post(`/invitations/${id}/accept`).set("Cookie", cookie);
+      expect(accept.status).toBe(409);
+    });
+
+    it("refuses declining twice", async () => {
+      const { id, cookie } = await invite();
+      await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      const again = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      expect(again.status).toBe(409);
+    });
+
+    it("refuses anyone but the invited address", async () => {
+      const { id } = await invite();
+
+      const response = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", otherCookie);
+
+      expect(response.status).toBe(403);
+      expect((await prisma.invitation.findUniqueOrThrow({ where: { id } })).status).toBe("PENDING");
+    });
   });
 
   it("returns 404, not a raw DB error, for a malformed invitation id", async () => {

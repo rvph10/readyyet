@@ -115,6 +115,7 @@ enum InvitationStatus {
   ACCEPTED
   REVOKED
   EXPIRED
+  DECLINED
 }
 
 enum Locale {
@@ -158,6 +159,9 @@ model Business {
   // Where the period of the first invoice paid for more than zero starts:
   // a sales partner's 6 months start here (ADR 0040).
   paidFrom                 DateTime? @map("paid_from")
+  // The logo's key in the bucket, never a URL (ADR 0026), shown for every
+  // Location of the Business (ADR 0051).
+  logoKey                  String?   @map("logo_key")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
@@ -203,8 +207,6 @@ model Location {
   name            String
   contactPhone    String    @map("contact_phone")
   contactEmail    String    @map("contact_email")
-  // The logo's key in the bucket, never a URL (ADR 0026).
-  logoKey         String?   @map("logo_key")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
   locale          Locale

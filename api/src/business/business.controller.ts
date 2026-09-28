@@ -1,10 +1,24 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseFilePipe,
+  Patch,
+  Post,
+  Put,
+  UploadedFile,
+} from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { RedirectDto } from "../billing/dto/redirect.response.dto";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { LocationDto } from "../location/dto/location.response.dto";
+import { ImageUpload } from "../storage/image-upload.decorator";
 import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
@@ -41,6 +55,25 @@ export class BusinessController {
     @Body() dto: UpdateBusinessDto,
   ): Promise<BusinessDto> {
     return this.business.update(businessId, user.id, dto);
+  }
+
+  @Put(":businessId/logo")
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the business's logo, shown for all its locations (owner only, ADR 0051)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  setLogo(
+    @Param("businessId") businessId: string,
+    @CurrentUser() user: User,
+    @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
+  ): Promise<BusinessDto> {
+    return this.business.setLogo(businessId, user.id, file.buffer);
+  }
+
+  @Delete(":businessId/logo")
+  @ApiOperation({ summary: "Remove the business's logo (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  removeLogo(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<BusinessDto> {
+    return this.business.removeLogo(businessId, user.id);
   }
 
   @Post(":businessId/locations")

@@ -70,12 +70,12 @@ export class ImageSweepService {
     }
     const [photos, logos, avatars] = await Promise.all([
       this.prisma.ticketPhoto.findMany({ where: { objectKey: { in: keys } }, select: { objectKey: true } }),
-      this.prisma.location.findMany({ where: { logoKey: { in: keys } }, select: { logoKey: true } }),
+      this.prisma.business.findMany({ where: { logoKey: { in: keys } }, select: { logoKey: true } }),
       this.prisma.user.findMany({ where: { image: { in: keys } }, select: { image: true } }),
     ]);
     const referenced = new Set([
       ...photos.map((photo) => photo.objectKey),
-      ...logos.map((location) => location.logoKey),
+      ...logos.map((business) => business.logoKey),
       ...avatars.map((user) => user.image),
     ]);
     await this.storage.delete(keys.filter((key) => !referenced.has(key)));

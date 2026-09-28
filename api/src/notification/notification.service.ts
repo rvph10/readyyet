@@ -258,7 +258,7 @@ export class NotificationService {
       include: {
         customer: true,
         currentStatus: true,
-        location: { include: { businessType: true, subscription: true } },
+        location: { include: { businessType: true, subscription: true, business: { select: { logoKey: true } } } },
         // The latest event only: when the ticket reached its current status.
         statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1 },
       },
@@ -279,7 +279,7 @@ export class NotificationService {
       location: {
         ...ticket.location,
         address: toPostalAddress(ticket.location),
-        logoUrl: publicImageUrl(ticket.location.logoKey),
+        logoUrl: publicImageUrl(ticket.location.business.logoKey),
       },
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
