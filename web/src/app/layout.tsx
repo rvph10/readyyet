@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Figtree, Geist_Mono, Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { ToastProvider } from "@/components/ui/toast";
 import type { ReactNode } from "react";
 import "./globals.css";
 
@@ -19,7 +20,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale} className={`${figtree.variable} ${inter.variable} ${geistMono.variable}`}>
       <body className="bg-canvas font-sans text-p-sm text-ink antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

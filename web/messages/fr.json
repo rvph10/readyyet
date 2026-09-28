@@ -131,6 +131,7 @@
   "common": {
     "close": "Fermer",
     "stepDone": "terminé",
-    "clearSearch": "Effacer la recherche"
+    "clearSearch": "Effacer la recherche",
+    "notifications": "Notifications"
   }
 }
