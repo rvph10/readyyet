@@ -88,7 +88,12 @@
     "next": "Next",
     "back": "Back",
     "phoneInvalid": "Enter a valid phone number.",
-    "contactEmailHint": "Shown to your customers, so they can reach you."
+    "contactEmailHint": "Shown to your customers, so they can reach you.",
+    "nameMissing": "Enter your Business's name.",
+    "businessTypeMissing": "Choose a type of business.",
+    "locationNameMissing": "Enter your Location's name.",
+    "emailInvalid": "Enter a valid email, like name@example.be.",
+    "creating": "Creating…"
   },
   "invitation": {
     "title": "{inviter} invited you to join {location}",

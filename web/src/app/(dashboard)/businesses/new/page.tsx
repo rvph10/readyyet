@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
+import { Panel } from "@/components/ui/panel";
 import { getMe } from "@/lib/me";
 import { CreateBusinessForm } from "./create-business-form";
 
@@ -21,9 +22,9 @@ export default async function CreateBusinessPage() {
     // "Other" is the fallback, after every real choice.
     .sort((a, b) => Number(a.code === OTHER) - Number(b.code === OTHER));
   return (
-    <>
-      <h1 className="text-2xl font-semibold">{t("title")}</h1>
+    <Panel as="section" padding="lg" className="mx-auto w-full max-w-lg md:p-8">
+      <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
       <CreateBusinessForm businessTypes={options} email={me.email} />
-    </>
+    </Panel>
   );
 }

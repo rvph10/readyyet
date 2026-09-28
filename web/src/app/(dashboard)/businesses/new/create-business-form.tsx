@@ -3,6 +3,12 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent } from "react";
 import { isSupportedCountry, isValidPhoneNumber, type Country } from "react-phone-number-input";
+import { Button } from "@/components/ui/button";
+import { Field, validityMessage } from "@/components/ui/field";
+import { FormAlert } from "@/components/ui/form-alert";
+import { Icon } from "@/components/ui/icon";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { RadioCards } from "@/components/ui/radio-cards";
 import type { ActionFailure } from "@/lib/api/errors";
 import { createBusiness } from "./actions";
 import { PhoneField } from "./phone-field";
@@ -37,6 +43,10 @@ interface Props {
   email: string;
 }
 
+// Two steps: the Business, then its first Location. Checked here before
+// anything is sent, with the errors under their fields in the page's
+// language (ADR 0049), then again by the API, whose refusals land in the
+// same places.
 export function CreateBusinessForm({ businessTypes, email }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
@@ -49,11 +59,28 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
   const [contactEmail, setContactEmail] = useState(email);
   const [country, setCountry] = useState<Country>(FALLBACK_COUNTRY);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
-  const [phoneInvalid, setPhoneInvalid] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
+
+  // A field's own check first, then what the API said about it.
+  const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
+
+  // The field's error goes as soon as it's changed.
+  function edited(field: string) {
+    setErrors((shown) => {
+      const rest = { ...shown };
+      delete rest[field];
+      return rest;
+    });
+  }
 
   function toStepTwo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const found: Record<string, string> = {};
+    if (!name.trim()) found.name = t("nameMissing");
+    if (!businessTypeCode) found["location.businessTypeCode"] = t("businessTypeMissing");
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
     // Follows the Business's name until the owner types their own.
     if (!locationNameEdited) {
       setLocationName(name);
@@ -64,11 +91,17 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!isValidPhoneNumber(contactPhone)) {
-      setPhoneInvalid(true);
-      return;
-    }
-    setPhoneInvalid(false);
+    const emailInput = event.currentTarget.elements.namedItem("contactEmail") as HTMLInputElement;
+    const emailProblem = validityMessage(emailInput, {
+      valueMissing: t("emailInvalid"),
+      typeMismatch: t("emailInvalid"),
+    });
+    const found: Record<string, string> = {};
+    if (!locationName.trim()) found["location.name"] = t("locationNameMissing");
+    if (!isValidPhoneNumber(contactPhone)) found["location.contactPhone"] = t("phoneInvalid");
+    if (emailProblem) found["location.contactEmail"] = emailProblem;
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
     startTransition(async () => {
       const result = await createBusiness({
         name,
@@ -91,107 +124,100 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
     });
   }
 
-  const invalid = (field: string) =>
-    failure?.fields?.[field] && <span className="text-sm text-red-700">{t("invalid")}</span>;
-  const inputClass = "rounded border border-border bg-surface px-3 py-2";
-  const buttonClass = "rounded bg-ink px-3 py-2 text-surface disabled:opacity-60";
+  const progress = (
+    <div className="mb-6 flex items-center gap-3">
+      <ProgressBar value={step} max={2} label={t("stepOf", { step, steps: 2 })} />
+      <span className="shrink-0 text-p-xs text-muted">{t("stepOf", { step, steps: 2 })}</span>
+    </div>
+  );
 
   if (step === 1) {
     return (
-      <form key="business" onSubmit={toStepTwo} className="flex max-w-md flex-col gap-5">
-        <p className="text-sm text-muted">{t("stepOf", { step: 1, steps: 2 })}</p>
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">{t("name")}</span>
-          <input
-            required
+      <form key="business" onSubmit={toStepTwo} noValidate>
+        {progress}
+        <div className="flex flex-col gap-6">
+          <Field
+            label={t("name")}
             maxLength={100}
             autoFocus
             value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={inputClass}
+            onChange={(event) => {
+              setName(event.target.value);
+              edited("name");
+            }}
+            error={errorFor("name")}
           />
-          {invalid("name")}
-        </label>
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">{t("businessType")}</legend>
-          <div className="grid grid-cols-2 gap-2">
-            {businessTypes.map(({ code, label }) => (
-              <label
-                key={code}
-                className="flex cursor-pointer items-center gap-2 rounded border border-border bg-surface px-3 py-2 has-checked:border-ink has-checked:ring-2 has-checked:ring-brand"
-              >
-                <input
-                  type="radio"
-                  name="businessTypeCode"
-                  value={code}
-                  required
-                  checked={businessTypeCode === code}
-                  onChange={() => setBusinessTypeCode(code)}
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-          {invalid("location.businessTypeCode")}
-        </fieldset>
-        <button type="submit" className={`self-start ${buttonClass}`}>
-          {t("next")}
-        </button>
+          <RadioCards
+            legend={t("businessType")}
+            name="businessTypeCode"
+            options={businessTypes.map(({ code, label }) => ({ value: code, label }))}
+            value={businessTypeCode}
+            onChange={(code) => {
+              setBusinessTypeCode(code);
+              edited("location.businessTypeCode");
+            }}
+            error={errorFor("location.businessTypeCode")}
+          />
+          <Button type="submit" size="lg">
+            {t("next")}
+            <Icon name="arrow-right" className="size-3" />
+          </Button>
+        </div>
       </form>
     );
   }
 
   return (
-    <form key="location" onSubmit={submit} className="flex max-w-md flex-col gap-5">
-      <p className="text-sm text-muted">{t("stepOf", { step: 2, steps: 2 })}</p>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t("locationName")}</span>
-        <input
-          required
+    <form key="location" onSubmit={submit} noValidate>
+      {progress}
+      <div className="flex flex-col gap-6">
+        {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
+          <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
+        )}
+        <Field
+          label={t("locationName")}
+          hint={t("locationNameHint")}
           maxLength={100}
           value={locationName}
           onChange={(event) => {
             setLocationName(event.target.value);
             setLocationNameEdited(true);
+            edited("location.name");
           }}
-          className={inputClass}
+          error={errorFor("location.name")}
         />
-        <span className="text-sm text-muted">{t("locationNameHint")}</span>
-        {invalid("location.name")}
-      </label>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="contact-phone" className="text-sm font-medium">
-          {t("contactPhone")}
-        </label>
-        <PhoneField id="contact-phone" value={contactPhone} onChange={setContactPhone} defaultCountry={country} />
-        {(phoneInvalid || failure?.fields?.["location.contactPhone"]) && (
-          <span className="text-sm text-red-700">{t("phoneInvalid")}</span>
-        )}
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t("contactEmail")}</span>
-        <input
+        <PhoneField
+          label={t("contactPhone")}
+          value={contactPhone}
+          onChange={(phone) => {
+            setContactPhone(phone);
+            edited("location.contactPhone");
+          }}
+          defaultCountry={country}
+          error={errorFor("location.contactPhone")}
+        />
+        <Field
+          label={t("contactEmail")}
+          hint={t("contactEmailHint")}
           type="email"
+          name="contactEmail"
           required
+          autoComplete="email"
           value={contactEmail}
-          onChange={(event) => setContactEmail(event.target.value)}
-          className={inputClass}
+          onChange={(event) => {
+            setContactEmail(event.target.value);
+            edited("location.contactEmail");
+          }}
+          error={errorFor("location.contactEmail")}
         />
-        <span className="text-sm text-muted">{t("contactEmailHint")}</span>
-        {invalid("location.contactEmail")}
-      </label>
-      {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
-        <p role="alert" className="text-sm text-red-700">
-          {t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}
-        </p>
-      )}
-      <div className="flex gap-3">
-        <button type="button" onClick={() => setStep(1)} className="rounded border border-border px-3 py-2">
-          {t("back")}
-        </button>
-        <button type="submit" disabled={pending} className={buttonClass}>
-          {t("submit")}
-        </button>
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
+            {t("back")}
+          </Button>
+          <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
+            {t("submit")}
+          </Button>
+        </div>
       </div>
     </form>
   );

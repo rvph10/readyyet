@@ -88,7 +88,12 @@
     "next": "Suivant",
     "back": "Retour",
     "phoneInvalid": "Entrez un numéro de téléphone valide.",
-    "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre."
+    "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre.",
+    "nameMissing": "Entrez le nom de votre entreprise.",
+    "businessTypeMissing": "Choisissez un type d'activité.",
+    "locationNameMissing": "Entrez le nom de votre établissement.",
+    "emailInvalid": "Entrez un e-mail valide, comme nom@exemple.be.",
+    "creating": "Création…"
   },
   "invitation": {
     "title": "{inviter} vous invite à rejoindre {location}",
