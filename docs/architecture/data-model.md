@@ -60,7 +60,7 @@ A staff `User` who deletes their account is handled the same way (ADR 0018): tic
 
 ## Deleted Locations
 
-`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Tickets under a deleted Location are permanent records and stay, only its logo and its tickets' photos are deleted (ADR 0026). Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
+`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Tickets under a deleted Location are permanent records and stay, only its tickets' photos are deleted (ADR 0026). The logo is its Business's and stays (ADR 0051). Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
 
 ## Undeliverable customer addresses
 
