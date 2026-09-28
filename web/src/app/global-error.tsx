@@ -18,8 +18,10 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
     <html lang="en">
       <body className="bg-canvas font-sans text-ink antialiased">
         <ErrorMessage title="Something went wrong · Une erreur s'est produite">
-          {error.digest && <p className="font-mono text-sm">Reference · Référence&nbsp;: {error.digest}</p>}
-          <Button onClick={() => location.reload()} className="self-start">
+          {error.digest && (
+            <p className="font-mono text-p-xs text-muted">Reference · Référence&nbsp;: {error.digest}</p>
+          )}
+          <Button onClick={() => location.reload()} className="mt-2 self-start">
             Try again · Réessayer
           </Button>
         </ErrorMessage>

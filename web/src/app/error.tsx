@@ -29,9 +29,9 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
 
   return (
     <ErrorMessage title={t("title")}>
-      <p className="text-muted">{t("body")}</p>
-      {error.digest && <p className="font-mono text-sm">{t("reference", { digest: error.digest })}</p>}
-      <Button onClick={retry} className="self-start">
+      <p className="text-p-md text-muted">{t("body")}</p>
+      {error.digest && <p className="font-mono text-p-xs text-muted">{t("reference", { digest: error.digest })}</p>}
+      <Button onClick={retry} className="mt-2 self-start">
         {t("retry")}
       </Button>
     </ErrorMessage>
