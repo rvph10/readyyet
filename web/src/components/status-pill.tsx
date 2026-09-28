@@ -1,4 +1,4 @@
-// The six tones of ADR 0042, coloured by ADR 0054. Every operational Status
+// The six tones of ADR 0042, coloured by ADR 0061. Every operational Status
 // not named here is work happening, so that's the fallback.
 const RECEIVED = ["RECEIVED", "INSPECTING", "DIAGNOSING", "QUOTE_PREPARED"];
 const WAITING = [
@@ -21,22 +21,25 @@ export function statusTone(code: string): StatusTone {
   return "working";
 }
 
-const fills: Record<StatusTone, string> = {
-  received: "bg-status-received text-ink",
-  working: "bg-status-working text-ink",
-  waiting: "bg-status-waiting text-ink",
-  ready: "bg-brand text-ink",
-  completed: "border border-border-strong bg-surface text-muted",
-  stopped: "bg-status-stopped text-ink",
+// ADR 0061: white pills whose dot carries the tone, so a list stays calm and
+// READY, the only lime fill, is what stands out. COMPLETED is greyed, done.
+const pills: Record<StatusTone, { pill: string; dot: string }> = {
+  received: { pill: "border border-border bg-surface text-ink", dot: "bg-status-received" },
+  working: { pill: "border border-border bg-surface text-ink", dot: "bg-status-working" },
+  waiting: { pill: "border border-border bg-surface text-ink", dot: "bg-status-waiting" },
+  ready: { pill: "border border-brand bg-brand text-ink", dot: "bg-ink" },
+  completed: { pill: "border border-border bg-subtle text-muted", dot: "bg-muted" },
+  stopped: { pill: "border border-border bg-surface text-ink", dot: "bg-status-stopped" },
 };
 
 // A Ticket's Status, by its code for the colour and its translated label.
 export function StatusPill({ code, label }: { code: string; label: string }) {
+  const { pill, dot } = pills[statusTone(code)];
   return (
     <span
-      className={`inline-flex h-6 items-center gap-1.5 rounded-full pr-2.5 pl-2 text-label-xs whitespace-nowrap ${fills[statusTone(code)]}`}
+      className={`inline-flex h-6 items-center gap-1.5 rounded-full pr-2.5 pl-2 text-label-xs whitespace-nowrap ${pill}`}
     >
-      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current" />
+      <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${dot}`} />
       {label}
     </span>
   );

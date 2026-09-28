@@ -72,7 +72,7 @@ function Marker({ state, code }: { state: State; code: string }) {
 }
 
 // Where a Ticket stands in its Workflow: done steps in ink, the current one
-// in its Status tone (ADR 0054), the rest outlined.
+// in its Status tone (ADR 0054 and 0061), the rest outlined.
 export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: Props) {
   const currentIndex = steps.findIndex((step) => step.code === currentCode);
   const stateOf = (index: number): State =>
