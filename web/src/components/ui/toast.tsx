@@ -28,10 +28,16 @@ interface ShownToast extends ToastOptions {
   leaving: boolean;
 }
 
-const icons: Record<Tone, { name: IconName; className: string }> = {
-  success: { name: "check", className: "bg-success-subtle text-success" },
-  info: { name: "info", className: "bg-info-subtle text-info" },
-  error: { name: "info-triangle", className: "bg-danger-subtle text-danger" },
+// ADR 0064: the badge pops in, then its icon moves by tone.
+const icons: Record<Tone, { name: IconName; badge: string; icon: string }> = {
+  success: {
+    name: "check",
+    badge:
+      "bg-success-subtle text-success after:bg-success/30 motion-safe:after:animate-toast-ring after:absolute after:inset-0 after:rounded-full",
+    icon: "motion-safe:animate-toast-icon",
+  },
+  info: { name: "info", badge: "bg-info-subtle text-info", icon: "motion-safe:animate-toast-nod" },
+  error: { name: "info-triangle", badge: "bg-danger-subtle text-danger", icon: "motion-safe:animate-toast-shake" },
 };
 
 // A confirmation is read at a glance, an error needs longer, and an action
@@ -53,10 +59,10 @@ export function useToast() {
   return useContext(ToastContext)!;
 }
 
-// ADR 0060: Sonner's stack, built here because Sonner places each toast
-// with a style attribute, which the CSP refuses (ADR 0048). Positions are
-// set through the CSSOM instead. The newest toast is in front with the older
-// ones peeking above it, and the stack opens while the pointer or focus is on
+// ADR 0060 and 0064: Sonner's stack at the top centre, built here because
+// Sonner places each toast with a style attribute, which the CSP refuses
+// (ADR 0048). Positions are set through the CSSOM instead. The newest toast
+// is in front with the older ones peeking below it, and the stack opens while the pointer or focus is on
 // it, which also holds every timer. The list is a manual popover, so toasts
 // show in the top layer, above an open dialog. Screen readers hear the
 // message from live regions outside it, which re-showing the popover can't
@@ -128,7 +134,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false);
         }}
-        className="inset-x-0 top-auto bottom-4 m-0 mx-auto w-[min(24rem,calc(100vw-2rem))] overflow-visible border-0 bg-transparent p-0"
+        className="inset-x-0 top-4 bottom-auto m-0 mx-auto w-[min(24rem,calc(100vw-2rem))] overflow-visible border-0 bg-transparent p-0"
       >
         <ol ref={list} className="relative motion-safe:transition-[height] motion-safe:duration-300">
           {toasts.map((toast) => {
@@ -198,16 +204,16 @@ function ToastItem({ toast, index, offset, frontHeight, expanded, onDismiss, onM
 
   useLayoutEffect(() => {
     const style = item.current!.style;
-    // Placed below and faded out first, with a reflow in between, so it
-    // slides in from there rather than appearing in place.
+    // Placed above and faded out first, with a reflow in between, so it
+    // slides down from there rather than appearing in place.
     if (!entered.current) {
-      style.transform = "translateY(24px)";
+      style.transform = "translateY(-24px)";
       style.opacity = "0";
       void item.current!.offsetHeight;
       entered.current = true;
     }
     const hidden = toast.leaving || index >= MOST_SHOWN;
-    const y = toast.leaving ? 16 : expanded ? -offset : -index * PEEK_PX;
+    const y = toast.leaving ? -16 : expanded ? offset : index * PEEK_PX;
     const scale = expanded ? 1 : 1 - Math.max(index, 0) * SCALE_STEP;
     style.transform = `translateY(${y}px) scale(${scale})`;
     style.opacity = hidden ? "0" : "1";
@@ -218,14 +224,16 @@ function ToastItem({ toast, index, offset, frontHeight, expanded, onDismiss, onM
   return (
     <li
       ref={item}
-      className="absolute inset-x-0 bottom-0 origin-bottom overflow-hidden rounded-2xl border border-border bg-surface text-ink shadow-float motion-safe:transition-[transform,opacity,height] motion-safe:duration-300 motion-safe:ease-out"
+      className="absolute inset-x-0 top-0 origin-top overflow-hidden rounded-2xl border border-border bg-surface text-ink shadow-float motion-safe:transition-[transform,opacity,height] motion-safe:duration-300 motion-safe:ease-out"
     >
       <div
         ref={content}
         className={`flex items-start gap-3 p-3 transition-opacity ${expanded || front ? "opacity-100" : "opacity-0"}`}
       >
-        <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ${icon.className}`}>
-          <Icon name={icon.name} className="size-3" />
+        <span
+          className={`relative flex size-6 shrink-0 items-center justify-center rounded-full motion-safe:animate-toast-pop ${icon.badge}`}
+        >
+          <Icon name={icon.name} className={`relative size-3 ${icon.icon}`} />
         </span>
         <p className="min-w-0 flex-1 pt-0.5 text-label-sm">{toast.message}</p>
         {toast.action && (
