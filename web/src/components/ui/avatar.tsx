@@ -1,14 +1,22 @@
 import Image from "next/image";
 
-// ADR 0053 and 0057: soft tints with a deep text of the same hue, kept away
-// from the lime and from the cyan, violet, orange and pink of the Status
-// tones, so an avatar next to a Status pill never reads as one.
+// ADR 0053 and 0058: soft tints with a deep text of the same hue, and
+// deep fills with white text, kept away from the lime and from the cyan,
+// violet, orange and pink of the Status tones, so an avatar next to a Status
+// pill never reads as one.
 const colors = [
   "bg-blue-200 text-blue-900",
   "bg-indigo-200 text-indigo-900",
   "bg-teal-200 text-teal-900",
   "bg-emerald-200 text-emerald-900",
+  "bg-green-200 text-green-900",
   "bg-amber-200 text-amber-900",
+  "bg-slate-300 text-slate-900",
+  "bg-blue-700 text-surface",
+  "bg-indigo-700 text-surface",
+  "bg-teal-700 text-surface",
+  "bg-emerald-700 text-surface",
+  "bg-slate-600 text-surface",
 ];
 
 // Font size about 40% of the circle, tighter as it grows.
