@@ -132,6 +132,8 @@
     "close": "Close",
     "stepDone": "done",
     "clearSearch": "Clear the search",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "copy": "Copy",
+    "copied": "Copied"
   }
 }
