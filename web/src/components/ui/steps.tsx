@@ -24,7 +24,7 @@ export function Steps({ steps, current, label }: Props) {
           <li
             key={name}
             aria-current={isCurrent ? "step" : undefined}
-            className="flex min-w-0 flex-1 items-center gap-2 last:flex-none"
+            className="flex min-w-0 flex-1 items-center gap-2 pr-3 last:flex-none last:pr-0"
           >
             <span
               className={`flex size-7 shrink-0 items-center justify-center rounded-full text-label-xs ${
@@ -44,7 +44,7 @@ export function Steps({ steps, current, label }: Props) {
               {done && <span className="sr-only">, {t("stepDone")}</span>}
             </span>
             {number < steps.length && (
-              <span className={`mx-1 h-0.5 min-w-4 flex-1 rounded-full ${done ? "bg-ink" : "bg-border"}`} />
+              <span className={`mx-2 h-0.5 min-w-4 flex-1 rounded-full ${done ? "bg-ink" : "bg-border"}`} />
             )}
           </li>
         );
