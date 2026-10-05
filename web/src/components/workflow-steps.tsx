@@ -32,7 +32,7 @@ const labelClasses: Record<State, string> = {
 function StepLabel({ state, label, className }: { state: State; label: string; className?: string }) {
   const t = useTranslations("common");
   return (
-    <p className={`truncate text-label-sm ${labelClasses[state]} ${className ?? ""}`}>
+    <p className={`truncate text-label-sm transition-colors duration-300 ${labelClasses[state]} ${className ?? ""}`}>
       {label}
       {state === "done" && <span className="sr-only">, {t("stepDone")}</span>}
     </p>
@@ -51,7 +51,7 @@ const currentMarkers: Record<StatusTone, string> = {
 function Marker({ state, code }: { state: State; code: string }) {
   if (state === "done") {
     return (
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-surface">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-surface transition duration-300">
         <Icon name="check" className="size-3" />
       </span>
     );
@@ -59,7 +59,9 @@ function Marker({ state, code }: { state: State; code: string }) {
   if (state === "current") {
     const tone = statusTone(code);
     return (
-      <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ring-4 ${currentMarkers[tone]}`}>
+      <span
+        className={`flex size-6 shrink-0 items-center justify-center rounded-full ring-4 transition duration-300 ${currentMarkers[tone]}`}
+      >
         {tone === "ready" || tone === "completed" ? (
           <Icon name="check" className={`size-3 ${tone === "ready" ? "text-ink" : "text-surface"}`} />
         ) : (
@@ -68,11 +70,12 @@ function Marker({ state, code }: { state: State; code: string }) {
       </span>
     );
   }
-  return <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface" />;
+  return <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface transition duration-300" />;
 }
 
 // Where a Ticket stands in its Workflow: done steps in ink, the current one
-// in its Status tone (ADR 0054 and 0061), the rest outlined.
+// in its Status tone (ADR 0054 and 0061), the rest outlined. Each change of
+// step fades, for a Ticket moving on while it's watched.
 export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: Props) {
   const currentIndex = steps.findIndex((step) => step.code === currentCode);
   const stateOf = (index: number): State =>
@@ -92,7 +95,9 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
               <div className="flex items-center">
                 <Marker state={state} code={step.code} />
                 {index < steps.length - 1 && (
-                  <span className={`mx-2 h-0.5 flex-1 rounded-full ${state === "done" ? "bg-ink" : "bg-border"}`} />
+                  <span
+                    className={`mx-2 h-0.5 flex-1 rounded-full transition-colors duration-300 ${state === "done" ? "bg-ink" : "bg-border"}`}
+                  />
                 )}
               </div>
               <StepLabel state={state} label={step.label} className="mt-2 pr-3" />
@@ -117,7 +122,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
             {index < steps.length - 1 && (
               <span
                 aria-hidden="true"
-                className={`absolute top-6.5 bottom-0.5 left-[0.6875rem] w-0.5 rounded-full ${state === "done" ? "bg-ink" : "bg-border"}`}
+                className={`absolute top-6.5 bottom-0.5 left-[0.6875rem] w-0.5 rounded-full transition-colors duration-300 ${state === "done" ? "bg-ink" : "bg-border"}`}
               />
             )}
             <Marker state={state} code={step.code} />

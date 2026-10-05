@@ -11,7 +11,9 @@ import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
 import { createBusiness } from "./actions";
+import type { WorkflowStep } from "@/components/workflow-steps";
 import { PhoneField } from "./phone-field";
+import { WorkflowPreview } from "./workflow-preview";
 
 // The time zone says where the shop is better than the browser's language,
 // which is often English in Belgium. Only the countries ReadyYet sells in.
@@ -39,7 +41,7 @@ function browserTimeZone() {
 }
 
 interface Props {
-  businessTypes: { code: string; label: string }[];
+  businessTypes: { code: string; label: string; steps: WorkflowStep[] }[];
   email: string;
 }
 
@@ -60,6 +62,7 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
+  const chosenType = businessTypes.find(({ code }) => code === businessTypeCode);
 
   // A field's own check first, then what the API said about it.
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
@@ -154,6 +157,14 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
             }}
             error={errorFor("location.businessTypeCode")}
           />
+          {chosenType && (
+            <WorkflowPreview
+              key={chosenType.code}
+              title={t("workflowTitle", { type: chosenType.label })}
+              caption={t("workflowCaption")}
+              steps={chosenType.steps}
+            />
+          )}
           <Button type="submit" size="lg">
             {t("next")}
             <Icon name="arrow-right" className="size-3" />
