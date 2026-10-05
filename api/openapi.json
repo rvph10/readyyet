@@ -8048,6 +8048,10 @@
           "businessTypeCode": {
             "type": "string"
           },
+          "businessTypeDetail": {
+            "type": "string",
+            "maxLength": 100
+          },
           "contactPhone": {
             "type": "string"
           },
@@ -8124,6 +8128,10 @@
           "businessTypeCode": {
             "type": "string"
           },
+          "businessTypeDetail": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -8177,6 +8185,7 @@
           "id",
           "businessId",
           "businessTypeCode",
+          "businessTypeDetail",
           "name",
           "contactPhone",
           "contactEmail",

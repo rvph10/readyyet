@@ -28,6 +28,13 @@ export class CreateLocationDto {
   @IsNotEmpty()
   businessTypeCode!: string;
 
+  // Only with OTHER (ADR 0071).
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(NAME_MAX_LENGTH)
+  businessTypeDetail?: string;
+
   @IsPhoneNumber()
   contactPhone!: string;
 

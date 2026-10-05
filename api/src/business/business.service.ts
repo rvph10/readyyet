@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Role, type Prisma } from "@readyyet/db";
+import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
@@ -278,10 +279,16 @@ export class BusinessService {
     if (!businessType) {
       throw new NotFoundError(`Unknown business type "${dto.businessTypeCode}"`);
     }
+    if (dto.businessTypeDetail !== undefined && businessType.code !== OTHER_BUSINESS_TYPE) {
+      throw new ValidationError("A business type detail is only for OTHER", [
+        { property: "location.businessTypeDetail", constraints: { onlyForOther: "only with OTHER" } },
+      ]);
+    }
 
     return {
       name: dto.name,
       businessTypeId: businessType.id,
+      businessTypeDetail: dto.businessTypeDetail,
       contactPhone: dto.contactPhone,
       contactEmail: dto.contactEmail,
       locale: dto.locale,

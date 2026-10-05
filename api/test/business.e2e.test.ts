@@ -61,6 +61,41 @@ describe("POST /businesses", () => {
     expect(days).toBeCloseTo(14, 1);
   });
 
+  it("keeps what an OTHER location does, in the owner's words", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({
+        ...validPayload,
+        location: { ...validPayload.location, businessTypeCode: "OTHER", businessTypeDetail: "Scooter repair" },
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.locations[0]).toMatchObject({
+      businessTypeCode: "OTHER",
+      businessTypeDetail: "Scooter repair",
+    });
+  });
+
+  it("leaves the detail empty when none is given", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send(validPayload);
+
+    expect(response.body.locations[0].businessTypeDetail).toBeNull();
+  });
+
+  it("refuses a detail with any type but OTHER", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: { ...validPayload.location, businessTypeDetail: "Scooter repair" } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
   it("rejects an unknown business type code", async () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")

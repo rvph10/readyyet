@@ -9,6 +9,7 @@ export const locationSelect = {
     id: true,
     businessId: true,
     name: true,
+    businessTypeDetail: true,
     contactPhone: true,
     contactEmail: true,
     locale: true,

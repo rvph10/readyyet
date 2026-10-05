@@ -941,6 +941,7 @@ export interface components {
         CreateLocationDto: {
             name: string;
             businessTypeCode: string;
+            businessTypeDetail?: string;
             contactPhone: string;
             /** Format: email */
             contactEmail: string;
@@ -961,6 +962,7 @@ export interface components {
             id: string;
             businessId: string;
             businessTypeCode: string;
+            businessTypeDetail: string | null;
             name: string;
             contactPhone: string;
             contactEmail: string;
