@@ -63,6 +63,8 @@ interface Props {
   // The Location's name once given, the Business's until then.
   shopName: string;
   businessType?: { code: string; label: string; steps: WorkflowStep[] };
+  // Said in place of "Other" when given.
+  businessTypeDetail: string;
   phone: string;
   email: string;
 }
@@ -70,7 +72,15 @@ interface Props {
 // ADR 0070: the Customer's tracking page as the form fills it in, beside
 // the form on wide screens. It repeats what's typed, so it's hidden from
 // screen readers and can't be focused.
-export function TicketPreview({ avatarId, businessName, shopName, businessType, phone, email }: Props) {
+export function TicketPreview({
+  avatarId,
+  businessName,
+  shopName,
+  businessType,
+  businessTypeDetail,
+  phone,
+  email,
+}: Props) {
   const t = useTranslations("createBusiness");
   return (
     <aside aria-hidden="true" inert className="sticky top-8 hidden lg:block">
@@ -88,7 +98,7 @@ export function TicketPreview({ avatarId, businessName, shopName, businessType, 
           <div className="min-w-0 flex-1">
             {shopName ? <p className="truncate text-label-sm">{shopName}</p> : <Blank className="w-32" />}
             {businessType ? (
-              <p className="truncate text-p-xs text-muted">{businessType.label}</p>
+              <p className="truncate text-p-xs text-muted">{businessTypeDetail || businessType.label}</p>
             ) : (
               <Blank className="mt-2 w-20" />
             )}
