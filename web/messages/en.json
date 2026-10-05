@@ -97,11 +97,11 @@
     "contactEmailHint": "Shown to your customers, so they can reach you.",
     "nameMissing": "Enter your Business's name.",
     "businessTypeMissing": "Choose a type of business.",
-    "workflowTitle": "How a Ticket moves: {type}",
-    "workflowCaption": "Your customers follow these steps on their tracking page.",
     "locationNameMissing": "Enter your Location's name.",
     "emailInvalid": "Enter a valid email, like name@example.be.",
-    "creating": "Creating…"
+    "creating": "Creating…",
+    "previewTitle": "What your customers will see",
+    "previewContact": "Contact the shop"
   },
   "invitation": {
     "title": "{inviter} invited you to join {location}",

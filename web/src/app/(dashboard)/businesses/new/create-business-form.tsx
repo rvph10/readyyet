@@ -6,6 +6,7 @@ import { isSupportedCountry, isValidPhoneNumber, type Country } from "react-phon
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
+import { Panel } from "@/components/ui/panel";
 import { Icon } from "@/components/ui/icon";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
@@ -13,7 +14,7 @@ import type { ActionFailure } from "@/lib/api/errors";
 import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
 import { PhoneField } from "./phone-field";
-import { WorkflowPreview } from "./workflow-preview";
+import { TicketPreview } from "./ticket-preview";
 
 // The time zone says where the shop is better than the browser's language,
 // which is often English in Belgium. Only the countries ReadyYet sells in.
@@ -128,8 +129,8 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
     </div>
   );
 
-  if (step === 1) {
-    return (
+  const form =
+    step === 1 ? (
       <form key="business" onSubmit={toStepTwo} noValidate>
         {progress}
         <div className="flex flex-col gap-6">
@@ -157,79 +158,85 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
             }}
             error={errorFor("location.businessTypeCode")}
           />
-          {chosenType && (
-            <WorkflowPreview
-              key={chosenType.code}
-              title={t("workflowTitle", { type: chosenType.label })}
-              caption={t("workflowCaption")}
-              steps={chosenType.steps}
-            />
-          )}
           <Button type="submit" size="lg">
             {t("next")}
             <Icon name="arrow-right" className="size-3" />
           </Button>
         </div>
       </form>
+    ) : (
+      <form key="location" onSubmit={submit} noValidate>
+        {progress}
+        <div className="flex flex-col gap-6">
+          {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
+            <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
+          )}
+          <Field
+            label={t("locationName")}
+            hint={t("locationNameHint")}
+            // Left empty, with an example built from the Business's name, so
+            // the owner names the shop rather than accepting the company's
+            // name without noticing the difference (ADR 0067).
+            placeholder={t("locationNamePlaceholder", { name: name.trim() })}
+            maxLength={100}
+            autoFocus
+            value={locationName}
+            onChange={(event) => {
+              setLocationName(event.target.value);
+              edited("location.name");
+            }}
+            error={errorFor("location.name")}
+          />
+          <PhoneField
+            label={t("contactPhone")}
+            value={contactPhone}
+            onChange={(phone) => {
+              setContactPhone(phone);
+              edited("location.contactPhone");
+            }}
+            defaultCountry={country}
+            error={errorFor("location.contactPhone")}
+          />
+          <Field
+            label={t("contactEmail")}
+            hint={t("contactEmailHint")}
+            type="email"
+            name="contactEmail"
+            required
+            autoComplete="email"
+            value={contactEmail}
+            onChange={(event) => {
+              setContactEmail(event.target.value);
+              edited("location.contactEmail");
+            }}
+            error={errorFor("location.contactEmail")}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
+              {t("back")}
+            </Button>
+            <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
+              {t("submit")}
+            </Button>
+          </div>
+        </div>
+      </form>
     );
-  }
 
   return (
-    <form key="location" onSubmit={submit} noValidate>
-      {progress}
-      <div className="flex flex-col gap-6">
-        {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
-          <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
-        )}
-        <Field
-          label={t("locationName")}
-          hint={t("locationNameHint")}
-          // Left empty, with an example built from the Business's name, so
-          // the owner names the shop rather than accepting the company's
-          // name without noticing the difference (ADR 0067).
-          placeholder={t("locationNamePlaceholder", { name: name.trim() })}
-          maxLength={100}
-          autoFocus
-          value={locationName}
-          onChange={(event) => {
-            setLocationName(event.target.value);
-            edited("location.name");
-          }}
-          error={errorFor("location.name")}
-        />
-        <PhoneField
-          label={t("contactPhone")}
-          value={contactPhone}
-          onChange={(phone) => {
-            setContactPhone(phone);
-            edited("location.contactPhone");
-          }}
-          defaultCountry={country}
-          error={errorFor("location.contactPhone")}
-        />
-        <Field
-          label={t("contactEmail")}
-          hint={t("contactEmailHint")}
-          type="email"
-          name="contactEmail"
-          required
-          autoComplete="email"
-          value={contactEmail}
-          onChange={(event) => {
-            setContactEmail(event.target.value);
-            edited("location.contactEmail");
-          }}
-          error={errorFor("location.contactEmail")}
-        />
-        <div className="grid grid-cols-2 gap-3">
-          <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
-            {t("back")}
-          </Button>
-          <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
-            {t("submit")}
-          </Button>
-        </div>
-      </div>
-    </form>
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,32rem)_22rem] lg:justify-center">
+      <Panel as="section" padding="lg" className="mx-auto w-full max-w-lg md:p-8 lg:mx-0">
+        <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
+        {form}
+      </Panel>
+      <TicketPreview
+        avatarId={email}
+        businessName={name.trim()}
+        shopName={(locationName || name).trim()}
+        businessType={chosenType}
+        phone={contactPhone}
+        email={contactEmail}
+      />
+    </div>
   );
 }

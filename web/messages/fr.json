@@ -97,11 +97,11 @@
     "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre.",
     "nameMissing": "Entrez le nom de votre entreprise.",
     "businessTypeMissing": "Choisissez un type d'activité.",
-    "workflowTitle": "Les étapes d'un ticket : {type}",
-    "workflowCaption": "Vos clients suivent ces étapes sur leur page de suivi.",
     "locationNameMissing": "Entrez le nom de votre établissement.",
     "emailInvalid": "Entrez un e-mail valide, comme nom@exemple.be.",
-    "creating": "Création…"
+    "creating": "Création…",
+    "previewTitle": "Ce que verront vos clients",
+    "previewContact": "Contacter le magasin"
   },
   "invitation": {
     "title": "{inviter} vous invite à rejoindre {location}",
