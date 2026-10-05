@@ -38,7 +38,8 @@ function controlClass(error: string | null | undefined) {
 // The label, hint and error around a control. Exported for a control drawn
 // by a library, like the phone number's, so it reads as one of these. The
 // character count shows at the end of the label's row while the control has
-// focus, where it takes no room of its own (ADR 0067).
+// focus, where it takes no room of its own, and the hint behind a question
+// mark inside the control (ADR 0067 and 0068).
 export function FieldFrame({
   id,
   label,
@@ -55,28 +56,34 @@ export function FieldFrame({
         <label htmlFor={id} className="text-label-sm">
           {label}
         </label>
-        {hint && (
-          // The hint is the button's name and the control's description, so
-          // a screen reader says it with either.
-          <button
-            type="button"
-            className="group relative -my-1 flex size-6 cursor-help items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
-          >
-            <span className="flex size-4 items-center justify-center rounded-full border-[1.5px] border-current">
-              <Icon name="info" className="size-2" />
-            </span>
-            <Tooltip wide>
-              <span id={`${id}-hint`}>{hint}</span>
-            </Tooltip>
-          </button>
-        )}
         {count && (
           <span className="invisible ml-auto text-p-xs text-muted tabular-nums group-focus-within/field:visible">
             {count}
           </span>
         )}
       </div>
-      {children}
+      <div className="relative">
+        {children}
+        {hint && (
+          // The hint is the button's name and the control's description, so
+          // a screen reader says it with either. Inside the control, at the
+          // end of its first line, the control leaving room for it.
+          <button
+            type="button"
+            className="group absolute top-0.5 right-0.5 flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-4.5 items-center justify-center rounded-full border-[1.5px] border-current text-label-xs leading-none font-semibold"
+            >
+              ?
+            </span>
+            <Tooltip wide end>
+              <span id={`${id}-hint`}>{hint}</span>
+            </Tooltip>
+          </button>
+        )}
+      </div>
       {error && (
         <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
@@ -115,7 +122,11 @@ export function Field({
       className={className}
       count={characterCount(props.value, props.maxLength)}
     >
-      <input {...describedBy(id, hint, error)} {...props} className={`h-12 px-4 ${controlClass(error)}`} />
+      <input
+        {...describedBy(id, hint, error)}
+        {...props}
+        className={`h-12 pl-4 ${hint ? "pr-12" : "pr-4"} ${controlClass(error)}`}
+      />
     </FieldFrame>
   );
 }
@@ -144,7 +155,7 @@ export function TextareaField({
         rows={3}
         {...describedBy(id, hint, error)}
         {...props}
-        className={`field-sizing-content max-h-60 min-h-24 resize-none px-4 py-3 ${controlClass(error)}`}
+        className={`field-sizing-content max-h-60 min-h-24 resize-none py-3 pl-4 ${hint ? "pr-12" : "pr-4"} ${controlClass(error)}`}
       />
     </FieldFrame>
   );

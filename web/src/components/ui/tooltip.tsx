@@ -16,8 +16,10 @@ const sides = {
 // next hover or focus, as WCAG 1.4.13 asks (ADR 0057). Near either edge of
 // the screen it lines up with that side of its trigger instead of centring,
 // since even hidden it would widen the page (ADR 0064).
-// A wide one wraps, for a sentence rather than a label.
-export function Tooltip({ wide, children }: { wide?: boolean; children: ReactNode }) {
+// A wide one wraps, for a sentence rather than a label. One whose trigger
+// sits at the end of something, like a field's question mark, lines up with
+// that end wherever it is.
+export function Tooltip({ wide, end, children }: { wide?: boolean; end?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [dismissed, setDismissed] = useState(false);
   const [side, setSide] = useState<keyof typeof sides>("below");
@@ -29,7 +31,7 @@ export function Tooltip({ wide, children }: { wide?: boolean; children: ReactNod
       const { left, right } = trigger.getBoundingClientRect();
       const reach = (hint.offsetWidth - (right - left)) / 2 + 8;
       const width = document.documentElement.clientWidth;
-      hint.dataset.align = right + reach > width ? "end" : left - reach < 0 ? "start" : "center";
+      hint.dataset.align = end || right + reach > width ? "end" : left - reach < 0 ? "start" : "center";
     }
     align();
     function show() {
@@ -49,7 +51,7 @@ export function Tooltip({ wide, children }: { wide?: boolean; children: ReactNod
       trigger.removeEventListener("focusin", show);
       document.removeEventListener("keydown", dismiss);
     };
-  }, []);
+  }, [end]);
 
   return (
     <span
