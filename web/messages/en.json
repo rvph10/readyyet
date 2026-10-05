@@ -105,7 +105,8 @@
     "creating": "Creating…",
     "previewTitle": "What your customers will see",
     "previewText": "Their tracking page fills in as you answer, with the steps a Ticket goes through for your type of business.",
-    "previewContact": "Contact the shop"
+    "previewContact": "Contact the shop",
+    "tooLong": "Keep it to 100 characters."
   },
   "invitation": {
     "title": "{inviter} invited you to join {location}",

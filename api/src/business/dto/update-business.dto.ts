@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { NAME_MAX_LENGTH } from "@readyyet/shared";
 
 export class UpdateBusinessDto {
   @IsString()

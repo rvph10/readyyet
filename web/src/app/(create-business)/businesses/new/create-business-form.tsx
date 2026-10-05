@@ -1,20 +1,22 @@
 "use client";
 
-import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
+import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
-import { isSupportedCountry, isValidPhoneNumber, type Country } from "react-phone-number-input";
+import { isSupportedCountry, type Country } from "react-phone-number-input";
 import { Button } from "@/components/ui/button";
-import { Field, validityMessage } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Panel } from "@/components/ui/panel";
 import { Icon } from "@/components/ui/icon";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
+import { fieldErrors } from "@/lib/validation";
 import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
 import { PhoneField } from "./phone-field";
+import { businessStep, locationStep } from "./schema";
 import { TicketPreview } from "./ticket-preview";
 
 // The time zone says where the shop is better than the browser's language,
@@ -49,10 +51,10 @@ interface Props {
   email: string;
 }
 
-// Two steps: the Business, then its first Location. Checked here before
-// anything is sent, with the errors under their fields in the page's
-// language (ADR 0049), then again by the API, whose refusals land in the
-// same places.
+// Two steps: the Business, then its first Location. Each is checked by its
+// schema before going on, with the errors under their fields in the page's
+// language (ADR 0049 and 0073), then again by the API, whose refusals land
+// in the same places.
 export function CreateBusinessForm({ header, businessTypes, email }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
@@ -81,42 +83,39 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
     });
   }
 
+  const businessValues = () =>
+    businessStep(t).safeParse({
+      name,
+      location: {
+        businessTypeCode,
+        businessTypeDetail: businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail : undefined,
+      },
+    });
+
   function toStepTwo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const found: Record<string, string> = {};
-    if (!name.trim()) found.name = t("nameMissing");
-    if (!businessTypeCode) found["location.businessTypeCode"] = t("businessTypeMissing");
-    setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    const business = businessValues();
+    setErrors(business.success ? {} : fieldErrors(business.error));
+    if (!business.success) return;
     setCountry(browserCountry(browserTimeZone()));
     setStep(2);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const emailInput = event.currentTarget.elements.namedItem("contactEmail") as HTMLInputElement;
-    const emailProblem = validityMessage(emailInput, {
-      valueMissing: t("emailInvalid"),
-      typeMismatch: t("emailInvalid"),
-      patternMismatch: t("emailInvalid"),
+    const location = locationStep(t).safeParse({
+      location: { name: locationName, contactPhone, contactEmail },
     });
-    const found: Record<string, string> = {};
-    if (!locationName.trim()) found["location.name"] = t("locationNameMissing");
-    if (!isValidPhoneNumber(contactPhone)) found["location.contactPhone"] = t("phoneInvalid");
-    if (emailProblem) found["location.contactEmail"] = emailProblem;
-    setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    setErrors(location.success ? {} : fieldErrors(location.error));
+    // Step one was checked on the way here.
+    const business = businessValues();
+    if (!location.success || !business.success) return;
     startTransition(async () => {
       const result = await createBusiness({
-        name,
+        name: business.data.name,
         location: {
-          name: locationName,
-          businessTypeCode,
-          // Only OTHER takes one, and it's optional (ADR 0071).
-          businessTypeDetail:
-            businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail.trim() || undefined : undefined,
-          contactPhone,
-          contactEmail,
+          ...business.data.location,
+          ...location.data.location,
           // Both changed later in the Location's settings (ADR 0047).
           locale: locale.toUpperCase() as "EN" | "FR",
           timeZone: browserTimeZone(),
@@ -146,7 +145,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             label={t("name")}
             hint={t("nameHint")}
             placeholder={t("namePlaceholder")}
-            maxLength={100}
+            maxLength={NAME_MAX_LENGTH}
             autoFocus
             value={name}
             onChange={(event) => {
@@ -171,7 +170,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
               label={t("businessTypeDetail")}
               hint={t("businessTypeDetailHint")}
               placeholder={t("businessTypeDetailPlaceholder")}
-              maxLength={100}
+              maxLength={NAME_MAX_LENGTH}
               value={businessTypeDetail}
               onChange={(event) => {
                 setBusinessTypeDetail(event.target.value);
@@ -200,7 +199,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             // the owner names the shop rather than accepting the company's
             // name without noticing the difference (ADR 0067).
             placeholder={t("locationNamePlaceholder", { name: name.trim() })}
-            maxLength={100}
+            maxLength={NAME_MAX_LENGTH}
             autoFocus
             value={locationName}
             onChange={(event) => {
@@ -223,11 +222,6 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             label={t("contactEmail")}
             hint={t("contactEmailHint")}
             type="email"
-            name="contactEmail"
-            required
-            // The browser takes "name@domain", the API's @IsEmail wants a
-            // domain with its ending, so it's asked for here too.
-            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
             autoComplete="email"
             value={contactEmail}
             onChange={(event) => {

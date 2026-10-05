@@ -22,7 +22,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-phone-number-input": "3.4.18",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",

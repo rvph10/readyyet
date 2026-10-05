@@ -4,3 +4,4 @@ export * from "./statuses";
 export * from "./dates";
 export * from "./locale";
 export * from "./business-types";
+export * from "./text-limits";

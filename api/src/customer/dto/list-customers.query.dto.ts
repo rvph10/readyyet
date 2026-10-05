@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
-import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { NAME_MAX_LENGTH } from "@readyyet/shared";
 
 export class ListCustomersQueryDto {
   @IsOptional()
