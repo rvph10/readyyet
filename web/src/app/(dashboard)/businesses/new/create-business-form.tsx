@@ -54,7 +54,6 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
   const [name, setName] = useState("");
   const [businessTypeCode, setBusinessTypeCode] = useState("");
   const [locationName, setLocationName] = useState("");
-  const [locationNameEdited, setLocationNameEdited] = useState(false);
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState(email);
   const [country, setCountry] = useState<Country>(FALLBACK_COUNTRY);
@@ -81,10 +80,6 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
     if (!businessTypeCode) found["location.businessTypeCode"] = t("businessTypeMissing");
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    // Follows the Business's name until the owner types their own.
-    if (!locationNameEdited) {
-      setLocationName(name);
-    }
     setCountry(browserCountry(browserTimeZone()));
     setStep(2);
   }
@@ -137,6 +132,8 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
         <div className="flex flex-col gap-6">
           <Field
             label={t("name")}
+            hint={t("nameHint")}
+            placeholder={t("namePlaceholder")}
             maxLength={100}
             autoFocus
             value={name}
@@ -176,11 +173,15 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
         <Field
           label={t("locationName")}
           hint={t("locationNameHint")}
+          // Left empty, with an example built from the Business's name, so
+          // the owner names the shop rather than accepting the company's
+          // name without noticing the difference (ADR 0067).
+          placeholder={t("locationNamePlaceholder", { name: name.trim() })}
           maxLength={100}
+          autoFocus
           value={locationName}
           onChange={(event) => {
             setLocationName(event.target.value);
-            setLocationNameEdited(true);
             edited("location.name");
           }}
           error={errorFor("location.name")}

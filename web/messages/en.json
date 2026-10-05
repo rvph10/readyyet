@@ -76,8 +76,11 @@
   "createBusiness": {
     "title": "Create your Business",
     "name": "Business name",
+    "nameHint": "Your company as a whole. If you have several shops, they all go under this one name.",
+    "namePlaceholder": "e.g. Atelier Dupont",
     "locationName": "Location name",
-    "locationNameHint": "Your shop's name, shown on your customers' tracking page. Change it if it differs from the Business.",
+    "locationNameHint": "The shop your customers bring their items to, shown on their tracking page. With several shops, you'll add the others later.",
+    "locationNamePlaceholder": "e.g. {name} Ixelles",
     "businessType": "Type of business",
     "contactPhone": "Phone number",
     "contactEmail": "Contact email",

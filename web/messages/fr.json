@@ -76,8 +76,11 @@
   "createBusiness": {
     "title": "Créez votre entreprise",
     "name": "Nom de l'entreprise",
+    "nameHint": "Votre entreprise dans son ensemble. Si vous avez plusieurs magasins, ils sont tous regroupés sous ce nom.",
+    "namePlaceholder": "Ex. : Atelier Dupont",
     "locationName": "Nom de l'établissement",
-    "locationNameHint": "Le nom de votre magasin, affiché sur la page de suivi de vos clients. Modifiez-le s'il diffère de l'entreprise.",
+    "locationNameHint": "Le magasin où vos clients déposent leurs objets, affiché sur leur page de suivi. Si vous en avez plusieurs, vous ajouterez les autres plus tard.",
+    "locationNamePlaceholder": "Ex. : {name} Ixelles",
     "businessType": "Type d'activité",
     "contactPhone": "Numéro de téléphone",
     "contactEmail": "E-mail de contact",
