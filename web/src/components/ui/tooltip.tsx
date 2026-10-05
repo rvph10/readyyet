@@ -16,7 +16,8 @@ const sides = {
 // next hover or focus, as WCAG 1.4.13 asks (ADR 0057). Near either edge of
 // the screen it lines up with that side of its trigger instead of centring,
 // since even hidden it would widen the page (ADR 0064).
-export function Tooltip({ children }: { children: ReactNode }) {
+// A wide one wraps, for a sentence rather than a label.
+export function Tooltip({ wide, children }: { wide?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [dismissed, setDismissed] = useState(false);
   const [side, setSide] = useState<keyof typeof sides>("below");
@@ -53,7 +54,7 @@ export function Tooltip({ children }: { children: ReactNode }) {
   return (
     <span
       ref={ref}
-      className={`pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center data-[align=end]:right-0 data-[align=end]:left-auto data-[align=end]:translate-x-0 data-[align=start]:left-0 data-[align=start]:translate-x-0 data-[align=end]:after:right-4.5 data-[align=end]:after:left-auto data-[align=end]:after:translate-x-0 data-[align=start]:after:left-4.5 data-[align=start]:after:translate-x-0 gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-label-xs whitespace-nowrap text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:h-2 after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent ${sides[side]} ${dismissed ? "invisible" : ""}`}
+      className={`pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center data-[align=end]:right-0 data-[align=end]:left-auto data-[align=end]:translate-x-0 data-[align=start]:left-0 data-[align=start]:translate-x-0 data-[align=end]:after:right-4.5 data-[align=end]:after:left-auto data-[align=end]:after:translate-x-0 data-[align=start]:after:left-4.5 data-[align=start]:after:translate-x-0 gap-1.5 rounded-lg bg-ink px-2.5 py-1.5 text-surface opacity-0 shadow-float transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-visible:opacity-100 before:absolute before:inset-x-0 before:h-2 after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent ${wide ? "w-64 text-left text-p-xs" : "text-label-xs whitespace-nowrap"} ${sides[side]} ${dismissed ? "invisible" : ""}`}
     >
       {children}
     </span>

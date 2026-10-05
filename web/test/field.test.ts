@@ -28,9 +28,9 @@ describe("validityMessage", () => {
 });
 
 describe("characterCount", () => {
-  it("is null until the value reaches 80% of its limit", () => {
-    expect(characterCount("a".repeat(79), 100)).toBeNull();
-    expect(characterCount("a".repeat(80), 100)).toBe("80/100");
+  it("counts the value against its limit, from zero", () => {
+    expect(characterCount("", 100)).toBe("0/100");
+    expect(characterCount("a".repeat(85), 100)).toBe("85/100");
   });
 
   it("is null without a limit or a controlled value", () => {

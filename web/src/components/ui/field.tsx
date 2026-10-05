@@ -6,21 +6,21 @@ import {
   type TextareaHTMLAttributes,
 } from "react";
 import { Icon } from "./icon";
+import { Tooltip } from "./tooltip";
 
 interface FrameProps {
   label: string;
   // For a form whose heading already says what the field is for.
   hideLabel?: boolean;
-  // A line under the control on what the value is for.
+  // What the value is for, behind an info button beside the label.
   hint?: string;
   error?: string | null;
   className?: string;
 }
 
-// Shown once a value nears its maxLength, which otherwise only stops the
-// typing, without saying why.
+// maxLength otherwise only stops the typing, without saying why.
 export function characterCount(value: unknown, maxLength: number | undefined) {
-  if (typeof value !== "string" || !maxLength || value.length < maxLength * 0.8) return null;
+  if (typeof value !== "string" || !maxLength) return null;
   return `${value.length}/${maxLength}`;
 }
 
@@ -36,7 +36,9 @@ function controlClass(error: string | null | undefined) {
 }
 
 // The label, hint and error around a control. Exported for a control drawn
-// by a library, like the phone number's, so it reads as one of these.
+// by a library, like the phone number's, so it reads as one of these. The
+// character count shows at the end of the label's row while the control has
+// focus, where it takes no room of its own (ADR 0067).
 export function FieldFrame({
   id,
   label,
@@ -48,17 +50,33 @@ export function FieldFrame({
   children,
 }: FrameProps & { id: string; count?: string | null; children: ReactNode }) {
   return (
-    <div className={className}>
-      <label htmlFor={id} className={hideLabel ? "sr-only" : "mb-1.5 block text-label-sm"}>
-        {label}
-      </label>
+    <div className={`group/field ${className ?? ""}`}>
+      <div className={hideLabel ? "sr-only" : "mb-1.5 flex items-center gap-1"}>
+        <label htmlFor={id} className="text-label-sm">
+          {label}
+        </label>
+        {hint && (
+          // The hint is the button's name and the control's description, so
+          // a screen reader says it with either.
+          <button
+            type="button"
+            className="group relative -my-1 flex size-6 cursor-help items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
+          >
+            <span className="flex size-4 items-center justify-center rounded-full border-[1.5px] border-current">
+              <Icon name="info" className="size-2" />
+            </span>
+            <Tooltip wide>
+              <span id={`${id}-hint`}>{hint}</span>
+            </Tooltip>
+          </button>
+        )}
+        {count && (
+          <span className="invisible ml-auto text-p-xs text-muted tabular-nums group-focus-within/field:visible">
+            {count}
+          </span>
+        )}
+      </div>
       {children}
-      {(hint || count) && (
-        <div className="mt-1.5 flex gap-3 text-p-xs text-muted">
-          {hint && <p id={`${id}-hint`}>{hint}</p>}
-          {count && <p className="ml-auto shrink-0 tabular-nums">{count}</p>}
-        </div>
-      )}
       {error && (
         <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
           <Icon name="info-triangle" className="mt-1 size-3.5 shrink-0" />
