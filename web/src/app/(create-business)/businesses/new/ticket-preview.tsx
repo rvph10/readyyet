@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
@@ -51,6 +51,32 @@ function Workflow({ steps }: { steps: WorkflowStep[] }) {
       <Blank className="mt-3 w-44" />
       <div className={`mt-6 transition-opacity duration-400 ${fading ? "opacity-0" : ""}`}>
         <WorkflowSteps steps={steps} currentCode={steps[index].code} />
+      </div>
+    </div>
+  );
+}
+
+// Shrinks its content to the height it's given, never grows it, so a long
+// Workflow stays on screen. The scale is set through the CSSOM, which the
+// CSP allows where a style attribute would be refused (ADR 0048).
+export function FitToHeight({ className, children }: { className: string; children: ReactNode }) {
+  const outer = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const box = outer.current!;
+    const content = inner.current!;
+    const fit = () => content.style.setProperty("scale", String(Math.min(1, box.clientHeight / content.offsetHeight)));
+    const observer = new ResizeObserver(fit);
+    observer.observe(box);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={outer} className={`overflow-hidden ${className}`}>
+      <div ref={inner} className="origin-top">
+        {children}
       </div>
     </div>
   );

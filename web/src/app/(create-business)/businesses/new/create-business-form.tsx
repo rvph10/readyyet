@@ -17,7 +17,7 @@ import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
 import { PhoneField } from "./phone-field";
 import { businessStep, locationStep } from "./schema";
-import { TicketPreview } from "./ticket-preview";
+import { FitToHeight, TicketPreview } from "./ticket-preview";
 
 // The time zone says where the shop is better than the browser's language,
 // which is often English in Belgium. Only the countries ReadyYet sells in.
@@ -70,6 +70,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
   const chosenType = businessTypes.find(({ code }) => code === businessTypeCode);
+  const otherType = businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
 
   // A field's own check first, then what the API said about it.
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
@@ -138,7 +139,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
 
   const form =
     step === 1 ? (
-      <form key="business" onSubmit={toStepTwo} noValidate>
+      <form key="business" onSubmit={toStepTwo} noValidate className="flex flex-1 flex-col">
         {progress}
         <div className="flex flex-col gap-6">
           <Field
@@ -157,7 +158,19 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
           <RadioCards
             legend={t("businessType")}
             name="businessTypeCode"
-            options={businessTypes.map(({ code, label }) => ({ value: code, label }))}
+            options={businessTypes
+              .filter(({ code }) => code !== OTHER_BUSINESS_TYPE)
+              .map(({ code, label }) => ({ value: code, label }))}
+            other={
+              otherType && {
+                value: otherType.code,
+                label: otherType.label,
+                placeholder: t("businessTypeDetail"),
+                text: businessTypeDetail,
+                onTextChange: setBusinessTypeDetail,
+                maxLength: NAME_MAX_LENGTH,
+              }
+            }
             value={businessTypeCode}
             onChange={(code) => {
               setBusinessTypeCode(code);
@@ -165,20 +178,8 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             }}
             error={errorFor("location.businessTypeCode")}
           />
-          {businessTypeCode === OTHER_BUSINESS_TYPE && (
-            <Field
-              label={t("businessTypeDetail")}
-              hint={t("businessTypeDetailHint")}
-              placeholder={t("businessTypeDetailPlaceholder")}
-              maxLength={NAME_MAX_LENGTH}
-              value={businessTypeDetail}
-              onChange={(event) => {
-                setBusinessTypeDetail(event.target.value);
-                edited("location.businessTypeDetail");
-              }}
-              error={errorFor("location.businessTypeDetail")}
-            />
-          )}
+        </div>
+        <div className="mt-auto pt-6">
           <Button type="submit" size="lg">
             {t("next")}
             <Icon name="arrow-right" className="size-3" />
@@ -186,7 +187,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
         </div>
       </form>
     ) : (
-      <form key="location" onSubmit={submit} noValidate>
+      <form key="location" onSubmit={submit} noValidate className="flex flex-1 flex-col">
         {progress}
         <div className="flex flex-col gap-6">
           {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
@@ -230,41 +231,51 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             }}
             error={errorFor("location.contactEmail")}
           />
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
-              {t("back")}
-            </Button>
-            <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
-              {t("submit")}
-            </Button>
-          </div>
+        </div>
+        <div className="mt-auto grid grid-cols-2 gap-3 pt-6">
+          <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
+            {t("back")}
+          </Button>
+          <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
+            {t("submit")}
+          </Button>
         </div>
       </form>
     );
 
   return (
     <>
-      <Panel as="aside" padding="none" className="hidden w-1/2 flex-col px-8 pt-14 pb-8 lg:flex xl:px-10">
+      {/* Held to the window while the form scrolls, its preview shrunk to fit. */}
+      <Panel
+        as="aside"
+        padding="none"
+        className="sticky top-5 hidden h-[calc(100dvh-2.5rem)] w-1/2 flex-col px-8 pt-14 pb-8 lg:flex xl:px-10"
+      >
         <p className="mb-3 text-title-h3 font-bold text-balance">{t("previewTitle")}</p>
         <p className="max-w-md text-p-md text-muted">{t("previewText")}</p>
-        <div className="mx-auto mt-8 w-full max-w-sm">
-          <TicketPreview
-            avatarId={email}
-            businessName={name.trim()}
-            shopName={(locationName || name).trim()}
-            businessType={chosenType}
-            businessTypeDetail={businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail.trim() : ""}
-            phone={contactPhone}
-            email={contactEmail}
-          />
-        </div>
+        <FitToHeight className="mt-8 min-h-0 flex-1">
+          <div className="mx-auto w-full max-w-sm">
+            <TicketPreview
+              avatarId={email}
+              businessName={name.trim()}
+              shopName={(locationName || name).trim()}
+              businessType={chosenType}
+              businessTypeDetail={businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail.trim() : ""}
+              phone={contactPhone}
+              email={contactEmail}
+            />
+          </div>
+        </FitToHeight>
       </Panel>
       <div className="flex w-full flex-col lg:w-1/2 lg:pl-12">
         {header}
-        {/* Its title lines up with the preview's, 56px down, under the 44px header. */}
-        <main className="mx-auto w-full max-w-md py-8 lg:pt-3">
-          <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
-          {form}
+        <main className="flex flex-1 flex-col justify-center py-8">
+          {/* Both steps take the first's height at least, so their buttons
+              stay in the same place from one to the other. */}
+          <div className="mx-auto flex w-full max-w-md flex-col lg:min-h-152">
+            <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
+            {form}
+          </div>
         </main>
       </div>
     </>
