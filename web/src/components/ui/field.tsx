@@ -17,6 +17,13 @@ interface FrameProps {
   className?: string;
 }
 
+// Shown once a value nears its maxLength, which otherwise only stops the
+// typing, without saying why.
+export function characterCount(value: unknown, maxLength: number | undefined) {
+  if (typeof value !== "string" || !maxLength || value.length < maxLength * 0.8) return null;
+  return `${value.length}/${maxLength}`;
+}
+
 // ADR 0049 and 0053: 48px controls with their own error under them. Forms set
 // noValidate and show their errors here, not in the browser's bubbles, which
 // follow the browser's language rather than the page's and can't be styled.
@@ -37,18 +44,20 @@ export function FieldFrame({
   hint,
   error,
   className,
+  count,
   children,
-}: FrameProps & { id: string; children: ReactNode }) {
+}: FrameProps & { id: string; count?: string | null; children: ReactNode }) {
   return (
     <div className={className}>
       <label htmlFor={id} className={hideLabel ? "sr-only" : "mb-1.5 block text-label-sm"}>
         {label}
       </label>
       {children}
-      {hint && (
-        <p id={`${id}-hint`} className="mt-1.5 text-p-xs text-muted">
-          {hint}
-        </p>
+      {(hint || count) && (
+        <div className="mt-1.5 flex gap-3 text-p-xs text-muted">
+          {hint && <p id={`${id}-hint`}>{hint}</p>}
+          {count && <p className="ml-auto shrink-0 tabular-nums">{count}</p>}
+        </div>
       )}
       {error && (
         <p id={`${id}-error`} className="mt-1.5 flex gap-1.5 text-p-sm text-danger">
@@ -79,7 +88,15 @@ export function Field({
 }: FrameProps & InputHTMLAttributes<HTMLInputElement>) {
   const id = useId();
   return (
-    <FieldFrame id={id} label={label} hideLabel={hideLabel} hint={hint} error={error} className={className}>
+    <FieldFrame
+      id={id}
+      label={label}
+      hideLabel={hideLabel}
+      hint={hint}
+      error={error}
+      className={className}
+      count={characterCount(props.value, props.maxLength)}
+    >
       <input {...describedBy(id, hint, error)} {...props} className={`h-12 px-4 ${controlClass(error)}`} />
     </FieldFrame>
   );
@@ -96,7 +113,15 @@ export function TextareaField({
 }: FrameProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const id = useId();
   return (
-    <FieldFrame id={id} label={label} hideLabel={hideLabel} hint={hint} error={error} className={className}>
+    <FieldFrame
+      id={id}
+      label={label}
+      hideLabel={hideLabel}
+      hint={hint}
+      error={error}
+      className={className}
+      count={characterCount(props.value, props.maxLength)}
+    >
       <textarea
         rows={3}
         {...describedBy(id, hint, error)}
