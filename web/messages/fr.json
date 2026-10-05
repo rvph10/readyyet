@@ -104,6 +104,7 @@
     "emailInvalid": "Entrez un e-mail valide, comme nom@exemple.be.",
     "creating": "Création…",
     "previewTitle": "Ce que verront vos clients",
+    "previewText": "Leur page de suivi se remplit à mesure que vous répondez, avec les étapes d'un ticket pour votre activité.",
     "previewContact": "Contacter le magasin"
   },
   "invitation": {

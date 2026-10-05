@@ -2,7 +2,7 @@
 
 import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { isSupportedCountry, isValidPhoneNumber, type Country } from "react-phone-number-input";
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
@@ -43,6 +43,8 @@ function browserTimeZone() {
 }
 
 interface Props {
+  // The logo and who's signed in, over the form.
+  header: ReactNode;
   businessTypes: { code: string; label: string; steps: WorkflowStep[] }[];
   email: string;
 }
@@ -51,7 +53,7 @@ interface Props {
 // anything is sent, with the errors under their fields in the page's
 // language (ADR 0049), then again by the API, whose refusals land in the
 // same places.
-export function CreateBusinessForm({ businessTypes, email }: Props) {
+export function CreateBusinessForm({ header, businessTypes, email }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
   const [step, setStep] = useState<1 | 2>(1);
@@ -247,20 +249,30 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
     );
 
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,32rem)_22rem] lg:justify-center">
-      <Panel as="section" padding="lg" className="mx-auto w-full max-w-lg md:p-8 lg:mx-0">
-        <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
-        {form}
+    <>
+      <Panel as="aside" padding="none" className="hidden w-1/2 flex-col px-8 pt-14 pb-8 lg:flex xl:px-10">
+        <p className="mb-3 text-title-h3 font-bold text-balance">{t("previewTitle")}</p>
+        <p className="max-w-md text-p-md text-muted">{t("previewText")}</p>
+        <div className="mx-auto mt-8 w-full max-w-sm">
+          <TicketPreview
+            avatarId={email}
+            businessName={name.trim()}
+            shopName={(locationName || name).trim()}
+            businessType={chosenType}
+            businessTypeDetail={businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail.trim() : ""}
+            phone={contactPhone}
+            email={contactEmail}
+          />
+        </div>
       </Panel>
-      <TicketPreview
-        avatarId={email}
-        businessName={name.trim()}
-        shopName={(locationName || name).trim()}
-        businessType={chosenType}
-        businessTypeDetail={businessTypeCode === OTHER_BUSINESS_TYPE ? businessTypeDetail.trim() : ""}
-        phone={contactPhone}
-        email={contactEmail}
-      />
-    </div>
+      <div className="flex w-full flex-col lg:w-1/2 lg:pl-12">
+        {header}
+        {/* Its title lines up with the preview's, 56px down, under the 44px header. */}
+        <main className="mx-auto w-full max-w-md py-8 lg:pt-3">
+          <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
+          {form}
+        </main>
+      </div>
+    </>
   );
 }

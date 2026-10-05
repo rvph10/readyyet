@@ -69,9 +69,9 @@ interface Props {
   email: string;
 }
 
-// ADR 0070: the Customer's tracking page as the form fills it in, beside
-// the form on wide screens. It repeats what's typed, so it's hidden from
-// screen readers and can't be focused.
+// ADR 0070 and 0072: the Customer's tracking page as the form fills it in,
+// on its grey page. It repeats what's typed, so it's hidden from screen
+// readers and can't be focused.
 export function TicketPreview({
   avatarId,
   businessName,
@@ -83,59 +83,53 @@ export function TicketPreview({
 }: Props) {
   const t = useTranslations("createBusiness");
   return (
-    <aside aria-hidden="true" inert className="sticky top-8 hidden lg:block">
-      <p className="mb-3 flex items-center gap-2 text-label-sm text-muted">
-        <Icon name="view" className="size-3.5" />
-        {t("previewTitle")}
-      </p>
-      <div className="space-y-3 rounded-[2rem] border border-border bg-canvas p-4">
-        <header className="flex items-center gap-3">
-          {businessName ? (
-            <Avatar id={avatarId} name={businessName} src={null} shape="square" />
-          ) : (
-            <span className="size-10 shrink-0 rounded-xl bg-ink/10" />
-          )}
-          <div className="min-w-0 flex-1">
-            {shopName ? <p className="truncate text-label-sm">{shopName}</p> : <Blank className="w-32" />}
-            {businessType ? (
-              <p className="truncate text-p-xs text-muted">{businessTypeDetail || businessType.label}</p>
-            ) : (
-              <Blank className="mt-2 w-20" />
-            )}
-          </div>
-        </header>
-        <section className="rounded-3xl bg-surface p-6 shadow-panel">
-          <Blank className="mb-4 w-28" />
+    <div aria-hidden="true" inert className="space-y-3 rounded-[1.75rem] bg-canvas p-4">
+      <header className="flex items-center gap-3">
+        {businessName ? (
+          <Avatar id={avatarId} name={businessName} src={null} shape="square" />
+        ) : (
+          <span className="size-10 shrink-0 rounded-xl bg-ink/10" />
+        )}
+        <div className="min-w-0 flex-1">
+          {shopName ? <p className="truncate text-label-sm">{shopName}</p> : <Blank className="w-32" />}
           {businessType ? (
-            // Keyed by type, so a new choice starts from the first step.
-            <Workflow key={businessType.code} steps={businessType.steps} />
+            <p className="truncate text-p-xs text-muted">{businessTypeDetail || businessType.label}</p>
           ) : (
-            <>
-              <Blank className="h-6 w-40" />
-              <Blank className="mt-3 w-44" />
-              <div className="mt-6 space-y-5">
-                {[1, 2, 3, 4].map((row) => (
-                  <div key={row} className="flex items-center gap-3">
-                    <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface" />
-                    <Blank className="w-24" />
-                  </div>
-                ))}
-              </div>
-            </>
+            <Blank className="mt-2 w-20" />
           )}
-        </section>
-        <section className="space-y-3 rounded-3xl bg-surface p-6 shadow-panel">
-          <h3 className="text-label-md">{t("previewContact")}</h3>
-          <p className="flex items-center gap-3 text-p-sm">
-            <Icon name="phone" className="size-3.5 shrink-0 text-muted" />
-            {formatPhoneNumberIntl(phone) || <Blank className="w-32" />}
-          </p>
-          <p className="flex items-center gap-3 text-p-sm">
-            <Icon name="message" className="size-3.5 shrink-0 text-muted" />
-            {email ? <span className="truncate">{email}</span> : <Blank className="w-40" />}
-          </p>
-        </section>
-      </div>
-    </aside>
+        </div>
+      </header>
+      <section className="rounded-3xl bg-surface p-6 shadow-panel">
+        <Blank className="mb-4 w-28" />
+        {businessType ? (
+          // Keyed by type, so a new choice starts from the first step.
+          <Workflow key={businessType.code} steps={businessType.steps} />
+        ) : (
+          <>
+            <Blank className="h-6 w-40" />
+            <Blank className="mt-3 w-44" />
+            <div className="mt-6 space-y-5">
+              {[1, 2, 3, 4].map((row) => (
+                <div key={row} className="flex items-center gap-3">
+                  <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface" />
+                  <Blank className="w-24" />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+      <section className="space-y-3 rounded-3xl bg-surface p-6 shadow-panel">
+        <h3 className="text-label-md">{t("previewContact")}</h3>
+        <p className="flex items-center gap-3 text-p-sm">
+          <Icon name="phone" className="size-3.5 shrink-0 text-muted" />
+          {formatPhoneNumberIntl(phone) || <Blank className="w-32" />}
+        </p>
+        <p className="flex items-center gap-3 text-p-sm">
+          <Icon name="message" className="size-3.5 shrink-0 text-muted" />
+          {email ? <span className="truncate">{email}</span> : <Blank className="w-40" />}
+        </p>
+      </section>
+    </div>
   );
 }
