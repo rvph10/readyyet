@@ -14,6 +14,7 @@
     "@readyyet/shared": "workspace:*",
     "@sentry/nextjs": "11.0.0",
     "better-auth": "1.7.5",
+    "country-flag-icons": "1.6.20",
     "input-otp": "1.5.0",
     "next": "16.3.6",
     "next-intl": "4.14.7",

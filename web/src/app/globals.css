@@ -237,6 +237,32 @@
     .select-field option:disabled {
       @apply cursor-not-allowed text-muted/60;
     }
+    .select-field hr {
+      @apply mx-2 my-1 border-border;
+    }
+    /* The phone's country select is only as wide as its flag, its list as
+       wide as a country's name. */
+    .phone-country::picker(select) {
+      @apply max-h-80 w-72 overflow-x-hidden;
+    }
+    /* Saint-Vincent-et-les-Grenadines wraps rather than scroll the list. */
+    .phone-country option {
+      @apply whitespace-normal;
+    }
+    /* The flag and the calling code, set on each option by PhoneField,
+       since an option can only hold text. */
+    .phone-country option::before {
+      @apply h-3.5 w-5 shrink-0 rounded-[3px] bg-cover shadow-[0_0_0_1px] shadow-ink/10;
+      content: "";
+      background-image: var(--flag);
+    }
+    .phone-country option::after {
+      @apply ml-auto text-muted tabular-nums;
+      content: attr(data-code);
+    }
+    .phone-country option::checkmark {
+      @apply ml-2;
+    }
   }
 
   /* ADR 0059: a Menu under its trigger, right edges lined up since triggers
