@@ -86,6 +86,8 @@
     "rateLimited": "Too many attempts. Wait a minute, then try again.",
     "unexpected": "Something went wrong. Please try again.",
     "stepOf": "Step {step} of {steps}",
+    "stepBusiness": "Business",
+    "stepLocation": "Location",
     "next": "Next",
     "back": "Back",
     "phoneInvalid": "Enter a valid phone number.",

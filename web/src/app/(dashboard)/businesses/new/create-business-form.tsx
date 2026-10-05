@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
-import { ProgressBar } from "@/components/ui/progress-bar";
 import { RadioCards } from "@/components/ui/radio-cards";
+import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
 import { createBusiness } from "./actions";
 import { PhoneField } from "./phone-field";
@@ -125,9 +125,8 @@ export function CreateBusinessForm({ businessTypes, email }: Props) {
   }
 
   const progress = (
-    <div className="mb-6 flex items-center gap-3">
-      <ProgressBar value={step} max={2} label={t("stepOf", { step, steps: 2 })} />
-      <span className="shrink-0 text-p-xs text-muted">{t("stepOf", { step, steps: 2 })}</span>
+    <div className="mb-6">
+      <Steps steps={[t("stepBusiness"), t("stepLocation")]} current={step} label={t("stepOf", { step, steps: 2 })} />
     </div>
   );
 

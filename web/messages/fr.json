@@ -86,6 +86,8 @@
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
     "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
     "stepOf": "Étape {step} sur {steps}",
+    "stepBusiness": "Entreprise",
+    "stepLocation": "Établissement",
     "next": "Suivant",
     "back": "Retour",
     "phoneInvalid": "Entrez un numéro de téléphone valide.",
