@@ -11,11 +11,12 @@ interface Options {
 // ADR 0049 and 0057: a 44px pill, a 32px one for the rows of a dense list, a
 // 48px full-width block that reads as one with the inputs of a form, or a
 // 44px circle around an icon. A link-styled button sits inline in text,
-// sizeless.
+// sizeless. Text one step up the scale from those ADRs (ADR 0066), the
+// large one's the size of an input's.
 const sizes: Record<Size, string> = {
-  sm: "h-8 rounded-full px-3.5 text-label-xs",
-  md: "h-11 rounded-full px-5 text-label-sm",
-  lg: "h-12 w-full rounded-xl px-5 text-label-sm",
+  sm: "h-8 rounded-full px-3.5 text-label-sm",
+  md: "h-11 rounded-full px-5 text-label-md",
+  lg: "h-12 w-full rounded-xl px-5 text-label-md",
   icon: "size-11 shrink-0 rounded-full text-label-sm",
 };
 
