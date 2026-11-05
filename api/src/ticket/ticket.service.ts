@@ -266,7 +266,9 @@ export class TicketService {
       where: { id, locationId },
       include: {
         ...DETAIL_INCLUDE,
-        workflow: { select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } } },
+        workflow: {
+          select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
+        },
         statusEvents: {
           orderBy: { createdAt: "asc" },
           select: {
