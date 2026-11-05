@@ -11,6 +11,7 @@ import {
   UploadedFile,
 } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import type { User } from "@readyyet/db";
 import { Session } from "@thallesp/nestjs-better-auth";
 import type { UserSession } from "@thallesp/nestjs-better-auth";
@@ -29,6 +30,9 @@ export class MeController {
   constructor(private readonly me: MeService) {}
 
   @Get()
+  // Asked on every load and prefetch of a dashboard page, so the same room as
+  // the Ticket list, which this would otherwise limit.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "Get the current user and their location memberships (for onboarding routing)" })
   async get(@CurrentUser() user: User): Promise<MeWithMembershipsDto> {
     const memberships = await this.me.getMemberships(user.id);
