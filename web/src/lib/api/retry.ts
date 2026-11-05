@@ -18,7 +18,7 @@ export async function fetchWithRetry(request: Request): Promise<Response> {
     // awaited: during a render Next.js hands out a copy of the response, and
     // cancelling a copy only finishes once the other is cancelled too, which
     // hung the page on every gateway error.
-    void response.body?.cancel();
+    response.body?.cancel().catch(() => undefined);
   } catch (error) {
     if (request.signal.aborted) {
       throw error;
