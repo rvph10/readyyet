@@ -17,6 +17,8 @@ import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
+import { EmailRetryService } from "../email/email-retry.service";
+import { isTrackingLinkExpired, trackingUrl } from "../tracking/tracking-link";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
@@ -81,6 +83,7 @@ export class TicketService {
     private readonly notification: NotificationService,
     private readonly billing: BillingService,
     private readonly photos: TicketPhotoService,
+    private readonly emailRetry: EmailRetryService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -263,9 +266,16 @@ export class TicketService {
       where: { id, locationId },
       include: {
         ...DETAIL_INCLUDE,
+        workflow: { select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } } },
         statusEvents: {
           orderBy: { createdAt: "asc" },
-          select: { id: true, createdAt: true, changedBy: true, status: statusSelect },
+          select: {
+            id: true,
+            createdAt: true,
+            changedBy: true,
+            changer: { select: { name: true } },
+            status: statusSelect,
+          },
         },
       },
     });
@@ -279,9 +289,14 @@ export class TicketService {
         id: event.id.toString(),
         createdAt: event.createdAt,
         changedBy: event.changedBy,
+        changedByName: event.changer.name,
         status: event.status,
       })),
       photos: await this.photos.forTicket(ticket.id),
+      steps: ticket.workflow.steps,
+      trackingUrl: trackingUrl(ticket.trackingCode),
+      trackingLinkExpired: isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents.at(-1)!.createdAt),
+      emailProblem: await this.emailRetry.ticketEmailProblem(ticket.id),
     };
   }
 

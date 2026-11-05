@@ -8,6 +8,6 @@ import { EmailService } from "./email.service";
   imports: [DatabaseModule],
   controllers: [EmailWebhookController],
   providers: [EmailService, EmailRetryService],
-  exports: [EmailService],
+  exports: [EmailService, EmailRetryService],
 })
 export class EmailModule {}

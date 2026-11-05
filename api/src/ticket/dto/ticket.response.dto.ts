@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { StatusDto } from "../../common/dto/status.response.dto";
 import { CustomerDto } from "../../customer/dto/customer.response.dto";
+import type { TicketEmailProblem } from "../../email/email-retry.service";
+import { WorkflowStepDto } from "../../workflow/dto/workflow.response.dto";
 
 export class TicketDto {
   id!: string;
@@ -23,6 +25,7 @@ export class TicketStatusEventDto {
   id!: string;
   // The User who made the change.
   changedBy!: string;
+  changedByName!: string;
   status!: StatusDto;
   createdAt!: Date;
 }
@@ -40,6 +43,15 @@ export class TicketDetailDto extends TicketDto {
   statusEvents!: TicketStatusEventDto[];
   // Oldest first, 5 at most (ADR 0026).
   photos!: TicketPhotoDto[];
+  // Its own Workflow's steps, which the Location's may have moved on from.
+  steps!: WorkflowStepDto[];
+  // The link the Customer follows, for the QR code at the counter (ADR 0004).
+  trackingUrl!: string;
+  trackingLinkExpired!: boolean;
+  // The latest email to the Customer failed, and is being retried or was given
+  // up on (ADR 0081).
+  @ApiProperty({ enum: ["RETRYING", "GAVE_UP"], nullable: true })
+  emailProblem!: TicketEmailProblem | null;
 }
 
 export class TicketListCustomerDto {

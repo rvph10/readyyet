@@ -1211,6 +1211,7 @@ export interface components {
         TicketStatusEventDto: {
             id: string;
             changedBy: string;
+            changedByName: string;
             status: components["schemas"]["StatusDto"];
             /** Format: date-time */
             createdAt: string;
@@ -1225,6 +1226,13 @@ export interface components {
         TicketDetailDto: {
             /** Format: date */
             estimatedReadyDate: string | null;
+            /** @enum {string|null} */
+            emailProblem: "RETRYING" | "GAVE_UP" | null;
+            statusEvents: components["schemas"]["TicketStatusEventDto"][];
+            photos: components["schemas"]["TicketPhotoDto"][];
+            steps: components["schemas"]["WorkflowStepDto"][];
+            trackingUrl: string;
+            trackingLinkExpired: boolean;
             id: string;
             trackingCode: string;
             title: string;
@@ -1237,8 +1245,6 @@ export interface components {
             createdAt: string;
             customer: components["schemas"]["CustomerDto"];
             currentStatus: components["schemas"]["StatusDto"];
-            statusEvents: components["schemas"]["TicketStatusEventDto"][];
-            photos: components["schemas"]["TicketPhotoDto"][];
         };
         UpdateTicketDto: {
             /** Format: date */
