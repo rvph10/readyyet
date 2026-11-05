@@ -7,6 +7,7 @@ import {
   isNotifyingStatus,
   turnaroundReadyDate,
 } from "@readyyet/shared";
+import { customerIdsNamed, phoneDigits } from "../customer/customer-search";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
@@ -159,7 +160,7 @@ export class TicketService {
 
   async list(locationId: string, query: ListTicketsQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const filters = this.filters(query);
+    const filters = await this.filters(locationId, query);
     if (query.overdue === "true") {
       const { timeZone } = await this.prisma.location.findUniqueOrThrow({
         where: { id: locationId },
@@ -198,20 +199,31 @@ export class TicketService {
     };
   }
 
-  private filters(query: ListTicketsQueryDto): Prisma.TicketWhereInput[] {
+  private async filters(locationId: string, query: ListTicketsQueryDto): Promise<Prisma.TicketWhereInput[]> {
     const filters: Prisma.TicketWhereInput[] = [];
 
     if (query.q) {
       // Prisma passes contains through to ILIKE as-is, so a typed % or _
       // would otherwise act as a wildcard instead of a literal character.
       const contains = { contains: query.q.replace(/[\\%_]/g, "\\$&"), mode: "insensitive" } as const;
+      const digits = phoneDigits(query.q);
       filters.push({
         OR: [
           { title: contains },
           { description: contains },
           { trackingCode: contains },
           // An erased customer's fields are placeholders, not searchable data.
-          { customer: { deletedAt: null, OR: [{ fullName: contains }, { email: contains }, { phone: contains }] } },
+          {
+            customer: {
+              deletedAt: null,
+              OR: [
+                { id: { in: await customerIdsNamed(this.prisma, locationId, query.q) } },
+                { email: contains },
+                { phone: contains },
+                ...(digits ? [{ phone: { contains: digits } }] : []),
+              ],
+            },
+          },
         ],
       });
     }

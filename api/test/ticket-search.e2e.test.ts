@@ -134,6 +134,12 @@ describe("Ticket search and filters", () => {
     expect(await titles({ q: "Brake_pads" })).toEqual([]);
   });
 
+  it("finds a Customer's phone as staff read it, with or without the country code", async () => {
+    for (const q of ["06 11 11 11 11", "0611111111", "+33 6 11 11 11 11", "611.111111"]) {
+      expect(await titles({ q })).toEqual(["Brake pads", "Oil change"]);
+    }
+  });
+
   it("does not match an erased customer's placeholder data", async () => {
     expect(await titles({ q: "Zoe" })).toEqual([]);
     expect(await titles({ q: "deleted" })).toEqual([]);

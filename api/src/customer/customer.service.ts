@@ -5,6 +5,7 @@ import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
+import { customerIdsNamed } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
@@ -25,8 +26,7 @@ export class CustomerService {
       where: {
         locationId,
         deletedAt: null,
-        // Prisma passes contains through to ILIKE as-is, see TicketService.
-        ...(query.q && { fullName: { contains: query.q.replace(/[\\%_]/g, "\\$&"), mode: "insensitive" } }),
+        ...(query.q && { id: { in: await customerIdsNamed(this.prisma, locationId, query.q) } }),
         ...(after && {
           OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
         }),

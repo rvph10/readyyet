@@ -80,6 +80,19 @@ describe("Customers", () => {
     }
   });
 
+  it("finds a name whatever its accents, either way round", async () => {
+    await createTicketWithCustomer(app, ownerCookie, locationId, "Hélène Lefèvre");
+    for (const q of ["helene", "HÉLÈNE", "lefevre", "Hélene"]) {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ q })
+        .set("Cookie", ownerCookie);
+      expect(response.body.items.map((customer: { fullName: string }) => customer.fullName)).toEqual([
+        "Hélène Lefèvre",
+      ]);
+    }
+  });
+
   it("clears the address and text of the emails sent to an erased Customer", async () => {
     const prisma = app.get(PrismaService);
     const email = `delivered+erased-log-${Date.now()}@resend.dev`;
