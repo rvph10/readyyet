@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { ImageSweepService } from "../src/storage/image-sweep.service";
 import { StorageService } from "../src/storage/storage.service";
@@ -40,7 +41,10 @@ describe("Deleting pictures", () => {
           locale: "FR",
         },
       });
-    return created.body.locations[0].id as string;
+    const locationId = created.body.locations[0].id as string;
+    // Only an Owner's first Business gets a trial, and this one has many.
+    await prisma.subscription.update({ where: { locationId }, data: trialSubscription() });
+    return locationId;
   }
 
   async function createTicket(locationId: string, customer: object = { fullName: "Chloé Dubois" }) {

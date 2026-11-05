@@ -31,7 +31,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 
 ## Billing and growth
 
-- **Plan**: what a Location subscribes to, `Essentiel` or `Pro` (ADR 0031). There is no free plan, a Business's first Location starts with a 14-day trial of Pro.
+- **Plan**: what a Location subscribes to, `Essentiel` or `Pro` (ADR 0031). There is no free plan, an Owner's first Business starts its first Location on a 14-day trial of Pro (ADR 0082).
 - **Sponsor**: an Owner whose referral link brought in a new Business. Rewarded with a credit on their bill.
 - **Sales partner**: a User the platform admin has marked as one, earning a commission on the Businesses their referral link brings in (ADR 0032). Not a Role: it has nothing to do with any Location.
 - **Campaign**: a Stripe promotion code giving a discount to new or existing Businesses.

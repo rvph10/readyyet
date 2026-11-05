@@ -48,6 +48,9 @@ export class BusinessService {
   ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
+    // A trial per Owner, not per Business, or a new one every two weeks is
+    // free forever (ADR 0082).
+    const firstBusiness = (await this.prisma.business.count({ where: { ownerId } })) === 0;
     const business = await this.prisma.business.create({
       data: {
         ownerId,
@@ -57,7 +60,7 @@ export class BusinessService {
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
-            subscription: { create: trialSubscription() },
+            subscription: { create: firstBusiness ? trialSubscription() : UNPAID_SUBSCRIPTION },
           },
         },
       },

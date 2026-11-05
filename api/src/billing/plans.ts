@@ -3,9 +3,9 @@ import { BillingInterval, Plan, SubscriptionStatus, type Subscription } from "@r
 const TRIAL_DAYS = 14;
 export const ESSENTIEL_MEMBER_LIMIT = 2;
 
-// ADR 0031: a Business's first Location gets the trial, and since a
-// Business is created with its first Location, every later one starts
-// without, deleting and recreating a Location can't restart it.
+// ADR 0082: an Owner's first Business gets the trial on its first Location,
+// everything later starts without, so neither a new Business nor deleting and
+// recreating a Location can restart it.
 export function trialSubscription(now = new Date()) {
   return {
     status: SubscriptionStatus.TRIAL,
