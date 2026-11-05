@@ -12,7 +12,7 @@ interface Props {
   label: string;
 }
 
-// Stops the reminders, the Status stays the shop's to change (ADR 0028). It
+// Stops the reminders, the Status stays the Location's to change (ADR 0028). It
 // records on this click only, never on opening a link (ADR 0037).
 export function PickedUpButton({ code, variant, label }: Props) {
   const t = useTranslations("tracking");

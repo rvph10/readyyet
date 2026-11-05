@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { PickedUpButton } from "../picked-up-button";
-import { ShopCard } from "../shop-card";
+import { LocationCard } from "../location-card";
 import { getTracking, openInTicketLanguage } from "../tracking-data";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,7 +30,7 @@ export default async function CollectedPage({ params }: PageProps<"/t/[code]/col
   await openInTicketLanguage(tracking, `${trackingPath}/collected`);
 
   return (
-    <ShopCard location={tracking.location}>
+    <LocationCard location={tracking.location}>
       <h1 className="font-display text-label-xl text-balance md:text-title-h4">{t("collectedTitle")}</h1>
       <p className="mt-1 text-p-sm wrap-anywhere text-muted">{tracking.title}</p>
       <p className="mt-4 text-p-md">{t("collectedText")}</p>
@@ -40,6 +40,6 @@ export default async function CollectedPage({ params }: PageProps<"/t/[code]/col
           {t("collectedNotYet")}
         </Link>
       </div>
-    </ShopCard>
+    </LocationCard>
   );
 }

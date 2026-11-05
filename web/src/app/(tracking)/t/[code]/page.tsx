@@ -6,7 +6,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Panel } from "@/components/ui/panel";
 import { JourneySteps } from "./journey-steps";
 import { Photos } from "./photos";
-import { ShopPanel } from "./shop-panel";
+import { LocationPanel } from "./location-panel";
 import { StatusHero } from "./status-hero";
 import { journey, momentFormatter } from "./tracking";
 import { getTracking, openInTicketLanguage } from "./tracking-data";
@@ -36,7 +36,7 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
   const { location, currentStatus, photos } = tracking;
   const formatMoment = momentFormatter(location.timeZone, locale, now, (time) => t("todayAt", { time }));
   const ready = currentStatus.code === "READY" && !tracking.customerCollectedAt;
-  // The shop's panel alone would be a short one beside a tall column, so on a
+  // The Location's panel alone would be a short one beside a tall column, so on a
   // large screen it joins the Status, opposite the progress.
   const sparse = photos.length === 0 && location.openingHours.length === 0;
 
@@ -49,10 +49,10 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
       <JourneySteps steps={journey(tracking, locale, formatMoment)} currentCode={currentStatus.code} />
     </Panel>
   );
-  // An item that's ready raises "where and when" first, so on a phone the shop
+  // An item that's ready raises "where and when" first, so on a phone the Location
   // comes right after the Status.
-  const shop = (
-    <ShopPanel
+  const locationPanel = (
+    <LocationPanel
       location={location}
       locale={locale}
       now={now}
@@ -72,10 +72,10 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
           <div className="order-1 lg:order-none">
             <StatusHero tracking={tracking} locale={locale} now={now} />
           </div>
-          {sparse ? shop : progress}
+          {sparse ? locationPanel : progress}
         </TrackingColumn>
         <TrackingColumn>
-          {sparse ? progress : shop}
+          {sparse ? progress : locationPanel}
           {photos.length > 0 && (
             <Panel as="section" padding="lg" aria-labelledby="photos-title" className="order-4 lg:order-none lg:flex-1">
               <h2 id="photos-title" className="mb-4 text-label-lg">

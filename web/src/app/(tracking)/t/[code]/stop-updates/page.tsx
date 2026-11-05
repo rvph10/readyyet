@@ -1,7 +1,7 @@
 import { isEndedStatus } from "@readyyet/shared";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { ShopCard } from "../shop-card";
+import { LocationCard } from "../location-card";
 import { getTracking, openInTicketLanguage } from "../tracking-data";
 import { StopUpdates } from "./stop-updates";
 
@@ -29,8 +29,8 @@ export default async function StopUpdatesPage({ params }: PageProps<"/t/[code]/s
   const stillToBeReady = statusCode !== "READY" && !isEndedStatus(statusCode);
 
   return (
-    <ShopCard location={tracking.location}>
+    <LocationCard location={tracking.location}>
       <StopUpdates code={code} title={tracking.title} stillToBeReady={stillToBeReady} trackingPath={trackingPath} />
-    </ShopCard>
+    </LocationCard>
   );
 }

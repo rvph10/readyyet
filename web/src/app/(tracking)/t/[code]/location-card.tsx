@@ -25,9 +25,9 @@ interface Props {
   children: ReactNode;
 }
 
-// One thing to answer about a Ticket, in the shop's name, for the pages an
+// One thing to answer about a Ticket, in the Location's name, for the pages an
 // email link leads to beside the tracking page.
-export function ShopCard({ location, below, children }: Props) {
+export function LocationCard({ location, below, children }: Props) {
   return (
     <Frame below={below}>
       <header className="mb-6 flex items-center gap-3">
@@ -40,7 +40,7 @@ export function ShopCard({ location, below, children }: Props) {
 }
 
 // Its own, the tracking page's skeleton has a different shape.
-export function ShopCardSkeleton({ children }: { children: ReactNode }) {
+export function LocationCardSkeleton({ children }: { children: ReactNode }) {
   const t = useTranslations("tracking");
   return (
     <Frame busy>

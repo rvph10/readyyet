@@ -7,13 +7,13 @@ import { PickedUpButton } from "./picked-up-button";
 import { statusLabel } from "@/lib/status-label";
 import { readyDate, type Tracking } from "./tracking";
 
-// Statuses the Customer has to answer, the shop emails them about these too
+// Statuses the Customer has to answer, the Location emails them about these too
 // (ADR 0015), but this is where they'll look.
 const NEEDS_CUSTOMER = ["AWAITING_APPROVAL", "AWAITING_CLIENT_INFO"];
 const WAITING_ON_A_PART = ["AWAITING_PARTS", "PARTS_ORDERED", "BACKORDERED"];
 
 // What the Status means for the Customer, since a Status label alone is the
-// shop's word for its own work.
+// Location's word for its own work.
 function meaning(code: string, collected: boolean) {
   if (code === "READY") return collected ? "collected" : "ready";
   if (code === "COMPLETED" || code === "RECEIVED" || code === "CANCELLED" || code === "REJECTED") {
@@ -97,11 +97,11 @@ export async function StatusHero({ tracking, locale, now }: Props) {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a href={`tel:${location.contactPhone}`} className={buttonClass()}>
             <Icon name="phone" className="size-3.5" />
-            {t("callShop")}
+            {t("callLocation")}
           </a>
           <a href={`mailto:${location.contactEmail}`} className={buttonClass({ variant: "secondary" })}>
             <Icon name="message" className="size-3.5" />
-            {t("emailShop")}
+            {t("emailLocation")}
           </a>
         </div>
       )}

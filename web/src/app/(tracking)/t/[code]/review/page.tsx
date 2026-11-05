@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
-import { ShopCard } from "../shop-card";
+import { LocationCard } from "../location-card";
 import { isLowRating, parseStars, STARS } from "../tracking";
 import { getTracking, openInTicketLanguage } from "../tracking-data";
 import { PrivateFeedbackForm } from "./private-feedback-form";
@@ -40,7 +40,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
   const googleLink = { href: reviewUrl, target: "_blank", rel: "noopener noreferrer" };
 
   return (
-    <ShopCard
+    <LocationCard
       location={location}
       below={
         (low || (!high && feedbackSentAt)) && (
@@ -106,6 +106,6 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
           {t("backToTracking")}
         </Link>
       </p>
-    </ShopCard>
+    </LocationCard>
   );
 }

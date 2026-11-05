@@ -29,9 +29,9 @@ interface Props {
   className: string;
 }
 
-// Where, when and how to reach the shop, the questions a Customer would
+// Where, when and how to reach the Location, the questions a Customer would
 // otherwise phone about (ADR 0029).
-export async function ShopPanel({ location, locale, now, className }: Props) {
+export async function LocationPanel({ location, locale, now, className }: Props) {
   const t = await getTranslations("tracking");
   const { address, mapsUrl, contactPhone, contactEmail, openingHours, timeZone } = location;
   const state = openingState(openingHours, timeZone, locale, now);
@@ -58,9 +58,9 @@ export async function ShopPanel({ location, locale, now, className }: Props) {
   );
 
   return (
-    <Panel as="aside" padding="lg" aria-labelledby="shop-title" className={`flex flex-col ${className}`}>
-      <h2 id="shop-title" className="mb-3 text-label-lg">
-        {t("shop")}
+    <Panel as="aside" padding="lg" aria-labelledby="location-title" className={`flex flex-col ${className}`}>
+      <h2 id="location-title" className="mb-3 text-label-lg">
+        {t("location")}
       </h2>
       <div className="flex flex-1 flex-col gap-1">
         {state && (

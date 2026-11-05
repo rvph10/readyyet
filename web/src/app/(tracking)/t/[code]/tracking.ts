@@ -24,7 +24,7 @@ export function isLowRating(stars: number) {
 }
 
 // Dates read day first and times on a 24-hour clock in both languages, as
-// on a Belgian or French shop's door, not the American order "en" implies.
+// on a Belgian or French Location's door, not the American order "en" implies.
 function intlLocale(locale: string) {
   return locale === "en" ? "en-GB" : locale;
 }
@@ -111,7 +111,7 @@ export function readyDate(date: string, timeZone: string, locale: string, now: D
   return { key: days < 0 ? "expectedPast" : "expectedOn", date: formatted };
 }
 
-// Monday first, like the week on a shop's door.
+// Monday first, like the week on a Location's door.
 const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 
 function onTheClock(now: Date, timeZone: string) {
