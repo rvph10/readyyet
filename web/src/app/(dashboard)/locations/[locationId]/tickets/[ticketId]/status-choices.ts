@@ -25,6 +25,10 @@ export function statusChoices(steps: Step[], currentCode: string, role: Role) {
     : (allowed.find((step) => step.position > position && !isStopped(step.status.code))?.status ?? null);
   return {
     next,
-    others: allowed.map(({ status }) => status).filter((status) => status.code !== next?.code),
+    // From an ended Status the only move offered is back to work, stopping it
+    // again is a step after that.
+    others: allowed
+      .map(({ status }) => status)
+      .filter((status) => status.code !== next?.code && !(ended && isStopped(status.code))),
   };
 }

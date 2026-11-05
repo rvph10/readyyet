@@ -43,6 +43,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
   const { customer, currentStatus: status } = ticket;
   const now = new Date();
   const today = calendarDateIn(now, location.timeZone);
+  const ended = isEndedStatus(status.code);
   const erased = customer.fullName === ERASED_CUSTOMER_NAME;
   const name = erased ? t("erasedCustomer") : customer.fullName;
   const emailFails = Boolean(customer.emailBouncedAt || customer.emailComplainedAt);
@@ -76,8 +77,12 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
         <p className="font-mono text-p-xs text-muted">{ticket.trackingCode}</p>
       </header>
 
-      {ticket.emailProblem === "GAVE_UP" && <Banner tone="error">{t("emailGaveUp", { name })}</Banner>}
-      {ticket.emailProblem === "RETRYING" && <Banner>{t("emailRetrying", { name })}</Banner>}
+      {ticket.emailProblem === "GAVE_UP" && (
+        <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>
+      )}
+      {ticket.emailProblem === "RETRYING" && (
+        <Banner>{t(ended ? "emailRetryingEnded" : "emailRetrying", { name })}</Banner>
+      )}
       {emailFails && <Banner tone="error">{t("emailFails", { name, email: customer.email ?? "" })}</Banner>}
       {stoppedUpdates && <Banner>{t("updatesStopped", { name })}</Banner>}
 
@@ -92,6 +97,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
               ticketId={ticketId}
               next={next}
               others={others}
+              ended={ended}
               undoUntil={undoUntil}
               collectedAt={status.code === "READY" ? ticket.customerCollectedAt : null}
             />
@@ -125,7 +131,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
               dateShown={ticket.estimatedReadyDate && formatDay(ticket.estimatedReadyDate, today, locale)}
               receivedShown={formatMoment(new Date(ticket.createdAt), location.timeZone, today, locale)}
               timeZone={location.timeZone}
-              dateEditable={!isEndedStatus(status.code)}
+              dateEditable={!ended}
             />
           </Panel>
 

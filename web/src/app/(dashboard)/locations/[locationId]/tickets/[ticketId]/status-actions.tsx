@@ -20,13 +20,14 @@ interface Props {
   ticketId: string;
   next: Status | null;
   others: Status[];
+  ended: boolean;
   // Set while the person looking can still undo the latest change (ADR 0016).
   undoUntil: string | null;
   // The Customer said they collected it, and it's still READY here (ADR 0028).
   collectedAt: string | null;
 }
 
-export function StatusActions({ locationId, ticketId, next, others, undoUntil, collectedAt }: Props) {
+export function StatusActions({ locationId, ticketId, next, others, ended, undoUntil, collectedAt }: Props) {
   const t = useTranslations("ticketDetail");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
@@ -73,6 +74,7 @@ export function StatusActions({ locationId, ticketId, next, others, undoUntil, c
         </div>
       )}
       <div className="flex items-center gap-3">
+        {ended && others.length > 0 && <p className="min-w-0 flex-1 text-p-sm text-muted">{t("endedNote")}</p>}
         {next && (
           <Button
             size="lg"
@@ -88,7 +90,8 @@ export function StatusActions({ locationId, ticketId, next, others, undoUntil, c
         )}
         {others.length > 0 && (
           <Menu
-            label={t("otherStatuses")}
+            label={ended ? t("reopen") : t("otherStatuses")}
+            labelShown={ended}
             items={others.map((status) => ({
               label: statusLabel(status, locale),
               danger: isStopped(status.code),

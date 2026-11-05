@@ -33,7 +33,7 @@ describe("statusChoices", () => {
   it("lets an Owner or Admin reopen an ended Ticket, with no suggested step", () => {
     expect(names(statusChoices(steps, "COMPLETED", "ADMIN"))).toEqual({
       next: null,
-      others: ["IN_PROGRESS", "READY", "CANCELLED", "REJECTED"],
+      others: ["IN_PROGRESS", "READY"],
     });
   });
 });

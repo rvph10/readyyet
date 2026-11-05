@@ -418,6 +418,10 @@
     "emailGaveUp": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer. Montrez-lui le QR code ou vérifiez son adresse.",
     "emailRetrying": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée. Si cette personne est encore là, montrez-lui le QR code.",
     "emailFails": "Les e-mails à {email} échouent, {name} n'en reçoit donc aucun. Vérifiez l'adresse avec cette personne.",
-    "updatesStopped": "{name} a arrêté les mises à jour par e-mail pour ce ticket."
+    "updatesStopped": "{name} a arrêté les mises à jour par e-mail pour ce ticket.",
+    "reopen": "Rouvrir",
+    "endedNote": "Ce ticket est terminé. Rouvrez-le s'il a été clôturé par erreur.",
+    "emailGaveUpEnded": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer.",
+    "emailRetryingEnded": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée."
   }
 }

@@ -418,6 +418,10 @@
     "emailGaveUp": "The last email to {name} couldn't be delivered, and we've stopped trying. Show them the QR code, or check their address.",
     "emailRetrying": "The last email to {name} hasn't gone out yet. We keep trying for a day. If they're still here, show them the QR code.",
     "emailFails": "Emails to {email} fail, so {name} gets none. Check the address with them.",
-    "updatesStopped": "{name} stopped email updates for this Ticket."
+    "updatesStopped": "{name} stopped email updates for this Ticket.",
+    "reopen": "Reopen",
+    "endedNote": "This Ticket has ended. Reopen it if it was closed by mistake.",
+    "emailGaveUpEnded": "The last email to {name} couldn't be delivered, and we've stopped trying.",
+    "emailRetryingEnded": "The last email to {name} hasn't gone out yet. We keep trying for a day."
   }
 }
