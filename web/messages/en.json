@@ -71,8 +71,31 @@
   },
   "dashboard": {
     "signOut": "Sign out",
-    "comingSoon": "Tickets, your team and your settings will show here.",
-    "comingSoonTitle": "Your dashboard is on its way"
+    "comingSoon": "It isn't built yet, and will show here.",
+    "comingSoonTitle": "This page is on its way",
+    "loading": "Loading",
+    "chooseLocation": "Choose a Location",
+    "businessSettings": "Business settings",
+    "addLocation": "Add a Location",
+    "allLocations": "All Locations",
+    "switchLocation": "{location}, switch Location",
+    "navigation": "Navigation",
+    "openNavigation": "Open the navigation",
+    "manage": "Manage",
+    "roles": {
+      "OWNER": "Owner",
+      "ADMIN": "Admin",
+      "EMPLOYEE": "Employee"
+    },
+    "sections": {
+      "tickets": "Tickets",
+      "customers": "Customers",
+      "feedback": "Feedback",
+      "team": "Team",
+      "workflow": "Workflow",
+      "billing": "Billing",
+      "settings": "Settings"
+    }
   },
   "createBusiness": {
     "title": "Create your Business",

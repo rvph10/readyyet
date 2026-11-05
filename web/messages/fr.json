@@ -71,8 +71,31 @@
   },
   "dashboard": {
     "signOut": "Se déconnecter",
-    "comingSoon": "Les tickets, votre équipe et vos réglages s'afficheront ici.",
-    "comingSoonTitle": "Votre tableau de bord arrive bientôt"
+    "comingSoon": "Elle n'est pas encore prête et s'affichera ici.",
+    "comingSoonTitle": "Cette page arrive bientôt",
+    "loading": "Chargement",
+    "chooseLocation": "Choisissez un établissement",
+    "businessSettings": "Réglages de l'entreprise",
+    "addLocation": "Ajouter un établissement",
+    "allLocations": "Tous les établissements",
+    "switchLocation": "{location}, changer d'établissement",
+    "navigation": "Navigation",
+    "openNavigation": "Ouvrir la navigation",
+    "manage": "Gérer",
+    "roles": {
+      "OWNER": "Propriétaire",
+      "ADMIN": "Administrateur",
+      "EMPLOYEE": "Employé"
+    },
+    "sections": {
+      "tickets": "Tickets",
+      "customers": "Clients",
+      "feedback": "Retours",
+      "team": "Équipe",
+      "workflow": "Workflow",
+      "billing": "Facturation",
+      "settings": "Réglages"
+    }
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
