@@ -1,6 +1,7 @@
 import { calendarDateIn } from "@readyyet/shared";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -34,16 +35,25 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
         params: { ...path, query: { ...VIEWS[view], q: q || undefined, cursor } },
       })
       .then(pageData),
-    client
-      .GET("/locations/{locationId}/tickets", { params: { ...path, query: { ...VIEWS.collected, take: 1 } } })
-      .then(pageData),
+    // On that tab it's shown anyway, so there's nothing to ask.
+    view === "collected"
+      ? null
+      : client
+          .GET("/locations/{locationId}/tickets", { params: { ...path, query: { ...VIEWS.collected, take: 1 } } })
+          .then(pageData),
     client.GET("/locations/{locationId}", { params: path }).then(pageData),
   ]);
+
+  // Colleagues moved the Tickets of this older page on, which says nothing
+  // about the view as a whole.
+  if (cursor && page.items.length === 0) {
+    redirect(ticketsHref(locationId, { view, q }));
+  }
 
   const today = calendarDateIn(new Date(), location.timeZone);
   // Only there with something to do, so its appearing is the signal.
   const views = (Object.keys(VIEWS) as View[]).filter(
-    (name) => name !== "collected" || view === "collected" || toConfirm.items.length > 0,
+    (name) => name !== "collected" || !toConfirm || toConfirm.items.length > 0,
   );
   const newTicket = (
     <Link href={`/locations/${locationId}/tickets/new`} className={`${buttonClass()} inline-flex items-center gap-2`}>

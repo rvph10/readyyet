@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   expected,
   formatDay,
+  formatMoment,
   parseQuery,
   parseView,
   ticketsHref,
@@ -51,6 +52,12 @@ describe("expected", () => {
     expect(expected(null, "REPAIRING", TODAY)).toBeNull();
     expect(expected("2026-11-04", "READY", TODAY)).toBeNull();
     expect(expected("2026-11-04", "COMPLETED", TODAY)).toBeNull();
+  });
+});
+
+describe("formatMoment", () => {
+  it("adds the time on the Location's clock", () => {
+    expect(formatMoment(new Date("2026-11-03T13:05:00Z"), "Europe/Brussels", TODAY, "en")).toBe("3 Nov, 14:05");
   });
 });
 

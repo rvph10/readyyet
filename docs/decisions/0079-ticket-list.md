@@ -14,9 +14,9 @@ Builds on ADR 0014's API and takes one thing back: it expected an infinite-scrol
 
 **Pages are links,** "Older Tickets" and "Back to newest", not infinite scroll.
 
-**The list refreshes every minute** while its tab is visible, and on coming back to the tab.
+**The list refreshes every minute** while its tab is visible, and on coming back to the tab. If a refresh fails, the error page retries by itself every minute, so a screen left open recovers on its own.
 
-A long Status label is cut with an ellipsis in its pill, and shows in full on hover.
+A long Status label wraps in its pill. An erased Customer shows as "Erased Customer" in the page's language. "Customer says collected" shows with its time, as ADR 0028 asks, and only on Tickets that haven't ended.
 
 ## Why
 
@@ -24,6 +24,8 @@ Staff at a counter come for what's waiting or for one Customer, and they find th
 
 Open by default because ended Tickets are only in the way at a counter. They're still one tab away, under All.
 
-No counts on the tabs, the API has none, and asking for each would cost a request per tab on every load. A load makes two calls to the list route, for its page and to check To confirm. With the API's limit of 60 a minute per route and per address (`app.module.ts`), that's 30 loads a minute for a whole shop behind one address, well above a refresh a minute per screen plus searches. A shop that reaches it sees the error page, so this is the number to watch once real shops use it.
+No counts on the tabs, the API has none, and asking for each would cost a request per tab on every load.
+
+Each load makes up to two calls to the list route, one for its page and one to check To confirm, and every pause while searching is a load. The API's usual 60 calls a minute per route and per address is too few for that: one shop shares one address, and two or three searches could reach it. So this route allows 240, it needs a session and is scoped to one Location. Search also waits 400ms after typing, and the check is skipped on the To confirm tab.
 
 A Status filter, and Tickets across Locations (ADR 0077), are left out until someone asks.

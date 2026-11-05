@@ -1,11 +1,10 @@
-import { calendarDateIn } from "@readyyet/shared";
+import { calendarDateIn, ERASED_CUSTOMER_NAME, isEndedStatus } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { StatusPill } from "@/components/status-pill";
-import { Badge } from "@/components/ui/badge";
 import type { components } from "@/lib/api/schema";
 import { statusLabel } from "@/lib/status-label";
-import { expected, formatDay } from "./ticket-views";
+import { expected, formatDay, formatMoment } from "./ticket-views";
 
 type Ticket = components["schemas"]["TicketListItemDto"];
 
@@ -63,14 +62,18 @@ export function TicketTable({
                   {ticket.title}
                 </Link>
                 <p className="mt-0.5 font-mono text-p-xs text-muted">{ticket.trackingCode}</p>
-                {ticket.customerCollectedAt && (
-                  <p className="mt-1.5">
-                    <Badge>{t("customerCollected")}</Badge>
+                {ticket.customerCollectedAt && !isEndedStatus(ticket.currentStatus.code) && (
+                  <p className="mt-1 text-p-xs wrap-anywhere">
+                    {t("customerCollected", {
+                      when: formatMoment(new Date(ticket.customerCollectedAt), timeZone, today, locale),
+                    })}
                   </p>
                 )}
               </td>
-              <td className="col-start-1 line-clamp-2 text-p-sm wrap-anywhere text-muted md:table-cell md:py-3.5 md:pr-4 md:align-top md:text-ink">
-                {ticket.customer.fullName}
+              <td className="col-start-1 text-p-sm text-muted md:table-cell md:py-3.5 md:pr-4 md:align-top md:text-ink">
+                <span className="line-clamp-2 wrap-anywhere">
+                  {ticket.customer.fullName === ERASED_CUSTOMER_NAME ? t("erasedCustomer") : ticket.customer.fullName}
+                </span>
               </td>
               <td className="col-start-2 row-span-2 row-start-1 max-w-44 md:table-cell md:max-w-none md:py-3.5 md:pr-4 md:align-top">
                 <StatusPill code={ticket.currentStatus.code} label={statusLabel(ticket.currentStatus, locale)} />

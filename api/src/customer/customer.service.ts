@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { Locale } from "@readyyet/db";
+import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
@@ -77,7 +78,7 @@ export class CustomerService {
     await this.prisma.$transaction([
       this.prisma.customer.update({
         where: { id: customer.id },
-        data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+        data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
       }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
       // Their own words (ADR 0039).

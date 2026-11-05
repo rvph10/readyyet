@@ -1,4 +1,4 @@
-import { showsEstimatedReadyDate, type CalendarDate } from "@readyyet/shared";
+import { calendarDateIn, showsEstimatedReadyDate, type CalendarDate } from "@readyyet/shared";
 import type { operations } from "@/lib/api/schema";
 
 // Each tab of the list and what it asks the API for (ADR 0014, 0028, 0030).
@@ -55,13 +55,23 @@ export function expected(date: CalendarDate | null, statusCode: string, today: C
   return { key: date === nextDay(today) ? "tomorrow" : "on", date };
 }
 
+function intlLocale(locale: string) {
+  return locale === "en" ? "en-GB" : locale;
+}
+
 // Short and day first, with the year only when it isn't this one. Calendar
 // dates have no time zone, UTC only keeps them from shifting.
 export function formatDay(date: CalendarDate, today: CalendarDate, locale: string) {
-  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : locale, {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     timeZone: "UTC",
     day: "numeric",
     month: "short",
     year: date.slice(0, 4) === today.slice(0, 4) ? undefined : "numeric",
   }).format(new Date(`${date}T00:00:00Z`));
+}
+
+// The day as above, with the time on the Location's clock.
+export function formatMoment(instant: Date, timeZone: string, today: CalendarDate, locale: string) {
+  const time = new Intl.DateTimeFormat(intlLocale(locale), { timeZone, timeStyle: "short", hourCycle: "h23" });
+  return `${formatDay(calendarDateIn(instant, timeZone), today, locale)}, ${time.format(instant)}`;
 }

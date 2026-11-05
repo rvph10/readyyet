@@ -35,6 +35,8 @@ export class TicketController {
   }
 
   @Get()
+  // Every screen of a shop shares one address, and each refreshes and searches.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "List tickets for a location, newest first" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
   list(@Param("locationId") locationId: string, @Query() query: ListTicketsQueryDto): Promise<TicketPageDto> {

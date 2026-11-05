@@ -5,7 +5,8 @@ import { useEffect, useState, useTransition } from "react";
 import { SearchField } from "@/components/ui/search-field";
 import { ticketsHref, type View } from "./ticket-views";
 
-const DEBOUNCE_MS = 250;
+// Each pause reloads the page, so a pause between letters shouldn't count.
+const DEBOUNCE_MS = 400;
 
 // The search is in the URL, so a reload or a shared link keeps it. It replaces
 // the history entry, so Back leaves the list instead of undoing each letter.
