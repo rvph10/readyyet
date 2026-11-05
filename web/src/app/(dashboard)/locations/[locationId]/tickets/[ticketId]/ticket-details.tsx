@@ -29,6 +29,9 @@ export function TicketDetails(props: Props) {
   const t = useTranslations("ticketDetail");
   const tForm = useTranslations("tickets.form");
   const [editing, setEditing] = useState(false);
+  // What the form opened with: only what changes from it is saved, so a
+  // colleague's edit made meanwhile to another field isn't overwritten.
+  const [opened, setOpened] = useState({ title: props.title, notes: props.notes ?? "", date: props.date ?? "" });
   const [title, setTitle] = useState(props.title);
   const [notes, setNotes] = useState(props.notes ?? "");
   const [date, setDate] = useState(props.date ?? "");
@@ -38,9 +41,11 @@ export function TicketDetails(props: Props) {
 
   function startEditing() {
     // A colleague may have changed them since the page opened.
-    setTitle(props.title);
-    setNotes(props.notes ?? "");
-    setDate(props.date ?? "");
+    const current = { title: props.title, notes: props.notes ?? "", date: props.date ?? "" };
+    setOpened(current);
+    setTitle(current.title);
+    setNotes(current.notes);
+    setDate(current.date);
     setErrors({});
     setFailed(false);
     setEditing(true);
@@ -50,7 +55,7 @@ export function TicketDetails(props: Props) {
     event.preventDefault();
     const now = calendarDateIn(new Date(), props.timeZone);
     // A date already passed can stay as it is, only a new one must be ahead.
-    const earliest = date === (props.date ?? "") ? "" : now;
+    const earliest = date === opened.date ? "" : now;
     const parsed = ticketSchema(tForm, earliest).safeParse({ title, description: notes, estimatedReadyDate: date });
     const dateField = event.currentTarget.elements.namedItem("estimatedReadyDate") as HTMLInputElement | null;
     const found: Record<string, string> = {};
@@ -62,10 +67,10 @@ export function TicketDetails(props: Props) {
     startTransition(async () => {
       const result = await orFailure(
         updateTicket(props.locationId, props.ticketId, {
-          title: parsed.data.title,
+          ...(parsed.data.title !== opened.title && { title: parsed.data.title }),
           // Empty clears the notes, where leaving it out would keep them.
-          description: parsed.data.description ?? "",
-          ...(props.dateEditable && { estimatedReadyDate: parsed.data.estimatedReadyDate }),
+          ...((parsed.data.description ?? "") !== opened.notes && { description: parsed.data.description ?? "" }),
+          ...(props.dateEditable && date !== opened.date && { estimatedReadyDate: parsed.data.estimatedReadyDate }),
         }),
       );
       if (result.ok) setEditing(false);

@@ -12,7 +12,9 @@ Changes ADR 0080's "after creating, the list", as that ADR planned, and answers 
 
 **The QR code is large when the Customer has no working email:** no address, one that fails, or a latest email that failed. Otherwise it's behind a button, as someone may still ask for it. It's drawn by the web server with `qrcode-generator`, which has no dependencies, so the link never reaches a QR service.
 
-**The page warns about the latest email to the Customer only,** since a later email that arrived carries the link too. The API says `RETRYING` or `GAVE_UP`, using the retry sweep's own "still wanted" check, so an email dropped on purpose raises no warning. Staff copies of feedback don't count.
+**The page warns about the latest email to the Customer only,** since a later email that arrived carries the link too. The API says `RETRYING` or `GAVE_UP`, using the retry sweep's own "still wanted" check, so an email dropped on purpose raises no warning. Staff copies of feedback don't count. A temporary bounce counts as `GAVE_UP`, since it flags nothing on the Customer and the sweep doesn't retry it.
+
+**Saving sends only the fields that changed** since the form opened, so a colleague's edit to another field isn't overwritten.
 
 **The Ticket detail carries its own Workflow's steps.** Open Tickets keep their version when a Location's Workflow changes, so the Location's current steps could offer a refused move.
 
