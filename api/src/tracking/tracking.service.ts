@@ -99,8 +99,8 @@ export class TrackingService {
       currentStatus: ticket.currentStatus,
       steps: ticket.workflow.steps,
       statusHistory: ticket.statusEvents,
-      // Both choices of ADR 0027 once the Ticket is COMPLETED: this link,
-      // and private feedback until feedbackSentAt is set.
+      // Once the Ticket is COMPLETED, where the review page sends a good
+      // rating (ADR 0076). Private feedback stays open until feedbackSentAt.
       reviewUrl:
         ticket.currentStatus.code === "COMPLETED" && asksForFeedback(ticket.location)
           ? ticket.location.googleReviewUrl

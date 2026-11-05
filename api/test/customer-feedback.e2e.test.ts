@@ -182,7 +182,8 @@ describe("Customer feedback", () => {
 
       const [email] = await emailsTo("sent", "ticket_feedback_request");
       expect(email.subject).toBe("How did your repair at Garage Martin go?");
-      expect(email.html).toContain(`/t/${ticket.trackingCode}`);
+      expect(email.html).toContain(`/t/${ticket.trackingCode}/review?stars=1`);
+      expect(email.html).toContain(`/t/${ticket.trackingCode}/review?stars=5`);
       expect(email.html).not.toContain("g.page");
     });
 

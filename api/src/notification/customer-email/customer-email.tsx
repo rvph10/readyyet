@@ -26,8 +26,9 @@ export interface CustomerEmailInput {
   trackingUrl: string;
   // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
   collectedUrl: string;
-  // Only in a FEEDBACK_REQUEST: each star links here with ?stars=, the
-  // answer is chosen on that page, never by a link a mail scanner opens.
+  // Only in a FEEDBACK_REQUEST: each star links here with ?stars=. Opening it
+  // records nothing, as a mail scanner opens them all, and 5 stars goes
+  // straight on to Google (ADR 0076).
   ratingUrl: string;
   // The Location sends a FEEDBACK_REQUEST after COMPLETED (ADR 0039).
   asksForFeedback: boolean;
@@ -83,30 +84,30 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
           {input.kind === "TICKET_CREATED" && input.asksForFeedback && (
             <Text style={styles.text}>{messages.feedbackNotice}</Text>
           )}
-          {input.kind === "FEEDBACK_REQUEST" ? (
-            <Section style={{ margin: "24px 0" }}>
-              <Text style={styles.stars}>
-                {[1, 2, 3, 4, 5].map((stars) => (
-                  <Link
-                    key={stars}
-                    href={`${input.ratingUrl}?stars=${stars}`}
-                    title={messages.starLabel(stars)}
-                    aria-label={messages.starLabel(stars)}
-                    style={styles.star}
-                  >
-                    ★
-                  </Link>
-                ))}
-              </Text>
-              <Text style={styles.footer}>{messages.starsHint}</Text>
-            </Section>
-          ) : (
-            <Section style={{ margin: "24px 0" }}>
+          <Section style={{ margin: "24px 0" }}>
+            {input.kind === "FEEDBACK_REQUEST" ? (
+              <>
+                <Text style={styles.stars}>
+                  {[1, 2, 3, 4, 5].map((stars) => (
+                    <Link
+                      key={stars}
+                      href={`${input.ratingUrl}?stars=${stars}`}
+                      title={messages.starLabel(stars)}
+                      aria-label={messages.starLabel(stars)}
+                      style={styles.star}
+                    >
+                      ★
+                    </Link>
+                  ))}
+                </Text>
+                <Text style={styles.footer}>{messages.starsHint}</Text>
+              </>
+            ) : (
               <Button href={input.trackingUrl} style={styles.button}>
                 {messages.trackButton(job)}
               </Button>
-            </Section>
-          )}
+            )}
+          </Section>
           {input.kind === "READY_REMINDER" && (
             <Text style={styles.text}>
               <Link href={input.collectedUrl}>{messages.alreadyCollected(job)}</Link>

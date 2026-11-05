@@ -153,6 +153,17 @@ describe("Customer emails", () => {
     });
   });
 
+  it("gives each star of a FEEDBACK_REQUEST its own link and name, in the Customer's language", async () => {
+    const { react } = buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST", locale: "FR" }));
+    const html = await render(react);
+
+    for (const stars of [1, 2, 3, 4, 5]) {
+      expect(html).toContain(`/review?stars=${stars}"`);
+    }
+    expect(html).toContain('aria-label="1 étoile sur 5"');
+    expect(html).toContain('aria-label="5 étoiles sur 5"');
+  });
+
   it("escapes user-entered text instead of rendering it as HTML", async () => {
     const { react } = buildCustomerEmail(
       input({ customerName: "<b>Mallory</b>", ticketTitle: '<script>alert("x")</script>' }),
