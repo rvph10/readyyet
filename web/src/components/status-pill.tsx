@@ -41,11 +41,10 @@ export function StatusPill({ code, label }: { code: string; label: string }) {
   const { pill, dot } = pills[statusTone(code)];
   return (
     <span
-      title={label}
-      className={`inline-flex h-6 max-w-full items-center gap-1.5 rounded-full pr-2.5 pl-2 text-label-xs whitespace-nowrap ${pill}`}
+      className={`inline-flex min-h-6 max-w-full items-center gap-1.5 rounded-xl py-0.5 pr-2.5 pl-2 text-label-xs ${pill}`}
     >
       <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${dot}`} />
-      <span className="truncate">{label}</span>
+      <span className="min-w-0 wrap-anywhere">{label}</span>
     </span>
   );
 }
