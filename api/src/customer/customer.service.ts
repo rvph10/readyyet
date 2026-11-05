@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { Locale } from "@readyyet/db";
+import { Prisma, type Locale } from "@readyyet/db";
 import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
@@ -85,21 +85,18 @@ export class CustomerService {
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
       // Their own words (ADR 0039).
       this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
-      // What was sent to them: the address, and their name in the text. Older
-      // emails have no Ticket, only their address says whose they were.
+      // What was sent about them: their address, their name, the staff copy of
+      // their feedback. Through the Ticket, the same address at another
+      // Location is another Customer.
       this.prisma.emailLog.updateMany({
-        where: {
-          OR: [
-            { ticket: { customerId: customer.id } },
-            ...(customer.email ? [{ to: customer.email, ticketId: null, type: { startsWith: "ticket_" } }] : []),
-          ],
-        },
+        where: { ticket: { customerId: customer.id } },
         data: {
           to: ERASED_EMAIL_ADDRESS,
           subject: ERASED_CUSTOMER_NAME,
           html: null,
           text: null,
           lastError: null,
+          lastEvent: Prisma.DbNull,
           gaveUpAt: new Date(),
         },
       }),

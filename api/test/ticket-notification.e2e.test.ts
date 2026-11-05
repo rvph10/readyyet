@@ -213,6 +213,28 @@ describe("Ticket tracking link emails", () => {
         expect(after.gaveUpAt).toBeNull();
       });
 
+      it("still sends staff their copy of feedback, which doesn't go to the Customer's address", async () => {
+        const { ticket } = await failedEmailOf("staff-copy");
+        const email = await prisma.emailLog.create({
+          data: {
+            to: address("staff-copy-owner"),
+            subject: "New feedback",
+            html: "<p>New feedback</p>",
+            type: "feedback_received",
+            ticketId: BigInt(ticket.id),
+            status: "FAILED",
+            attempts: 3,
+            lastAttemptAt: new Date(Date.now() - 60 * 60_000),
+          },
+        });
+
+        await app.get(EmailRetryService).sweep();
+
+        const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } });
+        expect(after.status).toBe("SENT");
+        expect(after.gaveUpAt).toBeNull();
+      });
+
       it("isn't sent to an erased Customer", async () => {
         const { ticket, email } = await failedEmailOf("erased");
         await prisma.customer.update({

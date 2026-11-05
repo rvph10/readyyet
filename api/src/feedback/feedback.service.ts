@@ -44,10 +44,11 @@ export class FeedbackService {
   // Every Owner and Admin, each in their own language.
   private async notifyStaff(
     {
+      id,
       location,
       customer,
       title,
-    }: { location: { id: string; name: string }; customer: { fullName: string }; title: string },
+    }: { id: bigint; location: { id: string; name: string }; customer: { fullName: string }; title: string },
     message: string,
   ) {
     const staff = await this.prisma.membership.findMany({
@@ -63,7 +64,7 @@ export class FeedbackService {
         message,
         feedbackUrl: `${process.env.WEB_URL}/locations/${location.id}/feedback`,
       });
-      await this.email.send({ to: user.email, ...email, type: "feedback_received" });
+      await this.email.send({ to: user.email, ...email, type: "feedback_received", ticketId: id });
     }
   }
 

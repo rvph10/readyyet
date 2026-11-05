@@ -46,7 +46,9 @@ function stillWanted({ ticket, invitation, to, type, createdAt }: StuckEmail) {
       !invitation.location.deletedAt
     );
   }
-  if (!ticket) {
+  // A copy for staff, nothing about the Customer's address applies. Erasure
+  // gives up on it itself.
+  if (!ticket || type === "feedback_received") {
     return true;
   }
   const { currentStatus, customer, customerCollectedAt, emailLogs, location, notificationsStoppedAt, statusEvents } =

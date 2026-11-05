@@ -93,7 +93,7 @@ describe("Customers", () => {
     }
   });
 
-  it("clears the address and text of the emails sent to an erased Customer", async () => {
+  it("clears the emails about an erased Customer, and nothing of the same address at another Location", async () => {
     const prisma = app.get(PrismaService);
     const email = `delivered+erased-log-${Date.now()}@resend.dev`;
     const created = await request(app.getHttpServer())
@@ -101,18 +101,15 @@ describe("Customers", () => {
       .set("Cookie", ownerCookie)
       .send({ title: "Erased log", customer: { fullName: "Erased Log", email } });
     const ticketId = BigInt(created.body.id);
-    const log = await prisma.emailLog.create({
-      data: {
-        to: email,
-        subject: "Erased Log",
-        html: "<p>Erased Log</p>",
-        text: "Erased Log",
-        type: "ticket_status_update",
-        ticketId,
-      },
+    const about = { subject: "Erased Log", html: "<p>Erased Log</p>", ticketId };
+    const toCustomer = await prisma.emailLog.create({
+      data: { ...about, to: email, type: "ticket_status_update", lastEvent: { data: { to: [email] } } },
     });
-    const older = await prisma.emailLog.create({
-      data: { to: email, subject: "Erased Log", html: "<p>Erased Log</p>", type: "ticket_tracking_link" },
+    const staffCopy = await prisma.emailLog.create({
+      data: { ...about, to: "delivered+staff@resend.dev", type: "feedback_received" },
+    });
+    const elsewhere = await prisma.emailLog.create({
+      data: { to: email, subject: "Another Location", html: "<p>Kept</p>", type: "ticket_status_update" },
     });
 
     await request(app.getHttpServer())
@@ -120,12 +117,23 @@ describe("Customers", () => {
       .set("Cookie", ownerCookie)
       .expect(204);
 
-    for (const { id } of [log, older]) {
+    for (const { id } of [toCustomer, staffCopy]) {
       const after = await prisma.emailLog.findUniqueOrThrow({ where: { id } });
-      expect(after).toMatchObject({ to: "erased@deleted.invalid", subject: "[deleted]", html: null, text: null });
+      expect(after).toMatchObject({
+        to: "erased@deleted.invalid",
+        subject: "[deleted]",
+        html: null,
+        text: null,
+        lastEvent: null,
+      });
       expect(after.gaveUpAt).toBeTruthy();
     }
-    await expect(prisma.emailLog.count({ where: { to: email } })).resolves.toBe(0);
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: elsewhere.id } })).resolves.toMatchObject({
+      to: email,
+      html: "<p>Kept</p>",
+      gaveUpAt: null,
+    });
+    await prisma.emailLog.delete({ where: { id: elsewhere.id } });
   });
 
   it("gets a customer's full detail", async () => {
