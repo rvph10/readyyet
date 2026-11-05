@@ -31,7 +31,7 @@ export async function createTicket(
   });
   if (result.data) {
     revalidatePath(`/locations/${locationId}`);
-    redirect(`/locations/${locationId}`);
+    redirect(`/locations/${locationId}/tickets/${result.data.id}`);
   }
   return actionResult(result);
 }
