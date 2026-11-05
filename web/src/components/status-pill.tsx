@@ -32,15 +32,20 @@ const pills: Record<StatusTone, { pill: string; dot: string }> = {
   stopped: { pill: "border border-border bg-surface text-ink", dot: "bg-status-stopped" },
 };
 
+export function statusDotClass(code: string) {
+  return pills[statusTone(code)].dot;
+}
+
 // A Ticket's Status, by its code for the colour and its translated label.
 export function StatusPill({ code, label }: { code: string; label: string }) {
   const { pill, dot } = pills[statusTone(code)];
   return (
     <span
-      className={`inline-flex h-6 items-center gap-1.5 rounded-full pr-2.5 pl-2 text-label-xs whitespace-nowrap ${pill}`}
+      title={label}
+      className={`inline-flex h-6 max-w-full items-center gap-1.5 rounded-full pr-2.5 pl-2 text-label-xs whitespace-nowrap ${pill}`}
     >
       <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${dot}`} />
-      {label}
+      <span className="truncate">{label}</span>
     </span>
   );
 }

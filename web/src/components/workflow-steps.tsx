@@ -15,6 +15,8 @@ interface Props {
   steps: WorkflowStep[];
   currentCode: string;
   orientation?: "vertical" | "horizontal";
+  // Vertical only, the steps share the height of a flex column they're in.
+  fill?: boolean;
 }
 
 type State = "done" | "current" | "upcoming";
@@ -32,7 +34,7 @@ const labelClasses: Record<State, string> = {
 function StepLabel({ state, label, className }: { state: State; label: string; className?: string }) {
   const t = useTranslations("common");
   return (
-    <p className={`truncate text-label-sm transition-colors duration-300 ${labelClasses[state]} ${className ?? ""}`}>
+    <p className={`text-label-sm transition-colors duration-300 ${labelClasses[state]} ${className ?? ""}`}>
       {label}
       {state === "done" && <span className="sr-only">, {t("stepDone")}</span>}
     </p>
@@ -76,7 +78,7 @@ function Marker({ state, code }: { state: State; code: string }) {
 // Where a Ticket stands in its Workflow: done steps in ink, the current one
 // in its Status tone (ADR 0054 and 0061), the rest outlined. Each change of
 // step fades, for a Ticket moving on while it's watched.
-export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: Props) {
+export function WorkflowSteps({ steps, currentCode, orientation = "vertical", fill }: Props) {
   const currentIndex = steps.findIndex((step) => step.code === currentCode);
   const stateOf = (index: number): State =>
     index < currentIndex ? "done" : index === currentIndex ? "current" : "upcoming";
@@ -100,7 +102,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
                   />
                 )}
               </div>
-              <StepLabel state={state} label={step.label} className="mt-2 pr-3" />
+              <StepLabel state={state} label={step.label} className="mt-2 truncate pr-3" />
               {step.at && <p className="truncate pr-3 text-p-xs text-muted">{step.at}</p>}
             </li>
           );
@@ -110,14 +112,14 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical" }: 
   }
 
   return (
-    <ol>
+    <ol className={fill ? "flex grow flex-col" : undefined}>
       {steps.map((step, index) => {
         const state = stateOf(index);
         return (
           <li
             key={step.code}
             aria-current={state === "current" ? "step" : undefined}
-            className="relative flex gap-3 pb-6 last:pb-0"
+            className={`relative flex gap-3 pb-6 last:pb-0 ${fill ? "grow last:grow-0" : ""}`}
           >
             {index < steps.length - 1 && (
               <span
