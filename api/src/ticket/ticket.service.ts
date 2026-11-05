@@ -136,16 +136,14 @@ export class TicketService {
           description: dto.description,
           estimatedReadyDate: estimatedReadyDate && fromCalendarDate(estimatedReadyDate),
           createdBy: userId,
+          // In this transaction, so the Ticket can't exist with its email lost,
+          // and nothing about the email can fail this request (ADR 0081).
+          trackingEmailDueAt: new Date(),
           statusEvents: { create: { statusId: firstStep.status.id, changedBy: userId } },
         },
         include: DETAIL_INCLUDE,
       });
     });
-
-    // After the transaction commits, never inside it: an email can't be
-    // taken back if the insert rolled back. A failed send doesn't fail the
-    // ticket, EmailService records it and its retry sweep picks it up.
-    await this.notification.sendTicketCreated(ticket.id);
 
     return this.mapDetail(ticket);
   }

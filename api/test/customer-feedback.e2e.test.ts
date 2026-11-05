@@ -34,6 +34,7 @@ describe("Customer feedback", () => {
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
       .send({ title, customer: { fullName: `Client ${label}`, email: address(label) } });
+    await app.get(NotificationService).sendDueTicketCreatedEmails();
     return response.body as { id: string; trackingCode: string; customer: { id: string } };
   }
 

@@ -2,11 +2,13 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { NotificationService } from "../src/notification/notification.service";
+import { EmailService } from "../src/email/email.service";
 
 // Customer addresses are Resend's test addresses: real sends through the
 // real API, accepted but never delivered, so no bounce hurts the sending
@@ -24,6 +26,7 @@ describe("Ticket tracking link emails", () => {
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
       .send({ title: "Brake pads", ...body });
+    await app.get(NotificationService).sendDueTicketCreatedEmails();
     return response.body as { id: string; trackingCode: string; customer: { id: string } };
   }
 
@@ -64,6 +67,59 @@ describe("Ticket tracking link emails", () => {
   });
 
   describe("on ticket creation", () => {
+    it("saves the email as due with the Ticket, and sends it from the sweep rather than the request", async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Brake pads", customer: { fullName: "Due Soon", email: address("due") } });
+
+      const saved = await prisma.ticket.findUniqueOrThrow({
+        where: { id: BigInt((response.body as { id: string }).id) },
+      });
+      expect(saved.trackingEmailDueAt).toBeTruthy();
+      expect(await emailsTo(address("due"))).toHaveLength(0);
+
+      await app.get(NotificationService).sendDueTicketCreatedEmails();
+
+      expect(await emailsTo(address("due"))).toHaveLength(1);
+      const sent = await prisma.ticket.findUniqueOrThrow({ where: { id: saved.id } });
+      expect(sent.trackingEmailDueAt).toBeNull();
+    });
+
+    it("sends it once when two sweeps run at the same time", async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Brake pads", customer: { fullName: "Two Sweeps", email: address("twice") } });
+      expect(response.status).toBe(201);
+
+      const notification = app.get(NotificationService);
+      await Promise.all([notification.sendDueTicketCreatedEmails(), notification.sendDueTicketCreatedEmails()]);
+
+      expect(await emailsTo(address("twice"))).toHaveLength(1);
+    });
+
+    it("keeps the email due, on a lease, when sending it throws, and the other Tickets still go out", async () => {
+      const send = async (label: string) =>
+        (
+          await request(app.getHttpServer())
+            .post(`/locations/${locationId}/tickets`)
+            .set("Cookie", ownerCookie)
+            .send({ title: "Brake pads", customer: { fullName: label, email: address(label) } })
+        ).body as { id: string };
+      const failing = await send("throws");
+      await send("after-throw");
+      const email = app.get(EmailService);
+      const spy = vi.spyOn(email, "send").mockRejectedValueOnce(new Error("simulated render failure"));
+
+      await app.get(NotificationService).sendDueTicketCreatedEmails();
+      spy.mockRestore();
+
+      const kept = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(failing.id) } });
+      expect(kept.trackingEmailDueAt!.getTime()).toBeGreaterThan(Date.now());
+      expect(await emailsTo(address("after-throw"))).toHaveLength(1);
+    });
+
     it("emails the customer their tracking link, as the shop, in the shop's language", async () => {
       const ticket = await createTicket({ customer: { fullName: "Chloé Dubois", email: address("fr") } });
 

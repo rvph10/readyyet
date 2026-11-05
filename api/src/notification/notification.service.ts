@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import * as Sentry from "@sentry/nestjs";
 import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
@@ -38,16 +39,52 @@ function canEmail<C extends { email: string | null; emailBouncedAt: Date | null;
 // Customer emails, see docs/decisions/0015-customer-emails.md.
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
   ) {}
 
-  // Sent when a ticket is created, a Customer without an email address
-  // gets nothing (they have the QR code instead, ADR 0004).
-  async sendTicketCreated(ticketId: bigint) {
+  // Due from the moment the Ticket exists (ADR 0081). Often enough that the
+  // Customer has it before leaving the counter, which is also why this has no
+  // CronMonitor: customer-status-emails runs on the same scheduler and alerts
+  // if sweeps stop.
+  @Cron(CronExpression.EVERY_5_SECONDS, { name: "ticket-created-emails" })
+  async sendDueTicketCreatedEmails() {
+    const due = await this.prisma.ticket.findMany({
+      where: { trackingEmailDueAt: { lte: new Date() } },
+      orderBy: { trackingEmailDueAt: "asc" },
+      select: { id: true, trackingEmailDueAt: true },
+    });
+
+    for (const { id, trackingEmailDueAt } of due) {
+      // Claimed like the status emails below: a concurrent sweep skips it, and
+      // if this process dies the lease expires and it's tried again.
+      const { count } = await this.prisma.ticket.updateMany({
+        where: { id, trackingEmailDueAt },
+        data: { trackingEmailDueAt: new Date(Date.now() + CLAIM_LEASE_MS) },
+      });
+      if (count === 0) {
+        continue;
+      }
+      try {
+        await this.sendTicketCreated(id);
+        await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
+      } catch (error) {
+        // One Ticket's problem mustn't hold up the others. Its lease expires
+        // and it's tried again.
+        this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
+        Sentry.captureException(error);
+      }
+    }
+  }
+
+  // A Customer without an email address receives nothing, the QR code at
+  // drop-off covers them (ADR 0015).
+  private async sendTicketCreated(ticketId: bigint) {
     const ticket = await this.loadTicket(ticketId);
-    if (canEmail(ticket.customer)) {
+    if (canEmail(ticket.customer) && !ticket.location.deletedAt) {
       await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
     }
   }
