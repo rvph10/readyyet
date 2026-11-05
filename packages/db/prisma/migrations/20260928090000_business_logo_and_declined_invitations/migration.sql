@@ -12,7 +12,8 @@ UPDATE "business" SET "logo_key" = (
   LIMIT 1
 );
 
-ALTER TABLE "location" DROP COLUMN "logo_key";
+-- location.logo_key stays for this deploy: migrations run while the old API
+-- still serves and selects it (ADR 0020). A later deploy drops it.
 
 -- ADR 0051: an invitee can decline.
 ALTER TYPE "InvitationStatus" ADD VALUE 'DECLINED';
