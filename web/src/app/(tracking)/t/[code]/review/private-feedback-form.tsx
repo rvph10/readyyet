@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { fieldErrors } from "@/lib/validation";
+import { orFailure } from "@/lib/api/or-failure";
 import { sendFeedback } from "../actions";
 
 // Once sent, the page shows its thanks in place of this form.
@@ -33,7 +34,7 @@ export function PrivateFeedbackForm({ code }: { code: string }) {
     setFailed(false);
     if (!parsed.success) return;
     startTransition(async () => {
-      const outcome = await sendFeedback(code, parsed.data.message);
+      const outcome = await orFailure(sendFeedback(code, parsed.data.message));
       if (!outcome.ok && outcome.code !== "CONFLICT") setFailed(true);
     });
   }

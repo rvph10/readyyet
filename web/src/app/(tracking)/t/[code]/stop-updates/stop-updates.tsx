@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
+import { orFailure } from "@/lib/api/or-failure";
 import { stopUpdates } from "../actions";
 
 interface Props {
@@ -23,7 +24,7 @@ export function StopUpdates({ code, title, stillToBeReady, trackingPath }: Props
   function stop() {
     setFailed(false);
     startTransition(async () => {
-      const outcome = await stopUpdates(code);
+      const outcome = await orFailure(stopUpdates(code));
       if (outcome.ok) setStopped(true);
       else setFailed(true);
     });

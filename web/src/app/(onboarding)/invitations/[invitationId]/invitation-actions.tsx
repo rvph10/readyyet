@@ -8,6 +8,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import type { ActionFailure } from "@/lib/api/errors";
+import { orFailure } from "@/lib/api/or-failure";
 import { authClient } from "@/lib/auth-client";
 import { acceptInvitation, declineInvitation } from "./actions";
 
@@ -50,11 +51,11 @@ export function InvitationActions({ invitationId, email, signedIn, joined }: Pro
       setRunning(answer);
       if (answer === "decline") {
         // Declined, the action shows the page again, as declined.
-        const outcome = await declineInvitation(invitationId);
+        const outcome = await orFailure(declineInvitation(invitationId));
         if (!outcome.ok) setFailure(outcome);
         return;
       }
-      const outcome = await acceptInvitation(invitationId);
+      const outcome = await orFailure(acceptInvitation(invitationId));
       if (!outcome.ok) {
         setFailure(outcome);
         return;

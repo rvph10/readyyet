@@ -12,6 +12,7 @@ import { Field, SelectField, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Panel } from "@/components/ui/panel";
 import type { ActionFailure } from "@/lib/api/errors";
+import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
 import { createTicket, findCustomers } from "./actions";
@@ -30,6 +31,14 @@ const SHOWN_FIELDS = [
   "description",
   "estimatedReadyDate",
 ];
+
+const FAILURE_MESSAGES: Partial<Record<string, "frozen" | "rateLimited" | "notConfirmed">> = {
+  LOCATION_FROZEN: "frozen",
+  RATE_LIMITED: "rateLimited",
+  // The answer was lost, not necessarily the Ticket, and a second try would
+  // send the Customer a second email.
+  INTERNAL_ERROR: "notConfirmed",
+};
 
 function CustomerRow({ customer }: { customer: Customer }) {
   const t = useTranslations("tickets.form");
@@ -148,27 +157,34 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
     // Now, not when the page opened: it may have stayed open overnight.
     const now = calendarDateIn(new Date(), timeZone);
     const ticket = ticketSchema(t, now).safeParse({ title, description, estimatedReadyDate: date });
+    // A date half typed, or one that doesn't exist, reads as "" like a cleared
+    // one, and would be saved as no date.
+    const dateField = event.currentTarget.elements.namedItem("estimatedReadyDate") as HTMLInputElement;
+    const dateUnfinished = dateField.validity.badInput;
     const customer = chosen ? null : newCustomerSchema(t).safeParse({ customer: { fullName, email, phone } });
     setErrors({
       ...(ticket.success ? {} : fieldErrors(ticket.error)),
       ...(customer && !customer.success ? fieldErrors(customer.error) : {}),
+      ...(dateUnfinished && { estimatedReadyDate: t("dateUnfinished") }),
     });
     setFailure(null);
     setCustomerGone(false);
-    if (!ticket.success || (customer && !customer.success)) return;
+    if (!ticket.success || (customer && !customer.success) || dateUnfinished) return;
     startTransition(async () => {
-      const result = await createTicket(locationId, {
-        ...ticket.data,
-        ...(customer
-          ? {
-              customer: {
-                ...customer.data.customer,
-                // Left on the Location's, it follows the Location if that changes.
-                locale: locale === locationLocale ? undefined : (locale as "EN" | "FR"),
-              },
-            }
-          : { customerId: chosen!.id }),
-      });
+      const result = await orFailure(
+        createTicket(locationId, {
+          ...ticket.data,
+          ...(customer
+            ? {
+                customer: {
+                  ...customer.data.customer,
+                  // Left on the Location's, it follows the Location if that changes.
+                  locale: locale === locationLocale ? undefined : (locale as "EN" | "FR"),
+                },
+              }
+            : { customerId: chosen!.id }),
+        }),
+      );
       if (result.ok) return;
       setFailure(result);
       // Erased by a colleague since being chosen, retrying can't work.
@@ -186,7 +202,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
     ? t("customerGone")
     : failure &&
       !SHOWN_FIELDS.some((field) => failure.fields?.[field]) &&
-      t(failure.code === "LOCATION_FROZEN" ? "frozen" : failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected");
+      t(FAILURE_MESSAGES[failure.code] ?? "unexpected");
   const languageNames = new Intl.DisplayNames([pageLocale], { type: "language" });
   const shown = matches.query === query ? matches.customers : [];
 
@@ -306,6 +322,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
             label={t("date")}
             hint={t("dateHint")}
             type="date"
+            name="estimatedReadyDate"
             min={today}
             value={date}
             onChange={(event) => {

@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
+import { orFailure } from "@/lib/api/or-failure";
 import { fieldErrors } from "@/lib/validation";
 import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
@@ -112,16 +113,18 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
     const business = businessValues();
     if (!location.success || !business.success) return;
     startTransition(async () => {
-      const result = await createBusiness({
-        name: business.data.name,
-        location: {
-          ...business.data.location,
-          ...location.data.location,
-          // Both changed later in the Location's settings (ADR 0047).
-          locale: locale.toUpperCase() as "EN" | "FR",
-          timeZone: browserTimeZone(),
-        },
-      });
+      const result = await orFailure(
+        createBusiness({
+          name: business.data.name,
+          location: {
+            ...business.data.location,
+            ...location.data.location,
+            // Both changed later in the Location's settings (ADR 0047).
+            locale: locale.toUpperCase() as "EN" | "FR",
+            timeZone: browserTimeZone(),
+          },
+        }),
+      );
       if (!result.ok) {
         setFailure(result);
         if (STEP_ONE_FIELDS.some((field) => result.fields?.[field])) {

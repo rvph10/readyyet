@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
+import { orFailure } from "@/lib/api/or-failure";
 import { markCollected } from "./actions";
 
 interface Props {
@@ -22,7 +23,7 @@ export function PickedUpButton({ code, variant, label }: Props) {
   function pickedUp() {
     setFailed(false);
     startTransition(async () => {
-      const outcome = await markCollected(code);
+      const outcome = await orFailure(markCollected(code));
       if (!outcome.ok && outcome.code !== "CONFLICT") setFailed(true);
     });
   }

@@ -185,10 +185,12 @@
       "titleTooLong": "Keep it to 200 characters.",
       "notesTooLong": "Keep it to 5000 characters.",
       "datePast": "Choose today or a later date.",
+      "dateUnfinished": "Finish this date, or clear it.",
       "invalid": "Check this field.",
       "frozen": "New Tickets are paused at this Location because its plan has ended. An Owner or Admin can restart it under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
+      "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
       "customerGone": "This Customer is no longer in your list. Find or add them again."
     }
   },
