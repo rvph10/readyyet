@@ -89,6 +89,9 @@ export default defineRailway((ctx) => {
       NEXT_PUBLIC_API_URL: `https://api.${root}`,
       // Where Ticket photos load from, for the Content-Security-Policy.
       S3_ENDPOINT: ref(images, "ENDPOINT"),
+      // The sign-in page can't render without them.
+      SITE_URL: `https://${root}`,
+      SUPPORT_EMAIL: "support@readyyet.app",
       // Set in Railway. The DSN is the API's (ADR 0045), read at build time
       // too, for the browser. The rest let the build upload source maps.
       NEXT_PUBLIC_SENTRY_DSN: preserve(),
