@@ -30,18 +30,27 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   }, [router, reset]);
 
   // A page left open, like a counter's list or a Customer's tracking page, ends
-  // up here on one failed refresh and must come back without anyone there.
+  // up here on one failed refresh and must come back without anyone there. Only
+  // a server error can go away by itself, a bug in the browser would just report
+  // again every minute.
+  const fromServer = Boolean(error.digest);
   useEffect(() => {
-    const timer = setInterval(() => {
+    if (!fromServer) return;
+    const retryIfVisible = () => {
       if (document.visibilityState === "visible") retry();
-    }, RETRY_EVERY_MS);
-    return () => clearInterval(timer);
-  }, [retry]);
+    };
+    const timer = setInterval(retryIfVisible, RETRY_EVERY_MS);
+    document.addEventListener("visibilitychange", retryIfVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", retryIfVisible);
+    };
+  }, [fromServer, retry]);
 
   return (
     <ErrorMessage title={t("title")}>
       <p className="text-p-md text-muted">
-        {t("body")} {t("retrying")}
+        {t("body")} {fromServer && t("retrying")}
       </p>
       {error.digest && <p className="font-mono text-p-xs text-muted">{t("reference", { digest: error.digest })}</p>}
       <Button onClick={retry} className="mt-2 self-start">

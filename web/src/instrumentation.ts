@@ -11,6 +11,9 @@ export function register() {
   if (!URL.canParse(process.env.NEXT_PUBLIC_API_URL ?? "")) {
     throw new Error("NEXT_PUBLIC_API_URL must be the API's public URL");
   }
+  if (!URL.canParse(process.env.S3_ENDPOINT ?? "")) {
+    throw new Error("S3_ENDPOINT must be the bucket's URL");
+  }
   Sentry.init(sentryOptions);
 }
 

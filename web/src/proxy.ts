@@ -54,9 +54,7 @@ export function proxy(request: NextRequest) {
   }
 
   const api = new URL(process.env.NEXT_PUBLIC_API_URL as string).origin;
-  // Only Ticket photos need it, so without it they're refused rather than
-  // every page failing here.
-  const bucket = process.env.S3_ENDPOINT ? new URL(process.env.S3_ENDPOINT).origin : "";
+  const bucket = new URL(process.env.S3_ENDPOINT as string).origin;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
   const csp = [
