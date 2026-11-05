@@ -1,11 +1,13 @@
 // Must run before AppModule is imported: auth.ts constructs a PrismaClient
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
+import { randomUUID } from "node:crypto";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createTestApp } from "./support/create-test-app";
 import { PrismaService } from "../src/database/prisma.service";
+import { getResendClient } from "../src/email/resend-client";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
 async function readOtp(prisma: PrismaService, email: string): Promise<string> {
@@ -113,6 +115,48 @@ describe("Better Auth email OTP", () => {
     const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } }));
     expect(log.subject).toBe(subject);
     expect(log.html).toContain(await readOtp(prisma, email));
+  });
+
+  // Their own client IP, so they don't count toward the default one's rate limit.
+  const sendFromOwnIp = (email: string) =>
+    request(app.getHttpServer())
+      .post("/api/auth/email-otp/send-verification-otp")
+      .set("X-Real-IP", "203.0.113.50")
+      .send({ email, type: "sign-in" });
+
+  it("refuses a disposable address before sending a code", async () => {
+    const email = `someone-${Date.now()}@yopmail.com`;
+
+    const response = await sendFromOwnIp(email);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+    expect(await prisma.verification.count({ where: { identifier: `sign-in-otp-${email}` } })).toBe(0);
+  });
+
+  it("refuses a subdomain of a disposable domain, whatever its case", async () => {
+    const response = await sendFromOwnIp(`someone-${Date.now()}@Mail.YOPMAIL.com`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+  });
+
+  it("still sends a code to an existing User on a listed domain, who'd otherwise be locked out", async () => {
+    const send = vi
+      .spyOn(getResendClient().emails, "send")
+      .mockResolvedValue({ data: { id: "mocked" }, error: null } as never);
+    const email = `existing-${Date.now()}@yopmail.com`;
+    await prisma.user.create({ data: { id: randomUUID(), email, name: "Existing User" } });
+
+    const response = await sendFromOwnIp(email);
+
+    expect(response.status).toBe(200);
+    await vi.waitFor(() => expect(send).toHaveBeenCalled());
+    send.mockRestore();
+  });
+
+  it("still sends a code to an ordinary address", async () => {
+    expect((await sendFromOwnIp(`delivered+auth-otp-ordinary-${Date.now()}@resend.dev`)).status).toBe(200);
   });
 
   // Last: it uses up the rate limit for every test after it.

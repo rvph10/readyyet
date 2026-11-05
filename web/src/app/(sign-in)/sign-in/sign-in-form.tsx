@@ -36,6 +36,8 @@ function errorKey(error: AuthError) {
       return "errors.expiredCode";
     case "INVALID_EMAIL":
       return "errors.emailInvalid";
+    case "DISPOSABLE_EMAIL":
+      return "errors.disposableEmail";
     default:
       return "errors.unexpected";
   }
@@ -45,7 +47,7 @@ type Messages = Parameters<typeof validityMessage>[1];
 
 // The API's refusals that are about what was typed in the step's field, so
 // they show under it rather than above the button.
-const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL", "INVALID_OTP"]);
+const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL", "DISPOSABLE_EMAIL", "INVALID_OTP"]);
 
 interface Props {
   next: string;

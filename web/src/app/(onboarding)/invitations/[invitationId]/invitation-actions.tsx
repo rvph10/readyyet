@@ -38,7 +38,7 @@ export function InvitationActions({ invitationId, email, signedIn, joined }: Pro
   const router = useRouter();
   const toast = useToast();
   const [failure, setFailure] = useState<ActionFailure | null>(null);
-  const [codeFailed, setCodeFailed] = useState<"rateLimited" | "unexpected" | null>(null);
+  const [codeFailed, setCodeFailed] = useState<"rateLimited" | "disposable" | "unexpected" | null>(null);
   const [confirmingDecline, setConfirmingDecline] = useState(false);
   const [running, setRunning] = useState<Answer | null>(null);
   const [pending, startTransition] = useTransition();
@@ -73,7 +73,8 @@ export function InvitationActions({ invitationId, email, signedIn, joined }: Pro
           { headers: { "Accept-Language": locale } },
         );
         if (error) {
-          setCodeFailed(error.status === 429 ? "rateLimited" : "unexpected");
+          if (error.status === 429) setCodeFailed("rateLimited");
+          else setCodeFailed(error.code === "DISPOSABLE_EMAIL" ? "disposable" : "unexpected");
           return;
         }
       } catch {
