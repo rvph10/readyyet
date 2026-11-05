@@ -15,7 +15,7 @@ import type { ActionFailure } from "@/lib/api/errors";
 import { fieldErrors } from "@/lib/validation";
 import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
-import { PhoneField } from "./phone-field";
+import { PhoneField } from "@/components/phone-field";
 import { businessStep, locationStep } from "./schema";
 import { FitToHeight, TicketPreview } from "./ticket-preview";
 
