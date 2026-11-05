@@ -169,6 +169,7 @@
     "codeHint": "To answer, you'll sign in with a code sent to {email}."
   },
   "common": {
+    "home": "Your Locations",
     "close": "Close",
     "stepDone": "done",
     "clearSearch": "Clear the search",

@@ -10,7 +10,7 @@ import { groupByBusiness } from "@/lib/memberships";
 
 // ADR 0077: only someone with a choice to make sees this. It asks every time
 // rather than reopening the last Location, so a Ticket isn't created in the
-// wrong shop by a counter that remembered yesterday.
+// wrong Location by a counter that remembered yesterday.
 export default async function ChooseLocationPage() {
   const [{ memberships }, t] = await Promise.all([getMe(), getTranslations("dashboard")]);
   if (memberships.length === 0) {

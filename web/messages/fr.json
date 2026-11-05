@@ -169,6 +169,7 @@
     "codeHint": "Pour répondre, vous vous connecterez avec un code envoyé à {email}."
   },
   "common": {
+    "home": "Vos établissements",
     "close": "Fermer",
     "stepDone": "terminé",
     "clearSearch": "Effacer la recherche",
