@@ -203,6 +203,23 @@ describe("Tickets", () => {
       expect(await problem()).toBe("GAVE_UP");
     });
 
+    it("says a temporarily bounced email was given up on, as nothing retries it", async () => {
+      await latestEmail({ status: EmailStatus.BOUNCED });
+      expect(await problem()).toBe("GAVE_UP");
+    });
+
+    it("leaves a permanent bounce to the Customer's own flag", async () => {
+      await latestEmail({ status: EmailStatus.BOUNCED });
+      const { body } = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/tickets/${ticketId}`)
+        .set("Cookie", ownerCookie);
+      await prisma.customer.update({
+        where: { id: BigInt((body as { customer: { id: string } }).customer.id) },
+        data: { emailBouncedAt: new Date() },
+      });
+      expect(await problem()).toBeNull();
+    });
+
     it("says nothing once the Customer's address has changed, that email is no longer wanted", async () => {
       await latestEmail({ status: EmailStatus.FAILED, to: "delivered+old@resend.dev", gaveUpAt: new Date() });
       expect(await problem()).toBeNull();

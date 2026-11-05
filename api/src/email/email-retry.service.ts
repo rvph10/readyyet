@@ -99,7 +99,15 @@ export class EmailRetryService {
       orderBy: { createdAt: "desc" },
       include: STUCK_INCLUDE,
     });
-    if (latest?.status !== EmailStatus.FAILED || !stillWanted(latest)) {
+    if (!latest || !stillWanted(latest)) {
+      return null;
+    }
+    // A temporary bounce flags nothing on the Customer, and the sweep doesn't
+    // retry a bounced email, so nothing else would tell staff.
+    if (latest.status === EmailStatus.BOUNCED) {
+      return "GAVE_UP";
+    }
+    if (latest.status !== EmailStatus.FAILED) {
       return null;
     }
     return latest.gaveUpAt ? "GAVE_UP" : "RETRYING";
