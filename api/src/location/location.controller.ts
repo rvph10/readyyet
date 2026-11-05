@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
@@ -16,6 +17,8 @@ export class LocationController {
   constructor(private readonly location: LocationService) {}
 
   @Get(":locationId")
+  // Asked on every load of the Ticket list, so the same room as that route.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @LocationRoles(Role.OWNER, Role.ADMIN, Role.EMPLOYEE)
   @UseGuards(LocationMembershipGuard)
   @ApiOperation({ summary: "Get a location's own fields" })
