@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 // ADR 0053 and 0058: soft tints with a deep text of the same hue, and
@@ -87,13 +86,15 @@ export function Avatar({ id, name, src, size = "md", shape = "circle", className
       className={`flex shrink-0 items-center justify-center overflow-hidden leading-none font-semibold select-none ${sizes[size]} ${square ? squares[size] : "rounded-full"} ${picture ? (square ? "border border-border bg-surface" : "bg-subtle") : avatarColor(id)} ${className ?? ""}`}
     >
       {picture ? (
-        // Served by the API, already resized when uploaded (ADR 0026).
-        <Image
+        // Served by the API, already resized when uploaded (ADR 0026), so
+        // next/image has nothing to add, and its style attribute is refused
+        // by the Content-Security-Policy.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={src}
           alt=""
           width={80}
           height={80}
-          unoptimized
           onError={() => setFailed(true)}
           className={square ? "size-full object-contain p-[12%]" : "size-full object-cover"}
         />
