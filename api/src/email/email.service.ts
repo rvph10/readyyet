@@ -82,31 +82,51 @@ export class EmailService {
     }
     const { html, text } = await this.resolveContent(input);
 
-    const log = await this.prisma.emailLog.create({
-      data: {
-        to: input.to,
-        subject: input.subject,
-        type: input.type,
-        html,
-        text,
-        fromName: input.fromName,
-        replyTo: input.replyTo,
-        headers: input.headers,
-        ticketId: input.ticketId,
-        invitationId: input.invitationId,
-        dedupeKey: input.dedupeKey,
-        status: EmailStatus.QUEUED,
-      },
+    const log = await this.prisma.$transaction(async (tx) => {
+      // Locks the Customer against an erasure running now, which either waits
+      // and then clears this row too, or has finished and this isn't written.
+      if (input.ticketId) {
+        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null }[]>`
+          SELECT c.deleted_at FROM customer c
+          JOIN ticket t ON t.customer_id = c.id
+          WHERE t.id = ${input.ticketId}
+          FOR SHARE OF c`;
+        if (customer.deleted_at) {
+          return null;
+        }
+      }
+      return tx.emailLog.create({
+        data: {
+          to: input.to,
+          subject: input.subject,
+          type: input.type,
+          html,
+          text,
+          fromName: input.fromName,
+          replyTo: input.replyTo,
+          headers: input.headers,
+          ticketId: input.ticketId,
+          invitationId: input.invitationId,
+          dedupeKey: input.dedupeKey,
+          status: EmailStatus.QUEUED,
+        },
+      });
     });
 
-    return this.attempt(log);
+    return log && this.attempt(log);
   }
 
   // Re-attempts an existing row (used by EmailRetryService's cron sweep)
   // from its already-persisted content, rather than needing the original
   // caller's react element again.
   async retry(log: StoredMessage) {
-    return this.attempt(log);
+    // The sweep's list can be minutes old by now, and an erasure gives up on
+    // an email in the same step that clears it.
+    const { gaveUpAt } = await this.prisma.emailLog.findUniqueOrThrow({
+      where: { id: log.id },
+      select: { gaveUpAt: true },
+    });
+    return gaveUpAt ? null : this.attempt(log);
   }
 
   // Nothing else will try again, so someone has to hear about it.

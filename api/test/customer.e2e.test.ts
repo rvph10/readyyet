@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
@@ -134,6 +135,45 @@ describe("Customers", () => {
       gaveUpAt: null,
     });
     await prisma.emailLog.delete({ where: { id: elsewhere.id } });
+  });
+
+  it("writes no email about a Customer once they're erased, and sends none from an old list", async () => {
+    const prisma = app.get(PrismaService);
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Erased race", customer: { fullName: "Erased Race" } });
+    const ticketId = BigInt(created.body.id);
+    const stale = await prisma.emailLog.create({
+      data: {
+        to: "delivered+staff@resend.dev",
+        subject: "Erased Race",
+        html: "<p>x</p>",
+        type: "feedback_received",
+        ticketId,
+      },
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    const email = app.get(EmailService);
+    await expect(email.retry(stale)).resolves.toBeNull();
+    await expect(
+      email.send({
+        to: "delivered+staff@resend.dev",
+        subject: "Late",
+        html: "<p>Late</p>",
+        type: "feedback_received",
+        ticketId,
+      }),
+    ).resolves.toBeNull();
+    await expect(prisma.emailLog.count({ where: { ticketId, subject: "Late" } })).resolves.toBe(0);
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: stale.id } })).resolves.toMatchObject({
+      attempts: 0,
+    });
   });
 
   it("gets a customer's full detail", async () => {

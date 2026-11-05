@@ -193,12 +193,12 @@ describe("EmailRetryService", () => {
       headers: null,
     });
 
-    const log = await app.get(EmailService).send({
+    const log = (await app.get(EmailService).send({
       to: "delivered@resend.dev",
       subject: "readyyet refused test",
       html: "<p>Refused.</p>",
       type: "test",
-    });
+    }))!;
     expect(log.status).toBe("FAILED");
     expect(log.attempts).toBe(1);
     expect(log.gaveUpAt).toBeNull();

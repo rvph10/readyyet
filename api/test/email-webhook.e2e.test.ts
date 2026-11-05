@@ -64,12 +64,12 @@ describe("POST /webhooks/resend", () => {
 
   it("updates the matching EmailLog to DELIVERED on a validly-signed email.delivered event", async () => {
     const email = app.get(EmailService);
-    const log = await email.send({
+    const log = (await email.send({
       to: "delivered@resend.dev",
       subject: "readyyet webhook test",
       type: "test",
       html: "<p>Webhook update check.</p>",
-    });
+    }))!;
     expect(log.resendId).toBeTruthy();
 
     const payload = JSON.stringify({
