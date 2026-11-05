@@ -6,10 +6,10 @@ import { actionResult, type ActionResult } from "@/lib/api/errors";
 
 // The page itself says what changed, there are no toasts here (ADR 0062). A
 // refusal revalidates it too: the API only refuses because the Ticket has
-// moved on, and the page then shows where it is now.
+// moved on or its link has ended, and the page then shows where it is now.
 async function finish(code: string, result: Parameters<typeof actionResult>[0]): Promise<ActionResult> {
   const outcome = await actionResult(result);
-  if (outcome.ok || outcome.code === "CONFLICT") {
+  if (outcome.ok || outcome.code === "CONFLICT" || outcome.code === "NOT_FOUND") {
     // The layout's whole subtree, the review page is under the tracking page.
     revalidatePath(`/t/${code}`, "layout");
   }
@@ -21,10 +21,9 @@ export async function markCollected(code: string) {
   return finish(code, result);
 }
 
-// Nothing on any page shows it, so nothing to revalidate.
 export async function stopUpdates(code: string) {
   const result = await (await api()).POST("/tracking/{code}/stop-notifications", { params: { path: { code } } });
-  return actionResult(result);
+  return finish(code, result);
 }
 
 export async function sendFeedback(code: string, message: string) {

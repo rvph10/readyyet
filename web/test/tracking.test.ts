@@ -49,6 +49,11 @@ describe("journey", () => {
     expect(steps.find((step) => step.code === "REPAIRING")?.at).toBeUndefined();
   });
 
+  it("doesn't draw a step as done when a move back left it behind and the Ticket jumped past it", () => {
+    const steps = path(ticket("REPAIRING", ["RECEIVED", "DIAGNOSING", "REPAIRING", "RECEIVED", "REPAIRING"]));
+    expect(steps.map((step) => step.code)).toEqual(["RECEIVED", "REPAIRING", "READY", "COMPLETED"]);
+  });
+
   it("dates a step reached twice with its latest time", () => {
     const steps = path(ticket("DIAGNOSING", ["RECEIVED", "DIAGNOSING", "REPAIRING", "DIAGNOSING"]));
     expect(steps.find((step) => step.code === "DIAGNOSING")?.at).toBe("2026-11-04");

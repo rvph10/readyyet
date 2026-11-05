@@ -2,6 +2,7 @@
   "error": {
     "title": "Une erreur s'est produite",
     "body": "Veuillez réessayer. Si cela se reproduit, contactez-nous.",
+    "retrying": "Nous continuons d'essayer de notre côté.",
     "reference": "Référence : {digest}",
     "retry": "Réessayer"
   },

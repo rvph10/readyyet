@@ -69,7 +69,7 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
       </header>
       <TrackingColumns>
         <TrackingColumn>
-          <div className="order-1">
+          <div className="order-1 lg:order-none">
             <StatusHero tracking={tracking} locale={locale} now={now} />
           </div>
           {sparse ? shop : progress}

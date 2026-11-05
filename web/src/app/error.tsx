@@ -2,9 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect } from "react";
+import { startTransition, useCallback, useEffect } from "react";
 import { ErrorMessage } from "@/components/error-message";
 import { Button } from "@/components/ui/button";
+
+const RETRY_EVERY_MS = 60 * 1000;
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations("error");
@@ -20,16 +22,27 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
 
   // A server error only goes away if the server renders the page again,
   // reset() alone would re-render what the browser already has.
-  function retry() {
+  const retry = useCallback(() => {
     startTransition(() => {
       router.refresh();
       reset();
     });
-  }
+  }, [router, reset]);
+
+  // A page left open, like a counter's list or a Customer's tracking page, ends
+  // up here on one failed refresh and must come back without anyone there.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") retry();
+    }, RETRY_EVERY_MS);
+    return () => clearInterval(timer);
+  }, [retry]);
 
   return (
     <ErrorMessage title={t("title")}>
-      <p className="text-p-md text-muted">{t("body")}</p>
+      <p className="text-p-md text-muted">
+        {t("body")} {t("retrying")}
+      </p>
       {error.digest && <p className="font-mono text-p-xs text-muted">{t("reference", { digest: error.digest })}</p>}
       <Button onClick={retry} className="mt-2 self-start">
         {t("retry")}

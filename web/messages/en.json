@@ -2,6 +2,7 @@
   "error": {
     "title": "Something went wrong",
     "body": "Please try again. If it keeps happening, contact us.",
+    "retrying": "We'll keep trying on our own.",
     "reference": "Reference: {digest}",
     "retry": "Try again"
   },

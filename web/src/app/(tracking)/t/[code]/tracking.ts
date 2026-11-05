@@ -49,6 +49,22 @@ export function momentFormatter(timeZone: string, locale: string, now: Date, tod
   };
 }
 
+// When each step was last reached on the way the Ticket stands now: a move back
+// undoes everything after where it landed, so a step set by mistake and left
+// behind doesn't stay done once the Ticket jumps past it again.
+function reachedSteps({ steps, statusHistory }: Pick<Tracking, "steps" | "statusHistory">) {
+  const positions = new Map(steps.map(({ position, status }) => [status.code, position]));
+  const reached = new Map<string, string>();
+  for (const { status, createdAt } of statusHistory) {
+    const position = positions.get(status.code)!;
+    for (const code of reached.keys()) {
+      if (positions.get(code)! > position) reached.delete(code);
+    }
+    reached.set(status.code, String(createdAt));
+  }
+  return reached;
+}
+
 // The path the Customer sees, in Workflow order (ADR 0016 lets a Ticket move
 // freely). A step passed without being reached is left out rather than drawn
 // as done, a step left behind by a move back is upcoming again, and CANCELLED
@@ -59,7 +75,7 @@ export function journey(
   locale: string,
   formatMoment: (iso: string) => string,
 ): WorkflowStep[] {
-  const reachedAt = new Map(statusHistory.map((event) => [event.status.code, String(event.createdAt)]));
+  const reachedAt = reachedSteps({ steps, statusHistory });
   const currentCode = currentStatus.code;
   const currentPosition = steps.find((step) => step.status.code === currentCode)!.position;
   const stopped = isStopped(currentCode);
