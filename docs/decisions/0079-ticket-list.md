@@ -26,6 +26,6 @@ Open by default because ended Tickets are only in the way at a counter. They're 
 
 No counts on the tabs, the API has none, and asking for each would cost a request per tab on every load.
 
-Each load makes up to two calls to the list route, one for its page and one to check To confirm, and every pause while searching is a load. The API's usual 60 calls a minute per route and per address is too few for that: one shop shares one address, and two or three searches could reach it. So this route allows 240, it needs a session and is scoped to one Location. Search also waits 400ms after typing, and the check is skipped on the To confirm tab.
+Each load makes up to two calls to the list route, one for its page and one to check To confirm, and every pause while searching is a load. The API's usual 60 calls a minute per route and per address is too few for that: all of a Location's screens share one address, and two or three searches could reach it. So this route allows 240, it needs a session and is scoped to one Location. Search also waits 400ms after typing, and the check is skipped on the To confirm tab.
 
 A Status filter, and Tickets across Locations (ADR 0077), are left out until someone asks.

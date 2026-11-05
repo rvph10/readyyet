@@ -35,7 +35,7 @@ export class TicketController {
   }
 
   @Get()
-  // Every screen of a shop shares one address, and each refreshes and searches.
+  // All of a Location's screens share one address, and each refreshes and searches.
   @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "List tickets for a location, newest first" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
