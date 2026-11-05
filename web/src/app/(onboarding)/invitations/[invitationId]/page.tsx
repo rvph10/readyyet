@@ -10,7 +10,7 @@ import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { getOptionalMe } from "@/lib/me";
-import { InvitationActions, type Answer } from "./invitation-actions";
+import { InvitationActions } from "./invitation-actions";
 
 // Past this, the rest of the team is a count.
 const TEAM_SHOWN = 5;
@@ -43,11 +43,10 @@ function Notice({ icon }: { icon: IconName }) {
 
 // Opening the link accepts nothing: mail scanners open every link in an
 // email, so the User confirms here (ADR 0043). It looks the same signed out,
-// where an answer goes through sign-in first and comes back as ?then= to
-// finish (ADR 0064). Only the team needs the User, to be shown.
-export default async function InvitationPage({ params, searchParams }: PageProps<"/invitations/[invitationId]">) {
-  const [{ invitationId }, { then }] = await Promise.all([params, searchParams]);
-  const answered: Answer | undefined = then === "accept" || then === "decline" ? then : undefined;
+// where an answer goes through sign-in first and finishes on the way back
+// (ADR 0083). Only the team needs the User, to be shown.
+export default async function InvitationPage({ params }: PageProps<"/invitations/[invitationId]">) {
+  const { invitationId } = await params;
   const [t, me, preview] = await Promise.all([
     getTranslations("invitation"),
     getOptionalMe(),
@@ -116,13 +115,7 @@ export default async function InvitationPage({ params, searchParams }: PageProps
   );
 
   const actions = (
-    <InvitationActions
-      invitationId={invitationId}
-      email={email}
-      signedIn={me !== null}
-      answered={answered}
-      joined={t("joined", place)}
-    />
+    <InvitationActions invitationId={invitationId} email={email} signedIn={me !== null} joined={t("joined", place)} />
   );
 
   if (!me) {

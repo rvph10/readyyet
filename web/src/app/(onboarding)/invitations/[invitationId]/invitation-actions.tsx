@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
@@ -13,28 +13,26 @@ import { acceptInvitation, declineInvitation } from "./actions";
 
 const KNOWN_ERRORS = ["NOT_FOUND", "UNAUTHORIZED", "CONFLICT"];
 
-export type Answer = "accept" | "decline";
+type Answer = "accept" | "decline";
 
 interface Props {
   invitationId: string;
   // The invited address, where a signed-out visitor's code goes.
   email: string;
   signedIn: boolean;
-  // The answer given before signing in, carried through sign-in in the
-  // link, to finish now.
-  answered?: Answer;
   // Said in a toast after accepting, translated by the page, which has the
   // names.
   joined: string;
 }
 
 // ADR 0064: the same Decline and Accept signed in or out. Signed out, an
-// answer sends the sign-in code to the invited address and opens sign-in,
-// whose way back carries the answer, which then finishes here. Declining
+// answer sends the sign-in code to the invited address and opens sign-in, and
+// finishes here on the way back. It waits in this tab's storage rather than
+// the link, so a link can't answer for anyone (ADR 0083). Declining
 // can't be undone, only a new invitation brings it back, so it asks once
 // more first (ADR 0051). Accepting leads to the Location, whose page doesn't
 // say it was just joined, so a toast does (ADR 0062).
-export function InvitationActions({ invitationId, email, signedIn, answered, joined }: Props) {
+export function InvitationActions({ invitationId, email, signedIn, joined }: Props) {
   const t = useTranslations("invitation");
   const locale = useLocale();
   const router = useRouter();
@@ -42,11 +40,14 @@ export function InvitationActions({ invitationId, email, signedIn, answered, joi
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [codeFailed, setCodeFailed] = useState<"rateLimited" | "unexpected" | null>(null);
   const [confirmingDecline, setConfirmingDecline] = useState(false);
-  const [running, setRunning] = useState<Answer | null>(answered ?? null);
+  const [running, setRunning] = useState<Answer | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const pendingAnswerKey = `invitation-answer:${invitationId}`;
 
   function finish(answer: Answer) {
     startTransition(async () => {
+      setRunning(answer);
       if (answer === "decline") {
         // Declined, the action shows the page again, as declined.
         const outcome = await declineInvitation(invitationId);
@@ -80,8 +81,8 @@ export function InvitationActions({ invitationId, email, signedIn, answered, joi
         setCodeFailed("unexpected");
         return;
       }
-      const next = `/invitations/${invitationId}?${new URLSearchParams({ then: answer })}`;
-      router.push(`/sign-in?${new URLSearchParams({ next, sentTo: email })}`);
+      sessionStorage.setItem(pendingAnswerKey, answer);
+      router.push(`/sign-in?${new URLSearchParams({ next: `/invitations/${invitationId}`, sentTo: email })}`);
     });
   }
 
@@ -93,12 +94,14 @@ export function InvitationActions({ invitationId, email, signedIn, answered, joi
     else signInFirst(given);
   }
 
-  // Back from sign-in with an answer already given, it finishes once.
-  const finished = useRef(false);
+  // Back from sign-in with an answer already given. Removed first, so it
+  // finishes once, and Back to this page can't send it again.
   useEffect(() => {
-    if (!signedIn || !answered || finished.current) return;
-    finished.current = true;
-    finish(answered);
+    if (!signedIn) return;
+    const given = sessionStorage.getItem(pendingAnswerKey) as Answer | null;
+    if (!given) return;
+    sessionStorage.removeItem(pendingAnswerKey);
+    finish(given);
   });
 
   const busyLabel = signedIn ? { accept: t("accepting"), decline: t("declining") } : null;
