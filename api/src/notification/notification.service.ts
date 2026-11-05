@@ -6,6 +6,7 @@ import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
+import { GIVE_UP_AFTER_MS } from "../email/email-status";
 import { EmailService } from "../email/email.service";
 import { asksForFeedback } from "../feedback/asks-for-feedback";
 import { toPostalAddress } from "../location/location-info";
@@ -47,33 +48,40 @@ export class NotificationService {
   ) {}
 
   // Due from the moment the Ticket exists (ADR 0081). Often enough that the
-  // Customer has it before leaving the counter, which is also why this has no
-  // CronMonitor: customer-status-emails runs on the same scheduler and alerts
-  // if sweeps stop.
+  // Customer has it before leaving the counter.
   @Cron(CronExpression.EVERY_5_SECONDS, { name: "ticket-created-emails" })
+  @CronMonitor("ticket-created-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
   async sendDueTicketCreatedEmails() {
     const due = await this.prisma.ticket.findMany({
       where: { trackingEmailDueAt: { lte: new Date() } },
       orderBy: { trackingEmailDueAt: "asc" },
-      select: { id: true, trackingEmailDueAt: true },
+      select: { id: true, trackingEmailDueAt: true, createdAt: true },
     });
 
-    for (const { id, trackingEmailDueAt } of due) {
-      // Claimed like the status emails below: a concurrent sweep skips it, and
-      // if this process dies the lease expires and it's tried again.
-      const { count } = await this.prisma.ticket.updateMany({
-        where: { id, trackingEmailDueAt },
-        data: { trackingEmailDueAt: new Date(Date.now() + CLAIM_LEASE_MS) },
-      });
-      if (count === 0) {
-        continue;
-      }
+    for (const { id, trackingEmailDueAt, createdAt } of due) {
+      // One Ticket's problem mustn't hold up the others. Its lease expires and
+      // it's tried again, until the email would be out of date.
       try {
-        await this.sendTicketCreated(id);
+        // Claimed like the status emails below: a concurrent sweep skips it, and
+        // if this process dies the lease expires and it's tried again.
+        const { count } = await this.prisma.ticket.updateMany({
+          where: { id, trackingEmailDueAt },
+          data: { trackingEmailDueAt: new Date(Date.now() + CLAIM_LEASE_MS) },
+        });
+        if (count === 0) {
+          continue;
+        }
+        if (Date.now() - createdAt.getTime() > GIVE_UP_AFTER_MS) {
+          Sentry.captureMessage(`Gave up on the ticket-created email of Ticket ${id}`, { level: "error" });
+        } else {
+          await this.sendTicketCreated(id);
+        }
         await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
       } catch (error) {
-        // One Ticket's problem mustn't hold up the others. Its lease expires
-        // and it's tried again.
         this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
         Sentry.captureException(error);
       }
@@ -81,11 +89,18 @@ export class NotificationService {
   }
 
   // A Customer without an email address receives nothing, the QR code at
-  // drop-off covers them (ADR 0015).
+  // drop-off covers them (ADR 0015). The key keeps a retry of this sweep, after
+  // a crash at the wrong moment, from being a second email.
   private async sendTicketCreated(ticketId: bigint) {
     const ticket = await this.loadTicket(ticketId);
     if (canEmail(ticket.customer) && !ticket.location.deletedAt) {
-      await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        "TICKET_CREATED",
+        "ticket_tracking_link",
+        `ticket-created:${ticketId}`,
+      );
     }
   }
 
@@ -303,7 +318,13 @@ export class NotificationService {
     });
   }
 
-  private async sendCustomerEmail(ticket: LoadedTicket, to: string, kind: CustomerEmailKind, type: string) {
+  private async sendCustomerEmail(
+    ticket: LoadedTicket,
+    to: string,
+    kind: CustomerEmailKind,
+    type: string,
+    dedupeKey?: string,
+  ) {
     const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
       ? toCalendarDate(ticket.estimatedReadyDate)
       : null;
@@ -330,6 +351,8 @@ export class NotificationService {
       subject,
       react,
       type,
+      ticketId: ticket.id,
+      dedupeKey,
       fromName: `${ticket.location.name} via ReadyYet`,
       replyTo: ticket.location.contactEmail,
       // Lets mail clients show their own unsubscribe button, which then

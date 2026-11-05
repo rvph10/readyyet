@@ -1,10 +1,10 @@
 import { EmailStatus } from "@readyyet/db";
 import type { WebhookEvent } from "resend";
 
-// Resend error names that will never succeed on retry (bad input, bad
-// credentials, protocol misuse), as opposed to transient ones
-// (rate limits, quota, internal errors) that are worth retrying both
-// immediately and later via EmailRetryService's sweep.
+// Resend error names not worth retrying right away (bad input, bad credentials,
+// protocol misuse), as opposed to transient ones (rate limits, quota, internal
+// errors). EmailRetryService's sweep tries both again later, as credentials can
+// be fixed.
 export const NON_RETRYABLE_RESEND_ERRORS = new Set([
   "validation_error",
   "invalid_parameter",
@@ -33,3 +33,7 @@ export const WEBHOOK_EVENT_TO_STATUS: Partial<Record<WebhookEvent, EmailStatus>>
   "email.suppressed": EmailStatus.BOUNCED,
   "email.failed": EmailStatus.FAILED,
 };
+
+// How long an email keeps its chance (ADR 0081). An outage can last hours, past
+// a day the email is out of date.
+export const GIVE_UP_AFTER_MS = 24 * 60 * 60 * 1000;

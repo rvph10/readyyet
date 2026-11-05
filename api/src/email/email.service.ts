@@ -28,6 +28,11 @@ export interface SendEmailInput {
   fromName?: string;
   replyTo?: string;
   headers?: Record<string, string>;
+  // The Ticket it's about, checked again before a late retry.
+  ticketId?: bigint;
+  // A second send with the same key returns the first, whose retries belong to
+  // EmailRetryService, instead of being a new email with its own idempotency key.
+  dedupeKey?: string;
 }
 
 type StoredMessage = Pick<
@@ -48,6 +53,15 @@ function sender(fromName: string | null): string {
   return `"${name}" <${address}>`;
 }
 
+// Only the error's name: its message can quote the address, and the row's id
+// leads to everything else.
+function report(what: string, emailLogId: string, lastError: string | null) {
+  Sentry.captureMessage(`${what}: ${lastError?.split(":")[0] ?? "no error recorded"}`, {
+    level: "error",
+    extra: { emailLogId },
+  });
+}
+
 @Injectable()
 export class EmailService {
   // Typed as the wider PrismaClient, not PrismaService: auth.ts
@@ -59,6 +73,12 @@ export class EmailService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaClient) {}
 
   async send(input: SendEmailInput) {
+    if (input.dedupeKey) {
+      const first = await this.prisma.emailLog.findUnique({ where: { dedupeKey: input.dedupeKey } });
+      if (first) {
+        return first;
+      }
+    }
     const { html, text } = await this.resolveContent(input);
 
     const log = await this.prisma.emailLog.create({
@@ -71,6 +91,8 @@ export class EmailService {
         fromName: input.fromName,
         replyTo: input.replyTo,
         headers: input.headers,
+        ticketId: input.ticketId,
+        dedupeKey: input.dedupeKey,
         status: EmailStatus.QUEUED,
       },
     });
@@ -85,14 +107,10 @@ export class EmailService {
     return this.attempt(log);
   }
 
-  // Nothing else will try again, so someone has to hear about it. The address
-  // stays out of the alert, the row's id leads to it.
+  // Nothing else will try again, so someone has to hear about it.
   async giveUp(log: Pick<EmailLog, "id" | "type" | "lastError">) {
     await this.prisma.emailLog.update({ where: { id: log.id }, data: { gaveUpAt: new Date() } });
-    Sentry.captureMessage(`Gave up on a ${log.type} email: ${log.lastError ?? "no error recorded"}`, {
-      level: "error",
-      extra: { emailLogId: log.id },
-    });
+    report(`Gave up on a ${log.type} email`, log.id, log.lastError);
   }
 
   private async resolveContent(input: SendEmailInput): Promise<{ html?: string; text?: string }> {
@@ -108,7 +126,6 @@ export class EmailService {
   private async attempt(message: StoredMessage) {
     const { id: logId, type, to, subject, html, text } = message;
     let lastError = "";
-    let canSucceed = true;
 
     for (let i = 0; i < MAX_IMMEDIATE_ATTEMPTS; i++) {
       if (IMMEDIATE_BACKOFF_MS[i] > 0) {
@@ -139,7 +156,9 @@ export class EmailService {
 
         lastError = `${error.name}: ${error.message}`;
         if (NON_RETRYABLE_RESEND_ERRORS.has(error.name)) {
-          canSucceed = false;
+          // Often our own setup, like a rotated API key, so someone should know
+          // now. It's still retried: once that's fixed, the email can go.
+          report(`A ${type} email was refused`, logId, lastError);
           break;
         }
       } catch (err) {
@@ -147,14 +166,10 @@ export class EmailService {
       }
     }
 
-    const failed = await this.prisma.emailLog.update({
+    return this.prisma.emailLog.update({
       where: { id: logId },
       data: { status: EmailStatus.FAILED, lastError, lastAttemptAt: new Date() },
     });
-    if (!canSucceed) {
-      await this.giveUp({ id: logId, type, lastError });
-    }
-    return failed;
   }
 
   private delay(ms: number) {

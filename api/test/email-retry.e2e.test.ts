@@ -142,52 +142,94 @@ describe("EmailRetryService", () => {
     await prisma.emailLog.delete({ where: { id: backingOff.id } });
   });
 
-  it("gives up on an email failing for over a day, without sending it", async () => {
-    const old = await prisma.emailLog.create({
+  const failedEmail = (subject: string, data: object = {}) =>
+    prisma.emailLog.create({
       data: {
         to: "delivered@resend.dev",
-        subject: "readyyet retry give up test",
-        html: "<p>Too late to send.</p>",
+        subject,
+        html: "<p>Test.</p>",
         type: "test",
         status: EmailStatus.FAILED,
-        attempts: 50,
+        attempts: 3,
         lastError: "simulated failure",
-        lastAttemptAt: new Date(Date.now() - 3 * 60 * 60_000),
-        createdAt: new Date(Date.now() - 25 * 60 * 60_000),
+        lastAttemptAt: new Date(Date.now() - 60 * 60_000),
+        ...data,
       },
+    });
+  const HOUR = 60 * 60_000;
+
+  it("gives an email past its day one last try, whatever the backoff says", async () => {
+    const old = await failedEmail("readyyet retry last try test", {
+      attempts: 50,
+      createdAt: new Date(Date.now() - 25 * HOUR),
+      lastAttemptAt: new Date(Date.now() - 2 * HOUR),
+    });
+
+    await retry.sweep();
+
+    const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: old.id } });
+    expect(after.status).toBe("SENT");
+    expect(after.gaveUpAt).toBeNull();
+  });
+
+  it("gives up once that last try has failed too, without sending it again", async () => {
+    const old = await failedEmail("readyyet retry give up test", {
+      attempts: 50,
+      createdAt: new Date(Date.now() - 25 * HOUR),
+      lastAttemptAt: new Date(Date.now() - 30 * 60_000),
     });
 
     await retry.sweep();
 
     const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: old.id } });
     expect(after.gaveUpAt).toBeTruthy();
-    expect(after.status).toBe("FAILED");
     expect(after.attempts).toBe(50);
   });
 
-  it("gives up at once on an error that can't succeed, and no sweep tries it again", async () => {
+  it("keeps retrying an email Resend refused, as the cause can be our own setup", async () => {
     sent.mockResolvedValueOnce({
       data: null,
-      error: { name: "validation_error", message: "bad address", statusCode: 422 },
+      error: { name: "invalid_api_key", message: "API key is invalid", statusCode: 403 },
       headers: null,
     });
 
     const log = await app.get(EmailService).send({
       to: "delivered@resend.dev",
-      subject: "readyyet give up at once test",
+      subject: "readyyet refused test",
       html: "<p>Refused.</p>",
       type: "test",
     });
     expect(log.status).toBe("FAILED");
-    const stored = await prisma.emailLog.findUniqueOrThrow({ where: { id: log.id } });
-    expect(stored.gaveUpAt).toBeTruthy();
+    expect(log.attempts).toBe(1);
+    expect(log.gaveUpAt).toBeNull();
 
-    await prisma.emailLog.update({
-      where: { id: log.id },
-      data: { lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
-    });
+    await prisma.emailLog.update({ where: { id: log.id }, data: { lastAttemptAt: new Date(Date.now() - HOUR) } });
     await retry.sweep();
+
     const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: log.id } });
-    expect(after.attempts).toBe(1);
+    expect(after.status).toBe("SENT");
+  });
+
+  it("gives up on an email Resend took and later reported failed, a resend would only replay its answer", async () => {
+    const failed = await failedEmail("readyyet webhook failed test", { resendId: `test-${Date.now()}` });
+
+    await retry.sweep();
+
+    const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: failed.id } });
+    expect(after.gaveUpAt).toBeTruthy();
+    expect(after.status).toBe("FAILED");
+  });
+
+  it("waits a minute before retrying a row whose first send may still be running", async () => {
+    const fresh = await prisma.emailLog.create({
+      data: { to: "delivered@resend.dev", subject: "readyyet in flight test", html: "<p>Test.</p>", type: "test" },
+    });
+
+    await retry.sweep();
+
+    const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: fresh.id } });
+    expect(after.status).toBe("QUEUED");
+    expect(after.attempts).toBe(0);
+    await prisma.emailLog.delete({ where: { id: fresh.id } });
   });
 });

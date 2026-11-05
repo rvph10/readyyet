@@ -403,6 +403,7 @@ model Ticket {
   statusEvents  TicketStatusEvent[]
   photos        TicketPhoto[]
   feedback      TicketFeedback?
+  emailLogs     EmailLog[]
 
   // Composite FKs enforce the tenant boundary and the workflow/status
   // relationship at the database level, not just in application code.
@@ -504,13 +505,20 @@ model EmailLog {
   lastError     String?     @map("last_error")
   lastEvent     Json?       @map("last_event")
   lastAttemptAt DateTime?   @map("last_attempt_at")
-  // No more retries: it can't succeed, or it has been failing for too long.
+  // No more retries: failing for too long, or no longer wanted.
   gaveUpAt      DateTime?   @map("gave_up_at")
+  // Set for an email that must only ever exist once, whatever retries it.
+  dedupeKey     String?     @unique @map("dedupe_key")
+  // What it's about, so a late retry can check it's still wanted (ADR 0081).
+  ticketId      BigInt?     @map("ticket_id")
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
+  ticket Ticket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+
   @@index([status, lastAttemptAt])
+  @@index([ticketId])
   @@map("email_log")
 }
 

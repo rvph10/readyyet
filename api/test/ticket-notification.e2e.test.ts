@@ -8,6 +8,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 import { NotificationService } from "../src/notification/notification.service";
+import { EmailRetryService } from "../src/email/email-retry.service";
 import { EmailService } from "../src/email/email.service";
 
 // Customer addresses are Resend's test addresses: real sends through the
@@ -118,6 +119,77 @@ describe("Ticket tracking link emails", () => {
       const kept = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(failing.id) } });
       expect(kept.trackingEmailDueAt!.getTime()).toBeGreaterThan(Date.now());
       expect(await emailsTo(address("after-throw"))).toHaveLength(1);
+    });
+
+    it("doesn't send a second email when a retry follows a crash after the first", async () => {
+      const ticket = await createTicket({ customer: { fullName: "Crash After", email: address("crash") } });
+      await prisma.ticket.update({ where: { id: BigInt(ticket.id) }, data: { trackingEmailDueAt: new Date() } });
+
+      await app.get(NotificationService).sendDueTicketCreatedEmails();
+
+      expect(await emailsTo(address("crash"))).toHaveLength(1);
+      const after = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(ticket.id) } });
+      expect(after.trackingEmailDueAt).toBeNull();
+    });
+
+    it("drops the email of a Ticket over a day old instead of telling the Customer we just got their item", async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Brake pads", customer: { fullName: "Too Late", email: address("late") } });
+      const id = BigInt((response.body as { id: string }).id);
+      await prisma.ticket.update({ where: { id }, data: { createdAt: new Date(Date.now() - 25 * 60 * 60_000) } });
+
+      await app.get(NotificationService).sendDueTicketCreatedEmails();
+
+      expect(await emailsTo(address("late"))).toHaveLength(0);
+      expect((await prisma.ticket.findUniqueOrThrow({ where: { id } })).trackingEmailDueAt).toBeNull();
+    });
+
+    describe("a late retry", () => {
+      async function failedEmailOf(label: string) {
+        const ticket = await createTicket({ customer: { fullName: "Late Retry", email: address(label) } });
+        const [email] = await emailsTo(address(label));
+        await prisma.emailLog.update({
+          where: { id: email.id },
+          data: { status: "FAILED", resendId: null, attempts: 3, lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
+        });
+        return { ticket, email };
+      }
+
+      it("isn't sent to an address staff have since corrected", async () => {
+        const { ticket, email } = await failedEmailOf("corrected");
+        await prisma.customer.update({
+          where: { id_locationId: { id: BigInt(ticket.customer.id), locationId } },
+          data: { email: address("corrected-new") },
+        });
+
+        await app.get(EmailRetryService).sweep();
+
+        const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } });
+        expect(after.gaveUpAt).toBeTruthy();
+        expect(after.attempts).toBe(3);
+      });
+
+      it("isn't sent to an erased Customer", async () => {
+        const { ticket, email } = await failedEmailOf("erased");
+        await prisma.customer.update({
+          where: { id_locationId: { id: BigInt(ticket.customer.id), locationId } },
+          data: { email: null, deletedAt: new Date() },
+        });
+
+        await app.get(EmailRetryService).sweep();
+
+        expect((await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } })).attempts).toBe(3);
+      });
+
+      it("still goes out when nothing has changed", async () => {
+        const { email } = await failedEmailOf("unchanged");
+
+        await app.get(EmailRetryService).sweep();
+
+        expect((await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } })).status).toBe("SENT");
+      });
     });
 
     it("emails the customer their tracking link, as the shop, in the shop's language", async () => {
