@@ -30,6 +30,12 @@ export function stopUpdatesUrl(trackingCode: string): string {
   return `${trackingUrl(trackingCode)}/stop-updates`;
 }
 
+// The page a star of the feedback email opens, with the star added as
+// ?stars=. It records nothing by opening (ADR 0076).
+export function ratingUrl(trackingCode: string): string {
+  return `${trackingUrl(trackingCode)}/review`;
+}
+
 // Asks the Customer to confirm before it records anything, a mail
 // scanner opening the link must not mark the item collected (ADR 0037).
 export function collectedUrl(trackingCode: string): string {

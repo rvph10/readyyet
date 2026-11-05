@@ -11,6 +11,7 @@ import { toPostalAddress } from "../location/location-info";
 import { publicImageUrl } from "../storage/image";
 import {
   collectedUrl,
+  ratingUrl,
   isTrackingLinkExpired,
   oneClickStopUrl,
   stopUpdatesUrl,
@@ -283,6 +284,7 @@ export class NotificationService {
       },
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
+      ratingUrl: ratingUrl(ticket.trackingCode),
       asksForFeedback: asksForFeedback(ticket.location),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
     });

@@ -32,6 +32,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
     collectedUrl: "https://readyyet.app/t/AbC123xyz789/collected",
+    ratingUrl: "https://readyyet.app/t/AbC123xyz789/review",
     asksForFeedback: false,
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
     ...overrides,
@@ -215,16 +216,18 @@ describe("Customer emails", () => {
 
   describe("feedback (ADR 0039)", () => {
     it.each([
-      ["EN", "How did your repair at Joe's Garage go?", "Tell us how it went"],
+      ["EN", "How did your repair at Joe's Garage go?", "1 star is poor"],
       // The subject is flattened to one line, a non-breaking space included.
-      ["FR", "Comment s'est passée votre réparation chez Joe's Garage ?", "Donner mon avis"],
-    ] as const)("asks how it went in %s, with a button to the tracking page", async (locale, subject, button) => {
+      ["FR", "Comment s'est passée votre réparation chez Joe's Garage ?", "excellent"],
+    ] as const)("asks how it went in %s, with five stars to the rating page", async (locale, subject, hint) => {
       const email = buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST", locale }));
       const html = await render(email.react);
 
       expect(email.subject).toBe(subject);
-      expect(html).toContain(button);
-      expect(html).toContain('href="https://readyyet.app/t/AbC123xyz789"');
+      expect(html).toContain(hint);
+      for (const stars of [1, 2, 3, 4, 5]) {
+        expect(html).toContain(`href="https://readyyet.app/t/AbC123xyz789/review?stars=${stars}"`);
+      }
     });
 
     it("never links to Google", async () => {

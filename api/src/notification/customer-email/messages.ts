@@ -83,7 +83,8 @@ interface LocaleMessages {
   // In the ticket-created email of a Location that asks for feedback, the
   // Customer is told at drop-off (ADR 0039).
   feedbackNotice: string;
-  feedbackButton: string;
+  starLabel: (stars: number) => string;
+  starsHint: string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -100,7 +101,8 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     readyBy: ({ readyDate }) => `It should be ready on ${readyDate}.`,
     alreadyCollected: () => "I already picked it up",
     feedbackNotice: "Once you've picked it up, you'll get one email asking how it went.",
-    feedbackButton: "Tell us how it went",
+    starLabel: (stars) => `${stars} out of 5 stars`,
+    starsHint: "1 star is poor, 5 stars is great.",
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
@@ -115,7 +117,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
       FEEDBACK_REQUEST: {
         subject: ({ location, job }) => `How did your ${job.word} at ${location} go?`,
         body: ({ location, title, job }) =>
-          `Thank you for choosing ${location}. How did it go with your ${job.word} "${title}"? Tell us in a few words, it only takes a minute.`,
+          `Thank you for choosing ${location}. How did it go with your ${job.word} "${title}"? Tap a star below, it only takes a moment.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `New date for your ${job.word} at ${location}`,
@@ -160,7 +162,8 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
       `${agree(job, "Il", "Elle")} devrait être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
     alreadyCollected: (job) => `Je ${agree(job, "l'ai déjà récupéré", "l'ai déjà récupérée")}`,
     feedbackNotice: "Après la récupération, vous recevrez un seul e-mail pour nous dire comment cela s'est passé.",
-    feedbackButton: "Donner mon avis",
+    starLabel: (stars) => `${stars} étoile${stars > 1 ? "s" : ""} sur 5`,
+    starsHint: "1 étoile, c'est décevant, 5 étoiles, c'est excellent.",
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
@@ -177,7 +180,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
         subject: ({ location, job }) =>
           `Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} chez ${location}\u00a0?`,
         body: ({ location, title, job }) =>
-          `Merci d'avoir choisi ${location}. Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} «\u00a0${title}\u00a0»\u00a0? Dites-le-nous en quelques mots, cela ne prend qu'une minute.`,
+          `Merci d'avoir choisi ${location}. Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} «\u00a0${title}\u00a0»\u00a0? Touchez une étoile ci-dessous, cela ne prend qu'un instant.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `Nouvelle date pour votre ${job.word} chez ${location}`,
