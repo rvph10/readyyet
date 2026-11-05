@@ -95,6 +95,11 @@ export function Avatar({ id, name, src, size = "md", shape = "circle", className
           alt=""
           width={80}
           height={80}
+          // An image that failed before hydration has no error event left to
+          // fire, so it's checked here too.
+          ref={(image) => {
+            if (image?.complete && image.naturalWidth === 0) setFailed(true);
+          }}
           onError={() => setFailed(true)}
           className={square ? "size-full object-contain p-[12%]" : "size-full object-cover"}
         />

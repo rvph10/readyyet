@@ -1,13 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import { Logo } from "@/components/logo";
 import { Icon } from "@/components/ui/icon";
-import logo from "../icon.svg";
 import { SignInPanel } from "./sign-in-panel";
-
-// Next.js types *.svg imports as any, in case an SVGR plugin turns them
-// into components. Without one they are plain static images.
-const logoImage = logo as StaticImageData;
 
 export default async function SignInLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations("signIn");
@@ -31,8 +26,7 @@ export default async function SignInLayout({ children }: { children: ReactNode }
           </a>
         </div>
         <main className="mx-auto my-6 w-full max-w-89">
-          {/* Decorative, the heading under it says where the visitor is. */}
-          <Image src={logoImage} alt="" priority className="mx-auto mb-4 size-14 md:mb-6 md:size-18" />
+          <Logo className="mx-auto mb-4 size-14 md:mb-6 md:size-18" />
           {children}
         </main>
         <footer className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-label-sm text-muted xl:h-15">
