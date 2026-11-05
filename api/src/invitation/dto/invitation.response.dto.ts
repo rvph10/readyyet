@@ -24,6 +24,8 @@ export class InvitationDto {
 export class InvitationBusinessDto {
   id!: string;
   name!: string;
+  // Shown for every Location of the Business (ADR 0051).
+  logoUrl!: string | null;
 }
 
 export class InvitationLocationDto {
@@ -32,10 +34,12 @@ export class InvitationLocationDto {
   business!: InvitationBusinessDto;
 }
 
-// What the invited User sees before accepting (ADR 0047), not the email
-// address, which they already know.
-export class ReceivedInvitationDto {
+// Enough for a signed-out visitor to know who invites them, to what, and
+// which address to sign in with (ADR 0051). The link holding the id went
+// to that address, so it tells its holder nothing they couldn't read there.
+export class InvitationPreviewDto {
   id!: string;
+  email!: string;
   @ApiProperty({ enum: [Role.ADMIN, Role.EMPLOYEE] })
   role!: Exclude<Role, "OWNER">;
   // EXPIRED as soon as expiresAt has passed, even before an accept records it.
@@ -44,4 +48,17 @@ export class ReceivedInvitationDto {
   invitedBy!: InviterDto;
   location!: InvitationLocationDto;
   expiresAt!: Date;
+  createdAt!: Date;
+}
+
+export class TeamMemberDto {
+  id!: string;
+  name!: string;
+  avatarUrl!: string | null;
+}
+
+// What the invited User sees once signed in with its address: the preview,
+// and the team they'd join (ADR 0051).
+export class ReceivedInvitationDto extends InvitationPreviewDto {
+  team!: TeamMemberDto[];
 }

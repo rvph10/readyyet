@@ -4,7 +4,6 @@ import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
 import { hasPro } from "../billing/plans";
 import { NotFoundError, PlanRequiredError } from "../common/errors/app-error";
-import { processImage } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 import { toAddressColumns, toOpeningHoursJson } from "./location-info";
@@ -51,38 +50,6 @@ export class LocationService {
     return toLocationResponse(location);
   }
 
-  async setLogo(locationId: string, file: Buffer) {
-    const image = await processImage(file, "logo");
-    await this.storage.put(image.key, image.body, image.contentType);
-    try {
-      return await this.replaceLogo(locationId, image.key);
-    } catch (error) {
-      await this.storage.delete([image.key]);
-      throw error;
-    }
-  }
-
-  removeLogo(locationId: string) {
-    return this.replaceLogo(locationId, null);
-  }
-
-  // The row first, the previous object after (ADR 0026).
-  private async replaceLogo(locationId: string, logoKey: string | null) {
-    const { logoKey: previous } = await this.prisma.location.findUniqueOrThrow({
-      where: { id: locationId },
-      select: { logoKey: true },
-    });
-    const location = await this.prisma.location.update({
-      where: { id: locationId },
-      ...locationSelect,
-      data: { logoKey },
-    });
-    if (previous) {
-      await this.storage.delete([previous]);
-    }
-    return toLocationResponse(location);
-  }
-
   // A soft delete, final in v1 (ADR 0017): tickets are permanent records.
   // The guard, tracking page and customer emails all treat a deleted
   // Location as gone, this only clears what would otherwise linger.
@@ -91,13 +58,14 @@ export class LocationService {
     // than one still there after its subscription ended, deleting it again
     // finishes the job.
     await this.billing.cancelNow(locationId);
-    // Its pictures go at once, its tracking links stop answering now (ADR 0026).
-    const [location, photos] = await Promise.all([
-      this.prisma.location.findUniqueOrThrow({ where: { id: locationId }, select: { logoKey: true } }),
-      this.prisma.ticketPhoto.findMany({ where: { ticket: { locationId } }, select: { objectKey: true } }),
-    ]);
+    // Its photos go at once, its tracking links stop answering now (ADR 0026).
+    // The logo stays, it's the Business's (ADR 0051).
+    const photos = await this.prisma.ticketPhoto.findMany({
+      where: { ticket: { locationId } },
+      select: { objectKey: true },
+    });
     await this.prisma.$transaction([
-      this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date(), logoKey: null } }),
+      this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { locationId } } }),
       this.prisma.invitation.updateMany({
         where: { locationId, status: InvitationStatus.PENDING },
@@ -105,9 +73,6 @@ export class LocationService {
       }),
       this.prisma.pendingStatusNotification.deleteMany({ where: { statusEvent: { ticket: { locationId } } } }),
     ]);
-    await this.storage.delete([
-      ...(location.logoKey ? [location.logoKey] : []),
-      ...photos.map((photo) => photo.objectKey),
-    ]);
+    await this.storage.delete(photos.map((photo) => photo.objectKey));
   }
 }

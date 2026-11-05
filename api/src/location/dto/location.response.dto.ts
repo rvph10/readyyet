@@ -7,6 +7,8 @@ export class LocationDto {
   businessId!: string;
   // A code from GET /catalogue/business-types.
   businessTypeCode!: string;
+  // What an OTHER Location does, in the owner's words (ADR 0071).
+  businessTypeDetail!: string | null;
   name!: string;
   contactPhone!: string;
   contactEmail!: string;

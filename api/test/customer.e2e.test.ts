@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
@@ -67,6 +68,112 @@ describe("Customers", () => {
     expect(response.body.items).toHaveLength(1);
     expect(response.body.items[0].id).toBe(aliceId);
     expect(response.body.nextCursor).toBeNull();
+  });
+
+  it("treats % and _ in a search as the characters they are, not wildcards", async () => {
+    for (const q of ["__", "%%"]) {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ q })
+        .set("Cookie", ownerCookie);
+      expect(response.status).toBe(200);
+      expect(response.body.items).toEqual([]);
+    }
+  });
+
+  it("finds a name whatever its accents, either way round", async () => {
+    await createTicketWithCustomer(app, ownerCookie, locationId, "Hélène Lefèvre");
+    for (const q of ["helene", "HÉLÈNE", "lefevre", "Hélene"]) {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ q })
+        .set("Cookie", ownerCookie);
+      expect(response.body.items.map((customer: { fullName: string }) => customer.fullName)).toEqual([
+        "Hélène Lefèvre",
+      ]);
+    }
+  });
+
+  it("clears the emails about an erased Customer, and nothing of the same address at another Location", async () => {
+    const prisma = app.get(PrismaService);
+    const email = `delivered+erased-log-${Date.now()}@resend.dev`;
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Erased log", customer: { fullName: "Erased Log", email } });
+    const ticketId = BigInt(created.body.id);
+    const about = { subject: "Erased Log", html: "<p>Erased Log</p>", ticketId };
+    const toCustomer = await prisma.emailLog.create({
+      data: { ...about, to: email, type: "ticket_status_update", lastEvent: { data: { to: [email] } } },
+    });
+    const staffCopy = await prisma.emailLog.create({
+      data: { ...about, to: "delivered+staff@resend.dev", type: "feedback_received" },
+    });
+    const elsewhere = await prisma.emailLog.create({
+      data: { to: email, subject: "Another Location", html: "<p>Kept</p>", type: "ticket_status_update" },
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    for (const { id } of [toCustomer, staffCopy]) {
+      const after = await prisma.emailLog.findUniqueOrThrow({ where: { id } });
+      expect(after).toMatchObject({
+        to: "erased@deleted.invalid",
+        subject: "[deleted]",
+        html: null,
+        text: null,
+        lastEvent: null,
+      });
+      expect(after.gaveUpAt).toBeTruthy();
+    }
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: elsewhere.id } })).resolves.toMatchObject({
+      to: email,
+      html: "<p>Kept</p>",
+      gaveUpAt: null,
+    });
+    await prisma.emailLog.delete({ where: { id: elsewhere.id } });
+  });
+
+  it("writes no email about a Customer once they're erased, and sends none from an old list", async () => {
+    const prisma = app.get(PrismaService);
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Erased race", customer: { fullName: "Erased Race" } });
+    const ticketId = BigInt(created.body.id);
+    const stale = await prisma.emailLog.create({
+      data: {
+        to: "delivered+staff@resend.dev",
+        subject: "Erased Race",
+        html: "<p>x</p>",
+        type: "feedback_received",
+        ticketId,
+      },
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    const email = app.get(EmailService);
+    await expect(email.retry(stale)).resolves.toBeNull();
+    await expect(
+      email.send({
+        to: "delivered+staff@resend.dev",
+        subject: "Late",
+        html: "<p>Late</p>",
+        type: "feedback_received",
+        ticketId,
+      }),
+    ).resolves.toBeNull();
+    await expect(prisma.emailLog.count({ where: { ticketId, subject: "Late" } })).resolves.toBe(0);
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: stale.id } })).resolves.toMatchObject({
+      attempts: 0,
+    });
   });
 
   it("gets a customer's full detail", async () => {

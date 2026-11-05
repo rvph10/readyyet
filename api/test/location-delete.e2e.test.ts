@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { Role } from "@readyyet/db";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -39,6 +40,8 @@ describe("Deleting a location", () => {
         },
       });
     const locationId = created.body.locations[0].id as string;
+    // Only an Owner's first Business gets a trial, and this one has many.
+    await prisma.subscription.update({ where: { locationId }, data: trialSubscription() });
     await prisma.membership.createMany({
       data: [
         { userId: userIds.admin, locationId, role: Role.ADMIN },
@@ -132,7 +135,7 @@ describe("Deleting a location", () => {
     const accepted = await request(app.getHttpServer())
       .post(`/invitations/${invitation.body.id}/accept`)
       .set("Cookie", inviteeCookie);
-    expect(accepted.status).toBe(409);
+    expect(accepted.status).toBe(404);
     expect(await prisma.membership.count({ where: { userId: userIds.invitee, locationId } })).toBe(0);
   });
 

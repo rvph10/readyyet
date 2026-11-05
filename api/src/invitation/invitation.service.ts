@@ -8,10 +8,23 @@ import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { assertCanManage, roleAt } from "../membership/team-rules";
 import { buildInvitationEmail } from "../notification/staff-email/staff-email";
+import { publicImageUrl } from "../storage/image";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
 // Who sent it, for the dashboard, rather than a bare user id.
 const INVITATION_INCLUDE = { include: { inviter: { select: { id: true, name: true } } } } as const;
+
+// What an invitee is shown of the invitation, before accepting it.
+const DETAILS_INCLUDE = {
+  include: {
+    inviter: { select: { id: true, name: true } },
+    location: {
+      select: { id: true, name: true, deletedAt: true, business: { select: { id: true, name: true, logoKey: true } } },
+    },
+  },
+} as const;
+
+type InvitationDetails = Prisma.InvitationGetPayload<typeof DETAILS_INCLUDE>;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const INVITATION_TTL_MS = 7 * DAY_MS;
@@ -123,17 +136,43 @@ export class InvitationService {
     return serialize(updated);
   }
 
+  // Public: the page an invitation link opens shows it before sign-in.
+  async preview(invitationId: string) {
+    return toPreview(await this.loadDetails(invitationId));
+  }
+
   async findForInvitee(invitationId: string, user: User) {
     const invitation = await this.loadForInvitee(invitationId, user);
-    const lapsed = invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date();
+    // Only someone who can still join sees who works there: a revoked invitee
+    // or a removed employee keeps the link, not the team.
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      return { ...toPreview(invitation), team: [] };
+    }
+    const memberships = await this.prisma.membership.findMany({
+      where: { locationId: invitation.locationId },
+      orderBy: { createdAt: "asc" },
+      select: { user: { select: { id: true, name: true, image: true } } },
+    });
     return {
-      id: invitation.id,
-      role: invitation.role,
-      status: lapsed ? InvitationStatus.EXPIRED : invitation.status,
-      invitedBy: invitation.inviter,
-      location: invitation.location,
-      expiresAt: invitation.expiresAt,
+      ...toPreview(invitation),
+      team: memberships.map(({ user: { image, ...member } }) => ({ ...member, avatarUrl: publicImageUrl(image) })),
     };
+  }
+
+  // No one is told (ADR 0051): the Location's list of invitations shows it.
+  async decline(invitationId: string, user: User) {
+    const invitation = await this.loadForInvitee(invitationId, user);
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      throw new ConflictError("This invitation is no longer pending");
+    }
+    const declined = await this.prisma.invitation.updateMany({
+      where: { id: invitationId, status: InvitationStatus.PENDING },
+      data: { status: InvitationStatus.DECLINED },
+    });
+    // Lost the race to an accept, a revoke or another decline.
+    if (declined.count === 0) {
+      throw new ConflictError("This invitation is no longer pending");
+    }
   }
 
   async accept(invitationId: string, user: User) {
@@ -174,21 +213,20 @@ export class InvitationService {
     });
   }
 
-  // Only the User it was sent to may read or accept it.
-  private async loadForInvitee(invitationId: string, user: User) {
+  private async loadDetails(invitationId: string) {
     if (!isUUID(invitationId)) {
       throw new NotFoundError("Invitation not found");
     }
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: invitationId },
-      include: {
-        inviter: { select: { id: true, name: true } },
-        location: { select: { id: true, name: true, business: { select: { id: true, name: true } } } },
-      },
-    });
-    if (!invitation) {
+    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId }, ...DETAILS_INCLUDE });
+    if (!invitation || invitation.location.deletedAt) {
       throw new NotFoundError("Invitation not found");
     }
+    return invitation;
+  }
+
+  // Only the User it was sent to may read it in full, accept or decline it.
+  private async loadForInvitee(invitationId: string, user: User) {
+    const invitation = await this.loadDetails(invitationId);
     if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
       throw new UnauthorizedError("This invitation was not sent to your account's email address");
     }
@@ -234,12 +272,28 @@ export class InvitationService {
       subject,
       react,
       type: "invitation",
+      invitationId: invitation.id,
       fromName: `${location.name} via ReadyYet`,
       // A question about the invitation goes to whoever sent it, or to the
       // shop once they deleted their account (ADR 0018).
       replyTo: inviter.deletedAt ? location.contactEmail : inviter.email,
     });
   }
+}
+
+function toPreview({ inviter, location, ...invitation }: InvitationDetails) {
+  const lapsed = invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date();
+  const { logoKey, ...business } = location.business;
+  return {
+    id: invitation.id,
+    email: invitation.email,
+    role: invitation.role,
+    status: lapsed ? InvitationStatus.EXPIRED : invitation.status,
+    invitedBy: inviter,
+    location: { id: location.id, name: location.name, business: { ...business, logoUrl: publicImageUrl(logoKey) } },
+    expiresAt: invitation.expiresAt,
+    createdAt: invitation.createdAt,
+  };
 }
 
 function serialize({ inviter, ...invitation }: Invitation & { inviter: { id: string; name: string } }) {

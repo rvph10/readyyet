@@ -67,4 +67,16 @@ describe("fetchWithRetry", () => {
     await expect(fetchWithRetry(request)).rejects.toThrow("fetch failed");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("sends both tries with keepalive, which keeps them out of Next.js's dedupe of a render's reads", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 503 })).mockResolvedValueOnce(new Response("ok"));
+    const request = new Request("http://api.test/me");
+
+    await fetchWithRetry(request);
+
+    expect(fetchMock.mock.calls).toEqual([
+      [request, { keepalive: true }],
+      [request, { keepalive: true }],
+    ]);
+  });
 });

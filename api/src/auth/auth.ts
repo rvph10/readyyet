@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import type { Auth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -8,6 +9,7 @@ import { localeFromAcceptLanguage } from "@readyyet/shared";
 import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
+import { isDisposableEmail } from "./disposable-email";
 
 // Given to the plugin and quoted in the email, so the two can't disagree.
 const OTP_EXPIRES_IN_MINUTES = 5;
@@ -74,6 +76,27 @@ export const auth: Auth<any> = betterAuth({
         },
       },
     },
+  },
+  hooks: {
+    // A throwaway address could start a new free trial every two weeks
+    // (ADR 0031). Refused before a code is sent, so no User is ever created
+    // for one (ADR 0050). A User who already exists keeps signing in, or a
+    // refresh of the list would lock them out (ADR 0085). A body that isn't
+    // valid is the plugin's to refuse.
+    before: createAuthMiddleware(async (ctx) => {
+      const email = (ctx.body as { email?: unknown } | undefined)?.email;
+      if (
+        ctx.path === "/email-otp/send-verification-otp" &&
+        typeof email === "string" &&
+        isDisposableEmail(email) &&
+        !(await ctx.context.internalAdapter.findUserByEmail(email.toLowerCase()))
+      ) {
+        throw new APIError("BAD_REQUEST", {
+          code: "DISPOSABLE_EMAIL",
+          message: "Disposable email addresses can't be used to sign in.",
+        });
+      }
+    }),
   },
   // No password auth: sign-in is by emailed OTP, which confirms the
   // email as a side effect and removes the need for a separate

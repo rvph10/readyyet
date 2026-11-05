@@ -14,7 +14,7 @@ import {
   MaxLength,
   ValidateNested,
 } from "class-validator";
-import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../../location/location-info";
 
@@ -27,6 +27,13 @@ export class CreateLocationDto {
   @IsString()
   @IsNotEmpty()
   businessTypeCode!: string;
+
+  // Only with OTHER (ADR 0071).
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(NAME_MAX_LENGTH)
+  businessTypeDetail?: string;
 
   @IsPhoneNumber()
   contactPhone!: string;

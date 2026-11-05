@@ -25,6 +25,7 @@ describe("Stopping a ticket's status updates", () => {
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
       .send({ title: "Bottes", customer: { fullName: "Chloé Dubois", email: address(label) } });
+    await app.get(NotificationService).sendDueTicketCreatedEmails();
     return response.body as { id: string; trackingCode: string };
   }
 

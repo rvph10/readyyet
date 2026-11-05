@@ -4,8 +4,9 @@ import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
 import { REF_COOKIE, REF_MAX_AGE_SECONDS, REF_MAX_LENGTH } from "@/lib/referral";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
-// check, this only spares a signed-out visitor a round trip (ADR 0045).
-const DASHBOARD_PATHS = ["/businesses/", "/locations/", "/invitations/"];
+// check, this only spares a signed-out visitor a round trip (ADR 0045). An
+// invitation's page is shown signed out too (ADR 0051).
+const DASHBOARD_PATHS = ["/businesses/", "/locations/"];
 
 function needsSession(pathname: string) {
   return pathname === "/" || DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix));
@@ -53,6 +54,7 @@ export function proxy(request: NextRequest) {
   }
 
   const api = new URL(process.env.NEXT_PUBLIC_API_URL as string).origin;
+  const bucket = new URL(process.env.S3_ENDPOINT as string).origin;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
   const csp = [
@@ -62,9 +64,10 @@ export function proxy(request: NextRequest) {
     // ignore 'unsafe-inline' next to a nonce, so development drops the nonce.
     `style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
     // Better Auth's client signs in against the API, whose /images serves
-    // logos and avatars.
+    // logos and avatars. Ticket photos come straight from the bucket, through
+    // presigned URLs (ADR 0026).
     `connect-src 'self' ${api}`,
-    `img-src 'self' blob: data: ${api}`,
+    `img-src 'self' blob: data: ${api} ${bucket}`,
     "font-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

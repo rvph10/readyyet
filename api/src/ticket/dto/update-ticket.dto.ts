@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
 import { IsOptionalCalendarDate } from "../../common/calendar-date";
-import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
+import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 
 export class UpdateTicketDto {
   @OptionalNotNull()

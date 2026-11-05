@@ -2,8 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect } from "react";
+import { startTransition, useCallback, useEffect } from "react";
 import { ErrorMessage } from "@/components/error-message";
+import { Button } from "@/components/ui/button";
+
+const RETRY_EVERY_MS = 60 * 1000;
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations("error");
@@ -19,24 +22,40 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
 
   // A server error only goes away if the server renders the page again,
   // reset() alone would re-render what the browser already has.
-  function retry() {
+  const retry = useCallback(() => {
     startTransition(() => {
       router.refresh();
       reset();
     });
-  }
+  }, [router, reset]);
+
+  // A page left open, like a counter's list or a Customer's tracking page, ends
+  // up here on one failed refresh and must come back without anyone there. Only
+  // a server error can go away by itself, a bug in the browser would just report
+  // again every minute.
+  const fromServer = Boolean(error.digest);
+  useEffect(() => {
+    if (!fromServer) return;
+    const retryIfVisible = () => {
+      if (document.visibilityState === "visible") retry();
+    };
+    const timer = setInterval(retryIfVisible, RETRY_EVERY_MS);
+    document.addEventListener("visibilitychange", retryIfVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", retryIfVisible);
+    };
+  }, [fromServer, retry]);
 
   return (
     <ErrorMessage title={t("title")}>
-      <p className="text-muted">{t("body")}</p>
-      {error.digest && <p className="font-mono text-sm">{t("reference", { digest: error.digest })}</p>}
-      <button
-        type="button"
-        onClick={retry}
-        className="self-start rounded-md bg-brand px-4 py-2 font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-      >
+      <p className="text-p-md text-muted">
+        {t("body")} {fromServer && t("retrying")}
+      </p>
+      {error.digest && <p className="font-mono text-p-xs text-muted">{t("reference", { digest: error.digest })}</p>}
+      <Button onClick={retry} className="mt-2 self-start">
         {t("retry")}
-      </button>
+      </Button>
     </ErrorMessage>
   );
 }

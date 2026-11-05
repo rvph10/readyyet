@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common";
-import type { Locale } from "@readyyet/db";
+import { Prisma, type Locale } from "@readyyet/db";
+import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { NotFoundError, ValidationError } from "../common/errors/app-error";
 import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
+import { customerIdsNamed } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
+const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 
 @Injectable()
 export class CustomerService {
@@ -23,7 +26,7 @@ export class CustomerService {
       where: {
         locationId,
         deletedAt: null,
-        ...(query.q && { fullName: { contains: query.q, mode: "insensitive" } }),
+        ...(query.q && { id: { in: await customerIdsNamed(this.prisma, locationId, query.q) } }),
         ...(after && {
           OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
         }),
@@ -77,11 +80,26 @@ export class CustomerService {
     await this.prisma.$transaction([
       this.prisma.customer.update({
         where: { id: customer.id },
-        data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+        data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
       }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
       // Their own words (ADR 0039).
       this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+      // What was sent about them: their address, their name, the staff copy of
+      // their feedback. Through the Ticket, the same address at another
+      // Location is another Customer.
+      this.prisma.emailLog.updateMany({
+        where: { ticket: { customerId: customer.id } },
+        data: {
+          to: ERASED_EMAIL_ADDRESS,
+          subject: ERASED_CUSTOMER_NAME,
+          html: null,
+          text: null,
+          lastError: null,
+          lastEvent: Prisma.DbNull,
+          gaveUpAt: new Date(),
+        },
+      }),
     ]);
     await this.storage.delete(photos.map((photo) => photo.objectKey));
   }

@@ -11,7 +11,7 @@ import {
   MaxLength,
   ValidateNested,
 } from "class-validator";
-import { DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "../../common/text-limits";
+import { DESCRIPTION_MAX_LENGTH, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 import { IsBigIntId } from "../../common/parse-bigint-id";
 import { IsOptionalCalendarDate } from "../../common/calendar-date";
 

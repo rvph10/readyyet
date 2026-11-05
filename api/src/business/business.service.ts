@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Role } from "@readyyet/db";
+import { Role, type Prisma } from "@readyyet/db";
+import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
@@ -9,6 +10,8 @@ import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/sta
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { toAddressColumns, toOpeningHoursJson } from "../location/location-info";
 import { locationSelect, toLocationResponse } from "../location/location-select";
+import { processImage, publicImageUrl } from "../storage/image";
+import { StorageService } from "../storage/storage.service";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { generateReferralCode } from "./referral-code";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
@@ -21,9 +24,17 @@ const businessSelect = {
   name: true,
   ownerId: true,
   referralCode: true,
+  logoKey: true,
   createdAt: true,
   updatedAt: true,
 } as const;
+
+function toBusinessResponse<T extends Prisma.BusinessGetPayload<{ select: typeof businessSelect }>>({
+  logoKey,
+  ...business
+}: T) {
+  return { ...business, logoUrl: publicImageUrl(logoKey) };
+}
 
 @Injectable()
 export class BusinessService {
@@ -33,9 +44,13 @@ export class BusinessService {
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
     private readonly billing: BillingService,
+    private readonly storage: StorageService,
   ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
+    // A trial per Owner, not per Business, or a new one every two weeks is
+    // free forever (ADR 0082).
+    const firstBusiness = (await this.prisma.business.count({ where: { ownerId } })) === 0;
     const business = await this.prisma.business.create({
       data: {
         ownerId,
@@ -45,20 +60,20 @@ export class BusinessService {
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
-            subscription: { create: trialSubscription() },
+            subscription: { create: firstBusiness ? trialSubscription() : UNPAID_SUBSCRIPTION },
           },
         },
       },
       select: { ...businessSelect, locations: locationSelect },
     });
-    return { ...business, locations: business.locations.map(toLocationResponse) };
+    return { ...toBusinessResponse(business), locations: business.locations.map(toLocationResponse) };
   }
 
   // Owner only, like every Business-wide action (ADR 0002). Members see
   // their Business's name through /me.
   async findOne(businessId: string, userId: string) {
     await this.loadOwned(businessId, userId, "Only the business owner can view it");
-    return this.prisma.business.findUniqueOrThrow({
+    const business = await this.prisma.business.findUniqueOrThrow({
       where: { id: businessId },
       select: {
         ...businessSelect,
@@ -69,11 +84,54 @@ export class BusinessService {
         },
       },
     });
+    return toBusinessResponse(business);
   }
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can rename it");
-    return this.prisma.business.update({ where: { id: businessId }, data: { name: dto.name }, select: businessSelect });
+    return toBusinessResponse(
+      await this.prisma.business.update({
+        where: { id: businessId },
+        data: { name: dto.name },
+        select: businessSelect,
+      }),
+    );
+  }
+
+  // Shown for every Location of the Business, so it's the Owner's to set
+  // (ADR 0051).
+  async setLogo(businessId: string, userId: string, file: Buffer) {
+    await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
+    const image = await processImage(file, "logo");
+    await this.storage.put(image.key, image.body, image.contentType);
+    try {
+      return await this.replaceLogo(businessId, image.key);
+    } catch (error) {
+      await this.storage.delete([image.key]);
+      throw error;
+    }
+  }
+
+  async removeLogo(businessId: string, userId: string) {
+    await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
+    return this.replaceLogo(businessId, null);
+  }
+
+  // The row first, the previous object after (ADR 0026).
+  private async replaceLogo(businessId: string, logoKey: string | null) {
+    const { logoKey: previous } = await this.prisma.business.findUniqueOrThrow({
+      where: { id: businessId },
+      select: { logoKey: true },
+    });
+    const business = await this.prisma.business.update({
+      where: { id: businessId },
+      data: { logoKey },
+      select: businessSelect,
+    });
+    if (previous) {
+      await this.storage.delete([previous]);
+    }
+    return toBusinessResponse(business);
   }
 
   async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
@@ -149,7 +207,7 @@ export class BusinessService {
         err instanceof Error ? err.stack : err,
       );
     });
-    return business;
+    return toBusinessResponse(business);
   }
 
   // Both people, each in their own language (ADR 0018). The previous
@@ -224,10 +282,16 @@ export class BusinessService {
     if (!businessType) {
       throw new NotFoundError(`Unknown business type "${dto.businessTypeCode}"`);
     }
+    if (dto.businessTypeDetail !== undefined && businessType.code !== OTHER_BUSINESS_TYPE) {
+      throw new ValidationError("A business type detail is only for OTHER", [
+        { property: "location.businessTypeDetail", constraints: { onlyForOther: "only with OTHER" } },
+      ]);
+    }
 
     return {
       name: dto.name,
       businessTypeId: businessType.id,
+      businessTypeDetail: dto.businessTypeDetail,
       contactPhone: dto.contactPhone,
       contactEmail: dto.contactEmail,
       locale: dto.locale,

@@ -54,13 +54,13 @@ A `Workflow` row is treated as **immutable once created**. Editing a location's 
 
 ## GDPR erasure
 
-`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`, and delete the photos of their tickets, which can show them too, and the private feedback they sent (ADR 0039). The ticket keeps a valid reference to "a customer existed," personal data is gone.
+`Customer.deleted_at` is not a delete flag in the usual sense, `customer_id` on `Ticket` is `ON DELETE RESTRICT`, so the row can never actually disappear while a ticket references it. Erasure is an application-level transaction: overwrite `full_name`/`email`/`phone` with redacted placeholders, set `deleted_at`, delete the photos of their tickets, which can show them too, and the private feedback they sent (ADR 0039), and clear the address and text of the emails about their tickets, staff copies included, keeping only that an email existed. The ticket keeps a valid reference to "a customer existed," personal data is gone.
 
 A staff `User` who deletes their account is handled the same way (ADR 0018): tickets, Status events and invitations point at the row with `ON DELETE RESTRICT`, so `name` becomes "Former member", `email` becomes `deleted-<id>@deleted.invalid` (a reserved domain, never deliverable, and unique through the id), `deleted_at` is set, and their sessions, sign-in records and memberships are deleted in the same transaction. Their avatar is deleted, the photos they added stay with the tickets.
 
 ## Deleted Locations
 
-`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Tickets under a deleted Location are permanent records and stay, only its logo and its tickets' photos are deleted (ADR 0026). Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
+`Location.deleted_at` is a soft delete, final in v1 (ADR 0017). Tickets under a deleted Location are permanent records and stay, only its tickets' photos are deleted (ADR 0026). The logo is its Business's and stays (ADR 0051). Instead every reader treats it as gone: `LocationMembershipGuard` answers 404 for it, `/me` leaves it out, the tracking page and the status email sweep skip it. Deleting also revokes its pending invitations and drops its queued status emails, in the same transaction.
 
 ## Undeliverable customer addresses
 

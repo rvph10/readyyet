@@ -47,11 +47,10 @@ describe("POST /businesses", () => {
     expect(response.body.locations[0].name).toBe("Downtown");
   });
 
-  it("starts the first location on a 14-day Pro trial", async () => {
-    const response = await request(app.getHttpServer())
-      .post("/businesses")
-      .set("Cookie", sessionCookie)
-      .send(validPayload);
+  it("starts an Owner's first Business on a 14-day Pro trial, and a later one unpaid", async () => {
+    const cookie = await signInViaOtp(app, app.get(PrismaService), `delivered+trial-${Date.now()}@resend.dev`);
+    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    const response = await create();
 
     const subscription = await app
       .get(PrismaService)
@@ -59,6 +58,47 @@ describe("POST /businesses", () => {
     expect(subscription).toMatchObject({ status: "TRIAL", plan: "PRO", stripeSubscriptionId: null });
     const days = (subscription.trialEndsAt!.getTime() - Date.now()) / (24 * 60 * 60 * 1000);
     expect(days).toBeCloseTo(14, 1);
+
+    const later = await create();
+    expect(later.status).toBe(201);
+    await expect(
+      app.get(PrismaService).subscription.findUniqueOrThrow({ where: { locationId: later.body.locations[0].id } }),
+    ).resolves.toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
+  });
+
+  it("keeps what an OTHER location does, in the owner's words", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({
+        ...validPayload,
+        location: { ...validPayload.location, businessTypeCode: "OTHER", businessTypeDetail: "Scooter repair" },
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.locations[0]).toMatchObject({
+      businessTypeCode: "OTHER",
+      businessTypeDetail: "Scooter repair",
+    });
+  });
+
+  it("leaves the detail empty when none is given", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send(validPayload);
+
+    expect(response.body.locations[0].businessTypeDetail).toBeNull();
+  });
+
+  it("refuses a detail with any type but OTHER", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: { ...validPayload.location, businessTypeDetail: "Scooter repair" } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("rejects an unknown business type code", async () => {

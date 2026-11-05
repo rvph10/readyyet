@@ -26,6 +26,10 @@ export interface CustomerEmailInput {
   trackingUrl: string;
   // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
   collectedUrl: string;
+  // Only in a FEEDBACK_REQUEST: each star links here with ?stars=. Opening it
+  // records nothing, as a mail scanner opens them all, and 5 stars goes
+  // straight on to Google (ADR 0076).
+  ratingUrl: string;
   // The Location sends a FEEDBACK_REQUEST after COMPLETED (ADR 0039).
   asksForFeedback: boolean;
   stopUpdatesUrl: string;
@@ -81,9 +85,28 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
             <Text style={styles.text}>{messages.feedbackNotice}</Text>
           )}
           <Section style={{ margin: "24px 0" }}>
-            <Button href={input.trackingUrl} style={styles.button}>
-              {input.kind === "FEEDBACK_REQUEST" ? messages.feedbackButton : messages.trackButton(job)}
-            </Button>
+            {input.kind === "FEEDBACK_REQUEST" ? (
+              <>
+                <Text style={styles.stars}>
+                  {[1, 2, 3, 4, 5].map((stars) => (
+                    <Link
+                      key={stars}
+                      href={`${input.ratingUrl}?stars=${stars}`}
+                      title={messages.starLabel(stars)}
+                      aria-label={messages.starLabel(stars)}
+                      style={styles.star}
+                    >
+                      ★
+                    </Link>
+                  ))}
+                </Text>
+                <Text style={styles.footer}>{messages.starsHint}</Text>
+              </>
+            ) : (
+              <Button href={input.trackingUrl} style={styles.button}>
+                {messages.trackButton(job)}
+              </Button>
+            )}
           </Section>
           {input.kind === "READY_REMINDER" && (
             <Text style={styles.text}>

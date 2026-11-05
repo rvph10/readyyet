@@ -15,6 +15,8 @@ export const styles = {
     padding: "12px 20px",
     textDecoration: "none",
   },
+  stars: { fontSize: "40px", lineHeight: "48px", margin: "0 0 4px" },
+  star: { color: "#18181b", padding: "0 4px", textDecoration: "none" },
   contact: { color: "#3f3f46", fontSize: "14px", lineHeight: "22px", margin: "0" },
   footer: { color: "#71717a", fontSize: "12px", lineHeight: "18px" },
 };

@@ -32,6 +32,7 @@ describe("Estimated ready date", () => {
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
       .send({ title: "Veste en cuir", customer: { fullName: "Chloé Dubois", email }, ...rest });
+    await app.get(NotificationService).sendDueTicketCreatedEmails();
     return response;
   }
 

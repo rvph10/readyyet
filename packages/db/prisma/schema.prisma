@@ -115,6 +115,7 @@ enum InvitationStatus {
   ACCEPTED
   REVOKED
   EXPIRED
+  DECLINED
 }
 
 enum Locale {
@@ -158,6 +159,9 @@ model Business {
   // Where the period of the first invoice paid for more than zero starts:
   // a sales partner's 6 months start here (ADR 0040).
   paidFrom                 DateTime? @map("paid_from")
+  // The logo's key in the bucket, never a URL (ADR 0026), shown for every
+  // Location of the Business (ADR 0051).
+  logoKey                  String?   @map("logo_key")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
@@ -197,37 +201,38 @@ model BusinessTypeTranslation {
 }
 
 model Location {
-  id              String    @id @default(uuid()) @db.Uuid
-  businessId      String    @map("business_id") @db.Uuid
-  businessTypeId  Int       @map("business_type_id")
-  name            String
-  contactPhone    String    @map("contact_phone")
-  contactEmail    String    @map("contact_email")
-  // The logo's key in the bucket, never a URL (ADR 0026).
-  logoKey         String?   @map("logo_key")
+  id                 String    @id @default(uuid()) @db.Uuid
+  businessId         String    @map("business_id") @db.Uuid
+  businessTypeId     Int       @map("business_type_id")
+  // What an OTHER Location does, in the owner's words, optional and set
+  // with no other type (ADR 0071).
+  businessTypeDetail String?   @map("business_type_detail")
+  name               String
+  contactPhone       String    @map("contact_phone")
+  contactEmail       String    @map("contact_email")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
-  locale          Locale
+  locale             Locale
   // ADR 0034: schema.org's PostalAddress fields, all four or none.
-  streetAddress   String?   @map("street_address")
-  postalCode      String?   @map("postal_code")
-  addressLocality String?   @map("address_locality")
+  streetAddress      String?   @map("street_address")
+  postalCode         String?   @map("postal_code")
+  addressLocality    String?   @map("address_locality")
   // ISO 3166-1 alpha-2.
-  addressCountry  String?   @map("address_country")
+  addressCountry     String?   @map("address_country")
   // A region's IANA name, never an offset, opening hours are wall-clock
   // times in it.
-  timeZone        String    @map("time_zone")
+  timeZone           String    @map("time_zone")
   // schema.org OpeningHoursSpecification entries, see ADR 0034.
-  openingHours    Json      @default("[]") @map("opening_hours")
+  openingHours       Json      @default("[]") @map("opening_hours")
   // Open days to a new Ticket's estimated ready date, null leaves it
   // empty. 1 to 60, a CHECK enforces it (ADR 0036).
-  turnaroundDays  Int?      @map("turnaround_days")
+  turnaroundDays     Int?      @map("turnaround_days")
   // Google's "write a review" link, it turns review requests on (ADR 0027,
   // ADR 0039).
-  googleReviewUrl String?   @map("google_review_url")
-  deletedAt       DateTime? @map("deleted_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  googleReviewUrl    String?   @map("google_review_url")
+  deletedAt          DateTime? @map("deleted_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
   businessType BusinessType  @relation(fields: [businessTypeId], references: [id], onDelete: Restrict)
@@ -268,8 +273,9 @@ model Invitation {
   acceptedAt DateTime?        @map("accepted_at")
   createdAt  DateTime         @default(now()) @map("created_at")
 
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  inviter  User     @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  location  Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  inviter   User       @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  emailLogs EmailLog[]
   // Partial unique index (location_id, lower(email)) WHERE status = 'PENDING'
   // added via raw SQL migrations, see docs/architecture/data-model.md.
 
@@ -378,6 +384,9 @@ model Ticket {
   // is still later then.
   customerToldReadyDate  DateTime? @map("customer_told_ready_date") @db.Date
   readyDateEmailDueAt    DateTime? @map("ready_date_email_due_at")
+  // The ticket-created email still to send, set with the Ticket so a crash
+  // can't lose it (ADR 0081).
+  trackingEmailDueAt     DateTime? @map("tracking_email_due_at")
   // Uncollected item reminders (ADR 0028, ADR 0037): reaching READY
   // resets the count and schedules the first one.
   customerCollectedAt    DateTime? @map("customer_collected_at")
@@ -395,6 +404,7 @@ model Ticket {
   statusEvents  TicketStatusEvent[]
   photos        TicketPhoto[]
   feedback      TicketFeedback?
+  emailLogs     EmailLog[]
 
   // Composite FKs enforce the tenant boundary and the workflow/status
   // relationship at the database level, not just in application code.
@@ -407,6 +417,7 @@ model Ticket {
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
   @@index([readyDateEmailDueAt])
+  @@index([trackingEmailDueAt])
   @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
 }
@@ -495,11 +506,23 @@ model EmailLog {
   lastError     String?     @map("last_error")
   lastEvent     Json?       @map("last_event")
   lastAttemptAt DateTime?   @map("last_attempt_at")
+  // No more retries: failing for too long, or no longer wanted.
+  gaveUpAt      DateTime?   @map("gave_up_at")
+  // Set for an email that must only ever exist once, whatever retries it.
+  dedupeKey     String?     @unique @map("dedupe_key")
+  // What it's about, so a late retry can check it's still wanted (ADR 0081).
+  ticketId      BigInt?     @map("ticket_id")
+  invitationId  String?     @map("invitation_id") @db.Uuid
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
+  ticket     Ticket?     @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+
   @@index([status, lastAttemptAt])
+  @@index([ticketId])
+  @@index([invitationId])
   @@map("email_log")
 }
 

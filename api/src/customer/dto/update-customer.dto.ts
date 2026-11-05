@@ -1,7 +1,7 @@
 import { Locale } from "@readyyet/db";
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MaxLength } from "class-validator";
 import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
-import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { NAME_MAX_LENGTH } from "@readyyet/shared";
 
 export class UpdateCustomerDto {
   @OptionalNotNull()

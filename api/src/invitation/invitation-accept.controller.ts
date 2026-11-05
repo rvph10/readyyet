@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Controller, Get, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
@@ -24,6 +24,14 @@ export class InvitationAcceptController {
   @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
   findOne(@Param("invitationId") invitationId: string, @CurrentUser() user: User): Promise<ReceivedInvitationDto> {
     return this.invitation.findForInvitee(invitationId, user);
+  }
+
+  @Post(":invitationId/decline")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Decline an invitation sent to you (ADR 0051)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  decline(@Param("invitationId") invitationId: string, @CurrentUser() user: User): Promise<void> {
+    return this.invitation.decline(invitationId, user);
   }
 
   @Post(":invitationId/accept")

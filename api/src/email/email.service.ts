@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nestjs";
 import { render } from "react-email";
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailStatus } from "@readyyet/db";
@@ -8,13 +9,10 @@ import { NON_RETRYABLE_RESEND_ERRORS } from "./email-status";
 import { getResendClient, waitForResendSlot } from "./resend-client";
 
 // Immediate, in-process retries for transient failures (rate limit, a
-// blip in Resend's API). MAX_TOTAL_ATTEMPTS is the overall ceiling
-// EmailRetryService's cron sweep also respects, each sweep re-runs this
-// same up-to-3-attempt loop, so the true ceiling is approximate, not
-// exact, good enough to eventually stop retrying a truly dead send.
+// blip in Resend's API). EmailRetryService's cron sweep re-runs this same
+// up-to-3-attempt loop later (ADR 0081).
 const MAX_IMMEDIATE_ATTEMPTS = 3;
 const IMMEDIATE_BACKOFF_MS = [0, 500, 1500];
-export const MAX_TOTAL_ATTEMPTS = 9;
 
 export interface SendEmailInput {
   to: string;
@@ -30,9 +28,18 @@ export interface SendEmailInput {
   fromName?: string;
   replyTo?: string;
   headers?: Record<string, string>;
+  // The Ticket it's about, checked again before a late retry.
+  ticketId?: bigint;
+  invitationId?: string;
+  // A second send with the same key returns the first, whose retries belong to
+  // EmailRetryService, instead of being a new email with its own idempotency key.
+  dedupeKey?: string;
 }
 
-type StoredMessage = Pick<EmailLog, "id" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers">;
+type StoredMessage = Pick<
+  EmailLog,
+  "id" | "type" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers"
+>;
 
 // fromName is user input (a Location's name): quoted so a comma or angle
 // bracket in it can't be read as another address, and line breaks
@@ -47,6 +54,15 @@ function sender(fromName: string | null): string {
   return `"${name}" <${address}>`;
 }
 
+// Only the error's name: its message can quote the address, and the row's id
+// leads to everything else.
+function report(what: string, emailLogId: string, lastError: string | null) {
+  Sentry.captureMessage(`${what}: ${lastError?.split(":")[0] ?? "no error recorded"}`, {
+    level: "error",
+    extra: { emailLogId },
+  });
+}
+
 @Injectable()
 export class EmailService {
   // Typed as the wider PrismaClient, not PrismaService: auth.ts
@@ -58,30 +74,65 @@ export class EmailService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaClient) {}
 
   async send(input: SendEmailInput) {
+    if (input.dedupeKey) {
+      const first = await this.prisma.emailLog.findUnique({ where: { dedupeKey: input.dedupeKey } });
+      if (first) {
+        return first;
+      }
+    }
     const { html, text } = await this.resolveContent(input);
 
-    const log = await this.prisma.emailLog.create({
-      data: {
-        to: input.to,
-        subject: input.subject,
-        type: input.type,
-        html,
-        text,
-        fromName: input.fromName,
-        replyTo: input.replyTo,
-        headers: input.headers,
-        status: EmailStatus.QUEUED,
-      },
+    const log = await this.prisma.$transaction(async (tx) => {
+      // Locks the Customer against an erasure running now, which either waits
+      // and then clears this row too, or has finished and this isn't written.
+      if (input.ticketId) {
+        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null }[]>`
+          SELECT c.deleted_at FROM customer c
+          JOIN ticket t ON t.customer_id = c.id
+          WHERE t.id = ${input.ticketId}
+          FOR SHARE OF c`;
+        if (customer.deleted_at) {
+          return null;
+        }
+      }
+      return tx.emailLog.create({
+        data: {
+          to: input.to,
+          subject: input.subject,
+          type: input.type,
+          html,
+          text,
+          fromName: input.fromName,
+          replyTo: input.replyTo,
+          headers: input.headers,
+          ticketId: input.ticketId,
+          invitationId: input.invitationId,
+          dedupeKey: input.dedupeKey,
+          status: EmailStatus.QUEUED,
+        },
+      });
     });
 
-    return this.attempt(log);
+    return log && this.attempt(log);
   }
 
   // Re-attempts an existing row (used by EmailRetryService's cron sweep)
   // from its already-persisted content, rather than needing the original
   // caller's react element again.
   async retry(log: StoredMessage) {
-    return this.attempt(log);
+    // The sweep's list can be minutes old by now, and an erasure gives up on
+    // an email in the same step that clears it.
+    const { gaveUpAt } = await this.prisma.emailLog.findUniqueOrThrow({
+      where: { id: log.id },
+      select: { gaveUpAt: true },
+    });
+    return gaveUpAt ? null : this.attempt(log);
+  }
+
+  // Nothing else will try again, so someone has to hear about it.
+  async giveUp(log: Pick<EmailLog, "id" | "type" | "lastError">) {
+    await this.prisma.emailLog.update({ where: { id: log.id }, data: { gaveUpAt: new Date() } });
+    report(`Gave up on a ${log.type} email`, log.id, log.lastError);
   }
 
   private async resolveContent(input: SendEmailInput): Promise<{ html?: string; text?: string }> {
@@ -95,7 +146,7 @@ export class EmailService {
   }
 
   private async attempt(message: StoredMessage) {
-    const { id: logId, to, subject, html, text } = message;
+    const { id: logId, type, to, subject, html, text } = message;
     let lastError = "";
 
     for (let i = 0; i < MAX_IMMEDIATE_ATTEMPTS; i++) {
@@ -127,6 +178,9 @@ export class EmailService {
 
         lastError = `${error.name}: ${error.message}`;
         if (NON_RETRYABLE_RESEND_ERRORS.has(error.name)) {
+          // Often our own setup, like a rotated API key, so someone should know
+          // now. It's still retried: once that's fixed, the email can go.
+          report(`A ${type} email was refused`, logId, lastError);
           break;
         }
       } catch (err) {

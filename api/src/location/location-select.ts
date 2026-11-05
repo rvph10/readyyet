@@ -9,9 +9,9 @@ export const locationSelect = {
     id: true,
     businessId: true,
     name: true,
+    businessTypeDetail: true,
     contactPhone: true,
     contactEmail: true,
-    logoKey: true,
     locale: true,
     timeZone: true,
     streetAddress: true,
@@ -24,6 +24,7 @@ export const locationSelect = {
     createdAt: true,
     updatedAt: true,
     businessType: { select: { code: true } },
+    business: { select: { logoKey: true } },
   },
 } as const;
 
@@ -34,13 +35,14 @@ export function toLocationResponse({
   addressLocality,
   addressCountry,
   openingHours,
-  logoKey,
+  business,
   ...location
 }: Prisma.LocationGetPayload<typeof locationSelect>) {
   return {
     ...location,
     businessTypeCode: businessType.code,
-    logoUrl: publicImageUrl(logoKey),
+    // The Business's, the same for all its Locations (ADR 0051).
+    logoUrl: publicImageUrl(business.logoKey),
     address: toPostalAddress({ streetAddress, postalCode, addressLocality, addressCountry }),
     openingHours: openingHours as OpeningHoursSpecification[],
   };

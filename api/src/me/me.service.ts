@@ -35,7 +35,7 @@ export class MeService {
   }
 
   async getMemberships(userId: string) {
-    return this.prisma.membership.findMany({
+    const memberships = await this.prisma.membership.findMany({
       where: { userId, location: { deletedAt: null } },
       select: {
         role: true,
@@ -43,11 +43,18 @@ export class MeService {
           select: {
             id: true,
             name: true,
-            business: { select: { id: true, name: true } },
+            business: { select: { id: true, name: true, logoKey: true } },
           },
         },
       },
     });
+    return memberships.map(({ role, location: { business, ...location } }) => ({
+      role,
+      location: {
+        ...location,
+        business: { id: business.id, name: business.name, logoUrl: publicImageUrl(business.logoKey) },
+      },
+    }));
   }
 
   async update(userId: string, dto: UpdateMeDto) {

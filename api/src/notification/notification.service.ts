@@ -1,16 +1,19 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import * as Sentry from "@sentry/nestjs";
 import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
+import { GIVE_UP_AFTER_MS } from "../email/email-status";
 import { EmailService } from "../email/email.service";
 import { asksForFeedback } from "../feedback/asks-for-feedback";
 import { toPostalAddress } from "../location/location-info";
 import { publicImageUrl } from "../storage/image";
 import {
   collectedUrl,
+  ratingUrl,
   isTrackingLinkExpired,
   oneClickStopUrl,
   stopUpdatesUrl,
@@ -37,17 +40,67 @@ function canEmail<C extends { email: string | null; emailBouncedAt: Date | null;
 // Customer emails, see docs/decisions/0015-customer-emails.md.
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
   ) {}
 
-  // Sent when a ticket is created, a Customer without an email address
-  // gets nothing (they have the QR code instead, ADR 0004).
-  async sendTicketCreated(ticketId: bigint) {
+  // Due from the moment the Ticket exists (ADR 0081). Often enough that the
+  // Customer has it before leaving the counter.
+  @Cron(CronExpression.EVERY_5_SECONDS, { name: "ticket-created-emails" })
+  @CronMonitor("ticket-created-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
+  async sendDueTicketCreatedEmails() {
+    const due = await this.prisma.ticket.findMany({
+      where: { trackingEmailDueAt: { lte: new Date() } },
+      orderBy: { trackingEmailDueAt: "asc" },
+      select: { id: true, trackingEmailDueAt: true, createdAt: true },
+    });
+
+    for (const { id, trackingEmailDueAt, createdAt } of due) {
+      // One Ticket's problem mustn't hold up the others. Its lease expires and
+      // it's tried again, until the email would be out of date.
+      try {
+        // Claimed like the status emails below: a concurrent sweep skips it, and
+        // if this process dies the lease expires and it's tried again.
+        const { count } = await this.prisma.ticket.updateMany({
+          where: { id, trackingEmailDueAt },
+          data: { trackingEmailDueAt: new Date(Date.now() + CLAIM_LEASE_MS) },
+        });
+        if (count === 0) {
+          continue;
+        }
+        if (Date.now() - createdAt.getTime() > GIVE_UP_AFTER_MS) {
+          Sentry.captureMessage(`Gave up on the ticket-created email of Ticket ${id}`, { level: "error" });
+        } else {
+          await this.sendTicketCreated(id);
+        }
+        await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
+      } catch (error) {
+        this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
+        Sentry.captureException(error);
+      }
+    }
+  }
+
+  // A Customer without an email address receives nothing, the QR code at
+  // drop-off covers them (ADR 0015). The key keeps a retry of this sweep, after
+  // a crash at the wrong moment, from being a second email.
+  private async sendTicketCreated(ticketId: bigint) {
     const ticket = await this.loadTicket(ticketId);
-    if (canEmail(ticket.customer)) {
-      await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    if (canEmail(ticket.customer) && !ticket.location.deletedAt) {
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        "TICKET_CREATED",
+        "ticket_tracking_link",
+        `ticket-created:${ticketId}`,
+      );
     }
   }
 
@@ -258,14 +311,20 @@ export class NotificationService {
       include: {
         customer: true,
         currentStatus: true,
-        location: { include: { businessType: true, subscription: true } },
+        location: { include: { businessType: true, subscription: true, business: { select: { logoKey: true } } } },
         // The latest event only: when the ticket reached its current status.
         statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1 },
       },
     });
   }
 
-  private async sendCustomerEmail(ticket: LoadedTicket, to: string, kind: CustomerEmailKind, type: string) {
+  private async sendCustomerEmail(
+    ticket: LoadedTicket,
+    to: string,
+    kind: CustomerEmailKind,
+    type: string,
+    dedupeKey?: string,
+  ) {
     const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
       ? toCalendarDate(ticket.estimatedReadyDate)
       : null;
@@ -279,10 +338,11 @@ export class NotificationService {
       location: {
         ...ticket.location,
         address: toPostalAddress(ticket.location),
-        logoUrl: publicImageUrl(ticket.location.logoKey),
+        logoUrl: publicImageUrl(ticket.location.business.logoKey),
       },
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
+      ratingUrl: ratingUrl(ticket.trackingCode),
       asksForFeedback: asksForFeedback(ticket.location),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
     });
@@ -291,6 +351,8 @@ export class NotificationService {
       subject,
       react,
       type,
+      ticketId: ticket.id,
+      dedupeKey,
       fromName: `${ticket.location.name} via ReadyYet`,
       replyTo: ticket.location.contactEmail,
       // Lets mail clients show their own unsubscribe button, which then

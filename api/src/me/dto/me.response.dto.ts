@@ -17,6 +17,7 @@ export class MeDto {
 export class MyBusinessDto {
   id!: string;
   name!: string;
+  logoUrl!: string | null;
 }
 
 export class MyLocationDto {

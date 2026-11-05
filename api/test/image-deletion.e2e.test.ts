@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { ImageSweepService } from "../src/storage/image-sweep.service";
 import { StorageService } from "../src/storage/storage.service";
@@ -40,7 +41,10 @@ describe("Deleting pictures", () => {
           locale: "FR",
         },
       });
-    return created.body.locations[0].id as string;
+    const locationId = created.body.locations[0].id as string;
+    // Only an Owner's first Business gets a trial, and this one has many.
+    await prisma.subscription.update({ where: { locationId }, data: trialSubscription() });
+    return locationId;
   }
 
   async function createTicket(locationId: string, customer: object = { fullName: "Chloé Dubois" }) {
@@ -62,14 +66,16 @@ describe("Deleting pictures", () => {
     return (await prisma.ticketPhoto.findUniqueOrThrow({ where: { id: BigInt(response.body.id) } })).objectKey;
   }
 
+  // The logo of the Location's Business (ADR 0051).
   async function setLogo(locationId: string) {
+    const { businessId } = await prisma.location.findUniqueOrThrow({ where: { id: locationId } });
     const response = await request(app.getHttpServer())
-      .put(`/locations/${locationId}/logo`)
+      .put(`/businesses/${businessId}/logo`)
       .set("Cookie", ownerCookie)
       .set("X-Real-IP", `198.18.0.${++ipCounter}`)
       .attach("file", await imageFile("png"), "logo.png");
     expect(response.status).toBe(200);
-    return (await prisma.location.findUniqueOrThrow({ where: { id: locationId } })).logoKey as string;
+    return (await prisma.business.findUniqueOrThrow({ where: { id: businessId } })).logoKey as string;
   }
 
   async function exists(key: string) {
@@ -99,7 +105,7 @@ describe("Deleting pictures", () => {
     await app.close();
   });
 
-  it("deletes a Location's logo and its Tickets' photos with it", async () => {
+  it("deletes a Location's Tickets' photos with it, and keeps its Business's logo", async () => {
     const locationId = await createLocation("Garage Fermé");
     const logo = await setLogo(locationId);
     const ticket = await createTicket(locationId);
@@ -109,8 +115,7 @@ describe("Deleting pictures", () => {
 
     expect(response.status).toBe(204);
     expect(await prisma.ticketPhoto.count({ where: { ticketId: BigInt(ticket.id) } })).toBe(0);
-    expect((await prisma.location.findUniqueOrThrow({ where: { id: locationId } })).logoKey).toBeNull();
-    expect(await exists(logo)).toBe(false);
+    expect(await exists(logo)).toBe(true);
     expect(await exists(photo)).toBe(false);
   });
 
