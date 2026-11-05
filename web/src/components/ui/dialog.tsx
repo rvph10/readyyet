@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { Icon } from "./icon";
 
-type Variant = "default" | "destructive" | "announcement" | "image";
+type Variant = "default" | "destructive" | "announcement" | "image" | "drawer";
 
 interface Props {
   open: boolean;
@@ -22,6 +22,8 @@ const frames: Record<Variant, string> = {
   destructive: "max-w-md rounded-2xl bg-surface shadow-float backdrop:bg-ink/24",
   announcement: "max-w-lg overflow-hidden rounded-3xl bg-surface shadow-float backdrop:bg-ink/24",
   image: "max-w-4xl bg-transparent backdrop:bg-ink/85",
+  // From the left edge, for navigation on a small screen (ADR 0049).
+  drawer: "rounded-r-3xl bg-surface shadow-float backdrop:bg-ink/24",
 };
 
 // The browser's own modal <dialog>, which traps focus, closes on Escape and
@@ -44,8 +46,18 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(event) => event.target === ref.current && onClose()}
-      className={`m-auto w-[calc(100%-2rem)] text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
+      className={`${variant === "drawer" ? "m-0 h-dvh max-h-dvh w-80 max-w-[calc(100%-3rem)]" : "m-auto w-[calc(100%-2rem)]"} text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
     >
+      {variant === "drawer" && (
+        <div className="relative flex h-full flex-col p-4 pt-16">
+          <h2 id={titleId} className="sr-only">
+            {title}
+          </h2>
+          <CloseButton onClose={onClose} className="absolute top-3 right-3" />
+          <div className="min-h-0 flex-1">{children}</div>
+        </div>
+      )}
+
       {variant === "image" && (
         <figure className="relative">
           {media}
