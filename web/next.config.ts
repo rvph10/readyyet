@@ -17,6 +17,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // A Ticket photo goes through a server action, and the API takes up to 15 MB.
+  experimental: { serverActions: { bodySizeLimit: "16mb" }, proxyClientMaxBodySize: "16mb" },
   // Read by src/lib/sentry.ts on the server and, inlined at build, in the
   // browser. Railway sets it at build time too.
   env: {
