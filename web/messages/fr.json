@@ -97,6 +97,60 @@
       "settings": "Réglages"
     }
   },
+  "tickets": {
+    "title": "Tickets",
+    "new": "Nouveau ticket",
+    "search": "Rechercher des tickets",
+    "searchPlaceholder": "Nom, téléphone, code ou travail",
+    "viewsLabel": "Filtrer les tickets",
+    "views": {
+      "open": "En cours",
+      "ready": "Prêts",
+      "late": "En retard",
+      "collected": "À confirmer",
+      "all": "Tous"
+    },
+    "columns": {
+      "ticket": "Ticket",
+      "customer": "Client",
+      "status": "Statut",
+      "expected": "Prévu",
+      "received": "Reçu"
+    },
+    "expectedLabel": "Prévu :",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "late": "En retard, {date}",
+    "customerCollected": "Récupéré selon le client",
+    "older": "Tickets plus anciens",
+    "newest": "Revenir aux plus récents",
+    "detail": "Ticket",
+    "empty": {
+      "open": {
+        "title": "Aucun ticket en cours",
+        "description": "Créez un ticket quand un article arrive, il apparaîtra ici."
+      },
+      "ready": {
+        "title": "Rien de prêt",
+        "description": "Les tickets apparaissent ici quand ils sont prêts."
+      },
+      "late": {
+        "title": "Rien en retard",
+        "description": "Les tickets dont la date prévue est dépassée apparaissent ici."
+      },
+      "collected": {
+        "title": "Rien à confirmer",
+        "description": "Quand un client dit avoir récupéré un article, le ticket apparaît ici."
+      },
+      "all": {
+        "title": "Aucun ticket pour l'instant",
+        "description": "Créez un ticket quand un article arrive, il apparaîtra ici."
+      }
+    },
+    "noMatch": "Aucun résultat pour « {query} »",
+    "noMatchHint": "Essayez un nom, un numéro de téléphone, un code de suivi ou un mot du travail.",
+    "searchAll": "Rechercher dans tous les tickets"
+  },
   "createBusiness": {
     "title": "Créez votre entreprise",
     "name": "Nom de l'entreprise",

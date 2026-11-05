@@ -97,6 +97,60 @@
       "settings": "Settings"
     }
   },
+  "tickets": {
+    "title": "Tickets",
+    "new": "New Ticket",
+    "search": "Search Tickets",
+    "searchPlaceholder": "Search by name, phone, code or job",
+    "viewsLabel": "Filter Tickets",
+    "views": {
+      "open": "Open",
+      "ready": "Ready",
+      "late": "Late",
+      "collected": "To confirm",
+      "all": "All"
+    },
+    "columns": {
+      "ticket": "Ticket",
+      "customer": "Customer",
+      "status": "Status",
+      "expected": "Expected",
+      "received": "Received"
+    },
+    "expectedLabel": "Expected:",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "late": "Late, {date}",
+    "customerCollected": "Customer says collected",
+    "older": "Older Tickets",
+    "newest": "Back to newest",
+    "detail": "Ticket",
+    "empty": {
+      "open": {
+        "title": "No open Tickets",
+        "description": "Create a Ticket when an item comes in, and it shows up here."
+      },
+      "ready": {
+        "title": "Nothing ready",
+        "description": "Tickets show up here once they reach Ready."
+      },
+      "late": {
+        "title": "Nothing late",
+        "description": "Tickets past their expected date show up here."
+      },
+      "collected": {
+        "title": "Nothing to confirm",
+        "description": "When a Customer says they picked up an item, the Ticket shows up here."
+      },
+      "all": {
+        "title": "No Tickets yet",
+        "description": "Create a Ticket when an item comes in, and it shows up here."
+      }
+    },
+    "noMatch": "Nothing matches “{query}”",
+    "noMatchHint": "Try a name, a phone number, a tracking code or a word from the job.",
+    "searchAll": "Search all Tickets"
+  },
   "createBusiness": {
     "title": "Create your Business",
     "name": "Business name",

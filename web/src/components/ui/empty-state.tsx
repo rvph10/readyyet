@@ -19,7 +19,7 @@ export function EmptyState({
       <span className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-canvas text-muted">
         <Icon name={icon} className="size-5" />
       </span>
-      <p className="text-label-md">{title}</p>
+      <p className="max-w-full text-label-md wrap-anywhere">{title}</p>
       <p className="mt-1 max-w-xs text-p-sm text-muted">{description}</p>
       {action && <div className="mt-5">{action}</div>}
     </div>
