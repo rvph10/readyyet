@@ -101,6 +101,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const count = toasts.length;
   useEffect(() => {
     const popover = region.current!;
+    // Safari before 17 has no popover, and this provider wraps every page: a
+    // toast can go without the top layer, the app can't go without the page.
+    if (!("showPopover" in popover)) return;
     if (popover.matches(":popover-open")) popover.hidePopover();
     popover.showPopover();
   }, [count]);
