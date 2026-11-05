@@ -21,6 +21,9 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
   const [index, setIndex] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const next = () => setIndex((index + 1) % tips.length);
+  // The button pressed is on the slide going inert, so focus has to follow to
+  // the next one. Not when the timer moves on, it would pull focus from the form.
+  const followFocus = useRef(false);
 
   useEffect(() => {
     const slide = track.current?.children[index] as HTMLElement | undefined;
@@ -29,6 +32,10 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
     }
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     track.current.scrollTo({ left: slide.offsetLeft, behavior: reduce ? "auto" : "smooth" });
+    if (followFocus.current) {
+      followFocus.current = false;
+      slide.querySelector("button")?.focus({ preventScroll: true });
+    }
   }, [index]);
 
   return (
@@ -43,7 +50,10 @@ export function TipsCarousel({ tips, label, nextLabel }: Props) {
               <h2 className="text-label-lg">{tip.title}</h2>
               <button
                 type="button"
-                onClick={next}
+                onClick={() => {
+                  followFocus.current = true;
+                  next();
+                }}
                 aria-label={nextLabel}
                 className="ml-auto flex shrink-0 items-center gap-3 rounded-full text-label-lg tabular-nums"
               >
