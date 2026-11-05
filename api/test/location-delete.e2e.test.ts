@@ -132,7 +132,7 @@ describe("Deleting a location", () => {
     const accepted = await request(app.getHttpServer())
       .post(`/invitations/${invitation.body.id}/accept`)
       .set("Cookie", inviteeCookie);
-    expect(accepted.status).toBe(409);
+    expect(accepted.status).toBe(404);
     expect(await prisma.membership.count({ where: { userId: userIds.invitee, locationId } })).toBe(0);
   });
 

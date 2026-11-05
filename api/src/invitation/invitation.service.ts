@@ -18,7 +18,9 @@ const INVITATION_INCLUDE = { include: { inviter: { select: { id: true, name: tru
 const DETAILS_INCLUDE = {
   include: {
     inviter: { select: { id: true, name: true } },
-    location: { select: { id: true, name: true, business: { select: { id: true, name: true, logoKey: true } } } },
+    location: {
+      select: { id: true, name: true, deletedAt: true, business: { select: { id: true, name: true, logoKey: true } } },
+    },
   },
 } as const;
 
@@ -141,6 +143,11 @@ export class InvitationService {
 
   async findForInvitee(invitationId: string, user: User) {
     const invitation = await this.loadForInvitee(invitationId, user);
+    // Only someone who can still join sees who works there: a revoked invitee
+    // or a removed employee keeps the link, not the team.
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      return { ...toPreview(invitation), team: [] };
+    }
     const memberships = await this.prisma.membership.findMany({
       where: { locationId: invitation.locationId },
       orderBy: { createdAt: "asc" },
@@ -211,7 +218,7 @@ export class InvitationService {
       throw new NotFoundError("Invitation not found");
     }
     const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId }, ...DETAILS_INCLUDE });
-    if (!invitation) {
+    if (!invitation || invitation.location.deletedAt) {
       throw new NotFoundError("Invitation not found");
     }
     return invitation;
@@ -282,7 +289,7 @@ function toPreview({ inviter, location, ...invitation }: InvitationDetails) {
     role: invitation.role,
     status: lapsed ? InvitationStatus.EXPIRED : invitation.status,
     invitedBy: inviter,
-    location: { ...location, business: { ...business, logoUrl: publicImageUrl(logoKey) } },
+    location: { id: location.id, name: location.name, business: { ...business, logoUrl: publicImageUrl(logoKey) } },
     expiresAt: invitation.expiresAt,
     createdAt: invitation.createdAt,
   };

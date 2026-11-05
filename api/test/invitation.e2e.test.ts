@@ -165,6 +165,45 @@ describe("Invitations", () => {
       expect(response.body).not.toHaveProperty("team");
     });
 
+    async function invite(email: string) {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email, role: "EMPLOYEE" });
+      expect(response.status).toBe(201);
+      return response.body.id as string;
+    }
+
+    function revoke(invitationId: string) {
+      return request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations/${invitationId}/revoke`)
+        .set("Cookie", ownerCookie)
+        .expect(200);
+    }
+
+    it("stops showing the team once the invitation is revoked", async () => {
+      const email = `delivered+invite-revoked-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const id = await invite(email);
+      await revoke(id);
+
+      const response = await request(app.getHttpServer()).get(`/invitations/${id}`).set("Cookie", cookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({ status: "REVOKED", team: [] });
+    });
+
+    it("shows nothing of a deleted Location, signed in or not", async () => {
+      const id = await invite(`delivered+invite-deleted-${Date.now()}@resend.dev`);
+      await prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } });
+
+      const response = await request(app.getHttpServer()).get(`/invitations/${id}/preview`);
+      await prisma.location.update({ where: { id: locationId }, data: { deletedAt: null } });
+
+      expect(response.status).toBe(404);
+      await revoke(id);
+    });
+
     it("previews nothing for an unknown or malformed id", async () => {
       for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid"]) {
         expect((await request(app.getHttpServer()).get(`/invitations/${id}/preview`)).status).toBe(404);
