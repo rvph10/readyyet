@@ -76,6 +76,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
   const [date, setDate] = useState(suggestedDate);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<ActionFailure | null>(null);
+  const [customerGone, setCustomerGone] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const query = chosen ? "" : fullName.trim();
@@ -100,8 +101,15 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
 
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
 
+  // Only that field's error goes, the API may have refused others too. Once no
+  // field of the page is left, the rest of the refusal has nothing more to say.
   function edited(field: string) {
-    setFailure(null);
+    setCustomerGone(false);
+    setFailure((refused) => {
+      const fields = { ...refused?.fields };
+      delete fields[field];
+      return refused && SHOWN_FIELDS.some((name) => fields[name]) ? { ...refused, fields } : null;
+    });
     setErrors((shown) => {
       const rest = { ...shown };
       delete rest[field];
@@ -111,6 +119,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
 
   function clearCustomerErrors() {
     setFailure(null);
+    setCustomerGone(false);
     setErrors(({ title, description, estimatedReadyDate }) => ({
       ...(title && { title }),
       ...(description && { description }),
@@ -145,6 +154,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
       ...(customer && !customer.success ? fieldErrors(customer.error) : {}),
     });
     setFailure(null);
+    setCustomerGone(false);
     if (!ticket.success || (customer && !customer.success)) return;
     startTransition(async () => {
       const result = await createTicket(locationId, {
@@ -160,27 +170,23 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
           : { customerId: chosen!.id }),
       });
       if (result.ok) return;
-      // Erased by a colleague since being chosen, retrying can't work.
-      if (result.code === "NOT_FOUND" && chosen) unchoose();
       setFailure(result);
+      // Erased by a colleague since being chosen, retrying can't work.
+      if (result.code === "NOT_FOUND" && chosen) {
+        unchoose();
+        setCustomerGone(true);
+      }
     });
   }
 
   const emailed = chosen ? chosen.email : email.trim();
   const emailFails = chosen && (chosen.emailBouncedAt || chosen.emailComplainedAt);
   // A refusal of a field nothing here shows still has to say something.
-  const failureMessage =
-    failure &&
-    !SHOWN_FIELDS.some((field) => failure.fields?.[field]) &&
-    t(
-      failure.code === "LOCATION_FROZEN"
-        ? "frozen"
-        : failure.code === "RATE_LIMITED"
-          ? "rateLimited"
-          : failure.code === "NOT_FOUND"
-            ? "customerGone"
-            : "unexpected",
-    );
+  const failureMessage = customerGone
+    ? t("customerGone")
+    : failure &&
+      !SHOWN_FIELDS.some((field) => failure.fields?.[field]) &&
+      t(failure.code === "LOCATION_FROZEN" ? "frozen" : failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected");
   const languageNames = new Intl.DisplayNames([pageLocale], { type: "language" });
   const shown = matches.query === query ? matches.customers : [];
 
