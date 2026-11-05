@@ -383,6 +383,9 @@ model Ticket {
   // is still later then.
   customerToldReadyDate  DateTime? @map("customer_told_ready_date") @db.Date
   readyDateEmailDueAt    DateTime? @map("ready_date_email_due_at")
+  // The ticket-created email still to send, set with the Ticket so a crash
+  // can't lose it (ADR 0081).
+  trackingEmailDueAt     DateTime? @map("tracking_email_due_at")
   // Uncollected item reminders (ADR 0028, ADR 0037): reaching READY
   // resets the count and schedules the first one.
   customerCollectedAt    DateTime? @map("customer_collected_at")
@@ -412,6 +415,7 @@ model Ticket {
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
   @@index([readyDateEmailDueAt])
+  @@index([trackingEmailDueAt])
   @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
 }
@@ -500,6 +504,8 @@ model EmailLog {
   lastError     String?     @map("last_error")
   lastEvent     Json?       @map("last_event")
   lastAttemptAt DateTime?   @map("last_attempt_at")
+  // No more retries: it can't succeed, or it has been failing for too long.
+  gaveUpAt      DateTime?   @map("gave_up_at")
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")

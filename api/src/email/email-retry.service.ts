@@ -3,11 +3,21 @@ import { Cron } from "@nestjs/schedule";
 import { EmailStatus } from "@readyyet/db";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { PrismaService } from "../database/prisma.service";
-import { EmailService, MAX_TOTAL_ATTEMPTS } from "./email.service";
+import { EmailService } from "./email.service";
 
-// Don't hammer Resend immediately after a row's own in-process retries
-// (EmailService.attempt) already just failed.
-const RETRY_COOLDOWN_MS = 60_000;
+// An outage can last hours, so the email keeps its chance for a day. After
+// that, staff have long told the Customer themselves or it's out of date.
+const GIVE_UP_AFTER_MS = 24 * 60 * 60 * 1000;
+// Doubled per round of attempts, each round being up to 3 of them
+// (EmailService.attempt), so a long outage costs few calls.
+const FIRST_RETRY_DELAY_MS = 60_000;
+const LONGEST_RETRY_DELAY_MS = 2 * 60 * 60 * 1000;
+const ATTEMPTS_PER_ROUND = 3;
+
+function retryDelay(attempts: number) {
+  const rounds = Math.ceil(attempts / ATTEMPTS_PER_ROUND);
+  return Math.min(FIRST_RETRY_DELAY_MS * 2 ** Math.max(rounds - 1, 0), LONGEST_RETRY_DELAY_MS);
+}
 
 @Injectable()
 export class EmailRetryService {
@@ -26,21 +36,25 @@ export class EmailRetryService {
     maxRuntime: 10,
   })
   async sweep() {
-    const cutoff = new Date(Date.now() - RETRY_COOLDOWN_MS);
+    const now = Date.now();
     const stuck = await this.prisma.emailLog.findMany({
       where: {
         status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] },
-        attempts: { lt: MAX_TOTAL_ATTEMPTS },
+        gaveUpAt: null,
         // A sign-in code expires in 5 minutes, one sent by a later sweep
         // would already be dead. The User asks for a new one instead.
         type: { not: "auth_otp" },
-        OR: [{ lastAttemptAt: null }, { lastAttemptAt: { lt: cutoff } }],
       },
     });
 
     for (const log of stuck) {
-      this.logger.log(`Retrying email ${log.id} (attempts so far: ${log.attempts})`);
-      await this.email.retry(log);
+      if (now - log.createdAt.getTime() > GIVE_UP_AFTER_MS) {
+        this.logger.error(`Giving up on email ${log.id} after ${log.attempts} attempts`);
+        await this.email.giveUp(log);
+      } else if (!log.lastAttemptAt || now - log.lastAttemptAt.getTime() >= retryDelay(log.attempts)) {
+        this.logger.log(`Retrying email ${log.id} (attempts so far: ${log.attempts})`);
+        await this.email.retry(log);
+      }
     }
   }
 }
