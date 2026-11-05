@@ -153,7 +153,7 @@
     "searchAll": "Search all Tickets",
     "form": {
       "customerSection": "Customer",
-      "jobSection": "Ticket",
+      "ticketSection": "Ticket",
       "customerName": "Customer name",
       "customerNamePlaceholder": "Type a name to find or add a Customer",
       "existing": "Already a Customer here",
@@ -187,7 +187,8 @@
       "invalid": "Check this field.",
       "frozen": "New Tickets are paused at this Location because its plan has ended. An Owner or Admin can restart it under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
-      "unexpected": "The Ticket wasn't created. Please try again."
+      "unexpected": "The Ticket wasn't created. Please try again.",
+      "customerGone": "This Customer is no longer in your list. Find or add them again."
     }
   },
   "createBusiness": {

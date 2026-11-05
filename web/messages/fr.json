@@ -153,7 +153,7 @@
     "searchAll": "Rechercher dans tous les tickets",
     "form": {
       "customerSection": "Client",
-      "jobSection": "Ticket",
+      "ticketSection": "Ticket",
       "customerName": "Nom du client",
       "customerNamePlaceholder": "Tapez un nom pour trouver ou ajouter un client",
       "existing": "Déjà client ici",
@@ -187,7 +187,8 @@
       "invalid": "Vérifiez ce champ.",
       "frozen": "Les nouveaux tickets sont suspendus dans cet établissement car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
-      "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer."
+      "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
+      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau."
     }
   },
   "createBusiness": {

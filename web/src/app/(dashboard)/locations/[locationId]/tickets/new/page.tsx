@@ -14,6 +14,7 @@ export default async function NewTicketPage({ params }: PageProps<"/locations/[l
       <h1 className="font-display text-label-xl md:text-title-h4">{t("new")}</h1>
       <TicketForm
         locationId={locationId}
+        timeZone={location.timeZone}
         today={calendarDateIn(now, location.timeZone)}
         suggestedDate={
           location.turnaroundDays

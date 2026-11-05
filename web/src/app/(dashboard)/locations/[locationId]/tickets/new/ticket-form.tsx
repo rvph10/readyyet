@@ -1,6 +1,6 @@
 "use client";
 
-import { NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, LOCALES, TITLE_MAX_LENGTH } from "@readyyet/shared";
+import { calendarDateIn, DESCRIPTION_MAX_LENGTH, LOCALES, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useState, useTransition, type FormEvent } from "react";
@@ -22,6 +22,14 @@ type Customer = components["schemas"]["CustomerDto"];
 const SEARCH_DEBOUNCE_MS = 250;
 const SEARCH_FROM_LETTERS = 2;
 const FALLBACK_COUNTRY = "BE";
+const SHOWN_FIELDS = [
+  "customer.fullName",
+  "customer.email",
+  "customer.phone",
+  "title",
+  "description",
+  "estimatedReadyDate",
+];
 
 function CustomerRow({ customer }: { customer: Customer }) {
   const t = useTranslations("tickets.form");
@@ -40,6 +48,7 @@ function CustomerRow({ customer }: { customer: Customer }) {
 
 interface Props {
   locationId: string;
+  timeZone: string;
   today: string;
   // The Location's turnaround date (ADR 0036), or empty without one.
   suggestedDate: string;
@@ -51,12 +60,14 @@ interface Props {
 // Whoever works the counter fills this in with someone waiting, so one field
 // both finds a returning Customer and starts a new one. The form is checked by
 // its schemas, then by the API, whose refusals land in the same places.
-export function TicketForm({ locationId, today, suggestedDate, locationLocale, country }: Props) {
+export function TicketForm({ locationId, timeZone, today, suggestedDate, locationLocale, country }: Props) {
   const t = useTranslations("tickets.form");
   const pageLocale = useLocale();
   const [chosen, setChosen] = useState<Customer | null>(null);
   const [fullName, setFullName] = useState("");
-  const [matches, setMatches] = useState<Customer[]>([]);
+  // With the name they answer: results for an earlier name are never offered,
+  // a click on one could send this Ticket's email to the wrong person.
+  const [matches, setMatches] = useState<{ query: string; customers: Customer[] }>({ query: "", customers: [] });
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [locale, setLocale] = useState(locationLocale);
@@ -73,9 +84,13 @@ export function TicketForm({ locationId, today, suggestedDate, locationLocale, c
     if (query.length < SEARCH_FROM_LETTERS) return;
     let current = true;
     const timer = setTimeout(() => {
-      void findCustomers(locationId, query).then((found) => {
-        if (current) setMatches(found);
-      });
+      void findCustomers(locationId, query).then(
+        (customers) => {
+          if (current) setMatches({ query, customers });
+        },
+        // Only a help for finding someone, the form works without it.
+        () => undefined,
+      );
     }, SEARCH_DEBOUNCE_MS);
     return () => {
       current = false;
@@ -86,6 +101,7 @@ export function TicketForm({ locationId, today, suggestedDate, locationLocale, c
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
 
   function edited(field: string) {
+    setFailure(null);
     setErrors((shown) => {
       const rest = { ...shown };
       delete rest[field];
@@ -93,27 +109,43 @@ export function TicketForm({ locationId, today, suggestedDate, locationLocale, c
     });
   }
 
-  function choose(customer: Customer) {
-    setChosen(customer);
-    setMatches([]);
-    edited("customer.fullName");
+  function clearCustomerErrors() {
+    setFailure(null);
+    setErrors(({ title, description, estimatedReadyDate }) => ({
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(estimatedReadyDate && { estimatedReadyDate }),
+    }));
   }
 
+  function choose(customer: Customer) {
+    setChosen(customer);
+    clearCustomerErrors();
+  }
+
+  // Everything goes with the name, what was typed before choosing someone must
+  // not end up on the next Customer, who'd have their tracking link sent there.
   function unchoose() {
     setChosen(null);
     setFullName("");
+    setEmail("");
+    setPhone("");
+    setLocale(locationLocale);
+    clearCustomerErrors();
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const ticket = ticketSchema(t, today).safeParse({ title, description, estimatedReadyDate: date });
+    // Now, not when the page opened: it may have stayed open overnight.
+    const now = calendarDateIn(new Date(), timeZone);
+    const ticket = ticketSchema(t, now).safeParse({ title, description, estimatedReadyDate: date });
     const customer = chosen ? null : newCustomerSchema(t).safeParse({ customer: { fullName, email, phone } });
     setErrors({
       ...(ticket.success ? {} : fieldErrors(ticket.error)),
       ...(customer && !customer.success ? fieldErrors(customer.error) : {}),
     });
-    if (!ticket.success || (customer && !customer.success)) return;
     setFailure(null);
+    if (!ticket.success || (customer && !customer.success)) return;
     startTransition(async () => {
       const result = await createTicket(locationId, {
         ...ticket.data,
@@ -127,18 +159,30 @@ export function TicketForm({ locationId, today, suggestedDate, locationLocale, c
             }
           : { customerId: chosen!.id }),
       });
-      if (!result.ok) setFailure(result);
+      if (result.ok) return;
+      // Erased by a colleague since being chosen, retrying can't work.
+      if (result.code === "NOT_FOUND" && chosen) unchoose();
+      setFailure(result);
     });
   }
 
   const emailed = chosen ? chosen.email : email.trim();
   const emailFails = chosen && (chosen.emailBouncedAt || chosen.emailComplainedAt);
+  // A refusal of a field nothing here shows still has to say something.
   const failureMessage =
     failure &&
-    !failure.fields &&
-    t(failure.code === "LOCATION_FROZEN" ? "frozen" : failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected");
+    !SHOWN_FIELDS.some((field) => failure.fields?.[field]) &&
+    t(
+      failure.code === "LOCATION_FROZEN"
+        ? "frozen"
+        : failure.code === "RATE_LIMITED"
+          ? "rateLimited"
+          : failure.code === "NOT_FOUND"
+            ? "customerGone"
+            : "unexpected",
+    );
   const languageNames = new Intl.DisplayNames([pageLocale], { type: "language" });
-  const shown = query.length < SEARCH_FROM_LETTERS ? [] : matches;
+  const shown = matches.query === query ? matches.customers : [];
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-5">
@@ -223,9 +267,9 @@ export function TicketForm({ locationId, today, suggestedDate, locationLocale, c
             </div>
           )}
         </Panel>
-        <Panel as="section" aria-labelledby="ticket-job" className="flex min-w-0 flex-col gap-4 md:p-6">
-          <h2 id="ticket-job" className="text-label-lg">
-            {t("jobSection")}
+        <Panel as="section" aria-labelledby="ticket-details" className="flex min-w-0 flex-col gap-4 md:p-6">
+          <h2 id="ticket-details" className="text-label-lg">
+            {t("ticketSection")}
           </h2>
           <Field
             label={t("title")}
