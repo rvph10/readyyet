@@ -9,6 +9,7 @@ import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
+const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 
 @Injectable()
 export class CustomerService {
@@ -84,6 +85,24 @@ export class CustomerService {
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
       // Their own words (ADR 0039).
       this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+      // What was sent to them: the address, and their name in the text. Older
+      // emails have no Ticket, only their address says whose they were.
+      this.prisma.emailLog.updateMany({
+        where: {
+          OR: [
+            { ticket: { customerId: customer.id } },
+            ...(customer.email ? [{ to: customer.email, ticketId: null, type: { startsWith: "ticket_" } }] : []),
+          ],
+        },
+        data: {
+          to: ERASED_EMAIL_ADDRESS,
+          subject: ERASED_CUSTOMER_NAME,
+          html: null,
+          text: null,
+          lastError: null,
+          gaveUpAt: new Date(),
+        },
+      }),
     ]);
     await this.storage.delete(photos.map((photo) => photo.objectKey));
   }
