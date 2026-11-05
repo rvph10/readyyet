@@ -69,6 +69,17 @@ describe("Customers", () => {
     expect(response.body.nextCursor).toBeNull();
   });
 
+  it("treats % and _ in a search as the characters they are, not wildcards", async () => {
+    for (const q of ["__", "%%"]) {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ q })
+        .set("Cookie", ownerCookie);
+      expect(response.status).toBe(200);
+      expect(response.body.items).toEqual([]);
+    }
+  });
+
   it("gets a customer's full detail", async () => {
     const response = await request(app.getHttpServer())
       .get(`/locations/${locationId}/customers/${bobId}`)

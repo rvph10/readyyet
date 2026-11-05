@@ -24,7 +24,8 @@ export class CustomerService {
       where: {
         locationId,
         deletedAt: null,
-        ...(query.q && { fullName: { contains: query.q, mode: "insensitive" } }),
+        // Prisma passes contains through to ILIKE as-is, see TicketService.
+        ...(query.q && { fullName: { contains: query.q.replace(/[\\%_]/g, "\\$&"), mode: "insensitive" } }),
         ...(after && {
           OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
         }),
