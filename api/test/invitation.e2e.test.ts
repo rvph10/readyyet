@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailRetryService } from "../src/email/email-retry.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
@@ -202,6 +203,23 @@ describe("Invitations", () => {
 
       expect(response.status).toBe(404);
       await revoke(id);
+    });
+
+    it("drops a failed invitation email once the invitation is revoked", async () => {
+      const email = `delivered+invite-late-${Date.now()}@resend.dev`;
+      const id = await invite(email);
+      const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id } }));
+      await prisma.emailLog.update({
+        where: { id: log.id },
+        data: { status: "FAILED", resendId: null, attempts: 3, lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
+      });
+      await revoke(id);
+
+      await app.get(EmailRetryService).sweep();
+
+      const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: log.id } });
+      expect(after.gaveUpAt).toBeTruthy();
+      expect(after.attempts).toBe(3);
     });
 
     it("previews nothing for an unknown or malformed id", async () => {

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
-import { EmailStatus, type Prisma } from "@readyyet/db";
+import { EmailStatus, InvitationStatus, type Prisma } from "@readyyet/db";
+import { showsEstimatedReadyDate } from "@readyyet/shared";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { PrismaService } from "../database/prisma.service";
 import { GIVE_UP_AFTER_MS } from "./email-status";
@@ -16,22 +17,40 @@ const STUCK_INCLUDE = {
   ticket: {
     select: {
       notificationsStoppedAt: true,
+      customerCollectedAt: true,
+      currentStatus: { select: { code: true } },
       customer: { select: { email: true, emailBouncedAt: true, emailComplainedAt: true } },
       location: { select: { deletedAt: true } },
       statusEvents: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
+      emailLogs: {
+        where: { type: "ticket_ready_date_changed" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { createdAt: true },
+      },
     },
   },
+  invitation: { select: { status: true, expiresAt: true, location: { select: { deletedAt: true } } } },
 } satisfies Prisma.EmailLogInclude;
 type StuckEmail = Prisma.EmailLogGetPayload<{ include: typeof STUCK_INCLUDE }>;
 
 // Hours may have passed since it was written: staff may have corrected the
-// address, the Customer may be erased or have stopped updates, and a Status email
-// mustn't arrive after the Ticket has moved on (ADR 0015).
-function stillWanted({ ticket, to, type, createdAt }: StuckEmail) {
+// address, the Customer may be erased or have stopped updates, an email must
+// not arrive after what it says has stopped being true (ADR 0015), and an
+// invitation may have been revoked.
+function stillWanted({ ticket, invitation, to, type, createdAt }: StuckEmail) {
+  if (type === "invitation") {
+    return (
+      invitation?.status === InvitationStatus.PENDING &&
+      invitation.expiresAt > new Date() &&
+      !invitation.location.deletedAt
+    );
+  }
   if (!ticket) {
     return true;
   }
-  const { customer, location, notificationsStoppedAt, statusEvents } = ticket;
+  const { currentStatus, customer, customerCollectedAt, emailLogs, location, notificationsStoppedAt, statusEvents } =
+    ticket;
   if (customer.email !== to || customer.emailBouncedAt || customer.emailComplainedAt || location.deletedAt) {
     return false;
   }
@@ -41,7 +60,16 @@ function stillWanted({ ticket, to, type, createdAt }: StuckEmail) {
   if (notificationsStoppedAt) {
     return false;
   }
-  return type !== "ticket_status_update" || statusEvents[0].createdAt <= createdAt;
+  if (type === "ticket_status_update") {
+    return statusEvents[0].createdAt <= createdAt;
+  }
+  if (type === "ticket_ready_reminder") {
+    return currentStatus.code === "READY" && !customerCollectedAt;
+  }
+  if (type === "ticket_ready_date_changed") {
+    return showsEstimatedReadyDate(currentStatus.code) && emailLogs[0].createdAt <= createdAt;
+  }
+  return true;
 }
 
 function retryDelay(attempts: number) {

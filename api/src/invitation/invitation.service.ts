@@ -272,6 +272,7 @@ export class InvitationService {
       subject,
       react,
       type: "invitation",
+      invitationId: invitation.id,
       fromName: `${location.name} via ReadyYet`,
       // A question about the invitation goes to whoever sent it, or to the
       // shop once they deleted their account (ADR 0018).

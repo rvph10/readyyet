@@ -171,6 +171,48 @@ describe("Ticket tracking link emails", () => {
         expect(after.attempts).toBe(3);
       });
 
+      it("doesn't remind a Customer of an item no longer waiting at READY", async () => {
+        const { email } = await failedEmailOf("reminder-moved-on");
+        await prisma.emailLog.update({ where: { id: email.id }, data: { type: "ticket_ready_reminder" } });
+
+        await app.get(EmailRetryService).sweep();
+
+        const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } });
+        expect(after.gaveUpAt).toBeTruthy();
+        expect(after.attempts).toBe(3);
+      });
+
+      it("drops a ready date email a later one has replaced, so the old date can't land last", async () => {
+        const { ticket, email } = await failedEmailOf("date-replaced");
+        await prisma.emailLog.update({ where: { id: email.id }, data: { type: "ticket_ready_date_changed" } });
+        await prisma.emailLog.create({
+          data: {
+            to: address("date-replaced"),
+            subject: "A later date",
+            type: "ticket_ready_date_changed",
+            status: "SENT",
+            ticketId: BigInt(ticket.id),
+          },
+        });
+
+        await app.get(EmailRetryService).sweep();
+
+        const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } });
+        expect(after.gaveUpAt).toBeTruthy();
+        expect(after.attempts).toBe(3);
+      });
+
+      it("still sends the latest ready date email", async () => {
+        const { email } = await failedEmailOf("date-latest");
+        await prisma.emailLog.update({ where: { id: email.id }, data: { type: "ticket_ready_date_changed" } });
+
+        await app.get(EmailRetryService).sweep();
+
+        const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: email.id } });
+        expect(after.status).toBe("SENT");
+        expect(after.gaveUpAt).toBeNull();
+      });
+
       it("isn't sent to an erased Customer", async () => {
         const { ticket, email } = await failedEmailOf("erased");
         await prisma.customer.update({

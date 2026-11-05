@@ -30,6 +30,7 @@ export interface SendEmailInput {
   headers?: Record<string, string>;
   // The Ticket it's about, checked again before a late retry.
   ticketId?: bigint;
+  invitationId?: string;
   // A second send with the same key returns the first, whose retries belong to
   // EmailRetryService, instead of being a new email with its own idempotency key.
   dedupeKey?: string;
@@ -92,6 +93,7 @@ export class EmailService {
         replyTo: input.replyTo,
         headers: input.headers,
         ticketId: input.ticketId,
+        invitationId: input.invitationId,
         dedupeKey: input.dedupeKey,
         status: EmailStatus.QUEUED,
       },

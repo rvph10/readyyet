@@ -273,8 +273,9 @@ model Invitation {
   acceptedAt DateTime?        @map("accepted_at")
   createdAt  DateTime         @default(now()) @map("created_at")
 
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  inviter  User     @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  location  Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  inviter   User       @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  emailLogs EmailLog[]
   // Partial unique index (location_id, lower(email)) WHERE status = 'PENDING'
   // added via raw SQL migrations, see docs/architecture/data-model.md.
 
@@ -511,14 +512,17 @@ model EmailLog {
   dedupeKey     String?     @unique @map("dedupe_key")
   // What it's about, so a late retry can check it's still wanted (ADR 0081).
   ticketId      BigInt?     @map("ticket_id")
+  invitationId  String?     @map("invitation_id") @db.Uuid
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
-  ticket Ticket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  ticket     Ticket?     @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
 
   @@index([status, lastAttemptAt])
   @@index([ticketId])
+  @@index([invitationId])
   @@map("email_log")
 }
 
