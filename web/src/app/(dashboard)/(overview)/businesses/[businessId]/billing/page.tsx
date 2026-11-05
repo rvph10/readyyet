@@ -1,14 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { ComingSoon } from "@/components/coming-soon";
-import { getMe } from "@/lib/me";
-import { ownedBusiness } from "@/lib/memberships";
+import { getOwnedBusiness } from "@/lib/business";
 
 // Where Stripe's billing portal sends an Owner back to.
 export default async function BusinessBillingPage({ params }: PageProps<"/businesses/[businessId]/billing">) {
-  const [{ businessId }, { memberships }, t] = await Promise.all([params, getMe(), getTranslations("dashboard")]);
-  if (!ownedBusiness(memberships, businessId)) {
-    notFound();
-  }
+  const [{ businessId }, t] = await Promise.all([params, getTranslations("dashboard")]);
+  await getOwnedBusiness(businessId);
   return <ComingSoon title={t("sections.billing")} />;
 }

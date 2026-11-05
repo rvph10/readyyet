@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupByBusiness, ownedBusiness, type Membership } from "../src/lib/memberships";
+import { groupByBusiness, type Membership } from "../src/lib/memberships";
 
 function membership(role: Membership["role"], businessName: string, locationName: string): Membership {
   return {
@@ -26,18 +26,5 @@ describe("groupByBusiness", () => {
 
   it("says which Businesses the User owns", () => {
     expect(groups.map((group) => group.owned)).toEqual([true, false]);
-  });
-});
-
-describe("ownedBusiness", () => {
-  const memberships = [membership("OWNER", "Atelier", "Ixelles"), membership("ADMIN", "Zed", "Namur")];
-
-  it("finds a Business the User owns", () => {
-    expect(ownedBusiness(memberships, "Atelier")?.name).toBe("Atelier");
-  });
-
-  it("refuses an Admin, even of one of its Locations, and a stranger", () => {
-    expect(ownedBusiness(memberships, "Zed")).toBeUndefined();
-    expect(ownedBusiness(memberships, "Other")).toBeUndefined();
   });
 });

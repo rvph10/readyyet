@@ -22,8 +22,3 @@ export function groupByBusiness(memberships: Membership[]) {
       owned: group.memberships.some((membership) => membership.role === "OWNER"),
     }));
 }
-
-export function ownedBusiness(memberships: Membership[], businessId: string) {
-  return memberships.find(({ role, location }) => role === "OWNER" && location.business.id === businessId)?.location
-    .business;
-}
