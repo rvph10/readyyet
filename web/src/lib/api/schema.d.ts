@@ -1083,6 +1083,7 @@ export interface components {
         MyBusinessDto: {
             id: string;
             name: string;
+            logoUrl: string | null;
         };
         MyLocationDto: {
             id: string;

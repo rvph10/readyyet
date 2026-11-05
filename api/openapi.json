@@ -8601,11 +8601,16 @@
           },
           "name": {
             "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "logoUrl"
         ]
       },
       "MyLocationDto": {
