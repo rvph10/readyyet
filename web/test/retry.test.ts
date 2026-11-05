@@ -67,4 +67,23 @@ describe("fetchWithRetry", () => {
     await expect(fetchWithRetry(request)).rejects.toThrow("fetch failed");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("doesn't wait for a cancelled body, which never settles on Next.js's copy of a response", async () => {
+    const never = new Response(null, { status: 503 });
+    Object.defineProperty(never, "body", { value: { cancel: () => new Promise(() => undefined) } });
+    fetchMock.mockResolvedValueOnce(never).mockResolvedValueOnce(new Response("ok"));
+
+    const response = await fetchWithRetry(new Request("http://api.test/me"));
+
+    expect(response.status).toBe(200);
+  });
+
+  it("sends the retry with a signal, which Next.js doesn't treat as a duplicate", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 503 })).mockResolvedValueOnce(new Response("ok"));
+    const request = new Request("http://api.test/me");
+
+    await fetchWithRetry(request);
+
+    expect(fetchMock).toHaveBeenLastCalledWith(request, { signal: request.signal });
+  });
 });

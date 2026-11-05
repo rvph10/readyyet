@@ -14,13 +14,18 @@ export async function fetchWithRetry(request: Request): Promise<Response> {
     if (!RETRYABLE_STATUSES.has(response.status)) {
       return response;
     }
-    // Unread, the body would hold its connection until garbage collection.
-    await response.body?.cancel();
+    // Unread, the body would hold its connection until garbage collection. Not
+    // awaited: during a render Next.js hands out a copy of the response, and
+    // cancelling a copy only finishes once the other is cancelled too, which
+    // hung the page on every gateway error.
+    void response.body?.cancel();
   } catch (error) {
     if (request.signal.aborted) {
       throw error;
     }
   }
   await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
-  return fetch(request);
+  // With a signal: during a render, Next.js otherwise answers the same request
+  // again with the first response instead of sending it.
+  return fetch(request, { signal: request.signal });
 }
