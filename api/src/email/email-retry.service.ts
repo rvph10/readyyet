@@ -86,7 +86,9 @@ export class EmailRetryService {
     private readonly email: EmailService,
   ) {}
 
-  @Cron("*/5 * * * *")
+  // A long outage can outlast the 5 minutes, and a second sweep would retry the
+  // same rows, where a late failure overwrites a send that just worked.
+  @Cron("*/5 * * * *", { waitForCompletion: true })
   // Alerts when a sweep is missed or runs too long, not only when one throws.
   @CronMonitor("email-retry-sweep", {
     schedule: { type: "crontab", value: "*/5 * * * *" },
