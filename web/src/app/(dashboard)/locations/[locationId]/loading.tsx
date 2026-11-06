@@ -1,5 +1,4 @@
 import { useTranslations } from "next-intl";
-import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Only the page's side: the navigation stays while a section loads.
@@ -10,12 +9,15 @@ export default function Loading() {
       <p className="sr-only" role="status">
         {t("loading")}
       </p>
-      <Skeleton className="h-8 w-48" />
-      <Panel className="flex-1">
-        <Skeleton className="h-5 w-full max-w-md" />
-        <Skeleton className="mt-4 h-5 w-full max-w-sm" />
-        <Skeleton className="mt-4 h-5 w-full max-w-xs" />
-      </Panel>
+      <Skeleton className="h-12 w-72 max-w-full" />
+      <div className="grid grid-cols-2 gap-3 lg:gap-5 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((tile) => (
+          <Skeleton key={tile} className="h-44 rounded-sheet" />
+        ))}
+        <Skeleton className="col-span-2 h-96 rounded-sheet" />
+        <Skeleton className="col-span-2 h-96 rounded-sheet md:col-span-1" />
+        <Skeleton className="col-span-2 h-96 rounded-sheet md:col-span-1" />
+      </div>
     </div>
   );
 }

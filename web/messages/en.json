@@ -81,7 +81,6 @@
     "allLocations": "All Locations",
     "switchLocation": "{location}, switch Location",
     "navigation": "Navigation",
-    "openNavigation": "Open the navigation",
     "manage": "Manage",
     "roles": {
       "OWNER": "Owner",
@@ -95,8 +94,13 @@
       "team": "Team",
       "workflow": "Workflow",
       "billing": "Billing",
-      "settings": "Settings"
-    }
+      "settings": "Settings",
+      "today": "Today"
+    },
+    "language": "Language",
+    "more": "More",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "tickets": {
     "title": "Tickets",
@@ -116,17 +120,15 @@
       "customer": "Customer",
       "status": "Status",
       "expected": "Expected",
-      "received": "Received"
+      "received": "Received",
+      "next": "Next step",
+      "lastUpdate": "Last update"
     },
-    "expectedLabel": "Expected:",
     "today": "Today",
     "tomorrow": "Tomorrow",
-    "late": "Late, {date}",
-    "customerCollected": "Customer says collected, {when}",
     "erasedCustomer": "Erased Customer",
     "older": "Older Tickets",
     "newest": "Back to newest",
-    "detail": "Ticket",
     "empty": {
       "open": {
         "title": "No open Tickets",
@@ -185,13 +187,29 @@
       "titleTooLong": "Keep it to 200 characters.",
       "notesTooLong": "Keep it to 5000 characters.",
       "datePast": "Choose today or a later date.",
-      "dateUnfinished": "Finish this date, or clear it.",
       "invalid": "Check this field.",
       "frozen": "New Tickets are paused at this Location because its plan has ended. An Owner or Admin can restart it under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
       "customerGone": "This Customer is no longer in your list. Find or add them again."
+    },
+    "seeAll": "See all results",
+    "resultsFor": "Results for “{query}”",
+    "clearSearch": "Clear search",
+    "noDate": "No date",
+    "saysCollected": "Says collected",
+    "waiting": "{days, plural, =0 {Ready today} one {Waiting # day} other {Waiting # days}}",
+    "lateBy": "{days, plural, one {# day late} other {# days late}}",
+    "handOver": "Hand over",
+    "handedOver": "Handed over. The Customer sees it on their tracking page.",
+    "movedTo": "Moved to {status}",
+    "created": {
+      "title": "Show this to the Customer",
+      "hint": "They scan it with their phone's camera to follow their Ticket.",
+      "qrLabel": "QR code of the tracking link for {name}",
+      "done": "Done",
+      "open": "Open Ticket"
     }
   },
   "createBusiness": {
@@ -274,7 +292,12 @@
     "notifications": "Notifications",
     "copy": "Copy",
     "copied": "Copied",
-    "country": "Country"
+    "country": "Country",
+    "chooseDate": "Choose a date",
+    "clearDate": "Clear",
+    "today": "Today",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "tracking": {
     "loading": "Loading your item's progress",
@@ -352,12 +375,11 @@
     "collectedNotYet": "Not yet"
   },
   "ticketDetail": {
-    "back": "Tickets",
+    "back": "Back",
     "status": "Status",
     "history": "History",
     "moveTo": "Move to {status}",
     "moving": "Moving…",
-    "otherStatuses": "Other Statuses",
     "undo": "Undo",
     "undoHint": "Changed by mistake? You can undo it for 2 minutes, before the Customer is emailed.",
     "endedForEmployee": "This Ticket has ended. Only an Owner or Admin can reopen it.",
@@ -381,7 +403,6 @@
     "photosHint": "The Customer sees these on their tracking page.",
     "addPhoto": "Add photo",
     "uploading": "Uploading…",
-    "noPhotos": "No photos yet",
     "noPhotosExpired": "No photos, and this Ticket's tracking link has expired.",
     "viewPhoto": "View photo {number}",
     "deletePhoto": "Delete photo {number}",
@@ -422,6 +443,117 @@
     "reopen": "Reopen",
     "endedNote": "This Ticket has ended. Reopen it if it was closed by mistake.",
     "emailGaveUpEnded": "The last email to {name} couldn't be delivered, and we've stopped trying.",
-    "emailRetryingEnded": "The last email to {name} hasn't gone out yet. We keep trying for a day."
+    "emailRetryingEnded": "The last email to {name} hasn't gone out yet. We keep trying for a day.",
+    "subtitle": "#{id}, {name}, received {date}",
+    "since": "Since {date}, moved by {name}",
+    "workflow": "Workflow",
+    "handOver": "Hand over",
+    "changeStatus": "Change Status",
+    "moveSection": "Move to another step",
+    "endSection": "End this Ticket",
+    "backToWork": "Back to work",
+    "cancelledHint": "The Customer backed out",
+    "rejectedHint": "The job can't be done",
+    "customerSees": "The Customer sees this on their tracking page.",
+    "stopTitle": "Mark this Ticket {status}?",
+    "stopHint": "The Customer sees this on their tracking page and gets an email.",
+    "keepGoing": "Keep it open",
+    "editTicket": "Edit Ticket",
+    "call": "Call",
+    "sendEmail": "Email",
+    "trackingCode": "Tracking code",
+    "moment": "{day} at {time}"
+  },
+  "today": {
+    "greeting": {
+      "morning": "Good morning, {name}",
+      "afternoon": "Good afternoon, {name}",
+      "evening": "Good evening, {name}"
+    },
+    "thanks": "Thank you. Your plan is set and nothing else is needed.",
+    "ready": "Ready for pickup",
+    "late": "Running late",
+    "dueToday": "Due today",
+    "inShop": "In the shop",
+    "longestWait": "{days, plural, =0 {All ready today} one {Longest wait # day} other {Longest wait # days}}",
+    "nothingReady": "Nothing to hand over",
+    "upToLate": "{days, plural, one {Up to # day late} other {Up to # days late}}",
+    "nothingLate": "Everything on time",
+    "dueTomorrow": "{count, plural, =0 {Nothing due tomorrow} other {# more due tomorrow}}",
+    "waitingOnSomeone": "{count} waiting on someone",
+    "handedOver": "Handed over this week",
+    "ticketCount": "{count, plural, one {# Ticket} other {# Tickets}}",
+    "needsYou": "Needs you",
+    "caughtUp": "All clear",
+    "caughtUpHint": "No feedback or problems waiting for you.",
+    "privateFeedback": "Private feedback",
+    "read": "Read",
+    "markHandled": "Mark handled",
+    "saysCollected": "Says they collected",
+    "notYet": "Not yet",
+    "confirm": "Confirm",
+    "emailFailed": "Email didn't arrive",
+    "waiting": "Waiting {days} days",
+    "trialEnds": "{days, plural, one {Your trial ends tomorrow} other {Your trial ends in # days}}",
+    "trialEnded": "New Tickets are paused",
+    "openTickets": "Open Tickets",
+    "allTickets": "All Tickets",
+    "noneHere": "Nothing here",
+    "noneHereHint": "No open Ticket matches this filter.",
+    "filters": {
+      "all": "All",
+      "late": "Late",
+      "ready": "Ready",
+      "received": "Just in",
+      "working": "Being worked on",
+      "waiting": "Waiting on someone"
+    },
+    "first": {
+      "title": "Create your first Ticket",
+      "body": "Create a Ticket when an item comes in, and your Customer can follow it without calling.",
+      "action": "New Ticket",
+      "create": {
+        "title": "Create a Ticket",
+        "body": "Add it when an item comes in."
+      },
+      "show": {
+        "title": "Show the QR code",
+        "body": "The Customer scans it to follow."
+      },
+      "move": {
+        "title": "Move it along",
+        "body": "They see each step, without calling."
+      }
+    },
+    "comingUp": "Coming up",
+    "nothingDue": "Nothing due",
+    "vsLastWeek": "vs last week"
+  },
+  "plans": {
+    "title": "Keep ReadyYet running",
+    "chargedLater": "{days, plural, one {Your card is charged when the trial ends, tomorrow. Cancel any time before then.} other {Your card is charged when the trial ends, in # days. Cancel any time before then.}}",
+    "resume": "Choose a plan to create new Tickets again. Nothing was lost.",
+    "billedEvery": "How often you pay",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "twoMonthsFree": "2 months free",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "pro": "Unlimited team, custom Workflow, private feedback and reviews",
+    "essentiel": "2 team members and the default Workflow",
+    "toPayment": "Continue to payment",
+    "opening": "Opening…",
+    "perLocation": "Per Location, VAT excluded. Without a plan, new Tickets stop when the trial ends. Tracking links keep working.",
+    "errors": {
+      "tooManyMembers": "Essentiel allows 2 team members. Remove some first, or choose Pro.",
+      "unexpected": "The payment page didn't open. Please try again."
+    },
+    "daysLeft": "{days, plural, one {# day left of Pro} other {# days left of Pro}}",
+    "ended": "Your trial has ended",
+    "cardBody": "Keep your Workflow and reviews. You pay only when the trial ends.",
+    "endedBody": "New Tickets are paused. Choose a plan and nothing is lost.",
+    "keepPro": "Keep Pro, €49/month",
+    "choosePlan": "Choose a plan",
+    "daysShort": "{days}d"
   }
 }

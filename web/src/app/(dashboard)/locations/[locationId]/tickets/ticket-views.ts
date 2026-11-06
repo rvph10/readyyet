@@ -12,7 +12,16 @@ export const VIEWS = {
 
 export type View = keyof typeof VIEWS;
 
+// Today's table, filtered on the page as it holds every open Ticket already.
+const FILTERS = ["all", "late", "ready", "received", "working", "waiting"] as const;
+export type Filter = (typeof FILTERS)[number];
+
+export function parseFilter(value: unknown): Filter {
+  return FILTERS.find((filter) => filter === value) ?? "all";
+}
+
 const DEFAULT_VIEW: View = "open";
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 // The API refuses a longer search, and the URL can be edited.
 const MAX_QUERY = 100;
@@ -35,7 +44,7 @@ export function ticketsHref(locationId: string, { view, q, cursor }: { view: Vie
   if (q) params.set("q", q);
   if (cursor) params.set("cursor", cursor);
   const query = params.toString();
-  return `/locations/${locationId}${query ? `?${query}` : ""}`;
+  return `/locations/${locationId}/tickets${query ? `?${query}` : ""}`;
 }
 
 export type Expected = { key: "today" | "tomorrow" | "on" | "late"; date: CalendarDate };
@@ -70,8 +79,35 @@ export function formatDay(date: CalendarDate, today: CalendarDate, locale: strin
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
-// The day as above, with the time on the Location's clock.
-export function formatMoment(instant: Date, timeZone: string, today: CalendarDate, locale: string) {
+// Whole days from one calendar date to a later one.
+export function daysBetween(from: CalendarDate, to: CalendarDate) {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+}
+
+// How worrying a wait to be collected is: the reminders go at 3 and 10 days
+// (ADR 0028).
+export const LONG_WAIT_DAYS = 10;
+const SOME_WAIT_DAYS = 3;
+
+export function waitTone(days: number) {
+  if (days >= LONG_WAIT_DAYS) return "text-danger";
+  return days >= SOME_WAIT_DAYS ? "text-warning" : "text-ink";
+}
+
+// The day as above, or today or yesterday, joined to the time on the Location's
+// clock by the page's own words.
+export function formatMoment(
+  instant: Date,
+  timeZone: string,
+  today: CalendarDate,
+  locale: string,
+  join: (parts: { day: string; time: string }) => string,
+) {
+  const date = calendarDateIn(instant, timeZone);
+  const ago = daysBetween(date, today);
+  const relative = new Intl.RelativeTimeFormat(intlLocale(locale), { numeric: "auto" }).format(-ago, "day");
+  const day =
+    ago === 0 || ago === 1 ? relative.charAt(0).toUpperCase() + relative.slice(1) : formatDay(date, today, locale);
   const time = new Intl.DateTimeFormat(intlLocale(locale), { timeZone, timeStyle: "short", hourCycle: "h23" });
-  return `${formatDay(calendarDateIn(instant, timeZone), today, locale)}, ${time.format(instant)}`;
+  return join({ day, time: time.format(instant) });
 }

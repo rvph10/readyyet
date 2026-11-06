@@ -81,7 +81,6 @@
     "allLocations": "Tous les établissements",
     "switchLocation": "{location}, changer d'établissement",
     "navigation": "Navigation",
-    "openNavigation": "Ouvrir la navigation",
     "manage": "Gérer",
     "roles": {
       "OWNER": "Propriétaire",
@@ -95,8 +94,13 @@
       "team": "Équipe",
       "workflow": "Workflow",
       "billing": "Facturation",
-      "settings": "Réglages"
-    }
+      "settings": "Réglages",
+      "today": "Aujourd'hui"
+    },
+    "language": "Langue",
+    "more": "Plus",
+    "collapseSidebar": "Réduire le menu",
+    "expandSidebar": "Développer le menu"
   },
   "tickets": {
     "title": "Tickets",
@@ -116,17 +120,15 @@
       "customer": "Client",
       "status": "Statut",
       "expected": "Prévu",
-      "received": "Reçu"
+      "received": "Reçu",
+      "next": "Étape suivante",
+      "lastUpdate": "Dernière mise à jour"
     },
-    "expectedLabel": "Prévu :",
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
-    "late": "En retard, {date}",
-    "customerCollected": "Récupéré selon le client, {when}",
     "erasedCustomer": "Client supprimé",
     "older": "Tickets plus anciens",
     "newest": "Revenir aux plus récents",
-    "detail": "Ticket",
     "empty": {
       "open": {
         "title": "Aucun ticket en cours",
@@ -185,13 +187,29 @@
       "titleTooLong": "200 caractères maximum.",
       "notesTooLong": "5000 caractères maximum.",
       "datePast": "Choisissez aujourd'hui ou une date ultérieure.",
-      "dateUnfinished": "Terminez cette date ou effacez-la.",
       "invalid": "Vérifiez ce champ.",
       "frozen": "Les nouveaux tickets sont suspendus dans cet établissement car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
       "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau."
+    },
+    "seeAll": "Voir tous les résultats",
+    "resultsFor": "Résultats pour « {query} »",
+    "clearSearch": "Effacer la recherche",
+    "noDate": "Sans date",
+    "saysCollected": "Dit l'avoir retiré",
+    "waiting": "{days, plural, =0 {Prêt aujourd'hui} one {Attend # jour} other {Attend # jours}}",
+    "lateBy": "{days, plural, one {# jour de retard} other {# jours de retard}}",
+    "handOver": "Remettre",
+    "handedOver": "Remis au client. Il le voit sur sa page de suivi.",
+    "movedTo": "Passé à {status}",
+    "created": {
+      "title": "Montrez ceci au client",
+      "hint": "Il le scanne avec l'appareil photo de son téléphone pour suivre son ticket.",
+      "qrLabel": "Code QR du lien de suivi pour {name}",
+      "done": "Terminé",
+      "open": "Ouvrir le ticket"
     }
   },
   "createBusiness": {
@@ -274,7 +292,12 @@
     "notifications": "Notifications",
     "copy": "Copier",
     "copied": "Copié",
-    "country": "Pays"
+    "country": "Pays",
+    "chooseDate": "Choisir une date",
+    "clearDate": "Effacer",
+    "today": "Aujourd'hui",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant"
   },
   "tracking": {
     "loading": "Chargement de l'avancement de votre article",
@@ -352,12 +375,11 @@
     "collectedNotYet": "Pas encore"
   },
   "ticketDetail": {
-    "back": "Tickets",
+    "back": "Retour",
     "status": "Statut",
     "history": "Historique",
     "moveTo": "Passer à {status}",
     "moving": "Changement…",
-    "otherStatuses": "Autres statuts",
     "undo": "Annuler",
     "undoHint": "Une erreur ? Vous pouvez annuler pendant 2 minutes, avant que le client reçoive un e-mail.",
     "endedForEmployee": "Ce ticket est terminé. Seul un propriétaire ou un administrateur peut le rouvrir.",
@@ -381,7 +403,6 @@
     "photosHint": "Le client les voit sur sa page de suivi.",
     "addPhoto": "Ajouter une photo",
     "uploading": "Envoi…",
-    "noPhotos": "Pas encore de photos",
     "noPhotosExpired": "Aucune photo, et le lien de suivi de ce ticket a expiré.",
     "viewPhoto": "Voir la photo {number}",
     "deletePhoto": "Supprimer la photo {number}",
@@ -422,6 +443,117 @@
     "reopen": "Rouvrir",
     "endedNote": "Ce ticket est terminé. Rouvrez-le s'il a été clôturé par erreur.",
     "emailGaveUpEnded": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer.",
-    "emailRetryingEnded": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée."
+    "emailRetryingEnded": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée.",
+    "subtitle": "#{id}, {name}, reçu le {date}",
+    "since": "Depuis le {date}, par {name}",
+    "workflow": "Workflow",
+    "handOver": "Remettre",
+    "changeStatus": "Changer le statut",
+    "moveSection": "Passer à une autre étape",
+    "endSection": "Arrêter ce ticket",
+    "backToWork": "Reprendre le travail",
+    "cancelledHint": "Le client a renoncé",
+    "rejectedHint": "Le travail est impossible",
+    "customerSees": "Le client le voit sur sa page de suivi.",
+    "stopTitle": "Marquer ce ticket comme {status} ?",
+    "stopHint": "Le client le voit sur sa page de suivi et reçoit un email.",
+    "keepGoing": "Le garder ouvert",
+    "editTicket": "Modifier le ticket",
+    "call": "Appeler",
+    "sendEmail": "Email",
+    "trackingCode": "Code de suivi",
+    "moment": "{day} à {time}"
+  },
+  "today": {
+    "greeting": {
+      "morning": "Bonjour, {name}",
+      "afternoon": "Bonjour, {name}",
+      "evening": "Bonsoir, {name}"
+    },
+    "thanks": "Merci. Votre plan est en place, il n'y a rien d'autre à faire.",
+    "ready": "Prêts à être retirés",
+    "late": "En retard",
+    "dueToday": "Pour aujourd'hui",
+    "inShop": "À l'atelier",
+    "longestWait": "{days, plural, =0 {Tous prêts aujourd'hui} one {Attente maximale # jour} other {Attente maximale # jours}}",
+    "nothingReady": "Rien à remettre",
+    "upToLate": "{days, plural, one {Jusqu'à # jour de retard} other {Jusqu'à # jours de retard}}",
+    "nothingLate": "Tout est dans les temps",
+    "dueTomorrow": "{count, plural, =0 {Rien pour demain} other {# de plus pour demain}}",
+    "waitingOnSomeone": "{count} en attente",
+    "handedOver": "Remis cette semaine",
+    "ticketCount": "{count, plural, one {# ticket} other {# tickets}}",
+    "needsYou": "À traiter",
+    "caughtUp": "Tout est à jour",
+    "caughtUpHint": "Aucun retour ni problème ne vous attend.",
+    "privateFeedback": "Retour privé",
+    "read": "Lire",
+    "markHandled": "Marquer traité",
+    "saysCollected": "Dit avoir retiré",
+    "notYet": "Pas encore",
+    "confirm": "Confirmer",
+    "emailFailed": "Email non abouti",
+    "waiting": "Attend {days} jours",
+    "trialEnds": "{days, plural, one {Votre essai se termine demain} other {Votre essai se termine dans # jours}}",
+    "trialEnded": "Nouveaux tickets en pause",
+    "openTickets": "Tickets en cours",
+    "allTickets": "Tous les tickets",
+    "noneHere": "Rien ici",
+    "noneHereHint": "Aucun ticket en cours ne correspond à ce filtre.",
+    "filters": {
+      "all": "Tous",
+      "late": "En retard",
+      "ready": "Prêts",
+      "received": "Juste arrivés",
+      "working": "En cours",
+      "waiting": "En attente"
+    },
+    "first": {
+      "title": "Créez votre premier ticket",
+      "body": "Créez un ticket à l'arrivée d'un article, et votre client peut le suivre sans appeler.",
+      "action": "Nouveau ticket",
+      "create": {
+        "title": "Créez un ticket",
+        "body": "À l'arrivée de l'article."
+      },
+      "show": {
+        "title": "Montrez le code QR",
+        "body": "Le client le scanne pour suivre."
+      },
+      "move": {
+        "title": "Faites-le avancer",
+        "body": "Il voit chaque étape sans appeler."
+      }
+    },
+    "comingUp": "À venir",
+    "nothingDue": "Rien de prévu",
+    "vsLastWeek": "vs la semaine passée"
+  },
+  "plans": {
+    "title": "Gardez ReadyYet actif",
+    "chargedLater": "{days, plural, one {Votre carte est débitée à la fin de l'essai, demain. Annulez à tout moment avant.} other {Votre carte est débitée à la fin de l'essai, dans # jours. Annulez à tout moment avant.}}",
+    "resume": "Choisissez un plan pour créer à nouveau des tickets. Rien n'est perdu.",
+    "billedEvery": "Fréquence de paiement",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "twoMonthsFree": "2 mois offerts",
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "pro": "Équipe illimitée, workflow personnalisé, retours privés et avis",
+    "essentiel": "2 membres d'équipe et le workflow par défaut",
+    "toPayment": "Continuer vers le paiement",
+    "opening": "Ouverture…",
+    "perLocation": "Par site, hors TVA. Sans plan, les nouveaux tickets s'arrêtent à la fin de l'essai. Les liens de suivi restent actifs.",
+    "errors": {
+      "tooManyMembers": "Essentiel permet 2 membres d'équipe. Retirez-en d'abord, ou choisissez Pro.",
+      "unexpected": "La page de paiement ne s'est pas ouverte. Veuillez réessayer."
+    },
+    "daysLeft": "{days, plural, one {Encore # jour de Pro} other {Encore # jours de Pro}}",
+    "ended": "Votre essai est terminé",
+    "cardBody": "Gardez votre workflow et vos avis. Vous ne payez qu'à la fin de l'essai.",
+    "endedBody": "Les nouveaux tickets sont en pause. Choisissez un plan, rien n'est perdu.",
+    "keepPro": "Garder Pro, 49 €/mois",
+    "choosePlan": "Choisir un plan",
+    "daysShort": "{days} j"
   }
 }

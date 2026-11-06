@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ComingSoon } from "@/components/coming-soon";
 import { getMe } from "@/lib/me";
+import { PageHeader } from "../page-header";
 import { findSection } from "../sections";
 
 // Each section's own page takes over from this one as it's built, a static
@@ -18,5 +19,10 @@ export default async function SectionPage({ params }: PageProps<"/locations/[loc
   if (!section) {
     notFound();
   }
-  return <ComingSoon title={t(`sections.${section.key}`)} />;
+  return (
+    <>
+      <PageHeader locationId={locationId} title={t(`sections.${section.key}`)} />
+      <ComingSoon />
+    </>
+  );
 }
