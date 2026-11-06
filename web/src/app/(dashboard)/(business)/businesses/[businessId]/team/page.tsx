@@ -3,6 +3,7 @@ import Link from "next/link";
 import { openInvitations, placesTaken } from "@/app/(dashboard)/locations/[locationId]/team/team-views";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
@@ -121,27 +122,58 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
             ))}
           </ul>
         </Panel>
-        <Panel as="section" padding="none" className="flex min-h-64 flex-col xl:col-span-4">
-          <h2 className="px-5 pt-5 pb-3 text-title-h6 lg:px-6 lg:pt-6">{tTeam("invitations")}</h2>
-          {invitations.length > 0 ? (
-            <ul className="flex flex-col gap-3 px-5 pb-5 lg:px-6">
-              {invitations.map(({ email, places }) => (
-                <li key={email} className="min-w-0">
-                  <p title={email} className="truncate text-label-sm">
-                    {email}
-                  </p>
-                  <p className="truncate text-p-xs text-muted">{places.join(", ")}</p>
+        <div className="flex flex-col gap-4 lg:gap-5 xl:col-span-4">
+          <Panel as="section" padding="none" className="flex min-h-64 flex-col">
+            <h2 className="px-5 pt-5 pb-3 text-title-h6 lg:px-6 lg:pt-6">{tTeam("invitations")}</h2>
+            {invitations.length > 0 ? (
+              <ul className="flex flex-col gap-3 px-5 pb-5 lg:px-6">
+                {invitations.map(({ email, places }) => (
+                  <li key={email} className="min-w-0">
+                    <p title={email} className="truncate text-label-sm">
+                      {email}
+                    </p>
+                    <p className="flex flex-wrap gap-x-3 text-p-xs">
+                      {places.map(({ id, name }) => (
+                        <Link
+                          key={id}
+                          href={`/locations/${id}/team`}
+                          title={t("team.manageAt", { location: name })}
+                          className="text-muted underline underline-offset-4 hover:text-ink"
+                        >
+                          {name}
+                        </Link>
+                      ))}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                illustration="messages"
+                title={tTeam("noInvitations")}
+                description={tTeam("noInvitationsHint")}
+              />
+            )}
+          </Panel>
+          {/* The way to one shop's team for an Owner with several, whose sidebar
+            no longer has it, even when nobody works there yet (ADR 0103). */}
+          <Panel as="section" padding="none">
+            <h2 className="px-5 pt-5 pb-2 text-title-h6 lg:px-6 lg:pt-6">{t("team.byShop")}</h2>
+            <ul className="flex flex-col gap-1 px-2 pb-2 lg:px-3 lg:pb-3">
+              {locations.map(({ id, name }) => (
+                <li key={id}>
+                  <Link
+                    href={`/locations/${id}/team`}
+                    className="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-label-sm transition-colors hover:bg-subtle"
+                  >
+                    <span className="min-w-0 truncate">{name}</span>
+                    <Icon name="arrow-right" className="size-2.5 shrink-0 text-muted" />
+                  </Link>
                 </li>
               ))}
             </ul>
-          ) : (
-            <EmptyState
-              illustration="messages"
-              title={tTeam("noInvitations")}
-              description={tTeam("noInvitationsHint")}
-            />
-          )}
-        </Panel>
+          </Panel>
+        </div>
       </div>
     </>
   );

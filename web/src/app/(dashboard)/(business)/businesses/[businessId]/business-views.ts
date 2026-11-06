@@ -87,11 +87,11 @@ export function teamPeople(teams: Team[]) {
 // Only those still waiting for an answer. An expired one is dealt with on its
 // Location's Team page.
 export function teamInvitations(teams: Team[]) {
-  const invitations = new Map<string, string[]>();
+  const invitations = new Map<string, Team["location"][]>();
   for (const { location, open } of teams) {
     for (const { email, state } of open) {
       if (state !== "pending") continue;
-      invitations.set(email, [...(invitations.get(email) ?? []), location.name]);
+      invitations.set(email, [...(invitations.get(email) ?? []), location]);
     }
   }
   return [...invitations].map(([email, places]) => ({ email, places }));

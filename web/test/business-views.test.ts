@@ -134,6 +134,14 @@ describe("teams", () => {
   });
 
   it("gathers a pending invitation's Locations, and leaves an expired one out", () => {
-    expect(teamInvitations(teams)).toEqual([{ email: "new@test.be", places: ["Ixelles", "Uccle"] }]);
+    expect(teamInvitations(teams)).toEqual([
+      {
+        email: "new@test.be",
+        places: [
+          { id: "a", name: "Ixelles" },
+          { id: "b", name: "Uccle" },
+        ],
+      },
+    ]);
   });
 });
