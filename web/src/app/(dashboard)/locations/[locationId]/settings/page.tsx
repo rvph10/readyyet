@@ -47,7 +47,15 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
             />
           ),
           reviews: <ReviewLink locationId={locationId} url={location.googleReviewUrl} hasPro={hasPro} />,
-          ...(owner && { delete: <DeleteLocation locationId={locationId} name={location.name} /> }),
+          ...(owner && {
+            delete: (
+              <DeleteLocation
+                locationId={locationId}
+                businessId={membership.location.business.id}
+                name={location.name}
+              />
+            ),
+          }),
         }}
       />
     </div>

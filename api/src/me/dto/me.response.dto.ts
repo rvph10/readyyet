@@ -33,5 +33,8 @@ export class MyMembershipDto {
 }
 
 export class MeWithMembershipsDto extends MeDto {
+  // An Owner whose Locations are all deleted has no Membership left, and still
+  // owns the Business.
+  ownedBusinessIds!: string[];
   memberships!: MyMembershipDto[];
 }

@@ -1115,6 +1115,7 @@ export interface components {
         MeWithMembershipsDto: {
             /** @enum {string} */
             locale: "EN" | "FR";
+            ownedBusinessIds: string[];
             memberships: components["schemas"]["MyMembershipDto"][];
             id: string;
             email: string;

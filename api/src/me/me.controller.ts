@@ -35,8 +35,11 @@ export class MeController {
   @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "Get the current user and their location memberships (for onboarding routing)" })
   async get(@CurrentUser() user: User): Promise<MeWithMembershipsDto> {
-    const memberships = await this.me.getMemberships(user.id);
-    return { ...this.me.toMe(user), memberships };
+    const [memberships, ownedBusinessIds] = await Promise.all([
+      this.me.getMemberships(user.id),
+      this.me.getOwnedBusinessIds(user.id),
+    ]);
+    return { ...this.me.toMe(user), ownedBusinessIds, memberships };
   }
 
   @Patch()

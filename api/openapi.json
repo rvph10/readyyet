@@ -8774,6 +8774,12 @@
             ],
             "type": "string"
           },
+          "ownedBusinessIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "memberships": {
             "type": "array",
             "items": {
@@ -8802,6 +8808,7 @@
         },
         "required": [
           "locale",
+          "ownedBusinessIds",
           "memberships",
           "id",
           "email",

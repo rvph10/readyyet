@@ -16,9 +16,10 @@ export async function updateLocation(locationId: string, changes: components["sc
 }
 
 // Redirects from here: refreshing the page they're on would be a 404 by then.
-export async function deleteLocation(locationId: string) {
+export async function deleteLocation(locationId: string, businessId: string) {
   const outcome = await actionResult(await (await api()).DELETE("/locations/{locationId}", path(locationId)));
   if (!outcome.ok) return outcome;
   revalidatePath("/", "layout");
-  redirect("/");
+  // Not "/", which can't lead back once it was their last one.
+  redirect(`/businesses/${businessId}`);
 }

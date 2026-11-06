@@ -20,7 +20,9 @@ export default async function ChooseLocationPage({ searchParams }: PageProps<"/"
   ]);
   const { memberships } = me;
   if (memberships.length === 0) {
-    redirect("/businesses/new");
+    // An Owner who deleted their last Location still has their Business.
+    const [owned] = me.ownedBusinessIds;
+    redirect(owned ? `/businesses/${owned}` : "/businesses/new");
   }
   if (memberships.length === 1) {
     redirect(`/locations/${memberships[0].location.id}`);

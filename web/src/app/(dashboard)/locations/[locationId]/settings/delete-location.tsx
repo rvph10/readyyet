@@ -12,7 +12,15 @@ import { SectionHeading } from "./section-form";
 
 // ADR 0017: the Owner's alone, and final. Typing the name stops the wrong
 // Location going, where a Business has several that look alike.
-export function DeleteLocation({ locationId, name }: { locationId: string; name: string }) {
+export function DeleteLocation({
+  locationId,
+  businessId,
+  name,
+}: {
+  locationId: string;
+  businessId: string;
+  name: string;
+}) {
   const t = useTranslations("settings");
   const tForm = useTranslations("tickets.form");
   const toast = useToast();
@@ -23,7 +31,7 @@ export function DeleteLocation({ locationId, name }: { locationId: string; name:
   function remove() {
     startTransition(async () => {
       // On success this redirects and never comes back here.
-      const result = await orFailure(deleteLocation(locationId));
+      const result = await orFailure(deleteLocation(locationId, businessId));
       if (!result.ok) {
         setOpen(false);
         toast({ tone: "error", message: t("deleteFailed") });

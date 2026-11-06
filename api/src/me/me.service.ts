@@ -21,6 +21,15 @@ export class MeService {
     private readonly storage: StorageService,
   ) {}
 
+  async getOwnedBusinessIds(userId: string) {
+    const businesses = await this.prisma.business.findMany({
+      where: { ownerId: userId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+    return businesses.map(({ id }) => id);
+  }
+
   toMe(user: User) {
     return {
       id: user.id,
