@@ -645,5 +645,51 @@
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}."
+  },
+  "feedback": {
+    "pageTitle": "Avis privés des clients",
+    "pageSubtitle": "Lisez le message d'un client, ouvrez son ticket pour le recontacter, puis marquez son retour comme traité.",
+    "viewsLabel": "État des retours",
+    "views": {
+      "waiting": "À traiter",
+      "handled": "Traités"
+    },
+    "messagesTitle": "Messages des clients",
+    "waitingSummary": "{count, plural, =0 {Aucun message à traiter} one {# message à traiter} other {# messages à traiter}}",
+    "handledSummary": "Ces messages ont déjà été traités.",
+    "messageTitle": "Message du client",
+    "ticketFollowUp": "Contactez le client depuis son ticket.",
+    "openTicket": "Ouvrir le ticket",
+    "handleHint": "Après avoir recontacté le client, marquez ce retour comme traité. Il restera accessible dans Traités.",
+    "markHandled": "Marquer comme traité",
+    "marking": "Enregistrement…",
+    "moved": "Déplacé dans Traités",
+    "failed": "Cela n'a pas fonctionné. Réessayez.",
+    "handled": "Traité",
+    "handledBy": "Traité par {name}",
+    "empty": {
+      "waiting": {
+        "title": "Aucun message à suivre",
+        "description": "Les retours privés des clients apparaîtront ici. Ouvrez leur ticket pour les recontacter, puis marquez le message comme traité."
+      },
+      "handled": {
+        "title": "Aucun message traité pour l'instant",
+        "description": "Les retours traités restent ici, avec le nom de la personne qui s'en est occupée et la date."
+      }
+    },
+    "blocked": {
+      "plan": {
+        "title": "Les avis privés sont inclus dans Pro",
+        "description": "Avec Pro, chaque client est invité à dire comment ça s'est passé après avoir récupéré son article, et ce qu'il vous dit en privé arrive ici.",
+        "notice": "Cet établissement n'est plus sur Pro : les clients ne peuvent plus envoyer de nouveaux avis. Ceux déjà reçus restent ici.",
+        "action": "Voir les plans"
+      },
+      "reviewLink": {
+        "title": "Vos clients ne sont pas encore sollicités",
+        "description": "Les clients sont invités à donner leur avis dès que cet établissement a son lien d'avis Google. Ajoutez-le dans les réglages pour commencer à les lire.",
+        "notice": "Les clients ne sont pas invités à donner leur avis : cet établissement n'a pas de lien d'avis Google.",
+        "action": "Aller aux réglages"
+      }
+    }
   }
 }

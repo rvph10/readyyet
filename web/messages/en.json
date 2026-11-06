@@ -645,5 +645,51 @@
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}."
+  },
+  "feedback": {
+    "pageTitle": "Private Customer feedback",
+    "pageSubtitle": "Read a Customer's message, open their Ticket to follow up, then mark it handled.",
+    "viewsLabel": "Feedback status",
+    "views": {
+      "waiting": "Needs follow-up",
+      "handled": "Handled"
+    },
+    "messagesTitle": "Customer messages",
+    "waitingSummary": "{count, plural, =0 {No messages need follow-up} one {# message needs follow-up} other {# messages need follow-up}}",
+    "handledSummary": "These messages have already been handled.",
+    "messageTitle": "Customer's message",
+    "ticketFollowUp": "Contact the Customer from their Ticket.",
+    "openTicket": "Open Ticket",
+    "handleHint": "After you follow up, mark this Feedback handled. It will stay available in Handled.",
+    "markHandled": "Mark handled",
+    "marking": "Marking…",
+    "moved": "Moved to Handled",
+    "failed": "That didn't work. Try again.",
+    "handled": "Handled",
+    "handledBy": "Handled by {name}",
+    "empty": {
+      "waiting": {
+        "title": "Nothing needs follow-up",
+        "description": "New private Feedback from Customers appears here. Open a Ticket to contact the Customer, then mark the message handled."
+      },
+      "handled": {
+        "title": "No handled messages yet",
+        "description": "Feedback you have handled stays here with who handled it and when."
+      }
+    },
+    "blocked": {
+      "plan": {
+        "title": "Private feedback comes with Pro",
+        "description": "On Pro, each Customer is asked how it went after collecting their item, and what they tell you privately lands here.",
+        "notice": "This Location is no longer on Pro, so Customers can't send new feedback. What they already sent stays here.",
+        "action": "See plans"
+      },
+      "reviewLink": {
+        "title": "Customers aren't being asked yet",
+        "description": "Customers are asked how it went once this Location has its Google review link. Add it in Settings to start hearing from them.",
+        "notice": "Customers aren't being asked for feedback, as this Location has no Google review link.",
+        "action": "Go to Settings"
+      }
+    }
   }
 }
