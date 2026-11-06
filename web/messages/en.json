@@ -430,7 +430,7 @@
       "deleteFailed": "The photo wasn't deleted. Please try again."
     },
     "customer": "Customer",
-    "erasedCustomer": "Deleted Customer",
+    "erasedCustomer": "Erased Customer",
     "noContact": "No email or phone",
     "tracking": "Tracking link",
     "trackingLink": "Link for the Customer",
@@ -691,5 +691,45 @@
         "action": "Go to Settings"
       }
     }
+  },
+  "customers": {
+    "title": "Customers",
+    "search": "Search by name, email or phone",
+    "resultsFor": "Results for “{query}”",
+    "erased": "The Customer was erased. Their Tickets stay, under “Erased Customer”.",
+    "columns": {
+      "customer": "Customer",
+      "email": "Email",
+      "phone": "Phone",
+      "since": "First came in"
+    },
+    "none": "None",
+    "noContact": "No email or phone",
+    "emailFailsShort": "Emails to this address fail",
+    "noMatch": "No Customer matches “{query}”",
+    "noMatchHint": "Check the spelling, or search for part of their name, email or phone number.",
+    "clearSearch": "Clear search",
+    "empty": {
+      "title": "Your Customers will gather here",
+      "description": "Create a first Ticket and its Customer joins this list, ready for the next time they come in."
+    },
+    "since": "First came in on {date}",
+    "tickets": "Tickets",
+    "received": "Received {date}",
+    "readyLabel": "Ready to collect",
+    "readyHint": "Hand it over when they come in.",
+    "nothingReady": "Nothing to hand over",
+    "inShopLabel": "Still in the shop",
+    "inShopHint": "Being worked on or waiting",
+    "editTitle": "Edit Customer",
+    "eraseTitle": "Erase this Customer",
+    "eraseHint": "For when someone asks you to delete their data. This can't be undone.",
+    "eraseAction": "Erase Customer",
+    "eraseConfirmTitle": "Erase {name}?",
+    "eraseConfirmBody": "This deletes their name, email and phone, the photos on their Tickets, their private feedback and the emails sent about them. Their Tickets stay, under “Erased Customer”. This can't be undone.",
+    "eraseOpenTickets": "{count, plural, one {They have # open Ticket. They'll get no more emails about it, and you won't have a way to reach them.} other {They have # open Tickets. They'll get no more emails about them, and you won't have a way to reach them.}}",
+    "eraseConfirm": "Erase for good",
+    "erasing": "Erasing…",
+    "eraseFailed": "The Customer wasn't erased. Please try again."
   }
 }

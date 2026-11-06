@@ -15,6 +15,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 ## Work and tracking
 
 - **Job**: the everyday word for what a customer drops off (a repair, a cleaning job, etc.).
+- **Erased Customer**: what a Customer is called once their personal data has been erased. Their Tickets stay under this name. Say "erase", not "delete", for this action (ADR 0097).
 - **Ticket**: the system record of a job. Use "ticket" as the technical term in code and docs, "job" is fine in conversation with the customer.
 - **Status**: one label describing where a ticket currently stands (e.g. RECEIVED, DIAGNOSE, REPAIR, DONE). Statuses are a fixed, developer-seeded, translatable catalogue, never free text.
 - **Workflow**: an ordered sequence of statuses a ticket moves through, start to finish.

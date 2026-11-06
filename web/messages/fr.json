@@ -430,7 +430,7 @@
       "deleteFailed": "La photo n'a pas été supprimée. Veuillez réessayer."
     },
     "customer": "Client",
-    "erasedCustomer": "Client supprimé",
+    "erasedCustomer": "Client effacé",
     "noContact": "Ni e-mail ni téléphone",
     "tracking": "Lien de suivi",
     "trackingLink": "Lien pour le client",
@@ -457,7 +457,7 @@
     "subtitle": "#{id}, {name}, reçu le {date}",
     "since": "Depuis le {date}, par {name}",
     "workflow": "Workflow",
-    "handOver": "Remettre",
+    "handOver": "Remis",
     "changeStatus": "Changer le statut",
     "moveSection": "Passer à une autre étape",
     "endSection": "Arrêter ce ticket",
@@ -691,5 +691,45 @@
         "action": "Aller aux réglages"
       }
     }
+  },
+  "customers": {
+    "title": "Clients",
+    "search": "Rechercher par nom, e-mail ou téléphone",
+    "resultsFor": "Résultats pour « {query} »",
+    "erased": "Le client a été effacé. Ses tickets restent, sous « Client effacé ».",
+    "columns": {
+      "customer": "Client",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "since": "Première venue"
+    },
+    "none": "Aucun",
+    "noContact": "Ni e-mail ni téléphone",
+    "emailFailsShort": "Les e-mails vers cette adresse échouent",
+    "noMatch": "Aucun client ne correspond à « {query} »",
+    "noMatchHint": "Vérifiez l'orthographe, ou cherchez une partie du nom, de l'e-mail ou du numéro.",
+    "clearSearch": "Effacer la recherche",
+    "empty": {
+      "title": "Vos clients se retrouveront ici",
+      "description": "Créez un premier ticket : son client rejoint cette liste, prêt pour sa prochaine visite."
+    },
+    "since": "Première venue le {date}",
+    "tickets": "Tickets",
+    "received": "Reçu le {date}",
+    "readyLabel": "Prêts à être retirés",
+    "readyHint": "À remettre à sa prochaine visite.",
+    "nothingReady": "Rien à remettre",
+    "inShopLabel": "Encore à l'atelier",
+    "inShopHint": "En cours ou en attente",
+    "editTitle": "Modifier le client",
+    "eraseTitle": "Effacer ce client",
+    "eraseHint": "Quand quelqu'un vous demande de supprimer ses données. C'est irréversible.",
+    "eraseAction": "Effacer le client",
+    "eraseConfirmTitle": "Effacer {name} ?",
+    "eraseConfirmBody": "Cela supprime son nom, son e-mail et son téléphone, les photos de ses tickets, ses avis privés et les e-mails envoyés à son sujet. Ses tickets restent, sous « Client effacé ». C'est irréversible.",
+    "eraseOpenTickets": "{count, plural, one {Ce client a # ticket ouvert. Il ne recevra plus d'e-mail à ce sujet, et vous n'aurez plus aucun moyen de le joindre.} other {Ce client a # tickets ouverts. Il ne recevra plus d'e-mail à ce sujet, et vous n'aurez plus aucun moyen de le joindre.}}",
+    "eraseConfirm": "Effacer définitivement",
+    "erasing": "Effacement…",
+    "eraseFailed": "Le client n'a pas été effacé. Veuillez réessayer."
   }
 }

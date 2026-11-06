@@ -1,5 +1,6 @@
 import { calendarDateIn, ERASED_CUSTOMER_NAME, isEndedStatus, STATUS_UNDO_WINDOW_MS } from "@readyyet/shared";
 import { getLocale, getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PhoneNumber } from "@/components/phone-number";
 import { QrCode } from "@/components/qr-code";
@@ -105,7 +106,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
       {stoppedUpdates && <Banner>{t("updatesStopped", { name })}</Banner>}
 
       {/* ADR 0090: one grid, so each area takes the space it deserves. */}
-      <div className="grid gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
+      <div className="grid flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
         <StatusPanel
           className="md:col-span-2 xl:col-span-3"
           locationId={locationId}
@@ -137,7 +138,16 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
           </h2>
           <div className="mt-4 flex items-center gap-3">
             <Avatar id={customer.fullName} name={name} src={null} size="lg" />
-            <p className="min-w-0 text-label-md wrap-anywhere">{name}</p>
+            {erased ? (
+              <p className="min-w-0 text-label-md wrap-anywhere">{name}</p>
+            ) : (
+              <Link
+                href={`/locations/${locationId}/customers/${customer.id}`}
+                className="min-w-0 text-label-md wrap-anywhere underline-offset-4 hover:underline"
+              >
+                {name}
+              </Link>
+            )}
           </div>
           <div className="mt-4 flex flex-col gap-1">
             {customer.phone && (
