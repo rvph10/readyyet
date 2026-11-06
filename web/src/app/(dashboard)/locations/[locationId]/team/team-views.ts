@@ -1,3 +1,5 @@
+import { ErrorCode } from "@readyyet/shared";
+import type { ActionFailure } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
 
 type Invitation = components["schemas"]["InvitationDto"];
@@ -35,4 +37,12 @@ export function openInvitations(invitations: Invitation[], memberEmails: string[
 // The API's count against a plan's limit: pending invitations hold a place too.
 export function placesTaken(members: number, invitations: { state: InvitationState }[]) {
   return members + invitations.filter(({ state }) => state === "pending").length;
+}
+
+export function inviteFailure(code: ActionFailure["code"]) {
+  if (code === ErrorCode.CONFLICT) return "alreadyThere";
+  if (code === ErrorCode.MEMBER_LIMIT_REACHED) return "full";
+  if (code === ErrorCode.LOCATION_FROZEN) return "frozen";
+  if (code === ErrorCode.RATE_LIMITED) return "tooMany";
+  return "failed";
 }

@@ -3,7 +3,7 @@
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition, type FormEvent } from "react";
-import { SectionHeading, SettingRow } from "@/app/(dashboard)/locations/[locationId]/settings/section-form";
+import { SettingRow } from "@/app/(dashboard)/locations/[locationId]/settings/section-form";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -52,9 +52,8 @@ function Details({ business }: { business: Business }) {
   }
 
   return (
-    <Panel as="section" padding="lg" className="lg:p-8">
-      <SectionHeading title={t("detailsTitle")} hint={t("detailsHint")} />
-      <SettingRow label={t("name")} hint={t("nameHint")}>
+    <>
+      <SettingRow label={t("name")}>
         <form onSubmit={save} className="flex items-start gap-3">
           <Field
             className="min-w-0 flex-1"
@@ -104,7 +103,7 @@ function Details({ business }: { business: Business }) {
           )}
         </div>
       </SettingRow>
-    </Panel>
+    </>
   );
 }
 
@@ -135,52 +134,53 @@ function Ownership({
   }
 
   return (
-    <Panel as="section" padding="lg" className="lg:p-8">
-      <SectionHeading title={t("transferTitle")} hint={t("transferHint")} />
-      {admins.length > 0 ? (
-        <div className="flex max-w-2xl flex-col items-start gap-4">
-          <RadioCards
-            className="w-full"
-            legend={t("transferTo")}
-            name="newOwner"
-            columns={2}
-            options={admins.map(({ id, name, email }) => ({ value: id, label: name, description: email }))}
-            value={chosen}
-            onChange={setChosen}
-          />
-          <Button variant="danger-secondary" disabled={!admin} onClick={() => setOpen(true)}>
-            {t("transferAction")}
-          </Button>
-        </div>
-      ) : (
-        <p className="rounded-2xl bg-subtle px-4 py-3 text-p-sm">{t("transferNoAdmin")}</p>
-      )}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("transferConfirmTitle", { name: admin?.name ?? "" })}
-        variant="destructive"
-      >
+    <div className="mt-2 flex justify-end">
+      <Button variant="link" onClick={() => setOpen(true)}>
+        {t("transferAction")}
+      </Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={t("transferTitle")} variant="destructive">
         <p className="text-p-sm text-muted">{t("transferConfirmBody", { business: business.name })}</p>
+        <RadioCards
+          className="mt-4"
+          legend={t("transferTo")}
+          name="newOwner"
+          columns={1}
+          options={admins.map(({ id, name, email }) => ({ value: id, label: name, description: email }))}
+          value={chosen}
+          onChange={setChosen}
+        />
         <div className="mt-5 flex justify-end gap-3">
           <Button variant="secondary" disabled={pending} onClick={() => setOpen(false)}>
             {tForm("cancel")}
           </Button>
-          <Button variant="danger" pending={pending} pendingLabel={t("transferring")} onClick={transfer}>
+          <Button
+            variant="danger"
+            disabled={!admin}
+            pending={pending}
+            pendingLabel={t("transferring")}
+            onClick={transfer}
+          >
             {t("transferConfirm")}
           </Button>
         </div>
       </Dialog>
-    </Panel>
+    </div>
   );
 }
 
-export function BusinessSettings(props: { business: Business; admins: { id: string; name: string; email: string }[] }) {
+export function BusinessSettings({
+  business,
+  admins,
+}: {
+  business: Business;
+  admins: { id: string; name: string; email: string }[];
+}) {
   return (
-    <>
+    <Panel as="section" padding="lg" className="max-w-3xl lg:p-8">
       {/* Keyed, so a saved name becomes the field's new starting point. */}
-      <Details key={props.business.name} business={props.business} />
-      <Ownership {...props} />
-    </>
+      <Details key={business.name} business={business} />
+      {/* Nobody can take over without an Admin, so nothing to offer until then. */}
+      {admins.length > 0 && <Ownership business={business} admins={admins} />}
+    </Panel>
   );
 }

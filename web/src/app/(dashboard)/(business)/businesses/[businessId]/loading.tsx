@@ -11,25 +11,25 @@ export default function Loading() {
       </p>
       <div className="flex min-h-12 flex-col gap-2">
         <Skeleton className="h-10 w-72 max-w-full" />
-        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-4 w-44" />
       </div>
-      <div className="grid flex-1 grid-rows-[auto_1fr] gap-4 lg:gap-5 xl:grid-cols-12">
-        <Skeleton className="h-72 rounded-sheet! xl:col-span-7" />
-        <div className="grid grid-cols-2 gap-4 lg:gap-5 xl:col-span-5">
-          {[0, 1, 2, 3].map((tile) => (
-            <Skeleton key={tile} className="h-34 rounded-sheet!" />
-          ))}
-        </div>
-        <Panel className="flex flex-col gap-4 xl:col-span-8">
-          <Skeleton className="h-7 w-32" />
-          {[0, 1, 2].map((row) => (
-            <Skeleton key={row} className="h-14 rounded-2xl!" />
-          ))}
-        </Panel>
-        <Panel className="flex flex-col gap-4 xl:col-span-4">
-          <Skeleton className="h-7 w-40" />
-          <Skeleton className="h-14 rounded-2xl!" />
-        </Panel>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5 xl:grid-cols-3">
+        {[0, 1, 2].map((tile) => (
+          <Panel key={tile} className="flex flex-col gap-5">
+            <div className="flex items-start gap-3">
+              <Skeleton className="size-10 shrink-0 rounded-xl!" />
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Skeleton className="h-6 w-32 max-w-full" />
+                <Skeleton className="h-6 w-20 rounded-full!" />
+              </div>
+              <Skeleton className="size-10 shrink-0 rounded-full!" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Skeleton className="h-20 rounded-2xl!" />
+              <Skeleton className="h-20 rounded-2xl!" />
+            </div>
+          </Panel>
+        ))}
       </div>
     </div>
   );

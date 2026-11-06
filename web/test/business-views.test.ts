@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  attentionHref,
-  attentionItems,
-  busiest,
   hasPaid,
-  monthlyCost,
   nextPayment,
-  payingCount,
-  planMix,
   planState,
-  sumCounts,
-  weekTotals,
+  stoppedCount,
+  teamInvitations,
+  teamPeople,
   type BusinessLocation,
 } from "../src/app/(dashboard)/(business)/businesses/[businessId]/business-views";
 
@@ -36,12 +31,8 @@ const location = (name: string, changes: Partial<BusinessLocation> = {}): Busine
   daysLeft: null,
   timeZone: "Europe/Brussels",
   counts: null,
-  handedOver: null,
   ...changes,
 });
-
-const counts = (changes: Partial<NonNullable<BusinessLocation["counts"]>>) =>
-  ({ open: 0, ready: 0, late: 0, unhandledFeedback: 0, ...changes }) as NonNullable<BusinessLocation["counts"]>;
 
 const unpaid = billing({ status: "ENDED", plan: null, interval: null, currentPeriodEnd: null, frozen: true });
 
@@ -57,19 +48,6 @@ describe("planState", () => {
     expect(planState(billing({ status: "TRIAL" }))).toBe("trial");
     expect(planState(billing({ scheduledPlan: "ESSENTIEL" }))).toBe("changing");
     expect(planState(billing())).toBe("active");
-  });
-});
-
-describe("monthlyCost", () => {
-  it("adds paying Locations and counts a yearly plan by the month", () => {
-    const locations = [
-      location("Pro"),
-      location("Yearly", { billing: billing({ plan: "ESSENTIEL", interval: "YEAR" }) }),
-      location("Trial", { billing: billing({ status: "TRIAL" }) }),
-      location("Unpaid", { billing: unpaid }),
-    ];
-    expect(monthlyCost(locations)).toBeCloseTo(49 + 290 / 12);
-    expect(payingCount(locations)).toBe(2);
   });
 });
 
@@ -110,83 +88,52 @@ describe("hasPaid", () => {
   });
 });
 
-describe("sumCounts", () => {
-  it("adds what's known, and is null when nothing is", () => {
-    expect(sumCounts([location("A", { counts: counts({ late: 2 }) }), location("B")], "late")).toBe(2);
-    expect(sumCounts([location("B")], "late")).toBeNull();
-  });
-});
-
-describe("attentionItems", () => {
-  it("puts a stopped shop before late Tickets, and leaves out what's fine", () => {
-    const items = attentionItems([
-      location("Late", { counts: counts({ late: 3 }) }),
-      location("Unpaid", { billing: unpaid, daysLeft: 0 }),
-      location("Calm", { counts: counts({}) }),
-    ]);
-    expect(items.map(({ kind, location: { name } }) => [kind, name])).toEqual([
-      ["paused", "Unpaid"],
-      ["late", "Late"],
-    ]);
-  });
-
-  it("only raises a trial near its end", () => {
-    expect(attentionItems([location("Near", { daysLeft: 1 })]).map(({ kind }) => kind)).toEqual(["trial"]);
-    expect(attentionItems([location("Far", { daysLeft: 12 })])).toEqual([]);
-  });
-
-  it("leads each item to where it's fixed", () => {
-    const [item] = attentionItems([location("Shop", { counts: counts({ unhandledFeedback: 1 }) })]);
-    expect(attentionHref(item)).toBe("/locations/Shop/feedback");
-  });
-});
-
-describe("busiest", () => {
-  it("names the Location with the most, and nothing when all are at zero", () => {
-    const locations = [location("A", { counts: counts({ late: 1 }) }), location("B", { counts: counts({ late: 4 }) })];
-    expect(busiest(locations, "late")).toBe("B");
-    expect(busiest(locations, "ready")).toBeNull();
-  });
-});
-
-describe("weekTotals", () => {
-  const week = (first: number, previousWeek: number) => ({
-    days: [
-      { date: "2026-11-05", count: first },
-      { date: "2026-11-06", count: 1 },
-    ],
-    previousWeek,
-  });
-
-  it("adds each day across Locations, skipping one that failed to load", () => {
+describe("stoppedCount", () => {
+  it("counts a stopped plan and a failed payment, not a trial", () => {
     expect(
-      weekTotals([location("A", { handedOver: week(2, 5) }), location("B"), location("C", { handedOver: week(3, 1) })]),
-    ).toEqual({
-      days: [
-        { date: "2026-11-05", count: 5 },
-        { date: "2026-11-06", count: 2 },
-      ],
-      previousWeek: 6,
-    });
-  });
-
-  it("is nothing when no Location loaded", () => {
-    expect(weekTotals([location("A")])).toBeNull();
+      stoppedCount([
+        location("Unpaid", { billing: unpaid }),
+        location("Failed", { billing: billing({ status: "PAST_DUE" }) }),
+        location("Trial", { billing: billing({ status: "TRIAL" }) }),
+        location("Fine"),
+      ]),
+    ).toBe(2);
   });
 });
 
-describe("planMix", () => {
-  it("orders plans first, and counts a trial and a stopped Location as no plan", () => {
-    const mix = planMix([
-      location("Trial", { billing: billing({ status: "TRIAL" }) }),
-      location("Essentiel", { billing: billing({ plan: "ESSENTIEL" }) }),
-      location("Unpaid", { billing: unpaid }),
-      location("Failed", { billing: billing({ status: "PAST_DUE" }) }),
+describe("teams", () => {
+  const user = (id: string, name: string) => ({ id, name, email: `${id}@test.be`, avatarUrl: null });
+  const teams = [
+    {
+      location: { id: "a", name: "Ixelles" },
+      members: [
+        { role: "EMPLOYEE", user: user("zoe", "Zoé") },
+        { role: "OWNER", user: user("owner", "Sofie") },
+      ],
+      open: [
+        { email: "new@test.be", state: "pending" },
+        { email: "old@test.be", state: "expired" },
+      ],
+    },
+    {
+      location: { id: "b", name: "Uccle" },
+      members: [
+        { role: "ADMIN", user: user("zoe", "Zoé") },
+        { role: "OWNER", user: user("owner", "Sofie") },
+      ],
+      open: [{ email: "new@test.be", state: "pending" }],
+    },
+  ];
+
+  it("lists each person once with every place, the Owner first", () => {
+    expect(teamPeople(teams).map(({ user: { name }, owner, places }) => [name, owner, places.length])).toEqual([
+      ["Sofie", true, 2],
+      ["Zoé", false, 2],
     ]);
-    expect(mix.map(({ key, members }) => [key, members.map(({ name }) => name)])).toEqual([
-      ["PRO", ["Failed"]],
-      ["ESSENTIEL", ["Essentiel"]],
-      ["NONE", ["Trial", "Unpaid"]],
-    ]);
+    expect(teamPeople(teams)[1].places.map(({ role }) => role)).toEqual(["EMPLOYEE", "ADMIN"]);
+  });
+
+  it("gathers a pending invitation's Locations, and leaves an expired one out", () => {
+    expect(teamInvitations(teams)).toEqual([{ email: "new@test.be", places: ["Ixelles", "Uccle"] }]);
   });
 });

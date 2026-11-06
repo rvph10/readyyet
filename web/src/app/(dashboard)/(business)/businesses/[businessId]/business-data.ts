@@ -24,7 +24,6 @@ export const getBusinessLocations = cache(async (businessId: string) => {
         daysLeft,
         timeZone,
         counts: overview.data?.counts ?? null,
-        handedOver: overview.data?.handedOver ?? null,
       };
     }),
   );

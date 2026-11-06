@@ -168,7 +168,7 @@ export function NewLocationForm({ business, businessTypes, email, country }: Pro
         </div>
       </form>
       <aside className="hidden flex-col border-l border-border bg-subtle p-8 lg:flex xl:p-10">
-        <div className="sticky top-5 flex h-[calc(100dvh-10rem)] flex-col">
+        <div className="sticky top-21 flex h-[calc(100dvh-11rem)] flex-col">
           <p className="text-title-h6">{t("previewTitle")}</p>
           <p className="mt-1 max-w-md text-p-sm text-muted">{t("previewText")}</p>
           <FitToHeight className="mt-6 min-h-0 flex-1">
