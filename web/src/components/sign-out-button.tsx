@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui/button";
 import { Icon } from "./ui/icon";
@@ -12,11 +11,12 @@ import { Tooltip } from "./ui/tooltip";
 // leaves the door rather than entering it (ADR 0064).
 export function SignOutButton({ labelled = false, row = false }: { labelled?: boolean; row?: boolean }) {
   const t = useTranslations("dashboard");
-  const router = useRouter();
 
   async function signOut() {
     await authClient.signOut();
-    router.replace("/sign-in");
+    // A full load, as the router keeps pages in memory (ADR 0094), and Back
+    // mustn't show Customer details on a shop's shared computer.
+    window.location.replace("/sign-in");
   }
 
   if (row) {
