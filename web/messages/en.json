@@ -567,7 +567,9 @@
     "endedBody": "Choose a plan and nothing is lost.",
     "keepPro": "Keep Pro, €49/month",
     "choosePlan": "Choose a plan",
-    "daysShort": "{days}d"
+    "daysShort": "{days}d",
+    "cardBodyNow": "Keep your Workflow and reviews. Your card is charged when you choose.",
+    "chargedNow": "Your trial is ending, so your card is charged today. Cancel any time."
   },
   "billing": {
     "yourPlan": "Your plan",
@@ -640,7 +642,10 @@
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
-    "haveCode": "Have a promotion code?"
+    "haveCode": "Have a promotion code?",
+    "trialBodyNow": "Your trial ends on {date}. Choose a plan now and your card is charged today.",
+    "pastDueShort": "Payment failed",
+    "retrying": "Stripe is trying again"
   },
   "feedback": {
     "pageTitle": "Feedback",
@@ -782,7 +787,6 @@
   "settings": {
     "saveFailed": "Your changes weren't saved. Please try again.",
     "seePlans": "See plans",
-    "shopTitle": "Your shop",
     "name": "Shop name",
     "phone": "Shop phone",
     "email": "Shop email",
@@ -790,7 +794,6 @@
     "postalCode": "Postal code",
     "city": "City",
     "country": "Country",
-    "addressHint": "Customers get directions to it. Leave all of it empty for none.",
     "language": "Default language for Customers",
     "languageHint": "Their emails and tracking page use this language, unless you choose another one for a Customer.",
     "timeZone": "Time zone",
@@ -800,7 +803,6 @@
     "phoneInvalid": "Enter a valid phone number.",
     "emailInvalid": "Enter a valid email, like name@example.be.",
     "addressIncomplete": "An address needs this too.",
-    "hoursTitle": "Opening hours",
     "closed": "Closed",
     "copyMonday": "Copy to Tuesday to Friday",
     "addBreak": "Add a break",
@@ -854,7 +856,6 @@
     "turnaroundRowHint": "New Tickets start with a suggested ready date. You can change it for each Ticket.",
     "turnaroundPlaceholder": "Not set",
     "reviewHint": "After collecting their item, each Customer gets one email asking how it went. Private feedback lands in Feedback.",
-    "reviewRowHint": "Where your Customers go to leave you a Google review. Leave it empty to stop asking.",
     "deleteHint": "Its tracking links stop working, its plan is cancelled at once, and everyone loses access. This can't be undone.",
     "emailHint": "The address Customers write to. Their replies to our emails also come here.",
     "reviewGuideTitle": "Where do I find my link?",
@@ -923,7 +924,6 @@
     "billing": {
       "nextPayment": "Next payment",
       "nothingDue": "Nothing due",
-      "locations": "Plans by shop",
       "renewsOn": "Renews {date}",
       "stopsOn": "Stops {date}",
       "trialEnds": "Ends {date}",
@@ -979,7 +979,8 @@
       "blocked": {
         "frozen": "No active plan",
         "full": "No place left on Essentiel"
-      }
+      },
+      "byShop": "Each shop's team"
     },
     "invite": {
       "action": "Invite a business",

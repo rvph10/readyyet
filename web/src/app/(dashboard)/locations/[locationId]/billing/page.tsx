@@ -4,6 +4,7 @@ import { getMe } from "@/lib/me";
 import { getBilling, getDaysToChoosePlan, getLocation } from "../location-data";
 import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
+import { parsePlan } from "../plan-prices";
 import { intlLocale } from "../tickets/ticket-views";
 import { BillingBoard } from "./billing-board";
 
@@ -22,7 +23,8 @@ export default async function BillingPage({ params, searchParams }: PageProps<"/
   // Stripe's return comes before its webhook, so this page could still say
   // there's no plan. Today thanks them without saying anything about the plan.
   if (search.checkout === "success") {
-    redirect(`/locations/${locationId}?checkout=success&plan=${String(search.plan)}`);
+    const kept = search.trial === "kept" ? "&trial=kept" : "";
+    redirect(`/locations/${locationId}?checkout=success&plan=${parsePlan(search.plan) ?? ""}${kept}`);
   }
   const [billing, daysLeft, { timeZone }] = await Promise.all([
     getBilling(locationId),

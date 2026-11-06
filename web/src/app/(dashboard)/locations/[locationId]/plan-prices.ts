@@ -5,6 +5,11 @@ export function parsePlan(value: unknown): Plan | null {
   return value === "PRO" || value === "ESSENTIEL" ? value : null;
 }
 
+// The API keeps a trial through Checkout with more than 48 hours left, and
+// otherwise charges at once (MIN_CHECKOUT_TRIAL_MS). Days left round up, so 2
+// or fewer is exactly that.
+export const chargedAtTrialEnd = (daysLeft: number) => daysLeft > 2;
+
 export const PLAN_NAMES: Record<Plan, string> = { PRO: "Pro", ESSENTIEL: "Essentiel" };
 
 export const PLAN_FEATURES = {

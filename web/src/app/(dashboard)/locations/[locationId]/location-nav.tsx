@@ -24,6 +24,7 @@ import { Menu } from "@/components/ui/menu";
 import type { Membership } from "@/lib/memberships";
 import { HeaderSearch } from "./header-search";
 import { useLocationActions } from "./location-actions";
+import { chargedAtTrialEnd } from "./plan-prices";
 import { isManager, SECTIONS, type Section } from "./sections";
 import { isUrgentTrial, TrialMeter } from "./trial-meter";
 
@@ -86,7 +87,9 @@ function TrialCard({ daysLeft }: { daysLeft: number }) {
       <div className={`on-pine rounded-card p-3.5 text-surface ${urgent ? "bg-danger" : "bg-pine"} ${wide(collapsed)}`}>
         <p className="text-label-sm">{title}</p>
         <TrialMeter daysLeft={daysLeft} className="mt-2 h-1.5" />
-        <p className="mt-2 text-p-xs">{t(daysLeft === 0 ? "endedBody" : "cardBody")}</p>
+        <p className="mt-2 text-p-xs">
+          {t(daysLeft === 0 ? "endedBody" : chargedAtTrialEnd(daysLeft) ? "cardBody" : "cardBodyNow")}
+        </p>
         <button
           type="button"
           onClick={choosePlan}

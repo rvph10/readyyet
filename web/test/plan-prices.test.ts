@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parsePlan, startsAtOnce } from "../src/app/(dashboard)/locations/[locationId]/plan-prices";
+import { chargedAtTrialEnd, parsePlan, startsAtOnce } from "../src/app/(dashboard)/locations/[locationId]/plan-prices";
 
 describe("startsAtOnce", () => {
   it("follows ADR 0033's order per month", () => {
@@ -21,5 +21,13 @@ describe("parsePlan", () => {
     expect(parsePlan("ESSENTIEL")).toBe("ESSENTIEL");
     expect(parsePlan("undefined")).toBeNull();
     expect(parsePlan(["PRO"])).toBeNull();
+  });
+});
+
+describe("chargedAtTrialEnd", () => {
+  it("matches the API's 48 hours, days left rounding up", () => {
+    expect(chargedAtTrialEnd(3)).toBe(true);
+    expect(chargedAtTrialEnd(2)).toBe(false);
+    expect(chargedAtTrialEnd(1)).toBe(false);
   });
 });

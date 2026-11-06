@@ -567,7 +567,9 @@
     "endedBody": "Choisissez un plan, rien n'est perdu.",
     "keepPro": "Garder Pro, 49 €/mois",
     "choosePlan": "Choisir un plan",
-    "daysShort": "{days} j"
+    "daysShort": "{days} j",
+    "cardBodyNow": "Gardez votre Workflow et vos avis. Votre carte est débitée dès votre choix.",
+    "chargedNow": "Votre essai se termine, votre carte est donc débitée aujourd'hui. Annulez à tout moment."
   },
   "billing": {
     "yourPlan": "Votre plan",
@@ -640,7 +642,10 @@
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
-    "haveCode": "Vous avez un code promo ?"
+    "haveCode": "Vous avez un code promo ?",
+    "trialBodyNow": "Votre essai se termine le {date}. Choisissez une formule maintenant : votre carte est débitée aujourd'hui.",
+    "pastDueShort": "Paiement échoué",
+    "retrying": "Stripe réessaie"
   },
   "feedback": {
     "pageTitle": "Avis",
@@ -782,7 +787,6 @@
   "settings": {
     "saveFailed": "Vos modifications n'ont pas été enregistrées. Veuillez réessayer.",
     "seePlans": "Voir les plans",
-    "shopTitle": "Votre atelier",
     "name": "Nom du magasin",
     "phone": "Téléphone du magasin",
     "email": "E-mail du magasin",
@@ -790,7 +794,6 @@
     "postalCode": "Code postal",
     "city": "Ville",
     "country": "Pays",
-    "addressHint": "Vos clients y trouvent l'itinéraire. Laissez tout vide pour n'en mettre aucune.",
     "language": "Langue par défaut des clients",
     "languageHint": "Leurs e-mails et leur page de suivi sont dans cette langue, sauf si vous en choisissez une autre pour un client.",
     "timeZone": "Fuseau horaire",
@@ -800,7 +803,6 @@
     "phoneInvalid": "Indiquez un numéro de téléphone valide.",
     "emailInvalid": "Indiquez un e-mail valide, comme nom@exemple.be.",
     "addressIncomplete": "Une adresse a aussi besoin de ceci.",
-    "hoursTitle": "Horaires d'ouverture",
     "closed": "Fermé",
     "copyMonday": "Copier du mardi au vendredi",
     "addBreak": "Ajouter une pause",
@@ -854,17 +856,16 @@
     "turnaroundRowHint": "Les nouveaux tickets reçoivent une date de fin suggérée. Vous pouvez la changer pour chaque ticket.",
     "turnaroundPlaceholder": "Non défini",
     "reviewHint": "Après avoir récupéré son article, chaque client reçoit un e-mail lui demandant comment ça s'est passé. Ses retours privés arrivent dans Retours.",
-    "reviewRowHint": "Là où vos clients vont pour vous laisser un avis Google. Laissez vide pour ne plus les solliciter.",
     "deleteHint": "Ses liens de suivi cessent de fonctionner, son plan est annulé immédiatement et tout le monde perd l'accès. C'est irréversible.",
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
     "reviewGuideTitle": "Où trouver mon lien ?",
     "reviewPasteTitle": "Collez votre lien d'avis Google",
-    "reviewPasteHint": "Collez le lien copié depuis votre fiche de magasin Google, puis sélectionnez Enregistrer ci-dessous. Vos clients l'utiliseront pour laisser un avis.",
-    "reviewStep1": "Ouvrez votre fiche de magasin Google, avec le compte qui la gère.",
+    "reviewPasteHint": "Collez le lien copié depuis votre fiche d'établissement Google, puis sélectionnez Enregistrer ci-dessous. Vos clients l'utiliseront pour laisser un avis.",
+    "reviewStep1": "Ouvrez votre fiche d'établissement Google, avec le compte qui la gère.",
     "reviewStep2": "Sélectionnez « Voir les avis », puis « Recevoir plus d'avis ».",
     "reviewStep3": "Sélectionnez « Copier », puis collez le lien ci-dessous.",
     "reviewComputer": "C'est plus simple sur un ordinateur.",
-    "reviewOpenProfile": "Ouvrir ma fiche de magasin",
+    "reviewOpenProfile": "Ouvrir ma fiche d'établissement",
     "reviewGoogleGuide": "Voir le guide de Google",
     "reviewTest": "Tester le lien",
     "reviewTestHint": "Il doit ouvrir la page d'avis de votre propre magasin."
@@ -923,7 +924,6 @@
     "billing": {
       "nextPayment": "Prochain paiement",
       "nothingDue": "Rien à payer",
-      "locations": "Formules par magasin",
       "renewsOn": "Renouvellement le {date}",
       "stopsOn": "S'arrête le {date}",
       "trialEnds": "Fin le {date}",
@@ -979,7 +979,8 @@
       "blocked": {
         "frozen": "Pas de formule active",
         "full": "Plus de place sur Essentiel"
-      }
+      },
+      "byShop": "L'équipe de chaque magasin"
     },
     "invite": {
       "action": "Inviter une entreprise",

@@ -107,7 +107,8 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   const now = new Date();
   const { timeZone } = location;
   // The webhook can still be on its way, but the trial's end doesn't change
-  // with it: a plan chosen during the trial is first charged on that day.
+  // with it. Only Checkout knows if the trial was kept: too near its end, the
+  // card is charged at once.
   const billing = manager && search.checkout === "success" ? await getBilling(locationId) : null;
   const trialEnd = billing?.trialEndsAt ? new Date(billing.trialEndsAt) : null;
   const today = calendarDateIn(now, timeZone);
@@ -130,7 +131,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
       locationName={location.name}
       plan={parsePlan(search.plan)}
       firstPayment={
-        trialEnd && trialEnd > now
+        search.trial === "kept" && trialEnd && trialEnd > now
           ? new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone }).format(trialEnd)
           : null
       }

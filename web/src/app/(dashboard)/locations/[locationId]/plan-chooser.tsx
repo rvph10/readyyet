@@ -7,7 +7,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { orFailure } from "@/lib/api/or-failure";
 import { startCheckout } from "./actions";
-import { PLAN_NAMES, PRICES, type Interval, type Plan } from "./plan-prices";
+import { PLAN_NAMES, PRICES, type Interval, type Plan, chargedAtTrialEnd } from "./plan-prices";
 
 // The trial's one job: get a plan chosen, in as few steps as possible. Pro is
 // preselected (ADR 0031), and the card is charged when the trial ends (ADR 0033).
@@ -29,7 +29,13 @@ export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string;
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-p-sm text-muted">{trialDaysLeft ? t("chargedLater", { days: trialDaysLeft }) : t("resume")}</p>
+      <p className="text-p-sm text-muted">
+        {trialDaysLeft
+          ? chargedAtTrialEnd(trialDaysLeft)
+            ? t("chargedLater", { days: trialDaysLeft })
+            : t("chargedNow")
+          : t("resume")}
+      </p>
       {failure && <FormAlert>{t(`errors.${failure}`)}</FormAlert>}
       <div className="grid grid-cols-2 gap-1 rounded-xl bg-subtle p-1" role="group" aria-label={t("billedEvery")}>
         {(["MONTH", "YEAR"] as const).map((option) => (

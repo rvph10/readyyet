@@ -22,6 +22,7 @@ import {
   startsAtOnce,
   type Interval,
   type Plan,
+  chargedAtTrialEnd,
 } from "../plan-prices";
 import { isUrgentTrial, TrialMeter } from "../trial-meter";
 import { applyPromotionCode, changePlan, openPortal, previewPromotionCode, stopPaying } from "./actions";
@@ -92,7 +93,7 @@ function Hero(props: Props & { checkout: (plan: Plan, interval: Interval) => voi
   let body: string;
   if (inTrial) {
     title = tPlans("daysLeft", { days: daysLeft });
-    body = t("trialBody", { date: trialEnd! });
+    body = t(chargedAtTrialEnd(daysLeft) ? "trialBody" : "trialBodyNow", { date: trialEnd! });
   } else if (paused) {
     title = t("pausedTitle");
     body = t("pausedBody");
@@ -180,7 +181,9 @@ function PaymentSummary({ billing, periodEnd, owner, businessId }: Props) {
   const [pending, startTransition] = useTransition();
   const [failed, setFailed] = useState(false);
   const paying = billing.status === "ACTIVE" || billing.status === "PAST_DUE";
-  const next = paying && !billing.cancelAtPeriodEnd;
+  const pastDue = billing.status === "PAST_DUE";
+  // A failed payment is Stripe's to retry, on no date we know.
+  const next = billing.status === "ACTIVE" && !billing.cancelAtPeriodEnd;
   const price =
     billing.scheduledPlan && billing.scheduledInterval
       ? planPrice(billing.scheduledPlan, billing.scheduledInterval)
@@ -198,8 +201,8 @@ function PaymentSummary({ billing, periodEnd, owner, businessId }: Props) {
     <div className="flex shrink-0 flex-col gap-3 sm:items-end sm:text-right">
       <div>
         <p className="text-label-sm">{t("nextPayment")}</p>
-        <p className="mt-1 text-title-h6">{next ? periodEnd : t("nothingDue")}</p>
-        <p className="text-p-sm">{next ? price : t(paying ? "noMorePayments" : "noCardYet")}</p>
+        <p className="mt-1 text-title-h6">{next ? periodEnd : t(pastDue ? "pastDueShort" : "nothingDue")}</p>
+        <p className="text-p-sm">{next ? price : t(pastDue ? "retrying" : paying ? "noMorePayments" : "noCardYet")}</p>
       </div>
       {paying && failed && <FormAlert>{t("errors.portal")}</FormAlert>}
       {paying &&

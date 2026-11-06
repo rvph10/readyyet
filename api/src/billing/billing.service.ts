@@ -117,7 +117,8 @@ export class BillingService {
         billing_address_collection: "required",
         tax_id_collection: { enabled: true },
         customer_update: { name: "auto", address: "auto" },
-        success_url: `${billingPage}?checkout=success&plan=${dto.plan}`,
+        // Only a kept trial can be told "nothing to pay today".
+        success_url: `${billingPage}?checkout=success&plan=${dto.plan}${keepsTrial ? "&trial=kept" : ""}`,
         cancel_url: billingPage,
       })
       .catch(refusedPromotionCode);
