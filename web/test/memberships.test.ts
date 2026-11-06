@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupByBusiness, type Membership } from "../src/lib/memberships";
+import { groupByBusiness, matchesSearch, type Membership } from "../src/lib/memberships";
 
 function membership(role: Membership["role"], businessName: string, locationName: string): Membership {
   return {
@@ -26,5 +26,16 @@ describe("groupByBusiness", () => {
 
   it("says which Businesses the User owns", () => {
     expect(groups.map((group) => group.owned)).toEqual([true, false]);
+  });
+});
+
+describe("matchesSearch", () => {
+  const liege = membership("EMPLOYEE", "Garage Martin", "Liège");
+
+  it("finds a Location by its name or its Business's, whatever the accents and case", () => {
+    expect(matchesSearch(liege, "liege")).toBe(true);
+    expect(matchesSearch(liege, " MARTIN ")).toBe(true);
+    expect(matchesSearch(liege, "garage liege")).toBe(false);
+    expect(matchesSearch(liege, "namur")).toBe(false);
   });
 });

@@ -22,3 +22,12 @@ export function groupByBusiness(memberships: Membership[]) {
       owned: group.memberships.some((membership) => membership.role === "OWNER"),
     }));
 }
+
+// So "liege" finds Liège: nobody types the accents in a search box.
+function fold(text: string) {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+}
+
+export function matchesSearch({ location }: Membership, query: string) {
+  return fold(`${location.business.name} ${location.name}`).includes(fold(query.trim()));
+}

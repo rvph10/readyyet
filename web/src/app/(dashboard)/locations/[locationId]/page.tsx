@@ -13,6 +13,7 @@ import { buttonClass } from "@/components/ui/button";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { addDays } from "@/lib/calendar-grid";
+import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
 import { getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
 import { ComingUp } from "./overview/coming-up";
@@ -26,15 +27,7 @@ import { daysBetween, expected, LONG_WAIT_DAYS, parseFilter, type Filter } from 
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
-const MORNING_ENDS = 12;
-const AFTERNOON_ENDS = 18;
 const COMING_DAYS = 5;
-
-function greetingKey(now: Date, timeZone: string) {
-  const hour = Number(new Intl.DateTimeFormat("en-GB", { timeZone, hour: "numeric", hourCycle: "h23" }).format(now));
-  if (hour < MORNING_ENDS) return "morning";
-  return hour < AFTERNOON_ENDS ? "afternoon" : "evening";
-}
 
 function Stat({
   href,
