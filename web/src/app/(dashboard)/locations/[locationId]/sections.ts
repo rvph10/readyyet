@@ -20,7 +20,3 @@ export type Section = (typeof SECTIONS)[number];
 export function isManager(role: string) {
   return role === "OWNER" || role === "ADMIN";
 }
-
-export function findSection(slug: string, role: string) {
-  return SECTIONS.find((section) => section.slug === slug && (!section.managers || isManager(role)));
-}

@@ -11,12 +11,7 @@ export function ComingSoon({ title, children }: { title?: string; children?: Rea
     <>
       {title && <h1 className="text-title-h5 wrap-anywhere md:text-title-h4">{title}</h1>}
       <Panel padding="none" className="flex flex-1 flex-col">
-        <EmptyState
-          illustration="daily"
-          title={t("comingSoonTitle")}
-          description={t("comingSoon")}
-          action={children}
-        />
+        <EmptyState illustration="daily" title={t("comingSoonTitle")} description={t("comingSoon")} action={children} />
       </Panel>
     </>
   );

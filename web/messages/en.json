@@ -876,5 +876,38 @@
     "reviewGoogleGuide": "See Google's guide",
     "reviewTest": "Test the link",
     "reviewTestHint": "It should open the review page of your own business."
+  },
+  "workflow": {
+    "pathTitle": "The path of a Ticket",
+    "pathHint": "Every Ticket follows these steps. Add the ones your shop really goes through, and put them in order.",
+    "pathDefault": "Your Tickets follow the usual path for: {type}.",
+    "firstNote": "Every Ticket starts here",
+    "readyNote": "Emails the Customer that it's ready",
+    "completedNote": "The item is back with the Customer",
+    "emails": "Emails the Customer",
+    "emailsShort": "Email",
+    "stoppedNote": "At any step, a Ticket can also end as {cancelled} or {rejected}.",
+    "openTicketsNote": "Tickets already open keep the steps they started with. Only new Tickets follow this.",
+    "moveUp": "Move {step} up",
+    "moveDown": "Move {step} down",
+    "remove": "Remove {step}",
+    "addTitle": "Add a step",
+    "search": "Find a step",
+    "noMatch": "No step matches that.",
+    "allAdded": "Every step is already in your path.",
+    "groups": {
+      "received": "Checking the item",
+      "working": "Doing the work",
+      "waiting": "Waiting on something"
+    },
+    "saved": "Workflow saved. New Tickets follow it.",
+    "saveFailed": "That didn't work. Please try again.",
+    "resetTitle": "Back to the usual path for: {type}",
+    "resetHint": "Removes your own steps. Tickets already open keep theirs.",
+    "resetAction": "Use the usual path",
+    "resetConfirm": "New Tickets will go through these steps, between Received and Ready:",
+    "resetDone": "Back to the usual path.",
+    "proTitle": "Make the path your own",
+    "proHint": "With Pro, you choose the steps your Customers see and put them in your order."
   }
 }

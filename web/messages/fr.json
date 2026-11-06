@@ -876,5 +876,38 @@
     "reviewGoogleGuide": "Voir le guide de Google",
     "reviewTest": "Tester le lien",
     "reviewTestHint": "Il doit ouvrir la page d'avis de votre propre établissement."
+  },
+  "workflow": {
+    "pathTitle": "Le parcours d'un ticket",
+    "pathHint": "Chaque ticket suit ces étapes. Ajoutez celles que vous faites vraiment, et mettez-les dans l'ordre.",
+    "pathDefault": "Vos tickets suivent le parcours habituel pour : {type}.",
+    "firstNote": "Chaque ticket commence ici",
+    "readyNote": "Envoie un e-mail au client pour dire que c'est prêt",
+    "completedNote": "L'article est revenu au client",
+    "emails": "Envoie un e-mail au client",
+    "emailsShort": "E-mail",
+    "stoppedNote": "À chaque étape, un ticket peut aussi se terminer par {cancelled} ou {rejected}.",
+    "openTicketsNote": "Les tickets déjà ouverts gardent leurs étapes. Seuls les nouveaux tickets suivent ce parcours.",
+    "moveUp": "Monter {step}",
+    "moveDown": "Descendre {step}",
+    "remove": "Retirer {step}",
+    "addTitle": "Ajouter une étape",
+    "search": "Trouver une étape",
+    "noMatch": "Aucune étape ne correspond.",
+    "allAdded": "Toutes les étapes sont déjà dans votre parcours.",
+    "groups": {
+      "received": "Examiner l'article",
+      "working": "Faire le travail",
+      "waiting": "Attendre quelque chose"
+    },
+    "saved": "Workflow enregistré. Les nouveaux tickets le suivent.",
+    "saveFailed": "Cela n'a pas fonctionné. Veuillez réessayer.",
+    "resetTitle": "Revenir au parcours habituel pour : {type}",
+    "resetHint": "Retire vos propres étapes. Les tickets déjà ouverts gardent les leurs.",
+    "resetAction": "Utiliser le parcours habituel",
+    "resetConfirm": "Les nouveaux tickets passeront par ces étapes, entre Reçu et Prêt :",
+    "resetDone": "Retour au parcours habituel.",
+    "proTitle": "Faites de ce parcours le vôtre",
+    "proHint": "Avec Pro, vous choisissez les étapes que voient vos clients, dans votre ordre."
   }
 }
