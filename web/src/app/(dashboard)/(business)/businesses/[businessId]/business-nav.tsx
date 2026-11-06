@@ -3,25 +3,25 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useContext, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
-  CollapsedContext,
   NavItem,
-  panelRow,
   Popover,
-  rowClass,
   SidebarFrame,
   useCollapsed,
   UserPanel,
   UserRow,
-  wide,
   type SidebarUser,
 } from "@/components/sidebar";
+import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
+import { BusinessPanel, TopBar } from "@/components/top-bar";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
+import type { Membership } from "@/lib/memberships";
 
 const SECTIONS = [
-  { slug: "", key: "overview", icon: "dashboard" },
+  { slug: "", key: "locations", icon: "home" },
+  { slug: "/team", key: "team", icon: "id-card" },
   { slug: "/billing", key: "billing", icon: "receipt" },
   { slug: "/settings", key: "settings", icon: "settings" },
 ] as const satisfies readonly { slug: string; key: string; icon: IconName }[];
@@ -35,49 +35,23 @@ interface Business {
 interface Props {
   me: SidebarUser;
   business: Business;
-  locations: { id: string; name: string }[];
-  otherBusinesses: Business[];
-  showAllLocations: boolean;
+  memberships: Membership[];
+  locationCount: number;
   // Locations whose plan has stopped them, or whose payment failed.
   billingAlerts: number;
+  inviteLink: string;
 }
 
-function BusinessName({ props, collapsed }: { props: Props; collapsed?: boolean }) {
+function BusinessName({ props }: { props: Props }) {
   const t = useTranslations("business");
-  const { business, locations } = props;
+  const { business, locationCount } = props;
   return (
     <>
       <Avatar id={business.id} name={business.name} src={business.logoUrl} shape="square" />
-      <span className={`min-w-0 flex-1 ${collapsed === undefined ? "" : wide(collapsed)}`}>
+      <span className="min-w-0 flex-1">
         <span className="block truncate text-label-sm">{business.name}</span>
-        <span className="block truncate text-p-xs text-muted">{t("locationCount", { count: locations.length })}</span>
+        <span className="block truncate text-p-xs text-muted">{t("locationCount", { count: locationCount })}</span>
       </span>
-    </>
-  );
-}
-
-function BusinessPanel({ props }: { props: Props }) {
-  const t = useTranslations("dashboard");
-  return (
-    <>
-      <div className={`${panelRow} justify-between hover:bg-transparent`}>
-        <span className="min-w-0 wrap-anywhere">{props.business.name}</span>
-        <Icon name="check" className="size-3 shrink-0" />
-      </div>
-      {props.otherBusinesses.map((business) => (
-        <Link key={business.id} href={`/businesses/${business.id}`} className={panelRow}>
-          <span className="min-w-0 wrap-anywhere">{business.name}</span>
-        </Link>
-      ))}
-      {props.showAllLocations && (
-        <>
-          <div className="mx-3 my-2 border-t border-border" />
-          <Link href="/" className={panelRow}>
-            <Icon name="layers" className="size-4 text-muted" />
-            {t("allLocations")}
-          </Link>
-        </>
-      )}
     </>
   );
 }
@@ -93,11 +67,8 @@ function useSections(businessId: string) {
 function NavLinks({ props }: { props: Props }) {
   const t = useTranslations("business");
   const tDashboard = useTranslations("dashboard");
-  const pathname = usePathname();
-  const collapsed = useContext(CollapsedContext);
-  const addHref = `/businesses/${props.business.id}/locations/new`;
   return (
-    <nav aria-label={tDashboard("navigation")} className="flex min-h-0 flex-1 flex-col gap-0.5 roomy:gap-1">
+    <nav aria-label={tDashboard("navigation")} className="flex flex-1 flex-col gap-0.5 roomy:gap-1">
       {useSections(props.business.id).map(({ key, icon, href, current }) => (
         <NavItem
           key={key}
@@ -109,22 +80,6 @@ function NavLinks({ props }: { props: Props }) {
           alert
         />
       ))}
-      <p className={`mt-3 mb-0.5 px-3 text-label-sm roomy:mt-4 roomy:mb-1 ${wide(collapsed)}`}>{t("nav.locations")}</p>
-      <div className={`mx-2 my-2 border-t border-border ${collapsed ? "" : "xl:hidden"}`} />
-      {/* The list scrolls by itself, so a chain's Locations can't push the
-          rest of the sidebar away. */}
-      <div className="flex min-h-0 flex-col gap-0.5 overflow-y-auto [scrollbar-width:none] roomy:gap-1">
-        {props.locations.map(({ id, name }) => (
-          <NavItem
-            key={id}
-            href={`/locations/${id}`}
-            leading={<Avatar id={id} name={name} src={null} size="xs" />}
-            label={name}
-            current={false}
-          />
-        ))}
-      </div>
-      <NavItem href={addHref} icon="add" label={t("nav.add")} current={pathname === addHref} />
     </nav>
   );
 }
@@ -146,9 +101,10 @@ function PhoneBar({ props }: { props: Props }) {
             </>
           }
         >
-          <BusinessPanel props={props} />
+          <BusinessPanel business={props.business} memberships={props.memberships} />
         </Popover>
       </div>
+      <InviteBusinessRound link={props.inviteLink} />
       <Popover
         label={me.name}
         popoverClass="menu-popover w-80 max-w-[calc(100vw-2rem)]"
@@ -164,8 +120,8 @@ function PhoneBar({ props }: { props: Props }) {
 function BottomNav({ businessId }: { businessId: string }) {
   const t = useTranslations("business");
   const tDashboard = useTranslations("dashboard");
-  const [overview, billing, settings] = useSections(businessId);
-  const item = ({ key, icon, href, current }: typeof overview) => (
+  const [locations, team, billing, settings] = useSections(businessId);
+  const item = ({ key, icon, href, current }: typeof locations) => (
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
@@ -182,8 +138,8 @@ function BottomNav({ businessId }: { businessId: string }) {
       aria-label={tDashboard("navigation")}
       className="fixed inset-x-0 bottom-0 z-20 flex h-[4.5rem] items-stretch border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      {item(overview)}
-      {item(billing)}
+      {item(locations)}
+      {item(team)}
       <div className="flex flex-1 items-center justify-center">
         <Link
           href={`/businesses/${businessId}/locations/new`}
@@ -193,6 +149,7 @@ function BottomNav({ businessId }: { businessId: string }) {
           <Icon name="add" className="size-5" />
         </Link>
       </div>
+      {item(billing)}
       {item(settings)}
     </nav>
   );
@@ -203,34 +160,22 @@ export function BusinessNav({
   children,
   ...props
 }: Props & { collapsed: boolean; children: ReactNode }) {
-  const t = useTranslations("dashboard");
   const [collapsed, toggle] = useCollapsed(initial);
   return (
     <>
-      <SidebarFrame collapsed={collapsed} onToggle={toggle}>
-        <CollapsedContext.Provider value={collapsed}>
-          <Popover
-            label={t("switchLocation", { location: props.business.name })}
-            popoverClass="switcher-popover"
-            triggerClass={rowClass(collapsed)}
-            trigger={
-              <>
-                <BusinessName props={props} collapsed={collapsed} />
-                <Icon name="arrow-down-1" className={`mr-1 size-2.5 shrink-0 text-muted ${wide(collapsed)}`} />
-              </>
-            }
-          >
-            <BusinessPanel props={props} />
-          </Popover>
+      <TopBar memberships={props.memberships} business={props.business} owned location={null} />
+      <div className="flex min-w-0 flex-1">
+        <SidebarFrame collapsed={collapsed} onToggle={toggle}>
           <NavLinks props={props} />
+          <InviteBusiness link={props.inviteLink} />
           <UserRow me={props.me} role="OWNER" />
-        </CollapsedContext.Provider>
-      </SidebarFrame>
-      <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
-        <PhoneBar props={props} />
-        <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
-          {children}
-        </main>
+        </SidebarFrame>
+        <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+          <PhoneBar props={props} />
+          <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
+            {children}
+          </main>
+        </div>
       </div>
       <BottomNav businessId={props.business.id} />
     </>

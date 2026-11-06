@@ -48,7 +48,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
   const today = calendarDateIn(new Date(), timeZone);
   return (
     <>
-      <PageHeader locationId={locationId} title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
+      <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
       {search.erased && <Banner>{t("erased")}</Banner>}
       <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="px-5 pt-5 pb-4 lg:px-7 lg:pt-6">

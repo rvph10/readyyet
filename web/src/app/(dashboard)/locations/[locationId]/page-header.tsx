@@ -1,25 +1,17 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { HeaderSearch } from "./header-search";
-import { useLocationActions } from "./location-actions";
 
 interface Props {
-  locationId: string;
   title: string;
   subtitle?: string;
   backHref?: string;
 }
 
-// Every page of a Location opens with this: its title, and from a tablet up
-// the search and New Ticket, which a phone keeps in its bars.
-export function PageHeader({ locationId, title, subtitle, backHref }: Props) {
-  const t = useTranslations("tickets");
+// Every page of a Location opens with this. Search and New Ticket are in the
+// top bar (ADR 0103).
+export function PageHeader({ title, subtitle, backHref }: Props) {
   const tDetail = useTranslations("ticketDetail");
-  const { newTicket } = useLocationActions();
   return (
     <header className="flex items-center justify-between gap-6">
       <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
@@ -38,17 +30,6 @@ export function PageHeader({ locationId, title, subtitle, backHref }: Props) {
           </h1>
           {subtitle && <p className="text-p-sm text-muted md:truncate">{subtitle}</p>}
         </div>
-      </div>
-      {/* A fixed size, as a Ticket's title can be 200 characters and would
-          otherwise squeeze these until they overlap. */}
-      <div className="hidden shrink-0 items-center gap-3 md:flex">
-        <div className="w-52 xl:w-72">
-          <HeaderSearch locationId={locationId} />
-        </div>
-        <Button onClick={newTicket}>
-          <Icon name="add" className="size-3.5 text-brand" />
-          {t("new")}
-        </Button>
       </div>
     </header>
   );

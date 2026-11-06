@@ -7,9 +7,7 @@ import { useContext, type ReactNode } from "react";
 import {
   CollapsedContext,
   NavItem,
-  panelRow,
   Popover,
-  rowClass,
   SidebarFrame,
   useCollapsed,
   UserPanel,
@@ -17,10 +15,13 @@ import {
   wide,
   type SidebarUser,
 } from "@/components/sidebar";
+import { BusinessPanel, LocationPanel, TopBar } from "@/components/top-bar";
+import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
-import { groupByBusiness, type Membership } from "@/lib/memberships";
+import type { Membership } from "@/lib/memberships";
 import { HeaderSearch } from "./header-search";
 import { useLocationActions } from "./location-actions";
 import { isManager, SECTIONS, type Section } from "./sections";
@@ -30,49 +31,31 @@ function useSectionHref(locationId: string) {
   return ({ slug }: Section) => `/locations/${locationId}${slug ? `/${slug}` : ""}`;
 }
 
+// ADR 0103: with several Locations an Owner has these on the Business. With one
+// they stay here, or every single shop would pay a step for what chains need.
+function managerSections({ memberships, current }: Pick<Props, "memberships" | "current">) {
+  const { business } = current.location;
+  const chain =
+    current.role === "OWNER" && memberships.filter(({ location }) => location.business.id === business.id).length > 1;
+  return SECTIONS.filter(({ managers, key }) => managers && !(chain && (key === "team" || key === "billing")));
+}
+
 function isCurrent(pathname: string, href: string, slug: string) {
   return slug ? pathname === href || pathname.startsWith(`${href}/`) : pathname === href;
 }
-function LocationPanel({ memberships, current }: { memberships: Membership[]; current: Membership }) {
-  const t = useTranslations("dashboard");
-  const owned = current.role === "OWNER";
+// A phone has no top bar, so its one switcher does both of the bar's jobs.
+function PhoneLocations({ memberships, current }: { memberships: Membership[]; current: Membership }) {
+  const { business } = current.location;
   return (
     <>
-      {groupByBusiness(memberships).map(({ business, memberships: group }) => (
-        <div key={business.id} className="mb-1">
-          <p className="px-3 pt-2 pb-1 text-label-xs wrap-anywhere text-muted">{business.name}</p>
-          {group.map(({ location }) => (
-            <Link
-              key={location.id}
-              href={`/locations/${location.id}`}
-              aria-current={location.id === current.location.id ? "page" : undefined}
-              className={`${panelRow} justify-between`}
-            >
-              <span className="min-w-0 wrap-anywhere">{location.name}</span>
-              {location.id === current.location.id && <Icon name="check" className="size-3 shrink-0" />}
-            </Link>
-          ))}
-        </div>
-      ))}
+      <LocationPanel
+        memberships={memberships}
+        businessId={business.id}
+        currentLocationId={current.location.id}
+        owned={current.role === "OWNER"}
+      />
       <div className="mx-3 my-2 border-t border-border" />
-      {memberships.length > 1 && (
-        <Link href="/" className={panelRow}>
-          <Icon name="layers" className="size-4 text-muted" />
-          {t("allLocations")}
-        </Link>
-      )}
-      {owned && (
-        <>
-          <Link href={`/businesses/${current.location.business.id}/locations/new`} className={panelRow}>
-            <Icon name="add" className="size-4 text-muted" />
-            {t("addLocation")}
-          </Link>
-          <Link href={`/businesses/${current.location.business.id}`} className={panelRow}>
-            <Icon name="home" className="size-4 text-muted" />
-            {t("businessOverview")}
-          </Link>
-        </>
-      )}
+      <BusinessPanel business={business} memberships={memberships} />
     </>
   );
 }
@@ -87,34 +70,6 @@ function LocationName({ current, collapsed }: { current: Membership; collapsed?:
         <span className="block truncate text-p-xs text-muted">{business.name}</span>
       </span>
     </>
-  );
-}
-
-// Only a menu with something in it: a one-Location Employee has nowhere to go.
-function LocationRow({ memberships, current }: { memberships: Membership[]; current: Membership }) {
-  const t = useTranslations("dashboard");
-  const collapsed = useContext(CollapsedContext);
-  if (memberships.length === 1 && current.role !== "OWNER") {
-    return (
-      <div className={rowClass(collapsed).replace("cursor-pointer", "").replace("hover:bg-subtle", "")}>
-        <LocationName current={current} collapsed={collapsed} />
-      </div>
-    );
-  }
-  return (
-    <Popover
-      label={t("switchLocation", { location: current.location.name })}
-      popoverClass="switcher-popover"
-      triggerClass={rowClass(collapsed)}
-      trigger={
-        <>
-          <LocationName current={current} collapsed={collapsed} />
-          <Icon name="arrow-down-1" className={`mr-1 size-2.5 shrink-0 text-muted ${wide(collapsed)}`} />
-        </>
-      }
-    >
-      <LocationPanel memberships={memberships} current={current} />
-    </Popover>
   );
 }
 
@@ -182,19 +137,36 @@ function NavLinks({ props }: { props: Props }) {
         <>
           <p className={`mt-3 mb-0.5 px-3 text-label-sm roomy:mt-4 roomy:mb-1 ${wide(collapsed)}`}>{t("manage")}</p>
           <div className={`mx-2 my-2 border-t border-border ${collapsed ? "" : "xl:hidden"}`} />
-          {SECTIONS.filter((section) => section.managers).map(link)}
+          {managerSections(props).map(link)}
         </>
       )}
     </nav>
   );
 }
 
+function BarActions({ locationId }: { locationId: string }) {
+  const t = useTranslations("tickets");
+  const { newTicket } = useLocationActions();
+  return (
+    <div className="flex shrink-0 items-center gap-3">
+      <div className="w-52 xl:w-72">
+        <HeaderSearch locationId={locationId} />
+      </div>
+      <Button onClick={newTicket}>
+        <Icon name="add" className="size-3.5 text-brand" />
+        {t("new")}
+      </Button>
+    </div>
+  );
+}
+
 function Sidebar({ props, collapsed, onToggle }: { props: Props; collapsed: boolean; onToggle: () => void }) {
   return (
     <SidebarFrame collapsed={collapsed} onToggle={onToggle}>
-      <LocationRow memberships={props.memberships} current={props.current} />
       <NavLinks props={props} />
       {props.trialDaysLeft !== null && <TrialCard daysLeft={props.trialDaysLeft} />}
+      {/* One ask at a time: choosing a plan comes first. */}
+      {props.trialDaysLeft === null && props.inviteLink && <InviteBusiness link={props.inviteLink} />}
       <UserRow me={props.me} role={props.current.role} />
     </SidebarFrame>
   );
@@ -223,11 +195,12 @@ function PhoneBar({ props }: { props: Props }) {
               </>
             }
           >
-            <LocationPanel memberships={memberships} current={current} />
+            <PhoneLocations memberships={memberships} current={current} />
           </Popover>
         )}
       </div>
       <HeaderSearch locationId={current.location.id} compact />
+      {props.trialDaysLeft === null && props.inviteLink && <InviteBusinessRound link={props.inviteLink} />}
       <Popover
         label={me.name}
         popoverClass="menu-popover w-80 max-w-[calc(100vw-2rem)]"
@@ -291,7 +264,7 @@ function BottomNav({ props }: { props: Props }) {
               {t("more")}
             </>
           }
-          items={SECTIONS.filter((section) => section.managers).map((section) => ({
+          items={managerSections(props).map((section) => ({
             label: t(`sections.${section.key}`),
             icon: section.icon,
             onSelect: () => router.push(href(section)),
@@ -312,6 +285,8 @@ interface Props {
   unhandledFeedback: number;
   // Null when there's no plan to choose, or this Role can't choose one.
   trialDaysLeft: number | null;
+  // Owners only.
+  inviteLink: string | null;
 }
 
 // ADR 0087: the shared sidebar, and a bar and bottom navigation on a phone.
@@ -322,14 +297,20 @@ export function LocationNav({
 }: Props & { collapsed: boolean; children: ReactNode }) {
   const [collapsed, toggle] = useCollapsed(initial);
 
+  const { location, role } = props.current;
   return (
     <>
-      <Sidebar props={props} collapsed={collapsed} onToggle={toggle} />
-      <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
-        <PhoneBar props={props} />
-        <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
-          {children}
-        </main>
+      <TopBar memberships={props.memberships} business={location.business} owned={role === "OWNER"} location={location}>
+        <BarActions locationId={location.id} />
+      </TopBar>
+      <div className="flex min-w-0 flex-1">
+        <Sidebar props={props} collapsed={collapsed} onToggle={toggle} />
+        <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+          <PhoneBar props={props} />
+          <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
+            {children}
+          </main>
+        </div>
       </div>
       <BottomNav props={props} />
     </>

@@ -110,6 +110,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
       }}
     >
       <SearchField
+        className="[&_input]:border-transparent [&_input]:bg-subtle"
         label={t("search")}
         placeholder={t("searchPlaceholder")}
         maxLength={100}

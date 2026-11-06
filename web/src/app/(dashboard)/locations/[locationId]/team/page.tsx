@@ -52,7 +52,7 @@ export default async function TeamPage({ params }: PageProps<"/locations/[locati
   return (
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <PageHeader locationId={locationId} title={tDashboard("sections.team")} />
+      <PageHeader title={tDashboard("sections.team")} />
       {billing.frozen && (
         <Banner tone="error" action={{ href: `/locations/${locationId}/billing`, label: t("seePlans") }}>
           {t("frozen")}

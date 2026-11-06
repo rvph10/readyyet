@@ -230,7 +230,7 @@ export function SidebarFrame({
   return (
     <CollapsedContext.Provider value={collapsed}>
       <aside
-        className={`relative z-20 hidden min-h-dvh w-20 shrink-0 flex-col gap-3 border-r border-border bg-surface px-3 py-3 transition-[width] md:flex tall:sticky tall:top-0 tall:h-dvh tall:self-start roomy:gap-4 roomy:py-4 ${
+        className={`relative z-20 hidden min-h-[calc(100dvh-4rem)] w-20 shrink-0 flex-col gap-3 border-r border-border bg-surface px-3 py-3 transition-[width] md:flex tall:sticky tall:top-16 tall:h-[calc(100dvh-4rem)] tall:self-start roomy:gap-4 roomy:py-4 ${
           collapsed ? "" : "xl:w-64 xl:px-4"
         }`}
       >
@@ -243,7 +243,7 @@ export function SidebarFrame({
           aria-label={t(collapsed ? "expandSidebar" : "collapseSidebar")}
           title={t(collapsed ? "expandSidebar" : "collapseSidebar")}
           aria-expanded={!collapsed}
-          className="absolute top-8 -right-3.5 hidden size-7 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-muted transition-colors hover:bg-subtle hover:text-ink xl:flex"
+          className="absolute top-5 -right-3.5 hidden size-7 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-muted transition-colors hover:bg-subtle hover:text-ink xl:flex"
         >
           <Icon name={collapsed ? "arrow-right" : "arrow-left-1"} className="size-2.5" />
         </button>

@@ -86,7 +86,6 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader
-        locationId={locationId}
         title={ticket.title}
         subtitle={t("subtitle", {
           id: ticket.id,

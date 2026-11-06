@@ -2,6 +2,7 @@ import { calendarDateIn, turnaroundReadyDate } from "@readyyet/shared";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { getOwnedBusiness, referralLink } from "@/lib/business";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { LocationActions } from "./location-actions";
@@ -27,6 +28,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
     getDaysToChoosePlan(locationId, current.role),
   ]);
   const now = new Date();
+  const owned = current.role === "OWNER" ? await getOwnedBusiness(current.location.business.id) : null;
 
   return (
     <LocationActions
@@ -47,7 +49,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
       country={location.address?.addressCountry}
       trialDaysLeft={trialDaysLeft}
     >
-      <div className="flex min-h-dvh">
+      <div className="flex min-h-dvh flex-col">
         <LocationNav
           me={me}
           memberships={me.memberships}
@@ -56,6 +58,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           openTickets={overview.counts.open}
           unhandledFeedback={overview.counts.unhandledFeedback}
           trialDaysLeft={trialDaysLeft}
+          inviteLink={owned && (await referralLink(owned.referralCode))}
         >
           {children}
         </LocationNav>

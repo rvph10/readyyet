@@ -120,7 +120,6 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   }).format(now);
   const header = (
     <PageHeader
-      locationId={locationId}
       title={t(`greeting.${greetingKey(now, timeZone)}`, { name: me.name.split(" ")[0] })}
       subtitle={date.charAt(0).toUpperCase() + date.slice(1)}
     />

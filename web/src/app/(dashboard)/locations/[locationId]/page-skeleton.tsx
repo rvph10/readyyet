@@ -27,10 +27,6 @@ export function PageSkeleton({
             {subtitle && <Skeleton className="mt-1 h-4 w-96 max-w-full" />}
           </div>
         </div>
-        <div className="hidden shrink-0 items-center gap-3 md:flex">
-          <Skeleton className="h-11 w-52 rounded-full! xl:w-72" />
-          <Skeleton className="h-12 w-36 rounded-full!" />
-        </div>
       </div>
       {children}
     </div>

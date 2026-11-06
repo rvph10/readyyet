@@ -72,7 +72,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
   return (
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <PageHeader locationId={locationId} title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
+      <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
       <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
           <Tabs

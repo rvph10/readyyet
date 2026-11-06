@@ -32,7 +32,7 @@ export default async function BillingPage({ params, searchParams }: PageProps<"/
   const day = new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone });
   return (
     <>
-      <PageHeader locationId={locationId} title={t("sections.billing")} />
+      <PageHeader title={t("sections.billing")} />
       <BillingBoard
         locationId={locationId}
         businessId={membership.location.business.id}
