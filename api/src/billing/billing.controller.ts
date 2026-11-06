@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
@@ -16,6 +17,9 @@ import { RedirectDto } from "./dto/redirect.response.dto";
 export class BillingController {
   constructor(private readonly billing: BillingService) {}
 
+  // A Business's pages read every Location's, so a chain goes through this many
+  // times per page, and each one is the same counter (ADR 0102).
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @Get("locations/:locationId/billing")
   @LocationRoles(Role.OWNER, Role.ADMIN)
   @UseGuards(LocationMembershipGuard)

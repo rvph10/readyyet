@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
@@ -19,6 +20,9 @@ import { MembershipService } from "./membership.service";
 export class MembershipController {
   constructor(private readonly membership: MembershipService) {}
 
+  // A Business's pages read every Location's, so a chain goes through this many
+  // times per page, and each one is the same counter (ADR 0102).
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @Get()
   @ApiOperation({ summary: "List a location's members" })
   list(@Param("locationId") locationId: string): Promise<MemberDto[]> {
