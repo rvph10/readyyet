@@ -2,8 +2,9 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
+import { EmailStatus } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -152,6 +153,97 @@ describe("Tickets", () => {
     expect(response.status).toBe(200);
     expect(response.body.statusEvents).toHaveLength(1);
     expect(response.body.statusEvents[0].status.code).toBe("RECEIVED");
+    expect(response.body.statusEvents[0].changedByName).toEqual(expect.any(String));
+    expect(response.body.trackingUrl).toBe(`${process.env.WEB_URL}/t/${created.body.trackingCode}`);
+    expect(response.body.trackingLinkExpired).toBe(false);
+    expect(response.body.steps[0].status.code).toBe("RECEIVED");
+    expect(response.body.emailProblem).toBeNull();
+  });
+
+  describe("emailProblem", () => {
+    const address = "delivered+email-problem@resend.dev";
+    let ticketId: string;
+
+    const problem = async () =>
+      (
+        await request(app.getHttpServer())
+          .get(`/locations/${locationId}/tickets/${ticketId}`)
+          .set("Cookie", ownerCookie)
+      ).body.emailProblem as string | null;
+
+    // Ahead of the clock, as the Ticket's own tracking email can still be
+    // written by its sweep during the test.
+    const latestEmail = (data: { status: EmailStatus; type?: string; to?: string; gaveUpAt?: Date }) =>
+      prisma.emailLog.create({
+        data: {
+          to: address,
+          subject: "Problem test",
+          type: "ticket_tracking_link",
+          createdAt: new Date(Date.now() + 60 * 60_000 + Math.random() * 60_000),
+          ticketId: BigInt(ticketId),
+          ...data,
+        },
+      });
+
+    beforeEach(async () => {
+      const created = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Email problem", customer: { fullName: "Dana Problem", email: address } });
+      ticketId = created.body.id;
+    });
+
+    it("says an email that failed is being retried", async () => {
+      await latestEmail({ status: EmailStatus.FAILED });
+      expect(await problem()).toBe("RETRYING");
+    });
+
+    it("says an email was given up on", async () => {
+      await latestEmail({ status: EmailStatus.FAILED, gaveUpAt: new Date() });
+      expect(await problem()).toBe("GAVE_UP");
+    });
+
+    it("says a temporarily bounced email was given up on, as nothing retries it", async () => {
+      await latestEmail({ status: EmailStatus.BOUNCED });
+      expect(await problem()).toBe("GAVE_UP");
+    });
+
+    it("leaves a permanent bounce to the Customer's own flag", async () => {
+      await latestEmail({ status: EmailStatus.BOUNCED });
+      const { body } = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/tickets/${ticketId}`)
+        .set("Cookie", ownerCookie);
+      await prisma.customer.update({
+        where: { id: BigInt((body as { customer: { id: string } }).customer.id) },
+        data: { emailBouncedAt: new Date() },
+      });
+      expect(await problem()).toBeNull();
+    });
+
+    it("says nothing once the Customer's address has changed, that email is no longer wanted", async () => {
+      await latestEmail({ status: EmailStatus.FAILED, to: "delivered+old@resend.dev", gaveUpAt: new Date() });
+      expect(await problem()).toBeNull();
+    });
+
+    it("says nothing when a later email was sent", async () => {
+      const failed = await latestEmail({ status: EmailStatus.FAILED });
+      await prisma.emailLog.create({
+        data: {
+          to: address,
+          subject: "Later",
+          type: "ticket_tracking_link",
+          status: EmailStatus.SENT,
+          ticketId: BigInt(ticketId),
+          createdAt: new Date(failed.createdAt.getTime() + 60_000),
+        },
+      });
+      expect(await problem()).toBeNull();
+    });
+
+    it("ignores a staff copy of the Customer's feedback", async () => {
+      await latestEmail({ status: EmailStatus.FAILED, type: "feedback_received", to: "staff@shop.test" });
+      expect(await problem()).toBeNull();
+    });
   });
 
   it("returns only the documented fields, no internal columns", async () => {

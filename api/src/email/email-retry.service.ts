@@ -13,6 +13,8 @@ const FIRST_RETRY_DELAY_MS = 60_000;
 const LONGEST_RETRY_DELAY_MS = 2 * 60 * 60 * 1000;
 const ATTEMPTS_PER_ROUND = 3;
 
+export type TicketEmailProblem = "RETRYING" | "GAVE_UP";
+
 const STUCK_INCLUDE = {
   ticket: {
     select: {
@@ -87,6 +89,29 @@ export class EmailRetryService {
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
   ) {}
+
+  // The latest email to the Customer tells whether they heard from us, a later
+  // one that arrived carries the link too. One no longer wanted is no problem:
+  // a bounced address has its own warning, and a corrected one its own email.
+  async ticketEmailProblem(ticketId: bigint): Promise<TicketEmailProblem | null> {
+    const latest = await this.prisma.emailLog.findFirst({
+      where: { ticketId, type: { not: "feedback_received" } },
+      orderBy: { createdAt: "desc" },
+      include: STUCK_INCLUDE,
+    });
+    if (!latest || !stillWanted(latest)) {
+      return null;
+    }
+    // A temporary bounce flags nothing on the Customer, and the sweep doesn't
+    // retry a bounced email, so nothing else would tell staff.
+    if (latest.status === EmailStatus.BOUNCED) {
+      return "GAVE_UP";
+    }
+    if (latest.status !== EmailStatus.FAILED) {
+      return null;
+    }
+    return latest.gaveUpAt ? "GAVE_UP" : "RETRYING";
+  }
 
   // A long outage can outlast the 5 minutes, and a second sweep would retry the
   // same rows, where a late failure overwrites a send that just worked.

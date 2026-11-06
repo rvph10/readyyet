@@ -19,6 +19,8 @@ interface Props {
   items: MenuItem[];
   // What the round trigger shows, the three dots by default.
   trigger?: ReactNode;
+  // Shows the label as text, for a menu that's the only way to do something.
+  labelShown?: boolean;
 }
 
 // ADR 0059: a round trigger and a list of actions under it, as the browser's
@@ -26,7 +28,7 @@ interface Props {
 // everything. CSS anchor positioning keeps it under its trigger and flips it
 // when there's no room. Arrow keys, Home and End move between items, as
 // WAI-ARIA's menu button pattern asks.
-export function Menu({ label, items, trigger }: Props) {
+export function Menu({ label, items, trigger, labelShown }: Props) {
   const id = useId();
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -62,9 +64,9 @@ export function Menu({ label, items, trigger }: Props) {
         popoverTarget={id}
         aria-label={label}
         aria-haspopup="menu"
-        className={buttonClass({ variant: "secondary", size: "icon" })}
+        className={buttonClass({ variant: "secondary", size: labelShown ? "md" : "icon" })}
       >
-        {trigger ?? <Icon name="more-hor" className="size-4" />}
+        {labelShown ? label : (trigger ?? <Icon name="more-hor" className="size-4" />)}
       </button>
       <div
         ref={menu}

@@ -9090,6 +9090,9 @@
           "changedBy": {
             "type": "string"
           },
+          "changedByName": {
+            "type": "string"
+          },
           "status": {
             "$ref": "#/components/schemas/StatusDto"
           },
@@ -9101,6 +9104,7 @@
         "required": [
           "id",
           "changedBy",
+          "changedByName",
           "status",
           "createdAt"
         ]
@@ -9137,6 +9141,38 @@
             "nullable": true,
             "format": "date"
           },
+          "emailProblem": {
+            "nullable": true,
+            "enum": [
+              "RETRYING",
+              "GAVE_UP"
+            ],
+            "type": "string"
+          },
+          "statusEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketStatusEventDto"
+            }
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketPhotoDto"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepDto"
+            }
+          },
+          "trackingUrl": {
+            "type": "string"
+          },
+          "trackingLinkExpired": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -9169,22 +9205,16 @@
           },
           "currentStatus": {
             "$ref": "#/components/schemas/StatusDto"
-          },
-          "statusEvents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TicketStatusEventDto"
-            }
-          },
-          "photos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TicketPhotoDto"
-            }
           }
         },
         "required": [
           "estimatedReadyDate",
+          "emailProblem",
+          "statusEvents",
+          "photos",
+          "steps",
+          "trackingUrl",
+          "trackingLinkExpired",
           "id",
           "trackingCode",
           "title",
@@ -9193,9 +9223,7 @@
           "customerCollectedAt",
           "createdAt",
           "customer",
-          "currentStatus",
-          "statusEvents",
-          "photos"
+          "currentStatus"
         ]
       },
       "UpdateTicketDto": {
