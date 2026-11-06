@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Locale, Prisma, Role } from "@readyyet/db";
+import { EmailStatus, Locale, Prisma, Role } from "@readyyet/db";
 import {
   calendarDateIn,
   ENDED_STATUS_CODES,
@@ -28,6 +28,71 @@ import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-ru
 import { generateTrackingCode } from "./tracking-code";
 
 const DEFAULT_LIST_TAKE = 50;
+const OVERVIEW_TICKETS = 100;
+const WEEK_DAYS = 7;
+const STOPPED_STATUS_CODES = ["CANCELLED", "REJECTED"];
+
+const LIST_INCLUDE = {
+  customer: { select: { fullName: true, email: true, phone: true } },
+  currentStatus: statusSelect,
+  // The latest, for when the Ticket reached its current Status.
+  statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1, select: { createdAt: true } },
+} satisfies Prisma.TicketInclude;
+
+type ListTicket = Prisma.TicketGetPayload<{ include: typeof LIST_INCLUDE }>;
+
+function listItem(ticket: ListTicket) {
+  return {
+    id: ticket.id.toString(),
+    trackingCode: ticket.trackingCode,
+    title: ticket.title,
+    estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
+    customerCollectedAt: ticket.customerCollectedAt,
+    createdAt: ticket.createdAt,
+    statusSince: ticket.statusEvents[0].createdAt,
+    customer: {
+      fullName: ticket.customer.fullName,
+      email: ticket.customer.email,
+      phone: ticket.customer.phone,
+    },
+    currentStatus: ticket.currentStatus,
+  };
+}
+
+function addDays(date: string, days: number) {
+  const moved = fromCalendarDate(date);
+  moved.setUTCDate(moved.getUTCDate() + days);
+  return toCalendarDate(moved)!;
+}
+
+interface Ranked {
+  ticket: { statusEvents: { createdAt: Date }[]; createdAt: Date };
+  date: string | null;
+  // 0 late, 1 ready, 2 the rest.
+  rank: number;
+}
+
+// Late first, then what's waiting to be collected, longest first, then what's
+// due soonest, and what has no date last.
+function byUrgency(a: Ranked, b: Ranked) {
+  if (a.rank !== b.rank) return a.rank - b.rank;
+  if (a.rank === 1) return a.ticket.statusEvents[0].createdAt.getTime() - b.ticket.statusEvents[0].createdAt.getTime();
+  if (a.date !== b.date) return (a.date ?? "9999").localeCompare(b.date ?? "9999");
+  return a.ticket.createdAt.getTime() - b.ticket.createdAt.getTime();
+}
+
+// The step after the current one, the same usual move as the Ticket page's.
+// COMPLETED only follows READY (ADR 0016).
+function nextStatus<S extends { code: string }>(steps: { position: number; status: S }[], currentCode: string) {
+  const position = steps.find(({ status }) => status.code === currentCode)?.position ?? -1;
+  const next = steps.find(
+    ({ status, position: at }) =>
+      at > position &&
+      !STOPPED_STATUS_CODES.includes(status.code) &&
+      (status.code !== "COMPLETED" || currentCode === "READY"),
+  );
+  return next?.status ?? null;
+}
 
 // select, not include: mapDetail spreads the customer, so every column fetched
 // here would end up in the response. Same fields as the Customer endpoints.
@@ -179,27 +244,131 @@ export class TicketService {
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       // One extra row tells us whether there's a next page.
       take: take + 1,
-      include: {
-        customer: { select: { fullName: true } },
-        currentStatus: statusSelect,
-      },
+      include: LIST_INCLUDE,
     });
 
     const page = tickets.slice(0, take);
     const last = page[page.length - 1];
     return {
-      items: page.map((ticket) => ({
-        id: ticket.id.toString(),
-        trackingCode: ticket.trackingCode,
-        title: ticket.title,
-        estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
-        customerCollectedAt: ticket.customerCollectedAt,
-        createdAt: ticket.createdAt,
-        customer: ticket.customer,
-        currentStatus: ticket.currentStatus,
-      })),
+      items: page.map(listItem),
       nextCursor: tickets.length > take ? encodeCursor(last.createdAt, last.id) : null,
     };
+  }
+
+  // Open Tickets are what's physically in the shop, so there are few enough to
+  // read whole, which is what lets them sort by urgency (ADR 0088).
+  async overview(locationId: string) {
+    const { timeZone } = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      select: { timeZone: true },
+    });
+    const now = new Date();
+    const today = calendarDateIn(now, timeZone);
+    const tomorrow = addDays(today, 1);
+    const handedOverFrom = addDays(today, -(2 * WEEK_DAYS - 1));
+
+    const [open, handovers, unhandledFeedback] = await Promise.all([
+      this.prisma.ticket.findMany({
+        where: { locationId, currentStatus: { code: { notIn: [...ENDED_STATUS_CODES] } } },
+        include: {
+          ...LIST_INCLUDE,
+          customer: { select: { ...LIST_INCLUDE.customer.select, emailBouncedAt: true, emailComplainedAt: true } },
+          workflow: {
+            select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
+          },
+        },
+      }),
+      this.prisma.ticketStatusEvent.findMany({
+        // A day early, as the Location's clock can be behind UTC.
+        where: {
+          ticket: { locationId },
+          status: { code: "COMPLETED" },
+          createdAt: { gte: fromCalendarDate(addDays(handedOverFrom, -1)) },
+        },
+        select: { createdAt: true },
+      }),
+      this.prisma.ticketFeedback.count({ where: { ticket: { locationId }, handledAt: null } }),
+    ]);
+
+    const emailGaveUp = await this.ticketsWhoseEmailGaveUp(open.map((ticket) => ticket.id));
+    const dated = open.map((ticket) => ({ ticket, date: toCalendarDate(ticket.estimatedReadyDate) }));
+    const isReady = (code: string) => code === "READY";
+    const late = dated.filter(
+      ({ ticket, date }) => !isReady(ticket.currentStatus.code) && date !== null && date < today,
+    );
+    const inShop = dated.filter(({ ticket }) => !isReady(ticket.currentStatus.code));
+
+    const steps = new Map<
+      string,
+      { position: number; status: (typeof open)[number]["currentStatus"]; count: number }
+    >();
+    for (const ticket of open) {
+      const { code } = ticket.currentStatus;
+      const position = ticket.workflow.steps.find((step) => step.status.code === code)?.position ?? 0;
+      const step = steps.get(code) ?? { position, status: ticket.currentStatus, count: 0 };
+      step.count += 1;
+      steps.set(code, step);
+    }
+
+    const handedOnDay = new Map<string, number>();
+    for (const { createdAt } of handovers) {
+      const day = calendarDateIn(createdAt, timeZone);
+      handedOnDay.set(day, (handedOnDay.get(day) ?? 0) + 1);
+    }
+    const weekStart = addDays(today, -(WEEK_DAYS - 1));
+    const days = Array.from({ length: WEEK_DAYS }, (_, index) => {
+      const date = addDays(weekStart, index);
+      return { date, count: handedOnDay.get(date) ?? 0 };
+    });
+    const previousWeek = [...handedOnDay]
+      .filter(([day]) => day >= handedOverFrom && day < weekStart)
+      .reduce((sum, [, count]) => sum + count, 0);
+
+    return {
+      counts: {
+        open: open.length,
+        ready: open.length - inShop.length,
+        late: late.length,
+        dueToday: inShop.filter(({ date }) => date === today).length,
+        dueTomorrow: inShop.filter(({ date }) => date === tomorrow).length,
+        inShop: inShop.length,
+        toConfirm: open.filter((ticket) => ticket.customerCollectedAt).length,
+        unhandledFeedback,
+      },
+      steps: [...steps.values()]
+        .sort((a, b) => a.position - b.position)
+        .map(({ status, count }) => ({ status, count })),
+      handedOver: { days, previousWeek },
+      tickets: dated
+        .map(({ ticket, date }) => ({
+          ticket,
+          date,
+          rank: isReady(ticket.currentStatus.code) ? 1 : date !== null && date < today ? 0 : 2,
+        }))
+        .sort(byUrgency)
+        .slice(0, OVERVIEW_TICKETS)
+        .map(({ ticket }) => ({
+          ...listItem(ticket),
+          nextStatus: nextStatus(ticket.workflow.steps, ticket.currentStatus.code),
+          emailFails:
+            emailGaveUp.has(ticket.id) || Boolean(ticket.customer.emailBouncedAt || ticket.customer.emailComplainedAt),
+        })),
+    };
+  }
+
+  // Only the few with a failed email are asked about, ticketEmailProblem being
+  // one query each.
+  private async ticketsWhoseEmailGaveUp(ticketIds: bigint[]) {
+    const failed = await this.prisma.emailLog.findMany({
+      where: { ticketId: { in: ticketIds }, status: { in: [EmailStatus.FAILED, EmailStatus.BOUNCED] } },
+      distinct: ["ticketId"],
+      select: { ticketId: true },
+    });
+    const gaveUp = new Set<bigint>();
+    for (const { ticketId } of failed) {
+      if ((await this.emailRetry.ticketEmailProblem(ticketId!)) === "GAVE_UP") gaveUp.add(ticketId!);
+    }
+    return gaveUp;
   }
 
   private async filters(locationId: string, query: ListTicketsQueryDto): Promise<Prisma.TicketWhereInput[]> {

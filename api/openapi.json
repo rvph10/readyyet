@@ -3456,6 +3456,112 @@
         ]
       }
     },
+    "/locations/{locationId}/tickets/overview": {
+      "get": {
+        "operationId": "TicketController_overview",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketOverviewDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "A Location's counts, open Tickets by urgency and the week's handovers (ADR 0088)",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
     "/locations/{locationId}/tickets/{ticketId}": {
       "get": {
         "operationId": "TicketController_findOne",
@@ -9012,10 +9118,20 @@
         "properties": {
           "fullName": {
             "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
-          "fullName"
+          "fullName",
+          "email",
+          "phone"
         ]
       },
       "TicketListItemDto": {
@@ -9044,6 +9160,10 @@
             "format": "date-time",
             "type": "string"
           },
+          "statusSince": {
+            "format": "date-time",
+            "type": "string"
+          },
           "customer": {
             "$ref": "#/components/schemas/TicketListCustomerDto"
           },
@@ -9058,6 +9178,7 @@
           "title",
           "customerCollectedAt",
           "createdAt",
+          "statusSince",
           "customer",
           "currentStatus"
         ]
@@ -9079,6 +9200,186 @@
         "required": [
           "items",
           "nextCursor"
+        ]
+      },
+      "OverviewCountsDto": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "number"
+          },
+          "ready": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "dueToday": {
+            "type": "number"
+          },
+          "dueTomorrow": {
+            "type": "number"
+          },
+          "inShop": {
+            "type": "number"
+          },
+          "toConfirm": {
+            "type": "number"
+          },
+          "unhandledFeedback": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "open",
+          "ready",
+          "late",
+          "dueToday",
+          "dueTomorrow",
+          "inShop",
+          "toConfirm",
+          "unhandledFeedback"
+        ]
+      },
+      "OverviewStepDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/StatusDto"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status",
+          "count"
+        ]
+      },
+      "OverviewDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "count"
+        ]
+      },
+      "OverviewHandedOverDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewDayDto"
+            }
+          },
+          "previousWeek": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "days",
+          "previousWeek"
+        ]
+      },
+      "OverviewTicketDto": {
+        "type": "object",
+        "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "id": {
+            "type": "string"
+          },
+          "trackingCode": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "statusSince": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/TicketListCustomerDto"
+          },
+          "currentStatus": {
+            "$ref": "#/components/schemas/StatusDto"
+          },
+          "nextStatus": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusDto"
+              }
+            ]
+          },
+          "emailFails": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "estimatedReadyDate",
+          "id",
+          "trackingCode",
+          "title",
+          "customerCollectedAt",
+          "createdAt",
+          "statusSince",
+          "customer",
+          "currentStatus",
+          "nextStatus",
+          "emailFails"
+        ]
+      },
+      "TicketOverviewDto": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/OverviewCountsDto"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewStepDto"
+            }
+          },
+          "handedOver": {
+            "$ref": "#/components/schemas/OverviewHandedOverDto"
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          }
+        },
+        "required": [
+          "counts",
+          "steps",
+          "handedOver",
+          "tickets"
         ]
       },
       "TicketStatusEventDto": {

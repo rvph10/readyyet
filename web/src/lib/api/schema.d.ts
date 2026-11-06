@@ -339,6 +339,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/locations/{locationId}/tickets/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A Location's counts, open Tickets by urgency and the week's handovers (ADR 0088) */
+        get: operations["TicketController_overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/locations/{locationId}/tickets/{ticketId}": {
         parameters: {
             query?: never;
@@ -1190,6 +1207,8 @@ export interface components {
         };
         TicketListCustomerDto: {
             fullName: string;
+            email: string | null;
+            phone: string | null;
         };
         TicketListItemDto: {
             /** Format: date */
@@ -1201,12 +1220,60 @@ export interface components {
             customerCollectedAt: string | null;
             /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            statusSince: string;
             customer: components["schemas"]["TicketListCustomerDto"];
             currentStatus: components["schemas"]["StatusDto"];
         };
         TicketPageDto: {
             items: components["schemas"]["TicketListItemDto"][];
             nextCursor: string | null;
+        };
+        OverviewCountsDto: {
+            open: number;
+            ready: number;
+            late: number;
+            dueToday: number;
+            dueTomorrow: number;
+            inShop: number;
+            toConfirm: number;
+            unhandledFeedback: number;
+        };
+        OverviewStepDto: {
+            status: components["schemas"]["StatusDto"];
+            count: number;
+        };
+        OverviewDayDto: {
+            /** Format: date */
+            date: string;
+            count: number;
+        };
+        OverviewHandedOverDto: {
+            days: components["schemas"]["OverviewDayDto"][];
+            previousWeek: number;
+        };
+        OverviewTicketDto: {
+            /** Format: date */
+            estimatedReadyDate: string | null;
+            id: string;
+            trackingCode: string;
+            title: string;
+            /** Format: date-time */
+            customerCollectedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            statusSince: string;
+            customer: components["schemas"]["TicketListCustomerDto"];
+            currentStatus: components["schemas"]["StatusDto"];
+            nextStatus: components["schemas"]["StatusDto"] | null;
+            emailFails: boolean;
+        };
+        TicketOverviewDto: {
+            counts: components["schemas"]["OverviewCountsDto"];
+            steps: components["schemas"]["OverviewStepDto"][];
+            handedOver: components["schemas"]["OverviewHandedOverDto"];
+            tickets: components["schemas"]["OverviewTicketDto"][];
         };
         TicketStatusEventDto: {
             id: string;
@@ -4142,6 +4209,90 @@ export interface operations {
             };
             /** @description LOCATION_FROZEN: the location's trial or subscription is over */
             402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    TicketController_overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketOverviewDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
