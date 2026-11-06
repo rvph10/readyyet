@@ -6,10 +6,12 @@ import type { IllustrationName } from "@/components/illustration";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Pagination } from "@/components/ui/pagination";
 import { Panel } from "@/components/ui/panel";
 import { Tabs } from "@/components/ui/tabs";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
+import { lastPage, parsePage } from "@/lib/pagination";
 import { NewTicketButton } from "../new-ticket/new-ticket-button";
 import { getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
@@ -18,6 +20,7 @@ import { parseQuery, parseView, ticketsHref, VIEWS, type View } from "./ticket-v
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
+const PAGE_SIZE = 50;
 
 const EMPTY_ILLUSTRATIONS: Record<View, IllustrationName> = {
   open: "coffee",
@@ -38,22 +41,21 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
   ]);
   const view = parseView(search.view);
   const q = parseQuery(search.q);
-  const cursor = typeof search.cursor === "string" ? search.cursor : undefined;
+  const page = parsePage(search.page);
 
-  const [page, location, overview] = await Promise.all([
+  const [list, location, overview] = await Promise.all([
     client
       .GET("/locations/{locationId}/tickets", {
-        params: { path: { locationId }, query: { ...VIEWS[view], q: q || undefined, cursor } },
+        params: { path: { locationId }, query: { ...VIEWS[view], q: q || undefined, page, take: PAGE_SIZE } },
       })
       .then(pageData),
     getLocation(locationId),
     getOverview(locationId),
   ]);
 
-  // Colleagues moved the Tickets of this older page on, which says nothing
-  // about the view as a whole.
-  if (cursor && page.items.length === 0) {
-    redirect(ticketsHref(locationId, { view, q }));
+  // Colleagues moved Tickets on, and this page is now past the last one.
+  if (page > 1 && list.items.length === 0) {
+    redirect(ticketsHref(locationId, { view, q, page: lastPage(list.total, PAGE_SIZE) }));
   }
 
   const today = calendarDateIn(new Date(), location.timeZone);
@@ -71,7 +73,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader locationId={locationId} title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
-      <Panel padding="none" className="overflow-clip">
+      <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
           <Tabs
             label={t("viewsLabel")}
@@ -91,11 +93,11 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
             </Link>
           )}
         </div>
-        {page.items.length > 0 ? (
+        {list.items.length > 0 ? (
           <>
             <ListHeader />
             <ul>
-              {page.items.map((ticket) => (
+              {list.items.map((ticket) => (
                 <TicketRow
                   key={ticket.id}
                   ticket={ticket}
@@ -131,22 +133,14 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
             action={(view === "open" || view === "all") && <NewTicketButton />}
           />
         )}
-        {(cursor || page.nextCursor) && (
-          <nav className="flex flex-wrap justify-center gap-3 border-t border-border p-4">
-            {cursor && (
-              <Link href={ticketsHref(locationId, { view, q })} className={buttonClass({ variant: "secondary" })}>
-                {t("newest")}
-              </Link>
-            )}
-            {page.nextCursor && (
-              <Link
-                href={ticketsHref(locationId, { view, q, cursor: page.nextCursor })}
-                className={buttonClass({ variant: "secondary" })}
-              >
-                {t("older")}
-              </Link>
-            )}
-          </nav>
+        {list.total > 0 && (
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={list.total}
+            href={(number) => ticketsHref(locationId, { view, q, page: number })}
+            className="mt-auto border-t border-border px-5 py-3 lg:px-7"
+          />
         )}
       </Panel>
     </>

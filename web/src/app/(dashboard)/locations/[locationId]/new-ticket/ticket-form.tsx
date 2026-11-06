@@ -2,7 +2,7 @@
 
 import { calendarDateIn, DESCRIPTION_MAX_LENGTH, LOCALES, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { Avatar } from "@/components/ui/avatar";
@@ -14,14 +14,18 @@ import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
-import { createTicket, findCustomers } from "./actions";
+import { createTicket } from "./actions";
 import type { CreatedTicket, NewTicketProps } from "./new-ticket-panel";
 import { newCustomerSchema, ticketSchema } from "./schema";
+import { useCustomerLookup } from "./use-customer-lookup";
 
 type Customer = components["schemas"]["CustomerDto"];
 
-const SEARCH_DEBOUNCE_MS = 250;
 const SEARCH_FROM_LETTERS = 2;
+// Part of an address says little, and so does a dialling code, which a phone
+// field starts on: "+32" alone would match half the list.
+const SEARCH_FROM_EMAIL_LETTERS = 4;
+const SEARCH_FROM_PHONE_CHARACTERS = 8;
 const FALLBACK_COUNTRY = "BE";
 const SHOWN_FIELDS = [
   "customer.fullName",
@@ -56,6 +60,8 @@ function CustomerRow({ customer }: { customer: Customer }) {
 }
 
 interface Props extends NewTicketProps {
+  // Already chosen when it opens, from their own page.
+  customer: Customer | null;
   onCreated: (ticket: CreatedTicket) => void;
   onCancel: () => void;
 }
@@ -70,16 +76,16 @@ export function TicketForm({
   suggestedDate,
   locationLocale,
   country,
+  customer: startingCustomer,
   onCreated,
   onCancel,
 }: Props) {
   const t = useTranslations("tickets.form");
   const pageLocale = useLocale();
-  const [chosen, setChosen] = useState<Customer | null>(null);
+  const [chosen, setChosen] = useState(startingCustomer);
   const [fullName, setFullName] = useState("");
-  // With the name they answer: results for an earlier name are never offered,
-  // a click on one could send this Ticket's email to the wrong person.
-  const [matches, setMatches] = useState<{ query: string; customers: Customer[] }>({ query: "", customers: [] });
+  // Whichever was typed in last looks for a returning Customer.
+  const [lookingBy, setLookingBy] = useState<"name" | "email" | "phone">("name");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [locale, setLocale] = useState(locationLocale);
@@ -91,25 +97,13 @@ export function TicketForm({
   const [customerGone, setCustomerGone] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const query = chosen ? "" : fullName.trim();
-
-  useEffect(() => {
-    if (query.length < SEARCH_FROM_LETTERS) return;
-    let current = true;
-    const timer = setTimeout(() => {
-      void findCustomers(locationId, query).then(
-        (customers) => {
-          if (current) setMatches({ query, customers });
-        },
-        // Only a help for finding someone, the form works without it.
-        () => undefined,
-      );
-    }, SEARCH_DEBOUNCE_MS);
-    return () => {
-      current = false;
-      clearTimeout(timer);
-    };
-  }, [query, locationId]);
+  const lookups = {
+    name: { value: fullName.trim(), from: SEARCH_FROM_LETTERS },
+    email: { value: email.trim(), from: SEARCH_FROM_EMAIL_LETTERS },
+    phone: { value: phone, from: SEARCH_FROM_PHONE_CHARACTERS },
+  };
+  const lookup = lookups[lookingBy];
+  const shown = useCustomerLookup(locationId, !chosen && lookup.value.length >= lookup.from ? lookup.value : "");
 
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
 
@@ -205,7 +199,24 @@ export function TicketForm({
       !SHOWN_FIELDS.some((field) => failure.fields?.[field]) &&
       t(FAILURE_MESSAGES[failure.code] ?? "unexpected");
   const languageNames = new Intl.DisplayNames([pageLocale], { type: "language" });
-  const shown = matches.query === query ? matches.customers : [];
+  const matches = shown.length > 0 && (
+    <div className="mt-2 rounded-card border border-border p-1.5">
+      <p className="px-2.5 pt-1 pb-1.5 text-label-xs text-muted">{t("existing")}</p>
+      <ul>
+        {shown.map((customer) => (
+          <li key={customer.id}>
+            <button
+              type="button"
+              onClick={() => choose(customer)}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-subtle"
+            >
+              <CustomerRow customer={customer} />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 
   return (
     <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
@@ -234,46 +245,35 @@ export function TicketForm({
                   value={fullName}
                   onChange={(event) => {
                     setFullName(event.target.value);
+                    setLookingBy("name");
                     edited("customer.fullName");
                   }}
                   error={errorFor("customer.fullName")}
                 />
-                {shown.length > 0 && (
-                  <div className="mt-2 rounded-card border border-border p-1.5">
-                    <p className="px-2.5 pt-1 pb-1.5 text-label-xs text-muted">{t("existing")}</p>
-                    <ul>
-                      {shown.map((customer) => (
-                        <li key={customer.id}>
-                          <button
-                            type="button"
-                            onClick={() => choose(customer)}
-                            className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-subtle"
-                          >
-                            <CustomerRow customer={customer} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {lookingBy === "name" && matches}
               </div>
-              <Field
-                label={t("email")}
-                type="email"
-                autoComplete="off"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  edited("customer.email");
-                }}
-                error={errorFor("customer.email")}
-              />
+              <div>
+                <Field
+                  label={t("email")}
+                  type="email"
+                  autoComplete="off"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setLookingBy("email");
+                    edited("customer.email");
+                  }}
+                  error={errorFor("customer.email")}
+                />
+                {lookingBy === "email" && matches}
+              </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <PhoneField
                   label={t("phone")}
                   value={phone}
                   onChange={(value) => {
                     setPhone(value);
+                    setLookingBy("phone");
                     edited("customer.phone");
                   }}
                   defaultCountry={country && isSupportedCountry(country) ? country : FALLBACK_COUNTRY}
@@ -287,6 +287,7 @@ export function TicketForm({
                   ))}
                 </SelectField>
               </div>
+              {lookingBy === "phone" && matches}
             </div>
           )}
         </section>

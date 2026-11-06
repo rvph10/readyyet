@@ -3,9 +3,9 @@ import { Prisma, type Locale } from "@readyyet/db";
 import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
-import { NotFoundError, ValidationError } from "../common/errors/app-error";
-import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
-import { customerIdsNamed } from "./customer-search";
+import { NotFoundError } from "../common/errors/app-error";
+import { parseBigIntId } from "../common/parse-bigint-id";
+import { customerIdsMatching } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
@@ -21,27 +21,22 @@ export class CustomerService {
 
   async list(locationId: string, query: ListCustomersQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const after = query.cursor ? await this.cursorPosition(locationId, query.cursor) : undefined;
-    const customers = await this.prisma.customer.findMany({
-      where: {
-        locationId,
-        deletedAt: null,
-        ...(query.q && { id: { in: await customerIdsNamed(this.prisma, locationId, query.q) } }),
-        ...(after && {
-          OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
-        }),
-      },
-      orderBy: [{ fullName: "asc" }, { id: "asc" }],
-      // One extra row says whether there's a next page.
-      take: take + 1,
-    });
-
-    const page = customers.slice(0, take);
-    const last = page[page.length - 1];
-    return {
-      items: page.map((customer) => this.serialize(customer)),
-      nextCursor: customers.length > take ? last.id.toString() : null,
+    const where = {
+      locationId,
+      deletedAt: null,
+      ...(query.q && { id: { in: await customerIdsMatching(this.prisma, locationId, query.q) } }),
     };
+    const [customers, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        where,
+        orderBy: [{ fullName: "asc" }, { id: "asc" }],
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+      }),
+      this.prisma.customer.count({ where }),
+    ]);
+
+    return { items: customers.map((customer) => this.serialize(customer)), total };
   }
 
   async findOne(locationId: string, customerId: string) {
@@ -102,24 +97,6 @@ export class CustomerService {
       }),
     ]);
     await this.storage.delete(photos.map((photo) => photo.objectKey));
-  }
-
-  // Keyset pagination on (fullName, id), like tickets on (createdAt, id), see
-  // docs/architecture/data-model.md#pagination. The cursor is only the last
-  // customer's id, the name is looked up here: a cursor carrying it would
-  // put a customer's name in every URL, which the logs and Railway's proxy
-  // record as is.
-  private async cursorPosition(locationId: string, cursor: string) {
-    const customer = isBigIntId(cursor)
-      ? await this.prisma.customer.findFirst({
-          where: { id: BigInt(cursor), locationId },
-          select: { id: true, fullName: true },
-        })
-      : null;
-    if (!customer) {
-      throw new ValidationError("Invalid cursor");
-    }
-    return customer;
   }
 
   private async loadActive(locationId: string, customerId: string) {

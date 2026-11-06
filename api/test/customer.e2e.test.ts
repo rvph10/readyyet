@@ -67,7 +67,7 @@ describe("Customers", () => {
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(1);
     expect(response.body.items[0].id).toBe(aliceId);
-    expect(response.body.nextCursor).toBeNull();
+    expect(response.body.total).toBe(1);
   });
 
   it("treats % and _ in a search as the characters they are, not wildcards", async () => {
@@ -290,40 +290,55 @@ describe("Customers", () => {
     expect(ticket.status).toBe(404);
   });
 
+  it("finds a customer by part of their email or phone, however the number is written", async () => {
+    const path = `/locations/${locationId}/customers`;
+    const found = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({
+        title: "Found by contact",
+        customer: { fullName: "Dana Contact", email: "delivered+dana-lookup@resend.dev", phone: "+32471318944" },
+      });
+    expect(found.status).toBe(201);
+
+    for (const q of ["dana-lookup", "+32471318944", "0471 31 89 44", "471318"]) {
+      const response = await request(app.getHttpServer()).get(path).query({ q }).set("Cookie", ownerCookie);
+      expect(response.status).toBe(200);
+      expect(response.body.items.map((customer: { fullName: string }) => customer.fullName)).toEqual(["Dana Contact"]);
+    }
+  });
+
   it("pages through customers by name, each one exactly once", async () => {
     const names: string[] = [];
-    let cursor: string | null = null;
+    let total: number;
+    let page = 1;
     do {
       const response: request.Response = await request(app.getHttpServer())
         .get(`/locations/${locationId}/customers`)
-        .query(cursor ? { take: 1, cursor } : { take: 1 })
+        .query({ take: 1, page })
         .set("Cookie", ownerCookie);
       expect(response.status).toBe(200);
       names.push(...response.body.items.map((customer: { fullName: string }) => customer.fullName));
-      cursor = response.body.nextCursor;
-      // Only the id: the cursor is in the URL, which the logs and Railway's
-      // proxy record, so it can't carry the customer's name.
-      if (cursor) {
-        expect(cursor).toBe(response.body.items[0].id);
-      }
-    } while (cursor);
+      total = response.body.total;
+      page += 1;
+    } while (names.length < total);
 
     expect(names.length).toBeGreaterThanOrEqual(2);
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it.each(["not-a-cursor", "99999999999999999999", "999999999"])("rejects the malformed cursor %s", async (cursor) => {
+  it.each(["not-a-page", "0", "100001"])("rejects the page %s", async (page) => {
     const response = await request(app.getHttpServer())
       .get(`/locations/${locationId}/customers`)
-      .query({ cursor })
+      .query({ page })
       .set("Cookie", ownerCookie);
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
-  it("rejects another location's customer as a cursor", async () => {
+  it("never finds another location's customer, by name or by contact", async () => {
     const other = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", otherCookie)
@@ -338,15 +353,15 @@ describe("Customers", () => {
           locale: "EN",
         },
       });
-    const foreignId = await createTicketWithCustomer(app, otherCookie, other.body.locations[0].id, "Carol Foreign");
+    await createTicketWithCustomer(app, otherCookie, other.body.locations[0].id, "Carol Foreign");
 
     const response = await request(app.getHttpServer())
       .get(`/locations/${locationId}/customers`)
-      .query({ cursor: foreignId })
+      .query({ q: "Carol Foreign" })
       .set("Cookie", ownerCookie);
 
-    expect(response.status).toBe(400);
-    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual([]);
   });
 
   it("rejects a signed-in user with no membership at that location", async () => {

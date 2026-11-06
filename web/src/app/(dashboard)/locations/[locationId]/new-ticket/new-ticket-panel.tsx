@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { QrCode } from "@/components/qr-code";
 import { Button } from "@/components/ui/button";
+import type { components } from "@/lib/api/schema";
 import { TicketForm } from "./ticket-form";
 
 export interface NewTicketProps {
@@ -27,13 +28,17 @@ export interface CreatedTicket {
 
 // A panel, not a page: the counter keeps its list behind it. It ends on the QR
 // code, the moment a Customer standing there needs it.
-export function NewTicketPanel({ onClose, ...props }: NewTicketProps & { onClose: () => void }) {
+export function NewTicketPanel({
+  onClose,
+  customer,
+  ...props
+}: NewTicketProps & { customer: components["schemas"]["CustomerDto"] | null; onClose: () => void }) {
   const t = useTranslations("tickets.created");
   const router = useRouter();
   const [created, setCreated] = useState<CreatedTicket | null>(null);
 
   if (!created) {
-    return <TicketForm {...props} onCreated={setCreated} onCancel={onClose} />;
+    return <TicketForm {...props} customer={customer} onCreated={setCreated} onCancel={onClose} />;
   }
 
   return (

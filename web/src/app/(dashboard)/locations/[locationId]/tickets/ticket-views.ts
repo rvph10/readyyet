@@ -38,11 +38,11 @@ export function parseQuery(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, MAX_QUERY) : "";
 }
 
-export function ticketsHref(locationId: string, { view, q, cursor }: { view: View; q?: string; cursor?: string }) {
+export function ticketsHref(locationId: string, { view, q, page }: { view: View; q?: string; page?: number }) {
   const params = new URLSearchParams();
   if (view !== DEFAULT_VIEW) params.set("view", view);
   if (q) params.set("q", q);
-  if (cursor) params.set("cursor", cursor);
+  if (page && page > 1) params.set("page", String(page));
   const query = params.toString();
   return `/locations/${locationId}/tickets${query ? `?${query}` : ""}`;
 }

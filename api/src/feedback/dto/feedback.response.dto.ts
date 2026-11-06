@@ -26,6 +26,6 @@ export class FeedbackDto {
 
 export class FeedbackPageDto {
   items!: FeedbackDto[];
-  // Pass as ?cursor= for the next page, null on the last one.
-  nextCursor!: string | null;
+  // Across every page, for what the filters match.
+  total!: number;
 }

@@ -35,7 +35,8 @@ describe("ticketsHref", () => {
   it("leaves the default view out and encodes the search", () => {
     expect(ticketsHref("loc", { view: "open" })).toBe("/locations/loc/tickets");
     expect(ticketsHref("loc", { view: "late", q: "a&b" })).toBe("/locations/loc/tickets?view=late&q=a%26b");
-    expect(ticketsHref("loc", { view: "open", cursor: "c" })).toBe("/locations/loc/tickets?cursor=c");
+    expect(ticketsHref("loc", { view: "open", page: 1 })).toBe("/locations/loc/tickets");
+    expect(ticketsHref("loc", { view: "open", page: 3 })).toBe("/locations/loc/tickets?page=3");
   });
 });
 

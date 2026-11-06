@@ -13,6 +13,24 @@ export async function customerIdsNamed(prisma: PrismaService, locationId: string
   return customers.map(({ id }) => id);
 }
 
+// For finding one Customer: by their name, or the email or phone they give at
+// the counter. An erased Customer's fields are placeholders, not searchable.
+export async function customerIdsMatching(prisma: PrismaService, locationId: string, q: string) {
+  const pattern = `%${q.replace(/[\\%_]/g, "\\$&")}%`;
+  const digits = phoneDigits(q);
+  const phonePattern = digits && `%${digits}%`;
+  const customers = await prisma.$queryRaw<{ id: bigint }[]>`
+    SELECT id FROM customer
+    WHERE location_id = ${locationId}::uuid
+      AND deleted_at IS NULL
+      AND (
+        unaccent(full_name) ILIKE unaccent(${pattern})
+        OR email ILIKE ${pattern}
+        OR phone LIKE ${phonePattern}
+      )`;
+  return customers.map(({ id }) => id);
+}
+
 // Phones are stored international, +32470123456, while the number in front of
 // staff reads 0470 12 34 56. Null when the search isn't a number.
 export function phoneDigits(q: string) {

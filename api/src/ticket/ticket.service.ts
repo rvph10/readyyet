@@ -11,7 +11,7 @@ import { customerIdsNamed, phoneDigits } from "../customer/customer-search";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
-import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
+import { parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
@@ -111,21 +111,6 @@ const DETAIL_INCLUDE = {
   },
   currentStatus: statusSelect,
 } as const;
-
-// Cursor pagination on (createdAt, id), not OFFSET, see
-// docs/architecture/data-model.md#pagination. id breaks createdAt ties.
-function encodeCursor(createdAt: Date, id: bigint): string {
-  return Buffer.from(`${createdAt.toISOString()}_${id}`).toString("base64url");
-}
-
-function decodeCursor(cursor: string): { createdAt: Date; id: bigint } {
-  const [createdAt, id] = Buffer.from(cursor, "base64url").toString().split("_");
-  const date = new Date(createdAt);
-  if (!isBigIntId(id ?? "") || Number.isNaN(date.getTime())) {
-    throw new ValidationError("Invalid cursor");
-  }
-  return { createdAt: date, id: BigInt(id) };
-}
 
 type Status = { id: number; code: string; translations: { locale: Locale; label: string }[] };
 
@@ -239,20 +224,20 @@ export class TicketService {
         currentStatus: { code: { notIn: ["READY", ...ENDED_STATUS_CODES] } },
       });
     }
-    const tickets = await this.prisma.ticket.findMany({
-      where: { AND: [{ locationId }, ...filters] },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      // One extra row tells us whether there's a next page.
-      take: take + 1,
-      include: LIST_INCLUDE,
-    });
+    const where = { AND: [{ locationId }, ...filters] };
+    const [tickets, total] = await Promise.all([
+      this.prisma.ticket.findMany({
+        where,
+        // id breaks createdAt ties, so a row can't land on two pages.
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+        include: LIST_INCLUDE,
+      }),
+      this.prisma.ticket.count({ where }),
+    ]);
 
-    const page = tickets.slice(0, take);
-    const last = page[page.length - 1];
-    return {
-      items: page.map(listItem),
-      nextCursor: tickets.length > take ? encodeCursor(last.createdAt, last.id) : null,
-    };
+    return { items: tickets.map(listItem), total };
   }
 
   // Open Tickets are what's physically in the shop, so there are few enough to
@@ -420,10 +405,6 @@ export class TicketService {
     }
     if (query.customerId) {
       filters.push({ customerId: BigInt(query.customerId) });
-    }
-    if (query.cursor) {
-      const { createdAt, id } = decodeCursor(query.cursor);
-      filters.push({ OR: [{ createdAt: { lt: createdAt } }, { createdAt, id: { lt: id } }] });
     }
 
     return filters;

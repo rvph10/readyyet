@@ -125,8 +125,8 @@ export class TicketOverviewDto {
 
 export class TicketPageDto {
   items!: TicketListItemDto[];
-  // Pass as ?cursor= for the next page, null on the last one.
-  nextCursor!: string | null;
+  // Across every page, for what the filters match.
+  total!: number;
 }
 
 export class TrackingLinkSentDto {

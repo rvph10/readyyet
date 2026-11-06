@@ -483,7 +483,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search/list customers at a location, optionally by partial name (?q=) */
+        /** Search/list customers at a location, optionally by part of their name, email or phone (?q=) */
         get: operations["CustomerController_list"];
         put?: never;
         post?: never;
@@ -1227,7 +1227,7 @@ export interface components {
         };
         TicketPageDto: {
             items: components["schemas"]["TicketListItemDto"][];
-            nextCursor: string | null;
+            total: number;
         };
         OverviewCountsDto: {
             open: number;
@@ -1327,7 +1327,7 @@ export interface components {
         };
         CustomerPageDto: {
             items: components["schemas"]["CustomerDto"][];
-            nextCursor: string | null;
+            total: number;
         };
         UpdateCustomerDto: {
             fullName?: string;
@@ -1512,7 +1512,7 @@ export interface components {
         };
         FeedbackPageDto: {
             items: components["schemas"]["FeedbackDto"][];
-            nextCursor: string | null;
+            total: number;
         };
         DefaultWorkflowStepDto: {
             position: number;
@@ -4074,7 +4074,7 @@ export interface operations {
                 createdTo?: string;
                 createdBy?: string;
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path: {
@@ -5139,7 +5139,7 @@ export interface operations {
             query?: {
                 q?: string;
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path: {
@@ -6895,7 +6895,7 @@ export interface operations {
             query?: {
                 handled?: "true" | "false";
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path: {

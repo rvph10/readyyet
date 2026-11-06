@@ -3345,11 +3345,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -4635,11 +4637,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -4740,7 +4744,7 @@
             "cookie": []
           }
         ],
-        "summary": "Search/list customers at a location, optionally by partial name (?q=)",
+        "summary": "Search/list customers at a location, optionally by part of their name, email or phone (?q=)",
         "tags": [
           "Customers"
         ]
@@ -6875,11 +6879,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -9192,14 +9198,13 @@
               "$ref": "#/components/schemas/TicketListItemDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       },
       "OverviewCountsDto": {
@@ -9576,14 +9581,13 @@
               "$ref": "#/components/schemas/CustomerDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       },
       "UpdateCustomerDto": {
@@ -10287,14 +10291,13 @@
               "$ref": "#/components/schemas/FeedbackDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       },
       "DefaultWorkflowStepDto": {

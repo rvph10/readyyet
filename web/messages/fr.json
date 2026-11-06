@@ -131,9 +131,7 @@
     },
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
-    "erasedCustomer": "Client supprimé",
-    "older": "Tickets plus anciens",
-    "newest": "Revenir aux plus récents",
+    "erasedCustomer": "Client effacé",
     "empty": {
       "open": {
         "title": "Aucun ticket en cours",
@@ -206,7 +204,7 @@
     "saysCollected": "Dit l'avoir retiré",
     "waiting": "{days, plural, =0 {Prêt aujourd'hui} one {Attend # jour} other {Attend # jours}}",
     "lateBy": "{days, plural, one {# jour de retard} other {# jours de retard}}",
-    "handOver": "Remettre",
+    "handOver": "Remis",
     "handedOver": "Remis au client. Il le voit sur sa page de suivi.",
     "movedTo": "Passé à {status}",
     "created": {
@@ -302,7 +300,14 @@
     "clearDate": "Effacer",
     "today": "Aujourd'hui",
     "previousMonth": "Mois précédent",
-    "nextMonth": "Mois suivant"
+    "nextMonth": "Mois suivant",
+    "pagination": {
+      "label": "Pages",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "range": "{from} à {to} sur {total}",
+      "page": "Page {page} sur {last}"
+    }
   },
   "tracking": {
     "loading": "Chargement de l'avancement de votre article",

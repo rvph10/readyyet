@@ -9,7 +9,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
-type ListResponse = { items: { id: string; title: string }[]; nextCursor: string | null };
+type ListResponse = { items: { id: string; title: string }[]; total: number };
 
 describe("Ticket search and filters", () => {
   let app: INestApplication;
@@ -185,30 +185,32 @@ describe("Ticket search and filters", () => {
     expect(await titles({ q: "alice", status: "COMPLETED" })).toEqual([]);
   });
 
-  it("pages through every ticket with the cursor, newest first, without duplicates", async () => {
+  it("pages through every ticket by number, newest first, without duplicates", async () => {
     const seen: string[] = [];
-    let cursor: string | null = null;
+    let total: number;
+    let page = 1;
     do {
-      const response = await list({ take: "1", ...(cursor ? { cursor } : {}) });
+      const response = await list({ take: "1", page: String(page) });
       const body = response.body as ListResponse;
       expect(body.items).toHaveLength(1);
       seen.push(body.items[0].id);
-      cursor = body.nextCursor;
-    } while (cursor);
+      total = body.total;
+      page += 1;
+    } while (seen.length < total);
 
     const all = (await list()).body as ListResponse;
     expect(seen).toEqual(all.items.map((item) => item.id));
     expect(seen).toHaveLength(4);
   });
 
-  it("rejects an invalid cursor or filter value", async () => {
+  it("rejects an invalid page or filter value", async () => {
     const invalidQueries: Record<string, string>[] = [
-      { cursor: "garbage" },
+      { page: "garbage" },
+      { page: "0" },
       { state: "closed" },
       { createdFrom: "yesterday" },
       { customerId: "abc" },
       { customerId: "99999999999999999999" },
-      { cursor: Buffer.from("2026-01-01T00:00:00.000Z_99999999999999999999").toString("base64url") },
     ];
     for (const query of invalidQueries) {
       const response = await list(query);
