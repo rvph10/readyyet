@@ -12,10 +12,9 @@ import { groupByBusiness, type Membership } from "@/lib/memberships";
 import { HeaderSearch } from "./header-search";
 import { useLocationActions } from "./location-actions";
 import { isManager, SECTIONS, SIDEBAR_COOKIE, type Section } from "./sections";
+import { isUrgentTrial, TrialMeter } from "./trial-meter";
 
 const YEAR_SECONDS = 365 * 24 * 60 * 60;
-const TRIAL_DAYS = 14;
-const URGENT_TRIAL_DAYS = 3;
 
 // Whether the sidebar shows its words. Under 1280px it's always the rail.
 const CollapsedContext = createContext(false);
@@ -301,22 +300,13 @@ function TrialCard({ daysLeft }: { daysLeft: number }) {
   const t = useTranslations("plans");
   const { choosePlan } = useLocationActions();
   const collapsed = useContext(CollapsedContext);
-  const urgent = daysLeft <= URGENT_TRIAL_DAYS;
+  const urgent = isUrgentTrial(daysLeft);
   const title = daysLeft === 0 ? t("ended") : t("daysLeft", { days: daysLeft });
   return (
     <>
       <div className={`on-pine rounded-card p-3.5 text-surface ${urgent ? "bg-danger" : "bg-pine"} ${wide(collapsed)}`}>
         <p className="text-label-sm">{title}</p>
-        <div aria-hidden="true" className="mt-2 flex gap-0.5">
-          {Array.from({ length: TRIAL_DAYS }, (_, day) => (
-            <span
-              key={day}
-              className={`h-1.5 flex-1 rounded-full ${
-                day < TRIAL_DAYS - daysLeft ? "bg-surface/25" : urgent ? "bg-surface" : "bg-brand"
-              }`}
-            />
-          ))}
-        </div>
+        <TrialMeter daysLeft={daysLeft} className="mt-2 h-1.5" />
         <p className="mt-2 text-p-xs">{t(daysLeft === 0 ? "endedBody" : "cardBody")}</p>
         <button
           type="button"

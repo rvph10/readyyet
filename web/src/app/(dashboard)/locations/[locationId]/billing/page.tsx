@@ -1,33 +1,47 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
-import { ComingSoon } from "@/components/coming-soon";
 import { getMe } from "@/lib/me";
+import { getBilling, getDaysToChoosePlan, getLocation } from "../location-data";
 import { PageHeader } from "../page-header";
-import { ChoosePlanButton } from "../overview/choose-plan-button";
 import { isManager } from "../sections";
+import { intlLocale } from "../tickets/ticket-views";
+import { BillingBoard } from "./billing-board";
 
-// Where Stripe's Checkout sends someone back to. The Billing page itself isn't
-// built yet, so a finished checkout lands on Today, which thanks them.
 export default async function BillingPage({ params, searchParams }: PageProps<"/locations/[locationId]/billing">) {
-  const [{ locationId }, search, { memberships }, t] = await Promise.all([
+  const [{ locationId }, search, { memberships }, t, locale] = await Promise.all([
     params,
     searchParams,
     getMe(),
     getTranslations("dashboard"),
+    getLocale(),
   ]);
-  const role = memberships.find(({ location }) => location.id === locationId)?.role;
-  if (!role || !isManager(role)) {
+  const membership = memberships.find(({ location }) => location.id === locationId);
+  if (!membership || !isManager(membership.role)) {
     notFound();
   }
+  // Stripe's return comes before its webhook, so this page could still say
+  // there's no plan. Today thanks them without saying anything about the plan.
   if (search.checkout === "success") {
     redirect(`/locations/${locationId}?checkout=success`);
   }
+  const [billing, daysLeft, { timeZone }] = await Promise.all([
+    getBilling(locationId),
+    getDaysToChoosePlan(locationId, membership.role),
+    getLocation(locationId),
+  ]);
+  const day = new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone });
   return (
     <>
       <PageHeader locationId={locationId} title={t("sections.billing")} />
-      <ComingSoon>
-        <ChoosePlanButton />
-      </ComingSoon>
+      <BillingBoard
+        locationId={locationId}
+        businessId={membership.location.business.id}
+        owner={membership.role === "OWNER"}
+        billing={billing}
+        daysLeft={daysLeft}
+        trialEnd={billing.trialEndsAt && day.format(new Date(billing.trialEndsAt))}
+        periodEnd={billing.currentPeriodEnd && day.format(new Date(billing.currentPeriodEnd))}
+      />
     </>
   );
 }

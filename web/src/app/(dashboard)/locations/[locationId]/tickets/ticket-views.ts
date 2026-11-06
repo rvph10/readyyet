@@ -64,7 +64,7 @@ export function expected(date: CalendarDate | null, statusCode: string, today: C
   return { key: date === nextDay(today) ? "tomorrow" : "on", date };
 }
 
-function intlLocale(locale: string) {
+export function intlLocale(locale: string) {
   return locale === "en" ? "en-GB" : locale;
 }
 

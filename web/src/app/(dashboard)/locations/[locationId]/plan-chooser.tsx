@@ -1,26 +1,19 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { orFailure } from "@/lib/api/or-failure";
 import { startCheckout } from "./actions";
-
-type Plan = "PRO" | "ESSENTIEL";
-type Interval = "MONTH" | "YEAR";
-
-// ADR 0031, excluding VAT.
-const PRICES: Record<Plan, Record<Interval, number>> = {
-  PRO: { MONTH: 49, YEAR: 490 },
-  ESSENTIEL: { MONTH: 29, YEAR: 290 },
-};
+import { PLAN_NAMES, PRICES, type Interval, type Plan } from "./plan-prices";
 
 // The trial's one job: get a plan chosen, in as few steps as possible. Pro is
 // preselected (ADR 0031), and the card is charged when the trial ends (ADR 0033).
 export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string; trialDaysLeft: number | null }) {
   const t = useTranslations("plans");
+  const format = useFormatter();
   const [plan, setPlan] = useState<Plan>("PRO");
   const [interval, setInterval] = useState<Interval>("MONTH");
   const [failure, setFailure] = useState<"tooManyMembers" | "unexpected" | null>(null);
@@ -79,9 +72,13 @@ export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string;
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-baseline justify-between gap-x-3">
-                  <span className="text-label-md">{option === "PRO" ? "Pro" : "Essentiel"}</span>
+                  <span className="text-label-md">{PLAN_NAMES[option]}</span>
                   <span className="text-label-md">
-                    €{PRICES[option][interval]}
+                    {format.number(PRICES[option][interval], {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0,
+                    })}
                     <span className="text-p-xs text-muted">{t(interval === "MONTH" ? "perMonth" : "perYear")}</span>
                   </span>
                 </span>
