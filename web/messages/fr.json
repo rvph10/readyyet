@@ -72,11 +72,10 @@
   },
   "dashboard": {
     "signOut": "Se déconnecter",
-    "comingSoon": "Elle n'est pas encore prête et s'affichera ici.",
-    "comingSoonTitle": "Cette page arrive bientôt",
     "loading": "Chargement",
     "chooseLocation": "Choisissez un établissement",
     "businessSettings": "Réglages de l'entreprise",
+    "businessOverview": "Vue d'ensemble de l'entreprise",
     "add": "Ajouter",
     "addLocation": "Ajouter un établissement",
     "searchLocations": "Rechercher un établissement",
@@ -105,8 +104,7 @@
     "language": "Langue",
     "more": "Plus",
     "collapseSidebar": "Réduire le menu",
-    "expandSidebar": "Développer le menu",
-    "businessOverview": "Vue d'ensemble de l'entreprise"
+    "expandSidebar": "Développer le menu"
   },
   "tickets": {
     "title": "Tickets",

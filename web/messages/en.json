@@ -72,11 +72,10 @@
   },
   "dashboard": {
     "signOut": "Sign out",
-    "comingSoon": "It isn't built yet, and will show here.",
-    "comingSoonTitle": "This page is on its way",
     "loading": "Loading",
     "chooseLocation": "Choose a Location",
     "businessSettings": "Business settings",
+    "businessOverview": "Business overview",
     "add": "Add",
     "addLocation": "Add a Location",
     "searchLocations": "Search Locations",
@@ -105,8 +104,7 @@
     "language": "Language",
     "more": "More",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar",
-    "businessOverview": "Business overview"
+    "expandSidebar": "Expand sidebar"
   },
   "tickets": {
     "title": "Tickets",
