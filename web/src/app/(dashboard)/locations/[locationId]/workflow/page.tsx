@@ -33,8 +33,8 @@ export default async function WorkflowPage({ params }: PageProps<"/locations/[lo
   const businessType = businessTypes.find(({ code }) => code === location.businessTypeCode)!;
 
   return (
-    <>
-      <PageHeader locationId={locationId} title={tDashboard("sections.workflow")} />
+    <div className="fit-screen flex flex-col gap-4 lg:gap-5">
+      <PageHeader title={tDashboard("sections.workflow")} />
       <WorkflowBoard
         // A new id is a new version, whose steps are what's saved from now on.
         key={workflow.id}
@@ -46,6 +46,6 @@ export default async function WorkflowPage({ params }: PageProps<"/locations/[lo
         businessTypeName={statusLabel(businessType, locale)}
         canEdit={billing.plan === "PRO"}
       />
-    </>
+    </div>
   );
 }

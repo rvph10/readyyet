@@ -77,12 +77,11 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
   );
 
   return (
-    <>
+    <div className="fit-screen flex flex-col gap-4 lg:gap-5">
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <PageHeader locationId={locationId} title={t("pageTitle")} />
-      <p className="max-w-2xl text-p-md text-pretty text-muted">{t("pageSubtitle")}</p>
+      <PageHeader title={t("pageTitle")} />
       {list.items.length === 0 ? (
-        <Panel padding="none" className="flex flex-1 flex-col">
+        <Panel padding="none" className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           <div className="px-5 pt-5 lg:px-7 lg:pt-6">{tabs}</div>
           {block && view === "waiting" ? (
             <EmptyState
@@ -134,6 +133,6 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
           />
         </>
       )}
-    </>
+    </div>
   );
 }

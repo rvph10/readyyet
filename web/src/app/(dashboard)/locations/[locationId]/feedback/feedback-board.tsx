@@ -78,8 +78,7 @@ function Reader({ item, locationId }: { item: Item; locationId: string }) {
           </span>
         </p>
       ) : (
-        <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <p className="max-w-md text-p-sm text-muted">{t("handleHint")}</p>
+        <div className="mt-5 flex justify-end">
           <Button pending={pending} pendingLabel={t("marking")} onClick={markHandled} className="shrink-0">
             <Icon name="check" className="size-3.5 text-brand" />
             {t("markHandled")}
@@ -114,13 +113,18 @@ export function FeedbackBoard({ locationId, waiting, view, items, tabs, pager }:
   }
 
   return (
-    <div className="grid flex-1 grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)] lg:gap-5">
-      <Panel as="section" aria-live="polite" padding="none" className="flex flex-col p-5 lg:p-7">
+    <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)] lg:gap-5">
+      <Panel
+        as="section"
+        aria-live="polite"
+        padding="none"
+        className="flex min-h-0 flex-col overflow-y-auto p-5 lg:p-7"
+      >
         <span ref={readerTop} className="scroll-mt-9" />
         <Reader key={open.id} item={open} locationId={locationId} />
       </Panel>
 
-      <Panel as="section" className="flex flex-col">
+      <Panel as="section" className="flex min-h-0 flex-col">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <h2 className="text-title-h6">{t("messagesTitle")}</h2>
           <p className="text-p-sm text-muted">
@@ -128,7 +132,7 @@ export function FeedbackBoard({ locationId, waiting, view, items, tabs, pager }:
           </p>
         </div>
         <div className="mt-3">{tabs}</div>
-        <ul className="-mx-2 mt-3 flex flex-col gap-1 px-2">
+        <ul className="-mx-2 mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2">
           {items.map((item) => (
             <li key={item.id}>
               <button

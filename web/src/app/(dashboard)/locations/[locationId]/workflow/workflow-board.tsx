@@ -127,23 +127,26 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
   const emailsNote = (code: string) => (isNotifyingStatus(code) ? t("emails") : undefined);
 
   return (
-    <div className="grid flex-1 grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(20rem,1fr)] lg:gap-5">
-      <Panel as="section" aria-labelledby="workflow-path" padding="none" className="flex flex-col">
-        <div>
+    <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(20rem,1fr)] lg:gap-5">
+      <Panel
+        as="section"
+        aria-labelledby="workflow-path"
+        padding="none"
+        className="flex min-h-0 flex-col overflow-clip"
+      >
+        <div className="flex min-h-0 flex-1 flex-col">
           <div className="px-5 pt-5 lg:px-7 lg:pt-6">
             <h2 id="workflow-path" className="text-title-h6">
               {t("pathTitle")}
             </h2>
-            <p className="mt-0.5 max-w-xl text-p-sm text-pretty text-muted">
-              {canEdit ? t("pathHint") : t("pathDefault", { type: businessTypeName })}
-            </p>
+            {!canEdit && <p className="mt-0.5 text-p-sm text-muted">{t("pathDefault", { type: businessTypeName })}</p>}
             {failure && (
               <div className="mt-3">
                 <FormAlert>{failure}</FormAlert>
               </div>
             )}
           </div>
-          <ol className="space-y-2 px-5 pt-5 lg:px-7">
+          <ol className="min-h-0 flex-1 space-y-2 overflow-y-auto px-5 py-5 lg:px-7">
             <PathRow code="RECEIVED" label={label("RECEIVED")} fixed note={t("firstNote")} />
             {steps.map((code, index) => (
               <PathRow
@@ -216,8 +219,8 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
           </p>
         </div>
         {canEdit && (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface px-5 py-4 md:sticky md:bottom-0 lg:px-7">
-            <p className="min-w-0 flex-1 basis-56 text-p-sm text-pretty text-muted">{t("openTicketsNote")}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface px-5 py-4 lg:px-7">
+            <p className="min-w-0 flex-1 basis-56 text-p-sm text-muted">{t("openTicketsNote")}</p>
             <div className="flex gap-2">
               <Button variant="secondary" disabled={!dirty || pending} onClick={() => setSteps(saved)}>
                 {tSettings("discard")}
@@ -231,8 +234,8 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
       </Panel>
 
       {canEdit ? (
-        <div className="flex min-w-0 flex-col gap-3 lg:gap-5">
-          <Panel as="section" aria-labelledby="workflow-add" className="flex flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-col gap-3 lg:gap-5">
+          <Panel as="section" aria-labelledby="workflow-add" className="flex min-h-0 flex-1 flex-col">
             <h2 id="workflow-add" className="text-title-h6">
               {t("addTitle")}
             </h2>
@@ -248,7 +251,7 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
               <p className="py-8 text-center text-p-sm text-muted">{t(query ? "noMatch" : "allAdded")}</p>
             ) : (
               // The whole catalogue is long, so it scrolls inside its tile.
-              <div className="mt-3">
+              <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
                 {groups.map(({ group, statuses: inGroup }) => (
                   <section key={group} className="mb-4 last:mb-0">
                     <h3 className="pb-1 text-label-xs text-muted">{t(`groups.${group}`)}</h3>

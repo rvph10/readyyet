@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
-import { Illustration } from "@/components/illustration";
 import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { useToast } from "@/components/ui/toast";
@@ -118,31 +117,18 @@ function Hero(props: Props & { checkout: (plan: Plan, interval: Interval) => voi
   return (
     <section
       aria-labelledby="billing-state"
-      className={`on-pine flex min-h-56 items-center justify-between gap-8 rounded-sheet p-6 text-surface md:col-span-2 lg:p-8 xl:col-span-3 ${
+      className={`on-pine flex flex-wrap items-center justify-between gap-x-8 gap-y-5 rounded-sheet p-5 text-surface md:col-span-2 lg:p-6 xl:col-span-4 ${
         urgent ? "bg-danger" : "bg-pine"
       }`}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-6 self-stretch">
+      <div className="flex min-w-0 flex-1 basis-72 flex-col gap-4">
         <div>
           <p className="text-label-sm">{t("yourPlan")}</p>
-          <h2 id="billing-state" className="mt-2 text-title-h4">
+          <h2 id="billing-state" className="mt-1 text-title-h5">
             {title}
           </h2>
           {inTrial && <TrialMeter daysLeft={daysLeft} className="mt-4 h-2.5 max-w-xl" />}
-          <p className="mt-3 max-w-xl text-p-md">{body}</p>
-          {billing.plan && !urgent && (
-            <ul className="mt-5 flex flex-wrap gap-2">
-              {PLAN_FEATURES[billing.plan].map((feature) => (
-                <li
-                  key={feature}
-                  className="flex items-center gap-2 rounded-full bg-surface/10 px-3.5 py-2 text-label-xs"
-                >
-                  <Icon name="check" className="size-2.5 text-brand" />
-                  {t(`features.${feature}`)}
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="mt-1 max-w-xl text-p-sm">{body}</p>
         </div>
         {inTrial && (
           <HeroButton urgent={urgent} busy={pending} onClick={() => checkout("PRO", "MONTH")}>
@@ -165,12 +151,7 @@ function Hero(props: Props & { checkout: (plan: Plan, interval: Interval) => voi
           </HeroButton>
         )}
       </div>
-      {!urgent && (
-        <Illustration
-          name={inTrial ? "progress-on-pine" : "trophy-on-pine"}
-          className="hidden h-52 w-auto shrink-0 sm:block xl:h-64"
-        />
-      )}
+      <PaymentSummary {...props} />
     </section>
   );
 }
@@ -192,7 +173,8 @@ function HeroButton(props: { urgent: boolean; busy: boolean; onClick: () => void
   );
 }
 
-function PaymentTile({ billing, periodEnd, owner, businessId }: Props) {
+// In the plan's own strip, as one thing to read rather than a tile beside it.
+function PaymentSummary({ billing, periodEnd, owner, businessId }: Props) {
   const t = useTranslations("billing");
   const planPrice = usePlanPrice();
   const [pending, startTransition] = useTransition();
@@ -213,29 +195,22 @@ function PaymentTile({ billing, periodEnd, owner, businessId }: Props) {
   }
 
   return (
-    <Panel as="section" padding="lg" className="flex flex-col gap-4 md:col-span-2 xl:col-span-1">
+    <div className="flex shrink-0 flex-col gap-3 sm:items-end sm:text-right">
       <div>
-        <TileTitle>{t("nextPayment")}</TileTitle>
-        <p className="mt-3 text-title-h5">{next ? periodEnd : t("nothingDue")}</p>
-        <p className="mt-1 text-p-sm text-muted">{next ? price : t(paying ? "noMorePayments" : "noCardYet")}</p>
+        <p className="text-label-sm">{t("nextPayment")}</p>
+        <p className="mt-1 text-title-h6">{next ? periodEnd : t("nothingDue")}</p>
+        <p className="text-p-sm">{next ? price : t(paying ? "noMorePayments" : "noCardYet")}</p>
       </div>
       {paying && failed && <FormAlert>{t("errors.portal")}</FormAlert>}
       {paying &&
         (owner ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="mt-auto w-full"
-            pending={pending}
-            pendingLabel={t("opening")}
-            onClick={open}
-          >
+          <Button variant="secondary" size="sm" pending={pending} pendingLabel={t("opening")} onClick={open}>
             {t("cardsAndInvoices")}
           </Button>
         ) : (
           <p className="mt-auto text-p-xs text-muted">{t("ownerOnlyInvoices")}</p>
         ))}
-    </Panel>
+    </div>
   );
 }
 
@@ -381,7 +356,7 @@ function PlansTile({
   }
 
   return (
-    <Panel as="section" padding="lg" className="flex flex-col gap-5 md:col-span-2 xl:col-span-3 xl:row-span-2">
+    <Panel as="section" padding="lg" className="flex flex-col gap-5 md:col-span-2 xl:col-span-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TileTitle>{t("plansTitle")}</TileTitle>
         <div className="flex gap-1 rounded-full bg-subtle p-1" role="group" aria-label={tPlans("billedEvery")}>
@@ -444,13 +419,11 @@ function CodeTile({
   setCode,
   error,
   setError,
-  wide,
 }: Props & {
   code: string;
   setCode: (code: string) => void;
   error: string | null;
   setError: (error: string | null) => void;
-  wide: boolean;
 }) {
   const t = useTranslations("billing");
   const money = useMoney();
@@ -458,6 +431,9 @@ function CodeTile({
   const [preview, setPreview] = useState<{ now: number; withCode: number } | null>(null);
   const [pending, startTransition] = useTransition();
   const paying = billing.status === "ACTIVE" || billing.status === "PAST_DUE";
+  // Few have one, so it waits behind a link. A referred Business has a discount
+  // to see, which stays out in the open.
+  const [showing, setShowing] = useState(!paying && billing.referralDiscount);
 
   function failed({ code: failure }: ActionFailure) {
     setError(t(failure === ErrorCode.VALIDATION_ERROR ? "errors.badCode" : "errors.unexpected"));
@@ -485,12 +461,16 @@ function CodeTile({
     });
   }
 
+  if (!showing) {
+    return (
+      <Button variant="link" onClick={() => setShowing(true)}>
+        {t("haveCode")}
+      </Button>
+    );
+  }
+
   return (
-    <Panel
-      as="section"
-      padding="lg"
-      className={`flex flex-col gap-3 md:col-span-2 xl:col-span-1 ${wide ? "xl:row-span-2" : ""}`}
-    >
+    <Panel as="section" padding="lg" className="flex w-full max-w-md flex-col gap-3">
       <TileTitle>{t("codeTitle")}</TileTitle>
       {!paying && billing.referralDiscount && (
         <p className="rounded-xl bg-brand px-3.5 py-3 text-p-sm text-ink">
@@ -563,10 +543,10 @@ function StopTile({ locationId, periodEnd }: Props) {
   }
 
   return (
-    <Panel as="section" padding="lg" className="flex flex-col gap-3 md:col-span-2 xl:col-span-1">
-      <TileTitle>{t("stopTitle")}</TileTitle>
-      <p className="text-p-sm text-muted">{t("stopHint", { date: periodEnd! })}</p>
-      <Button variant="danger-secondary" size="sm" className="mt-auto w-full" onClick={() => setOpen(true)}>
+    // A quiet link, always there, and one step from done: easy to find when
+    // wanted, without a tile suggesting it to everyone (ADR 0106).
+    <div>
+      <Button variant="link" onClick={() => setOpen(true)}>
         {t("stopAction")}
       </Button>
       <Dialog variant="destructive" open={open} onClose={() => setOpen(false)} title={t("stopConfirmTitle")}>
@@ -583,7 +563,7 @@ function StopTile({ locationId, periodEnd }: Props) {
           </div>
         </div>
       </Dialog>
-    </Panel>
+    </div>
   );
 }
 
@@ -616,12 +596,13 @@ export function BillingBoard(props: Props) {
   }
 
   return (
-    <div className="grid flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
+    <div className="grid content-start gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
       <Hero {...props} checkout={checkout} pending={pending} />
-      <PaymentTile {...props} />
       <PlansTile {...props} checkout={checkout} pending={pending} />
-      <CodeTile {...props} code={code} setCode={setCode} error={codeError} setError={setCodeError} wide={!canStop} />
-      {canStop && <StopTile {...props} />}
+      <div className="flex flex-wrap items-start justify-between gap-4 md:col-span-2 xl:col-span-4">
+        <CodeTile {...props} code={code} setCode={setCode} error={codeError} setError={setCodeError} />
+        {canStop && <StopTile {...props} />}
+      </div>
     </div>
   );
 }

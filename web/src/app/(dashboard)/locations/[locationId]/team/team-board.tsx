@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorCode } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState, useTransition, type FormEvent } from "react";
@@ -16,11 +15,11 @@ import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { useToast } from "@/components/ui/toast";
-import type { ActionFailure } from "@/lib/api/errors";
+
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { changeRole, inviteMember, leaveLocation, removeMember, resendInvitation, revokeInvitation } from "./actions";
-import { canManage, type InvitationState } from "./team-views";
+import { canManage, type InvitationState, inviteFailure } from "./team-views";
 
 type Member = components["schemas"]["MemberDto"] & { joinedShown: string };
 type Invitation = components["schemas"]["InvitationDto"] & { state: InvitationState; expiresInDays: number };
@@ -36,14 +35,6 @@ interface Props {
   // Null when the plan has none.
   limit: number | null;
   canInvite: boolean;
-}
-
-function inviteFailure(code: ActionFailure["code"]) {
-  if (code === ErrorCode.CONFLICT) return "alreadyThere";
-  if (code === ErrorCode.MEMBER_LIMIT_REACHED) return "full";
-  if (code === ErrorCode.LOCATION_FROZEN) return "frozen";
-  if (code === ErrorCode.RATE_LIMITED) return "tooMany";
-  return "failed";
 }
 
 export function TeamBoard({ locationId, meId, myRole, members, invitations, taken, limit, canInvite }: Props) {
@@ -175,20 +166,13 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
       </Panel>
 
       <Panel as="section" padding="lg" className="flex flex-col max-lg:order-first">
-        <p className="text-label-sm">{t("people")}</p>
-        {/* Who has joined: an invitation isn't a person here until it's accepted. */}
-        <p className="mt-1 text-[2.5rem] leading-[3rem] font-bold tracking-tight lg:text-[3.25rem] lg:leading-[3.75rem]">
-          {members.length}
-        </p>
-        {waiting > 0 && <p className="mt-0.5 text-label-sm">{t("waitingToJoin", { count: waiting })}</p>}
-        <p className="mt-0.5 text-p-sm text-muted">
-          {limit === null
-            ? t("noLimit")
-            : canInvite
-              ? t("essentielPlaces", { taken, limit })
-              : t("essentielFull", { limit })}
-        </p>
-        <div className="mt-4">
+        {waiting > 0 && <p className="mb-3 text-label-sm">{t("waitingToJoin", { count: waiting })}</p>}
+        {limit !== null && (
+          <p className="mb-4 text-p-sm text-muted">
+            {canInvite ? t("essentielPlaces", { taken, limit }) : t("essentielFull", { limit })}
+          </p>
+        )}
+        <div>
           {canInvite ? (
             <Button onClick={() => startInvite()} className="w-full">
               <Icon name="add" className="size-3.5 text-brand" />

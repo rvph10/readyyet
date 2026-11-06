@@ -163,11 +163,7 @@ export function StatusPanel({
 
       <div className="mt-4 flex min-h-24 flex-wrap items-start justify-between gap-x-4 gap-y-2 sm:min-h-12 sm:items-center lg:mt-6">
         <p className="min-w-0 flex-1 text-p-sm text-muted">
-          {canUndo
-            ? t("undoHint")
-            : ended
-              ? t(others.length > 0 ? "endedNote" : "endedForEmployee")
-              : t("customerSees")}
+          {canUndo ? t("undoHint") : ended ? t(others.length > 0 ? "endedNote" : "endedForEmployee") : null}
         </p>
         {canUndo && (
           <Button

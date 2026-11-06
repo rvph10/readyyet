@@ -72,10 +72,7 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-title-h6">{t("photos")}</h2>
-          <p className="mt-0.5 text-p-sm text-muted">{t("photosHint")}</p>
-        </div>
+        <h2 className="text-title-h6">{t("photos")}</h2>
         {canAdd && photos.length < MAX_PHOTOS && (
           <Button
             variant="secondary"

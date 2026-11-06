@@ -30,8 +30,8 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   const allowed = SETTINGS_SECTIONS.filter((section) => section !== "delete" || owner);
 
   return (
-    <>
-      <PageHeader locationId={locationId} title={t("sections.settings")} />
+    <div className="fit-screen flex flex-col gap-4 lg:gap-5">
+      <PageHeader title={t("sections.settings")} />
       <SettingsShell
         start={parseSection(search.section, allowed)}
         reviewsOff={hasPro && !location.googleReviewUrl}
@@ -50,6 +50,6 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
           ...(owner && { delete: <DeleteLocation locationId={locationId} name={location.name} /> }),
         }}
       />
-    </>
+    </div>
   );
 }

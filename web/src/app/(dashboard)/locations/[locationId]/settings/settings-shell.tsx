@@ -31,12 +31,12 @@ export function SettingsShell({ start, sections, reviewsOff }: Props) {
   const names = Object.keys(sections) as SettingsSection[];
 
   return (
-    <Panel padding="none" className="flex flex-1 flex-col overflow-clip lg:flex-row">
+    <Panel padding="none" className="flex min-h-0 flex-1 flex-col overflow-clip lg:flex-row">
       <nav
         aria-label={t("navLabel")}
         className="shrink-0 border-b border-border p-3 lg:w-64 lg:border-r lg:border-b-0 lg:p-4"
       >
-        <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] lg:sticky lg:top-5 lg:flex-col lg:overflow-visible">
+        <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] lg:flex-col lg:overflow-visible">
           {names.map((name) => (
             <li key={name} className="shrink-0">
               <Link
@@ -61,7 +61,9 @@ export function SettingsShell({ start, sections, reviewsOff }: Props) {
           ))}
         </ul>
       </nav>
-      <div className="flex min-w-0 flex-1 flex-col px-5 pt-6 lg:px-10 lg:pt-8">
+      {/* Relative, so what's absolutely placed in a form scrolls with it, rather
+          than stretching the page. */}
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col px-5 pt-6 lg:overflow-y-auto lg:px-10 lg:pt-8">
         {names.map((name) => (
           <div key={name} className={name === active ? "flex flex-1 flex-col" : "hidden"}>
             {sections[name]}

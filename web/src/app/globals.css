@@ -390,6 +390,16 @@
 }
 
 /* inline, so the utilities use next/font's variables, set on <html>. */
+/* ADR 0106: a page whose lists scroll inside their tiles, so it never scrolls
+   itself: the window less the top bar and the page's padding. Not on a phone
+   or a tablet, where tiles stack and the page has to scroll. */
+@utility fit-screen {
+  @media (width >= 64rem) {
+    height: calc(100dvh - 6.5rem);
+    min-height: 30rem;
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-figtree);
   --font-mono: var(--font-geist-mono);
