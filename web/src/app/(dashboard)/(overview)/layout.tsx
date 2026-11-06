@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AppHeader } from "@/components/app-header";
 import { getMe } from "@/lib/me";
 
-// The pages above a single Location: choosing one, and a Business's own.
+// The page for choosing a Location, above any single one.
 export default async function OverviewLayout({ children }: { children: ReactNode }) {
   const me = await getMe();
   return (

@@ -114,7 +114,13 @@ export function LocationPicker({ title, subtitle, groups, counts }: Props) {
               <section key={business.id} aria-labelledby={`business-${business.id}`} className={sectionSpans[span]}>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <h2 id={`business-${business.id}`} className="min-w-0 text-label-lg wrap-anywhere">
-                    {business.name}
+                    {owned ? (
+                      <Link href={`/businesses/${business.id}`} className="underline-offset-4 hover:underline">
+                        {business.name}
+                      </Link>
+                    ) : (
+                      business.name
+                    )}
                   </h2>
                   {owned && (
                     // Short on screen, as a Business can be one tile wide.
@@ -128,7 +134,7 @@ export function LocationPicker({ title, subtitle, groups, counts }: Props) {
                         {t("add")}
                       </Link>
                       <Link
-                        href={`/businesses/${business.id}`}
+                        href={`/businesses/${business.id}/settings`}
                         aria-label={t("businessSettings")}
                         className={buttonClass({ variant: "link" })}
                       >
