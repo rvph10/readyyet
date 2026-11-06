@@ -394,3 +394,114 @@
   --font-sans: var(--font-figtree);
   --font-mono: var(--font-geist-mono);
 }
+
+/* ADR 0094: paper falling once behind the trophy. The pieces differ by
+   position, not inline style, which the Content-Security-Policy refuses. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.confetti span {
+  position: absolute;
+  top: -12%;
+  width: 0.5rem;
+  height: 0.875rem;
+  border-radius: 0.125rem;
+  background: var(--color-brand);
+  animation: confetti-fall 2.4s cubic-bezier(0.3, 0.5, 0.5, 1) both;
+}
+.confetti span:nth-child(3n) {
+  background: var(--color-surface);
+}
+.confetti span:nth-child(4n) {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-pine-subtle);
+}
+.confetti span:nth-child(1) {
+  left: 4%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(2) {
+  left: 10%;
+  animation-delay: 0.35s;
+}
+.confetti span:nth-child(3) {
+  left: 17%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(4) {
+  left: 23%;
+  animation-delay: 0.5s;
+}
+.confetti span:nth-child(5) {
+  left: 29%;
+  animation-delay: 0.2s;
+}
+.confetti span:nth-child(6) {
+  left: 35%;
+  animation-delay: 0.65s;
+}
+.confetti span:nth-child(7) {
+  left: 41%;
+  animation-delay: 0.05s;
+}
+.confetti span:nth-child(8) {
+  left: 47%;
+  animation-delay: 0.4s;
+}
+.confetti span:nth-child(9) {
+  left: 53%;
+  animation-delay: 0.15s;
+}
+.confetti span:nth-child(10) {
+  left: 59%;
+  animation-delay: 0.55s;
+}
+.confetti span:nth-child(11) {
+  left: 65%;
+  animation-delay: 0.25s;
+}
+.confetti span:nth-child(12) {
+  left: 71%;
+  animation-delay: 0.7s;
+}
+.confetti span:nth-child(13) {
+  left: 77%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(14) {
+  left: 83%;
+  animation-delay: 0.45s;
+}
+.confetti span:nth-child(15) {
+  left: 89%;
+  animation-delay: 0.3s;
+}
+.confetti span:nth-child(16) {
+  left: 95%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(17) {
+  left: 14%;
+  animation-delay: 0.8s;
+}
+.confetti span:nth-child(18) {
+  left: 74%;
+  animation-delay: 0.9s;
+}
+@keyframes confetti-fall {
+  from {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(26rem) rotate(540deg);
+    opacity: 0;
+  }
+}

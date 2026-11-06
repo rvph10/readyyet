@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { startsAtOnce } from "../src/app/(dashboard)/locations/[locationId]/plan-prices";
+import { parsePlan, startsAtOnce } from "../src/app/(dashboard)/locations/[locationId]/plan-prices";
 
 describe("startsAtOnce", () => {
   it("follows ADR 0033's order per month", () => {
@@ -12,5 +12,14 @@ describe("startsAtOnce", () => {
     expect(startsAtOnce(proMonthly, proYearly)).toBe(false);
     expect(startsAtOnce(proYearly, essentielMonthly)).toBe(false);
     expect(startsAtOnce(essentielMonthly, essentielYearly)).toBe(false);
+  });
+});
+
+describe("parsePlan", () => {
+  it("accepts only our plans, as the value comes from a URL", () => {
+    expect(parsePlan("PRO")).toBe("PRO");
+    expect(parsePlan("ESSENTIEL")).toBe("ESSENTIEL");
+    expect(parsePlan("undefined")).toBeNull();
+    expect(parsePlan(["PRO"])).toBeNull();
   });
 });

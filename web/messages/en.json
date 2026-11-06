@@ -480,7 +480,13 @@
       "afternoon": "Good afternoon, {name}",
       "evening": "Good evening, {name}"
     },
-    "thanks": "Thank you. Your plan is set and nothing else is needed.",
+    "celebration": {
+      "title": "Welcome to {plan}",
+      "titleNoPlan": "You're all set",
+      "body": "Thank you! {location} is ready to go, and your Customers can keep following their items without calling.",
+      "firstPayment": "Nothing to pay today. Your first payment is on {date}.",
+      "action": "Back to work"
+    },
     "ready": "Ready for pickup",
     "late": "Running late",
     "dueToday": "Due today",

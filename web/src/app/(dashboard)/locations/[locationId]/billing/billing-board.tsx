@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
+import { Illustration } from "@/components/illustration";
 import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { useToast } from "@/components/ui/toast";
@@ -14,7 +15,15 @@ import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { startCheckout } from "../actions";
-import { PLAN_NAMES, PRICES, REFERRAL_DISCOUNTS, startsAtOnce, type Interval, type Plan } from "../plan-prices";
+import {
+  PLAN_FEATURES,
+  PLAN_NAMES,
+  PRICES,
+  REFERRAL_DISCOUNTS,
+  startsAtOnce,
+  type Interval,
+  type Plan,
+} from "../plan-prices";
 import { isUrgentTrial, TrialMeter } from "../trial-meter";
 import { applyPromotionCode, changePlan, openPortal, previewPromotionCode, stopPaying } from "./actions";
 
@@ -109,37 +118,58 @@ function Hero(props: Props & { checkout: (plan: Plan, interval: Interval) => voi
   return (
     <section
       aria-labelledby="billing-state"
-      className={`on-pine flex min-h-56 flex-col justify-between gap-6 rounded-sheet p-6 text-surface md:col-span-2 xl:col-span-3 ${
+      className={`on-pine flex min-h-56 items-center justify-between gap-8 rounded-sheet p-6 text-surface md:col-span-2 lg:p-8 xl:col-span-3 ${
         urgent ? "bg-danger" : "bg-pine"
       }`}
     >
-      <div>
-        <p className="text-label-sm">{t("yourPlan")}</p>
-        <h2 id="billing-state" className="mt-2 text-title-h4">
-          {title}
-        </h2>
-        {inTrial && <TrialMeter daysLeft={daysLeft} className="mt-4 h-2.5 max-w-xl" />}
-        <p className="mt-3 max-w-xl text-p-md">{body}</p>
+      <div className="flex min-w-0 flex-1 flex-col gap-6 self-stretch">
+        <div>
+          <p className="text-label-sm">{t("yourPlan")}</p>
+          <h2 id="billing-state" className="mt-2 text-title-h4">
+            {title}
+          </h2>
+          {inTrial && <TrialMeter daysLeft={daysLeft} className="mt-4 h-2.5 max-w-xl" />}
+          <p className="mt-3 max-w-xl text-p-md">{body}</p>
+          {billing.plan && !urgent && (
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {PLAN_FEATURES[billing.plan].map((feature) => (
+                <li
+                  key={feature}
+                  className="flex items-center gap-2 rounded-full bg-surface/10 px-3.5 py-2 text-label-xs"
+                >
+                  <Icon name="check" className="size-2.5 text-brand" />
+                  {t(`features.${feature}`)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {inTrial && (
+          <HeroButton urgent={urgent} busy={pending} onClick={() => checkout("PRO", "MONTH")}>
+            {tPlans("keepPro")}
+          </HeroButton>
+        )}
+        {paused && (
+          <HeroButton urgent={urgent} busy={pending} onClick={() => checkout("PRO", "MONTH")}>
+            {t("startPro")}
+          </HeroButton>
+        )}
+        {!inTrial && !paused && !pastDue && (billing.cancelAtPeriodEnd || waiting) && (
+          <HeroButton urgent={urgent} busy={undoing} onClick={keepPlan}>
+            {t("keep", { plan: plan! })}
+          </HeroButton>
+        )}
+        {pastDue && owner && (
+          <HeroButton urgent={urgent} busy={opening} onClick={updateCard}>
+            {t("updateCard")}
+          </HeroButton>
+        )}
       </div>
-      {inTrial && (
-        <HeroButton urgent={urgent} busy={pending} onClick={() => checkout("PRO", "MONTH")}>
-          {tPlans("keepPro")}
-        </HeroButton>
-      )}
-      {paused && (
-        <HeroButton urgent={urgent} busy={pending} onClick={() => checkout("PRO", "MONTH")}>
-          {t("startPro")}
-        </HeroButton>
-      )}
-      {!inTrial && !paused && !pastDue && (billing.cancelAtPeriodEnd || waiting) && (
-        <HeroButton urgent={urgent} busy={undoing} onClick={keepPlan}>
-          {t("keep", { plan: plan! })}
-        </HeroButton>
-      )}
-      {pastDue && owner && (
-        <HeroButton urgent={urgent} busy={opening} onClick={updateCard}>
-          {t("updateCard")}
-        </HeroButton>
+      {!urgent && (
+        <Illustration
+          name={inTrial ? "progress-on-pine" : "trophy-on-pine"}
+          className="hidden h-52 w-auto shrink-0 sm:block xl:h-64"
+        />
       )}
     </section>
   );
@@ -225,8 +255,6 @@ function PlanCard({
   const t = useTranslations("billing");
   const tPlans = useTranslations("plans");
   const money = useMoney();
-  const features =
-    plan === "PRO" ? (["team", "workflow", "reviews"] as const) : (["twoMembers", "defaultWorkflow"] as const);
   return (
     <article
       className={`flex flex-col gap-5 rounded-card border-2 p-5 ${highlighted ? "border-pine bg-pine-subtle" : "border-border"}`}
@@ -242,7 +270,7 @@ function PlanCard({
         </p>
       </div>
       <ul className="flex flex-col gap-2.5">
-        {features.map((feature) => (
+        {PLAN_FEATURES[plan].map((feature) => (
           <li key={feature} className="flex items-start gap-2.5 text-p-sm">
             <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-pine text-brand">
               <Icon name="check" className="size-2.5" />
@@ -588,7 +616,7 @@ export function BillingBoard(props: Props) {
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
+    <div className="grid flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
       <Hero {...props} checkout={checkout} pending={pending} />
       <PaymentTile {...props} />
       <PlansTile {...props} checkout={checkout} pending={pending} />

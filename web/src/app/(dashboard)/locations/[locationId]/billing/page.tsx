@@ -22,7 +22,7 @@ export default async function BillingPage({ params, searchParams }: PageProps<"/
   // Stripe's return comes before its webhook, so this page could still say
   // there's no plan. Today thanks them without saying anything about the plan.
   if (search.checkout === "success") {
-    redirect(`/locations/${locationId}?checkout=success`);
+    redirect(`/locations/${locationId}?checkout=success&plan=${String(search.plan)}`);
   }
   const [billing, daysLeft, { timeZone }] = await Promise.all([
     getBilling(locationId),

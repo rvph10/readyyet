@@ -1,7 +1,16 @@
 export type Plan = "PRO" | "ESSENTIEL";
 export type Interval = "MONTH" | "YEAR";
 
+export function parsePlan(value: unknown): Plan | null {
+  return value === "PRO" || value === "ESSENTIEL" ? value : null;
+}
+
 export const PLAN_NAMES: Record<Plan, string> = { PRO: "Pro", ESSENTIEL: "Essentiel" };
+
+export const PLAN_FEATURES = {
+  PRO: ["team", "workflow", "reviews"],
+  ESSENTIEL: ["twoMembers", "defaultWorkflow"],
+} as const;
 
 // ADR 0031, excluding VAT.
 export const PRICES: Record<Plan, Record<Interval, number>> = {

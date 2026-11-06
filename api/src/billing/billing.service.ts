@@ -117,7 +117,7 @@ export class BillingService {
         billing_address_collection: "required",
         tax_id_collection: { enabled: true },
         customer_update: { name: "auto", address: "auto" },
-        success_url: `${billingPage}?checkout=success`,
+        success_url: `${billingPage}?checkout=success&plan=${dto.plan}`,
         cancel_url: billingPage,
       })
       .catch(refusedPromotionCode);

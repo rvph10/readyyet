@@ -480,7 +480,13 @@
       "afternoon": "Bonjour, {name}",
       "evening": "Bonsoir, {name}"
     },
-    "thanks": "Merci. Votre plan est en place, il n'y a rien d'autre à faire.",
+    "celebration": {
+      "title": "Bienvenue sur {plan}",
+      "titleNoPlan": "Tout est prêt",
+      "body": "Merci ! {location} est prêt, et vos clients peuvent continuer à suivre leurs articles sans téléphoner.",
+      "firstPayment": "Rien à payer aujourd'hui. Votre premier paiement aura lieu le {date}.",
+      "action": "Retour au travail"
+    },
     "ready": "Prêts à être retirés",
     "late": "En retard",
     "dueToday": "Pour aujourd'hui",

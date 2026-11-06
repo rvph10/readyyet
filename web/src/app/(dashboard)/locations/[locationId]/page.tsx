@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { statusTone } from "@/components/status-pill";
-import { Banner } from "@/components/ui/banner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
@@ -15,15 +14,17 @@ import { pageData } from "@/lib/api/errors";
 import { addDays } from "@/lib/calendar-grid";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
-import { getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
+import { getBilling, getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
 import { ComingUp } from "./overview/coming-up";
 import { FirstTicket } from "./overview/first-ticket";
 import { NeedsYou } from "./overview/needs-you";
+import { PlanCelebration } from "./overview/plan-celebration";
 import { WeekChart } from "./overview/week-chart";
 import { PageHeader } from "./page-header";
+import { parsePlan } from "./plan-prices";
 import { isManager } from "./sections";
 import { QueueHeader, TicketRow } from "./tickets/ticket-row";
-import { daysBetween, expected, LONG_WAIT_DAYS, parseFilter, type Filter } from "./tickets/ticket-views";
+import { daysBetween, expected, intlLocale, LONG_WAIT_DAYS, parseFilter, type Filter } from "./tickets/ticket-views";
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
@@ -105,6 +106,10 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
 
   const now = new Date();
   const { timeZone } = location;
+  // The webhook can still be on its way, but the trial's end doesn't change
+  // with it: a plan chosen during the trial is first charged on that day.
+  const billing = manager && search.checkout === "success" ? await getBilling(locationId) : null;
+  const trialEnd = billing?.trialEndsAt ? new Date(billing.trialEndsAt) : null;
   const today = calendarDateIn(now, timeZone);
   const { counts, tickets, steps, handedOver } = overview;
   const date = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : locale, {
@@ -120,14 +125,25 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
       subtitle={date.charAt(0).toUpperCase() + date.slice(1)}
     />
   );
-  const thanks = search.checkout === "success" && <Banner>{t("thanks")}</Banner>;
+  const celebration = search.checkout === "success" && (
+    <PlanCelebration
+      locationId={locationId}
+      locationName={location.name}
+      plan={parsePlan(search.plan)}
+      firstPayment={
+        trialEnd && trialEnd > now
+          ? new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone }).format(trialEnd)
+          : null
+      }
+    />
+  );
 
   const handedThisWeek = handedOver.days.some(({ count }) => count > 0) || handedOver.previousWeek > 0;
   if (counts.open === 0 && !handedThisWeek) {
     return (
       <>
         {header}
-        {thanks}
+        {celebration}
         <FirstTicket />
       </>
     );
@@ -183,7 +199,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       {header}
-      {thanks}
+      {celebration}
       <div className="grid grid-cols-2 gap-3 lg:gap-5 xl:grid-cols-4">
         <Stat
           href={`${filterHref("ready")}#open-tickets`}
@@ -246,7 +262,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
         id="open-tickets"
         aria-labelledby="open-tickets-title"
         padding="none"
-        className="scroll-mt-4 overflow-clip"
+        className="flex flex-1 scroll-mt-4 flex-col overflow-clip"
       >
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
           <h2 id="open-tickets-title" className="text-title-h6">
@@ -284,7 +300,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
         ) : (
           <EmptyState illustration="chill" title={t("noneHere")} description={t("noneHereHint")} />
         )}
-        <div className="flex justify-center border-t border-border p-3">
+        <div className="mt-auto flex justify-center border-t border-border p-3">
           <Link
             href={`/locations/${locationId}/tickets?view=all`}
             className={buttonClass({ variant: "secondary", size: "sm" })}
