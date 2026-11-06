@@ -2,16 +2,25 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
-import { Button } from "./button";
 import { Icon } from "./icon";
 
-// How long the button says "Copied" before it offers to copy again.
+// How long the button shows its check before it offers to copy again.
 const COPIED_FOR_MS = 2000;
 
-// ADR 0059: a value to hand on, like a Ticket's tracking link, read-only in
-// a field with a Copy button inside it. Clicking the field selects it all,
-// so it can still be copied by hand where the clipboard is refused.
-export function CopyField({ label, value, className }: { label: string; value: string; className?: string }) {
+interface Props {
+  label: string;
+  value: string;
+  // What's read on screen when it differs from what's copied.
+  shown?: string;
+  // For a code, where telling O from 0 matters.
+  mono?: boolean;
+  className?: string;
+}
+
+// ADR 0090: a value to hand on, its label over it on a soft fill, with a round
+// button that turns lime with a check once copied. Clicking the value selects
+// it all, so it can still be copied by hand where the clipboard is refused.
+export function CopyField({ label, value, shown, mono, className }: Props) {
   const t = useTranslations("common");
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -33,24 +42,31 @@ export function CopyField({ label, value, className }: { label: string; value: s
   }
 
   return (
-    <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-label-sm">
-        {label}
-      </label>
-      <div className="relative">
+    <div className={`flex items-center gap-2 rounded-2xl bg-subtle py-2 pr-2 pl-3.5 ${className ?? ""}`}>
+      <div className="min-w-0 flex-1">
+        <label htmlFor={id} className="block text-p-xs text-muted">
+          {label}
+        </label>
         <input
           ref={input}
           id={id}
           readOnly
-          value={value}
+          value={shown ?? value}
           onFocus={(event) => event.target.select()}
-          className="h-12 w-full truncate rounded-xl border border-border bg-subtle pr-28 pl-4 font-mono text-p-sm text-ink transition hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 focus-visible:outline-none"
+          className={`w-full truncate bg-transparent text-ink focus-visible:outline-none ${mono ? "font-mono text-label-xs font-semibold" : "text-label-sm"}`}
         />
-        <Button variant="secondary" size="sm" onClick={() => void copy()} className="absolute top-2 right-2">
-          <Icon name={copied ? "check" : "link"} className="size-3" />
-          {copied ? t("copied") : t("copy")}
-        </Button>
       </div>
+      <button
+        type="button"
+        onClick={() => void copy()}
+        aria-label={`${t("copy")}: ${label}`}
+        title={t("copy")}
+        className={`flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-[background-color,scale] active:scale-[0.97] ${
+          copied ? "bg-brand text-ink" : "border border-border-strong bg-surface text-ink hover:bg-canvas"
+        }`}
+      >
+        <Icon name={copied ? "check" : "clone"} className="size-3.5" />
+      </button>
       <p aria-live="polite" className="sr-only">
         {copied ? t("copied") : ""}
       </p>

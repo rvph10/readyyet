@@ -7,7 +7,7 @@ export function ErrorMessage({ title, children }: { title: string; children: Rea
   return (
     <main className="flex min-h-dvh items-center justify-center p-4">
       <Panel padding="lg" className="flex w-full max-w-md flex-col gap-3 md:p-8">
-        <h1 className="font-display text-title-h4">{title}</h1>
+        <h1 className="text-title-h4">{title}</h1>
         {children}
       </Panel>
     </main>

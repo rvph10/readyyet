@@ -1,5 +1,7 @@
-// The six tones of ADR 0042, coloured by ADR 0061. Every operational Status
-// not named here is work happening, so that's the fallback.
+import { Icon, type IconName } from "./ui/icon";
+
+// The six tones of ADR 0042. Every operational Status not named here is work
+// happening, so that's the fallback.
 const RECEIVED = ["RECEIVED", "INSPECTING", "DIAGNOSING", "QUOTE_PREPARED"];
 const WAITING = [
   "AWAITING_APPROVAL",
@@ -21,30 +23,51 @@ export function statusTone(code: string): StatusTone {
   return "working";
 }
 
-// ADR 0061: white pills whose dot carries the tone, so a list stays calm and
-// READY, the only lime fill, is what stands out. COMPLETED is greyed, done.
-const pills: Record<StatusTone, { pill: string; dot: string }> = {
-  received: { pill: "border border-border bg-surface text-ink", dot: "bg-status-received" },
-  working: { pill: "border border-border bg-surface text-ink", dot: "bg-status-working" },
-  waiting: { pill: "border border-border bg-surface text-ink", dot: "bg-status-waiting" },
-  ready: { pill: "border border-brand bg-brand text-ink", dot: "bg-ink" },
-  completed: { pill: "border border-border bg-subtle text-muted", dot: "bg-muted" },
-  stopped: { pill: "border border-border bg-surface text-ink", dot: "bg-status-stopped" },
+export const toneIcons: Record<StatusTone, IconName> = {
+  received: "inbox",
+  working: "settings",
+  waiting: "time",
+  ready: "check",
+  completed: "check",
+  stopped: "ban",
 };
 
+// ADR 0087: a tint and an icon for the kind of state, so it reads at a glance
+// and without colour. READY is the only lime.
+const tints: Record<StatusTone, string> = {
+  received: "bg-info-subtle text-info",
+  working: "bg-pine-subtle text-pine",
+  waiting: "bg-warning-subtle text-warning",
+  ready: "bg-brand text-ink",
+  completed: "bg-subtle text-muted",
+  stopped: "bg-danger-subtle text-danger",
+};
+
+const dots: Record<StatusTone, string> = {
+  received: "bg-status-received",
+  working: "bg-status-working",
+  waiting: "bg-status-waiting",
+  ready: "bg-ink",
+  completed: "bg-muted",
+  stopped: "bg-status-stopped",
+};
+
+// The tracking page's marker beside its big Status.
 export function statusDotClass(code: string) {
-  return pills[statusTone(code)].dot;
+  return dots[statusTone(code)];
 }
 
 // A Ticket's Status, by its code for the colour and its translated label.
 export function StatusPill({ code, label }: { code: string; label: string }) {
-  const { pill, dot } = pills[statusTone(code)];
+  const tone = statusTone(code);
   return (
     <span
-      className={`inline-flex min-h-6 max-w-full items-center gap-1.5 rounded-xl py-0.5 pr-2.5 pl-2 text-label-xs ${pill}`}
+      className={`inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-xl px-2.5 py-1 text-label-xs font-semibold ${tints[tone]}`}
     >
-      <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${dot}`} />
-      <span className="min-w-0 wrap-anywhere">{label}</span>
+      <Icon name={toneIcons[tone]} className="size-3 shrink-0" />
+      <span title={label} className="min-w-0 truncate">
+        {label}
+      </span>
     </span>
   );
 }

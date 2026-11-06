@@ -50,7 +50,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
         )
       }
     >
-      <h1 className="font-display text-label-xl md:text-title-h4">
+      <h1 className="text-label-xl md:text-title-h4">
         {t(low ? "ratingLowTitle" : high ? "ratingHighTitle" : "ratingTitle")}
       </h1>
       <p className="mt-1 text-p-sm wrap-anywhere text-muted">{title}</p>

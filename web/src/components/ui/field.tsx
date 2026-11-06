@@ -27,7 +27,7 @@ export function characterCount(value: unknown, maxLength: number | undefined) {
 // ADR 0049 and 0053: 48px controls with their own error under them. Forms set
 // noValidate and show their errors here, not in the browser's bubbles, which
 // follow the browser's language rather than the page's and can't be styled.
-function controlClass(error: string | null | undefined) {
+export function controlClass(error: string | null | undefined) {
   return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
     error
       ? "border-danger focus:ring-3 focus:ring-danger/15"

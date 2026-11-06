@@ -47,12 +47,12 @@ export async function StatusHero({ tracking, locale, now }: Props) {
 
   return (
     <section
-      className={`rounded-3xl p-6 md:p-8 ${ready ? "bg-brand" : "bg-surface shadow-panel"}`}
+      className={`rounded-3xl p-6 md:p-8 ${ready ? "bg-brand" : "border border-border bg-surface"}`}
       aria-labelledby="status-title"
     >
       <h1
         id="status-title"
-        className={`font-display wrap-anywhere ${ready ? "text-title-h3 md:text-title-h1" : "text-title-h4 md:text-title-h3"}`}
+        className={`wrap-anywhere ${ready ? "text-title-h3 md:text-title-h1" : "text-title-h4 md:text-title-h3"}`}
       >
         {!ready && (
           <span

@@ -10,7 +10,7 @@ import { Tooltip } from "./ui/tooltip";
 // An icon in a page's header, a labelled button where it's the page's action.
 // Red, since it ends the session, and the pack's icon mirrored so its arrow
 // leaves the door rather than entering it (ADR 0064).
-export function SignOutButton({ labelled = false }: { labelled?: boolean }) {
+export function SignOutButton({ labelled = false, row = false }: { labelled?: boolean; row?: boolean }) {
   const t = useTranslations("dashboard");
   const router = useRouter();
 
@@ -19,6 +19,18 @@ export function SignOutButton({ labelled = false }: { labelled?: boolean }) {
     router.replace("/sign-in");
   }
 
+  if (row) {
+    return (
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-label-sm text-danger transition-colors hover:bg-danger-subtle"
+      >
+        <Icon name="sign-out" className="size-4 -scale-x-100" />
+        {t("signOut")}
+      </button>
+    );
+  }
   if (labelled) {
     return (
       <Button variant="danger-secondary" onClick={() => void signOut()}>

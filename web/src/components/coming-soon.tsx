@@ -5,13 +5,13 @@ import { Panel } from "./ui/panel";
 
 // Where a page of the dashboard isn't built yet, so the navigation around it
 // can be used, and an email's link leads somewhere, until it is.
-export function ComingSoon({ title, children }: { title: string; children?: ReactNode }) {
+export function ComingSoon({ title, children }: { title?: string; children?: ReactNode }) {
   const t = useTranslations("dashboard");
   return (
     <>
-      <h1 className="font-display text-label-xl wrap-anywhere md:text-title-h4">{title}</h1>
+      {title && <h1 className="text-title-h5 wrap-anywhere md:text-title-h4">{title}</h1>}
       <Panel padding="none">
-        <EmptyState icon="inbox" title={t("comingSoonTitle")} description={t("comingSoon")} action={children} />
+        <EmptyState icon="time" title={t("comingSoonTitle")} description={t("comingSoon")} action={children} />
       </Panel>
     </>
   );

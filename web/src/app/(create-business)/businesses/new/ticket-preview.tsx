@@ -47,7 +47,7 @@ function Workflow({ steps }: { steps: WorkflowStep[] }) {
   const { index, fading } = usePlayback(steps.length, paused);
   return (
     <div onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
-      <h3 className="font-display text-title-h4">{steps[index].label}</h3>
+      <h3 className="text-title-h4">{steps[index].label}</h3>
       <Blank className="mt-3 w-44" />
       <div className={`mt-6 transition-opacity duration-400 ${fading ? "opacity-0" : ""}`}>
         <WorkflowSteps steps={steps} currentCode={steps[index].code} />
@@ -125,7 +125,7 @@ export function TicketPreview({
           )}
         </div>
       </header>
-      <section className="rounded-3xl bg-surface p-6 shadow-panel">
+      <section className="rounded-sheet border border-border bg-surface p-6">
         <Blank className="mb-4 w-28" />
         {businessType ? (
           // Keyed by type, so a new choice starts from the first step.
@@ -145,7 +145,7 @@ export function TicketPreview({
           </>
         )}
       </section>
-      <section className="space-y-3 rounded-3xl bg-surface p-6 shadow-panel">
+      <section className="space-y-3 rounded-sheet border border-border bg-surface p-6">
         <h3 className="text-label-md">{t("previewContact")}</h3>
         <p className="flex items-center gap-3 text-p-sm">
           <Icon name="phone" className="size-3.5 shrink-0 text-muted" />

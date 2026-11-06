@@ -18,7 +18,7 @@ export function TrackingSkeleton() {
       </header>
       <TrackingColumns>
         <TrackingColumn>
-          <div className="rounded-3xl bg-surface p-6 shadow-panel md:p-8">
+          <div className="rounded-sheet border border-border bg-surface p-6 md:p-8">
             <Skeleton className="h-10 w-64 max-w-full md:h-12" />
             <Skeleton className="mt-3 h-5 w-80 max-w-full" />
             <Skeleton className="mt-5 h-4 w-52 max-w-full" />

@@ -276,7 +276,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
           {/* Both steps take the first's height at least, so their buttons
               stay in the same place from one to the other. */}
           <div className="mx-auto flex w-full max-w-md flex-col lg:min-h-152">
-            <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
+            <h1 className="mb-6 text-title-h4">{t("title")}</h1>
             {form}
           </div>
         </main>

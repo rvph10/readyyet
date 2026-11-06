@@ -22,7 +22,7 @@ export default async function ChooseLocationPage() {
 
   return (
     <>
-      <h1 className="font-display text-label-xl md:text-title-h4">{t("chooseLocation")}</h1>
+      <h1 className="text-label-xl md:text-title-h4">{t("chooseLocation")}</h1>
       {groupByBusiness(memberships).map(({ business, memberships: group, owned }) => (
         <section key={business.id} aria-labelledby={`business-${business.id}`}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
@@ -40,7 +40,7 @@ export default async function ChooseLocationPage() {
               <li key={location.id}>
                 <Link
                   href={`/locations/${location.id}`}
-                  className="flex h-full items-center gap-3 rounded-2xl bg-surface p-4 shadow-panel transition-colors hover:bg-subtle"
+                  className="flex h-full items-center gap-3 rounded-card border border-border bg-surface p-4 transition-colors hover:bg-subtle"
                 >
                   <Avatar id={business.id} name={business.name} src={business.logoUrl} shape="square" />
                   <span className="min-w-0 flex-1">
