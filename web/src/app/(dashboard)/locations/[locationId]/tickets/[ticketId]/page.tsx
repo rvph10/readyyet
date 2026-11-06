@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PhoneNumber } from "@/components/phone-number";
 import { QrCode } from "@/components/qr-code";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
+import { WorkflowTrack } from "@/components/workflow-track";
 import { StatusPill } from "@/components/status-pill";
 import { Avatar } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
@@ -21,7 +22,6 @@ import { StatusPanel } from "./status-panel";
 import { TicketDetails } from "./ticket-details";
 import { TicketPhotos } from "./ticket-photos";
 import { TrackingPanel } from "./tracking-panel";
-import { WorkflowTrack } from "./workflow-track";
 
 // Colleagues move Tickets too, and a photo's address expires after 15 minutes.
 const REFRESH_EVERY_MS = 60 * 1000;

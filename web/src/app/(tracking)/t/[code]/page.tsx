@@ -10,7 +10,7 @@ import { LocationPanel } from "./location-panel";
 import { StatusHero } from "./status-hero";
 import { journey, momentFormatter } from "./tracking";
 import { getTracking, openInTicketLanguage } from "./tracking-data";
-import { TrackingColumn, TrackingColumns, TrackingGrid } from "./tracking-grid";
+import { TrackingBento, TrackingGrid } from "./tracking-grid";
 
 // A Customer leaves this page open and comes back to it hours later. Inside the
 // 15 minutes a photo's presigned URL works (ADR 0026), and rare enough for the
@@ -36,29 +36,6 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
   const { location, currentStatus, photos } = tracking;
   const formatMoment = momentFormatter(location.timeZone, locale, now, (time) => t("todayAt", { time }));
   const ready = currentStatus.code === "READY" && !tracking.customerCollectedAt;
-  // The Location's panel alone would be a short one beside a tall column, so on a
-  // large screen it joins the Status, opposite the progress.
-  const sparse = photos.length === 0 && location.openingHours.length === 0;
-
-  // Whichever ends a column takes up what's left, so both end on one line.
-  const progress = (
-    <Panel as="section" padding="lg" aria-labelledby="progress-title" className="order-3 flex flex-col lg:flex-1">
-      <h2 id="progress-title" className="mb-5 text-label-lg">
-        {t("progress")}
-      </h2>
-      <JourneySteps steps={journey(tracking, locale, formatMoment)} currentCode={currentStatus.code} />
-    </Panel>
-  );
-  // An item that's ready raises "where and when" first, so on a phone the Location
-  // comes right after the Status.
-  const locationPanel = (
-    <LocationPanel
-      location={location}
-      locale={locale}
-      now={now}
-      className={`${ready ? "order-2" : "order-5"} lg:order-none ${photos.length === 0 ? "lg:flex-1" : ""}`}
-    />
-  );
 
   return (
     <TrackingGrid>
@@ -67,31 +44,49 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
         <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="lg" />
         <p className="min-w-0 text-label-md text-balance wrap-anywhere">{location.name}</p>
       </header>
-      <TrackingColumns>
-        <TrackingColumn>
-          <div className="order-1 lg:order-none">
-            <StatusHero tracking={tracking} locale={locale} now={now} />
+      <TrackingBento photos={photos.length > 0}>
+        <StatusHero tracking={tracking} locale={locale} now={now} className="order-1 lg:order-none" />
+        {/* An item that's ready raises "where and when" first, so on a phone
+            the Location comes right after the Status. */}
+        <LocationPanel
+          location={location}
+          locale={locale}
+          now={now}
+          className={`${ready ? "order-2" : "order-5"} lg:order-none ${photos.length > 0 ? "lg:row-span-3" : "lg:row-span-2"}`}
+        />
+        <Panel
+          as="section"
+          padding="lg"
+          aria-labelledby="progress-title"
+          className="order-3 flex flex-col lg:order-none lg:col-span-2"
+        >
+          <h2 id="progress-title" className="mb-6 text-title-h6">
+            {t("progress")}
+          </h2>
+          <div className="my-auto flex flex-col">
+            <JourneySteps steps={journey(tracking, locale, formatMoment)} currentCode={currentStatus.code} />
           </div>
-          {sparse ? locationPanel : progress}
-        </TrackingColumn>
-        <TrackingColumn>
-          {sparse ? progress : locationPanel}
-          {photos.length > 0 && (
-            <Panel as="section" padding="lg" aria-labelledby="photos-title" className="order-4 lg:order-none lg:flex-1">
-              <h2 id="photos-title" className="mb-4 text-label-lg">
-                {t("photos")}
-              </h2>
-              <Photos
-                photos={photos.map((photo, index) => ({
-                  url: photo.url,
-                  alt: t("photoAlt", { number: index + 1 }),
-                  caption: t("photoCaption", { date: formatMoment(String(photo.createdAt)) }),
-                }))}
-              />
-            </Panel>
-          )}
-        </TrackingColumn>
-      </TrackingColumns>
+        </Panel>
+        {photos.length > 0 && (
+          <Panel
+            as="section"
+            padding="lg"
+            aria-labelledby="photos-title"
+            className="order-4 lg:order-none lg:col-span-2"
+          >
+            <h2 id="photos-title" className="mb-4 text-title-h6">
+              {t("photos")}
+            </h2>
+            <Photos
+              photos={photos.map((photo, index) => ({
+                url: photo.url,
+                alt: t("photoAlt", { number: index + 1 }),
+                caption: t("photoCaption", { date: formatMoment(String(photo.createdAt)) }),
+              }))}
+            />
+          </Panel>
+        )}
+      </TrackingBento>
     </TrackingGrid>
   );
 }

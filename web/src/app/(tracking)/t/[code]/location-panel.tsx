@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 // Not the package's main entry, whose class component can't load on the server.
 import { formatPhoneNumberIntl } from "react-phone-number-input/input";
+import { Illustration } from "@/components/illustration";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { openingState, weekHours, type Tracking } from "./tracking";
@@ -59,7 +60,7 @@ export async function LocationPanel({ location, locale, now, className }: Props)
 
   return (
     <Panel as="aside" padding="lg" aria-labelledby="location-title" className={`flex flex-col ${className}`}>
-      <h2 id="location-title" className="mb-3 text-label-lg">
+      <h2 id="location-title" className="mb-3 text-title-h6">
         {t("location")}
       </h2>
       <div className="flex flex-1 flex-col gap-1">
@@ -88,6 +89,9 @@ export async function LocationPanel({ location, locale, now, className }: Props)
             </div>
           </>
         )}
+        {/* Without hours the tile would be a tall blank between its title and
+            the contact rows. */}
+        {!state && <Illustration name="helping" className="m-auto hidden h-56 w-auto max-w-full lg:block" />}
         {/* Together at the bottom, whatever height a longer column leaves. */}
         <div className="flex flex-col gap-1 lg:mt-auto">
           {address && mapsUrl && (

@@ -1,15 +1,11 @@
 import { isEndedStatus } from "@readyyet/shared";
-import { statusTone, toneIcons } from "@/components/status-pill";
-import { Icon } from "@/components/ui/icon";
-
-interface Step {
-  code: string;
-  label: string;
-}
+import { statusTone, toneIcons } from "./status-pill";
+import { Icon } from "./ui/icon";
+import type { WorkflowStep } from "./workflow-steps";
 
 interface Props {
   // The path to READY, in order.
-  steps: Step[];
+  steps: WorkflowStep[];
   currentCode: string;
   // Where a stopped Ticket got to.
   reachedCode: string | null;
@@ -81,6 +77,7 @@ export function WorkflowTrack({ steps, currentCode, reachedCode, label }: Props)
               className={`min-w-0 pt-2 text-label-xs wrap-anywhere md:px-1 md:pt-0 ${current ? "font-bold" : done ? "font-semibold" : "text-muted"}`}
             >
               {step.label}
+              {step.at && <span className="block text-p-xs font-normal text-muted">{step.at}</span>}
             </span>
           </li>
         );
