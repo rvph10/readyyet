@@ -37,3 +37,8 @@ export function locationStep(t: (key: Message) => string) {
     }),
   });
 }
+
+// A later Location's own form, on one page: the same fields, without the Business.
+export function newLocation(t: (key: Message) => string) {
+  return z.object({ ...businessStep(t).shape.location.shape, ...locationStep(t).shape.location.shape });
+}
