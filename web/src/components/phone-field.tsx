@@ -88,6 +88,8 @@ function CountrySelect({
 
 interface Props {
   label: string;
+  // For a row that already shows what the field is for.
+  hideLabel?: boolean;
   value: string;
   onChange: (value: string) => void;
   defaultCountry: Country;
@@ -97,12 +99,12 @@ interface Props {
 // Always gives the international format the API's @IsPhoneNumber accepts
 // (ADR 0047). Drawn like a Field, the library's box outlined and ringed as an
 // input is.
-export function PhoneField({ label, value, onChange, defaultCountry, error }: Props) {
+export function PhoneField({ label, hideLabel, value, onChange, defaultCountry, error }: Props) {
   const t = useTranslations("common");
   const locale = useLocale() as keyof typeof LABELS;
   const id = useId();
   return (
-    <FieldFrame id={id} label={label} error={error}>
+    <FieldFrame id={id} label={label} hideLabel={hideLabel} error={error}>
       <PhoneInput
         value={value}
         onChange={(phone) => onChange(phone ?? "")}
