@@ -73,8 +73,8 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-label-lg">{t("photos")}</h2>
-          <p className="mt-0.5 text-p-xs text-muted">{t("photosHint")}</p>
+          <h2 className="text-title-h6">{t("photos")}</h2>
+          <p className="mt-0.5 text-p-sm text-muted">{t("photosHint")}</p>
         </div>
         {canAdd && photos.length < MAX_PHOTOS && (
           <Button
@@ -124,7 +124,7 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
                   type="button"
                   onClick={() => setDeleting(photo)}
                   aria-label={t("deletePhoto", { number: index + 1 })}
-                  className="absolute top-1.5 right-1.5 flex size-9 cursor-pointer items-center justify-center rounded-full bg-surface text-ink shadow-float transition-colors hover:bg-canvas"
+                  className="absolute top-1.5 right-1.5 flex size-9 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-ink transition-colors hover:bg-canvas"
                 >
                   <Icon name="delete" className="size-3" />
                 </button>
@@ -133,7 +133,7 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
           ))}
         </ul>
       ) : (
-        <p className="text-p-sm text-muted">{canAdd ? t("noPhotos") : t("noPhotosExpired")}</p>
+        !canAdd && <p className="text-p-sm text-muted">{t("noPhotosExpired")}</p>
       )}
       <Dialog
         open={viewing !== null}
