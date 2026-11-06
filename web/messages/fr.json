@@ -59,7 +59,7 @@
         },
         {
           "title": "Une liste pour votre équipe",
-          "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque établissement."
+          "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque magasin."
         }
       ]
     },
@@ -73,17 +73,13 @@
   "dashboard": {
     "signOut": "Se déconnecter",
     "loading": "Chargement",
-    "chooseLocation": "Choisissez un établissement",
-    "businessSettings": "Réglages de l'entreprise",
-    "businessOverview": "Vue d'ensemble de l'entreprise",
-    "add": "Ajouter",
-    "addLocation": "Ajouter un établissement",
-    "searchLocations": "Rechercher un établissement",
-    "noLocationFound": "Aucun établissement trouvé",
+    "chooseLocation": "Choisissez un magasin",
+    "addLocation": "Ajouter un magasin",
+    "searchLocations": "Rechercher un magasin",
+    "noLocationFound": "Aucun magasin trouvé",
     "noLocationFoundHint": "Essayez un autre nom ou effacez la recherche.",
     "countsUnavailable": "Chiffres indisponibles pour le moment",
-    "allLocations": "Tous les établissements",
-    "switchLocation": "{location}, changer d'établissement",
+    "switchLocation": "{location}, changer de magasin",
     "navigation": "Navigation",
     "manage": "Gérer",
     "roles": {
@@ -104,7 +100,10 @@
     "language": "Langue",
     "more": "Plus",
     "collapseSidebar": "Réduire le menu",
-    "expandSidebar": "Développer le menu"
+    "expandSidebar": "Développer le menu",
+    "youAreHere": "Vous êtes ici",
+    "switchBusiness": "{business}, changer d'entreprise",
+    "switchBusinessLabel": "Entreprises"
   },
   "tickets": {
     "title": "Tickets",
@@ -190,7 +189,7 @@
       "notesTooLong": "5000 caractères maximum.",
       "datePast": "Choisissez aujourd'hui ou une date ultérieure.",
       "invalid": "Vérifiez ce champ.",
-      "frozen": "Les nouveaux tickets sont suspendus dans cet établissement car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
+      "frozen": "Les nouveaux tickets sont suspendus dans ce magasin car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
@@ -219,7 +218,7 @@
     "name": "Nom de l'entreprise",
     "nameHint": "Votre entreprise dans son ensemble. Si vous avez plusieurs magasins, ils sont tous regroupés sous ce nom.",
     "namePlaceholder": "Ex. : Atelier Dupont",
-    "locationName": "Nom de l'établissement",
+    "locationName": "Nom du magasin",
     "locationNameHint": "Le magasin où vos clients déposent leurs objets, affiché sur leur page de suivi. Si vous en avez plusieurs, vous ajouterez les autres plus tard.",
     "locationNamePlaceholder": "Ex. : {name} Ixelles",
     "businessType": "Type d'activité",
@@ -232,14 +231,14 @@
     "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
     "stepOf": "Étape {step} sur {steps}",
     "stepBusiness": "Entreprise",
-    "stepLocation": "Établissement",
+    "stepLocation": "Magasin",
     "next": "Suivant",
     "back": "Retour",
     "phoneInvalid": "Entrez un numéro de téléphone valide.",
     "contactEmailHint": "Visible par vos clients, pour qu'ils puissent vous joindre.",
     "nameMissing": "Entrez le nom de votre entreprise.",
     "businessTypeMissing": "Choisissez un type d'activité.",
-    "locationNameMissing": "Entrez le nom de votre établissement.",
+    "locationNameMissing": "Entrez le nom de votre magasin.",
     "emailInvalid": "Entrez un e-mail valide, comme nom@exemple.be.",
     "creating": "Création…",
     "previewTitle": "Ce que verront vos clients",
@@ -287,7 +286,7 @@
     "codeHint": "Pour répondre, vous vous connecterez avec un code envoyé à {email}."
   },
   "common": {
-    "home": "Vos établissements",
+    "home": "Vos magasins",
     "close": "Fermer",
     "stepDone": "terminé",
     "clearSearch": "Effacer la recherche",
@@ -409,7 +408,6 @@
     "notes": "Notes pour votre équipe",
     "noNotes": "Pas encore de notes",
     "photos": "Photos",
-    "photosHint": "Le client les voit sur sa page de suivi.",
     "addPhoto": "Ajouter une photo",
     "uploading": "Envoi…",
     "noPhotosExpired": "Aucune photo, et le lien de suivi de ce ticket a expiré.",
@@ -463,7 +461,6 @@
     "backToWork": "Reprendre le travail",
     "cancelledHint": "Le client a renoncé",
     "rejectedHint": "Le travail est impossible",
-    "customerSees": "Le client le voit sur sa page de suivi.",
     "stopTitle": "Marquer ce ticket comme {status} ?",
     "stopHint": "Le client le voit sur sa page de suivi et reçoit un email.",
     "keepGoing": "Le garder ouvert",
@@ -542,7 +539,8 @@
     },
     "comingUp": "À venir",
     "nothingDue": "Rien de prévu",
-    "vsLastWeek": "vs la semaine passée"
+    "vsLastWeek": "vs la semaine passée",
+    "nothingComing": "Rien de prévu ces prochains jours"
   },
   "plans": {
     "title": "Gardez ReadyYet actif",
@@ -558,7 +556,7 @@
     "essentiel": "2 membres d'équipe et le workflow par défaut",
     "toPayment": "Continuer vers le paiement",
     "opening": "Ouverture…",
-    "perLocation": "Par site, hors TVA. Sans plan, les nouveaux tickets s'arrêtent à la fin de l'essai. Les liens de suivi restent actifs.",
+    "perLocation": "Par magasin. Sans plan, les nouveaux tickets s'arrêtent à la fin de l'essai. Les liens de suivi restent actifs.",
     "errors": {
       "tooManyMembers": "Essentiel permet 2 membres d'équipe. Retirez-en d'abord, ou choisissez Pro.",
       "unexpected": "La page de paiement ne s'est pas ouverte. Veuillez réessayer."
@@ -582,7 +580,7 @@
     "stoppingTitle": "{plan} s'arrête le {date}",
     "stoppingBody": "Vous gardez tout jusque-là. Ensuite, les nouveaux tickets sont en pause et les liens de suivi restent actifs.",
     "waitingBody": "Vous passez à {plan} à {price} le {date}.",
-    "activeBody": "{price}, par site, hors TVA.",
+    "activeBody": "{price}, par magasin.",
     "keep": "Garder {plan}",
     "kept": "Vous restez sur {plan}",
     "updateCard": "Mettre la carte à jour",
@@ -601,7 +599,7 @@
     "moveTo": "Passer à {plan}",
     "payYearly": "Payer à l'année",
     "payMonthly": "Payer au mois",
-    "bothPlans": "Les deux plans incluent les tickets illimités, la page de suivi, les e-mails aux clients, les photos et les rappels. Par site, hors TVA.",
+    "bothPlans": "Les deux plans incluent les tickets illimités, la page de suivi, les e-mails aux clients, les photos et les rappels. Par magasin.",
     "features": {
       "team": "Membres d'équipe illimités",
       "workflow": "Votre propre workflow personnalisé",
@@ -627,8 +625,6 @@
     "codePreview": "Votre prochaine facture passe de {now} à {withCode}. Cela remplace toute réduction en cours.",
     "applyCode": "Appliquer le code",
     "codeApplied": "Votre code s'applique dès la prochaine facture",
-    "stopTitle": "Arrêter de payer",
-    "stopHint": "Vous gardez tout jusqu'au {date}.",
     "stopAction": "Arrêter de payer",
     "stopConfirmTitle": "Arrêter de payer pour ce site ?",
     "stopConfirmBody": "Vous gardez tout jusqu'au {date}. Ensuite, les nouveaux tickets sont en pause et les liens de suivi restent actifs. Choisissez un plan à tout moment, rien n'est perdu.",
@@ -643,11 +639,11 @@
     "startPro": "Démarrer Pro, 49 €/mois",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
-    "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}."
+    "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
+    "haveCode": "Vous avez un code promo ?"
   },
   "feedback": {
-    "pageTitle": "Avis privés des clients",
-    "pageSubtitle": "Lisez le message d'un client, ouvrez son ticket pour le recontacter, puis marquez son retour comme traité.",
+    "pageTitle": "Avis",
     "viewsLabel": "État des retours",
     "views": {
       "waiting": "À traiter",
@@ -659,7 +655,6 @@
     "messageTitle": "Message du client",
     "ticketFollowUp": "Contactez le client depuis son ticket.",
     "openTicket": "Ouvrir le ticket",
-    "handleHint": "Après avoir recontacté le client, marquez ce retour comme traité. Il restera accessible dans Traités.",
     "markHandled": "Marquer comme traité",
     "marking": "Enregistrement…",
     "moved": "Déplacé dans Traités",
@@ -680,13 +675,13 @@
       "plan": {
         "title": "Les avis privés sont inclus dans Pro",
         "description": "Avec Pro, chaque client est invité à dire comment ça s'est passé après avoir récupéré son article, et ce qu'il vous dit en privé arrive ici.",
-        "notice": "Cet établissement n'est plus sur Pro : les clients ne peuvent plus envoyer de nouveaux avis. Ceux déjà reçus restent ici.",
+        "notice": "Ce magasin n'est plus sur Pro : les clients ne peuvent plus envoyer de nouveaux avis. Ceux déjà reçus restent ici.",
         "action": "Voir les plans"
       },
       "reviewLink": {
         "title": "Vos clients ne sont pas encore sollicités",
-        "description": "Les clients sont invités à donner leur avis dès que cet établissement a son lien d'avis Google. Ajoutez-le dans les réglages pour commencer à les lire.",
-        "notice": "Les clients ne sont pas invités à donner leur avis : cet établissement n'a pas de lien d'avis Google.",
+        "description": "Les clients sont invités à donner leur avis dès que ce magasin a son lien d'avis Google. Ajoutez-le dans les réglages pour commencer à les lire.",
+        "notice": "Les clients ne sont pas invités à donner leur avis : ce magasin n'a pas de lien d'avis Google.",
         "action": "Aller aux réglages"
       }
     }
@@ -733,19 +728,17 @@
   },
   "team": {
     "members": "Membres",
-    "people": "Personnes dans cet établissement",
     "you": "Vous",
     "joined": "Arrivé le {date}",
     "manage": "Gérer",
     "leave": "Quitter",
     "close": "Fermer",
-    "noLimit": "Votre plan ne limite pas la taille de votre équipe.",
     "essentielPlaces": "{taken} places sur {limit} prises avec Essentiel, invitations comprises.",
     "essentielFull": "Les {limit} places d'Essentiel sont prises, invitations comprises. Passez à Pro pour une équipe plus grande.",
     "invite": "Inviter quelqu'un",
     "movePro": "Passer à Pro",
     "seePlans": "Voir les plans",
-    "frozen": "Cet établissement n'a pas de plan actif : vous ne pouvez inviter personne. Votre équipe garde l'accès à ce qui existe déjà.",
+    "frozen": "Ce magasin n'a pas de plan actif : vous ne pouvez inviter personne. Votre équipe garde l'accès à ce qui existe déjà.",
     "invitations": "Invitations",
     "noInvitations": "Aucune invitation en attente",
     "noInvitationsHint": "Les personnes invitées apparaissent ici jusqu'à leur réponse.",
@@ -769,18 +762,18 @@
       "ADMIN": "Gère aussi les avis, la facturation, le workflow, les réglages et les employés."
     },
     "roleChanged": "Rôle modifié.",
-    "removeTitle": "Retirer de cet établissement",
+    "removeTitle": "Retirer de ce magasin",
     "removeHint": "Cette personne perd l'accès immédiatement. Ses tickets et modifications restent.",
     "removeAction": "Retirer",
     "removeConfirmTitle": "Retirer {name} ?",
-    "removeConfirmBody": "Cette personne perd l'accès à cet établissement immédiatement. Ses tickets et modifications restent. Vous pourrez l'inviter à nouveau plus tard.",
-    "removed": "Retiré de cet établissement.",
-    "leaveTitle": "Quitter cet établissement ?",
+    "removeConfirmBody": "Cette personne perd l'accès à ce magasin immédiatement. Ses tickets et modifications restent. Vous pourrez l'inviter à nouveau plus tard.",
+    "removed": "Retiré de ce magasin.",
+    "leaveTitle": "Quitter ce magasin ?",
     "leaveBody": "Vous perdez l'accès immédiatement. Pour revenir, il vous faudra une nouvelle invitation.",
     "errors": {
       "alreadyThere": "Cette personne fait déjà partie de l'équipe, ou a déjà une invitation en attente.",
       "full": "Votre plan n'a plus de place pour une autre personne. Passez à Pro pour une équipe plus grande.",
-      "frozen": "Cet établissement n'a pas de plan actif : vous ne pouvez inviter personne.",
+      "frozen": "Ce magasin n'a pas de plan actif : vous ne pouvez inviter personne.",
       "tooMany": "Trop d'invitations pour le moment. Attendez une minute, puis réessayez.",
       "failed": "Cela n'a pas fonctionné. Veuillez réessayer."
     },
@@ -790,9 +783,9 @@
     "saveFailed": "Vos modifications n'ont pas été enregistrées. Veuillez réessayer.",
     "seePlans": "Voir les plans",
     "shopTitle": "Votre atelier",
-    "name": "Nom de l'établissement",
-    "phone": "Téléphone de l'établissement",
-    "email": "E-mail de l'établissement",
+    "name": "Nom du magasin",
+    "phone": "Téléphone du magasin",
+    "email": "E-mail du magasin",
     "street": "Rue et numéro",
     "postalCode": "Code postal",
     "city": "Ville",
@@ -801,8 +794,8 @@
     "language": "Langue par défaut des clients",
     "languageHint": "Leurs e-mails et leur page de suivi sont dans cette langue, sauf si vous en choisissez une autre pour un client.",
     "timeZone": "Fuseau horaire",
-    "timeZoneHint": "Choisissez celui de votre établissement. Les dates, les horaires et les e-mails de rappel suivent cette heure.",
-    "nameMissing": "Indiquez le nom de l'établissement.",
+    "timeZoneHint": "Choisissez celui de votre magasin. Les dates, les horaires et les e-mails de rappel suivent cette heure.",
+    "nameMissing": "Indiquez le nom du magasin.",
     "tooLong": "C'est trop long.",
     "phoneInvalid": "Indiquez un numéro de téléphone valide.",
     "emailInvalid": "Indiquez un e-mail valide, comme nom@exemple.be.",
@@ -831,17 +824,17 @@
     "turnaroundUnsetTitle": "Aucune date de fin par défaut",
     "turnaroundUnsetHint": "Choisissez une date lors de la création de chaque ticket.",
     "turnaroundInvalid": "Indiquez un nombre entier de 1 à 60, ou laissez vide.",
-    "deleteTitle": "Supprimer cet établissement",
-    "deleteAction": "Supprimer l'établissement",
+    "deleteTitle": "Supprimer ce magasin",
+    "deleteAction": "Supprimer le magasin",
     "deleteConfirmTitle": "Supprimer {name} ?",
     "deleteConfirmBody": "Ses liens de suivi cessent de fonctionner, ses photos sont supprimées, son plan est annulé immédiatement et toute son équipe perd l'accès. C'est irréversible.",
     "deleteType": "Tapez {name} pour confirmer",
     "deleteConfirm": "Supprimer définitivement",
     "deleting": "Suppression…",
-    "deleteFailed": "L'établissement n'a pas été supprimé. Veuillez réessayer.",
+    "deleteFailed": "Le magasin n'a pas été supprimé. Veuillez réessayer.",
     "navLabel": "Sections des réglages",
     "nav": {
-      "shop": "Votre établissement",
+      "shop": "Votre magasin",
       "hours": "Horaires d'ouverture",
       "tickets": "Tickets",
       "reviews": "Avis Google",
@@ -866,19 +859,18 @@
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
     "reviewGuideTitle": "Où trouver mon lien ?",
     "reviewPasteTitle": "Collez votre lien d'avis Google",
-    "reviewPasteHint": "Collez le lien copié depuis votre fiche d'établissement Google, puis sélectionnez Enregistrer ci-dessous. Vos clients l'utiliseront pour laisser un avis.",
-    "reviewStep1": "Ouvrez votre fiche d'établissement Google, avec le compte qui la gère.",
+    "reviewPasteHint": "Collez le lien copié depuis votre fiche de magasin Google, puis sélectionnez Enregistrer ci-dessous. Vos clients l'utiliseront pour laisser un avis.",
+    "reviewStep1": "Ouvrez votre fiche de magasin Google, avec le compte qui la gère.",
     "reviewStep2": "Sélectionnez « Voir les avis », puis « Recevoir plus d'avis ».",
     "reviewStep3": "Sélectionnez « Copier », puis collez le lien ci-dessous.",
     "reviewComputer": "C'est plus simple sur un ordinateur.",
-    "reviewOpenProfile": "Ouvrir ma fiche d'établissement",
+    "reviewOpenProfile": "Ouvrir ma fiche de magasin",
     "reviewGoogleGuide": "Voir le guide de Google",
     "reviewTest": "Tester le lien",
-    "reviewTestHint": "Il doit ouvrir la page d'avis de votre propre établissement."
+    "reviewTestHint": "Il doit ouvrir la page d'avis de votre propre magasin."
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",
-    "pathHint": "Chaque ticket suit ces étapes. Ajoutez celles que vous faites vraiment, et mettez-les dans l'ordre.",
     "pathDefault": "Vos tickets suivent le parcours habituel pour : {type}.",
     "firstNote": "Chaque ticket commence ici",
     "readyNote": "Envoie un e-mail au client pour dire que c'est prêt",
@@ -886,7 +878,7 @@
     "emails": "Envoie un e-mail au client",
     "emailsShort": "E-mail",
     "stoppedNote": "À chaque étape, un ticket peut aussi se terminer par {cancelled} ou {rejected}.",
-    "openTicketsNote": "Les tickets déjà ouverts gardent leurs étapes. Seuls les nouveaux tickets suivent ce parcours.",
+    "openTicketsNote": "Nouveaux tickets uniquement. Ceux en cours gardent leurs étapes.",
     "moveUp": "Monter {step}",
     "moveDown": "Descendre {step}",
     "remove": "Retirer {step}",
@@ -910,14 +902,12 @@
     "proHint": "Avec Pro, vous choisissez les étapes que voient vos clients, dans votre ordre."
   },
   "business": {
-    "locationCount": "{count, plural, =0 {Aucun établissement} one {# établissement} other {# établissements}}",
-    "monthlyCost": "Coût mensuel",
+    "locationCount": "{count, plural, =0 {Aucun magasin} one {# magasin} other {# magasins}}",
     "nav": {
-      "overview": "Vue d'ensemble",
+      "locations": "Magasins",
+      "team": "Équipe",
       "billing": "Facturation",
-      "settings": "Réglages",
-      "locations": "Établissements",
-      "add": "Ajouter"
+      "settings": "Réglages"
     },
     "plan": {
       "trial": "{days, plural, one {Essai, # jour restant} other {Essai, # jours restants}}",
@@ -927,68 +917,33 @@
       "changing": "Changement de formule"
     },
     "overview": {
-      "open": "En cours",
-      "ready": "Prêts",
-      "late": "En retard",
-      "location": "Établissement",
-      "plan": "Formule",
-      "noNumber": "n/d",
-      "unavailable": "Chiffres indisponibles pour le moment",
-      "summary": "{open} en cours, {ready} prêts, {late} en retard",
-      "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque établissement a ses propres tickets, son équipe et sa formule.",
-      "noneReady": "Rien en attente",
-      "noneLate": "Tout est à l'heure",
-      "noneOpen": "Aucun ticket en magasin",
-      "mostAt": "Surtout à {location}",
-      "paying": "{paying} payants sur {total}"
-    },
-    "attention": {
-      "title": "À traiter",
-      "paused": "Les nouveaux tickets sont en pause",
-      "failed": "Un paiement a échoué",
-      "trial": "{count, plural, one {L'essai se termine demain} other {L'essai se termine dans # jours}}",
-      "late": "{count, plural, one {# ticket en retard} other {# tickets en retard}}",
-      "feedback": "{count, plural, one {# avis privé à lire} other {# avis privés à lire}}",
-      "clearTitle": "Rien à traiter",
-      "clearHint": "Tous les établissements tournent et aucun ticket n'est en retard."
+      "location": "Magasin",
+      "plan": "Formule"
     },
     "billing": {
-      "listPrice": "Prix catalogue, avant remise",
       "nextPayment": "Prochain paiement",
       "nothingDue": "Rien à payer",
-      "locations": "Formules par établissement",
+      "locations": "Formules par magasin",
       "renewsOn": "Renouvellement le {date}",
       "stopsOn": "S'arrête le {date}",
       "trialEnds": "Fin le {date}",
       "choosePlan": "Choisir une formule",
       "fixPayment": "Régler le paiement",
       "manage": "Gérer la formule",
-      "cardsTitle": "Paiement",
-      "cardsHint": "Votre carte et toutes vos factures, sur la page sécurisée de Stripe.",
-      "cardsNone": "Votre carte et vos factures seront ici dès qu'un établissement aura une formule.",
-      "inviteTitle": "Invitez un magasin, gagnez un mois",
-      "inviteHint": "Quand un magasin invité paie sa première facture, votre entreprise reçoit un mois de sa formule en crédit.",
-      "inviteLink": "Votre lien d'invitation",
       "pausedHint": "Nouveaux tickets en pause",
       "failedHint": "Mettez la carte à jour",
-      "mix": "Formules par établissement",
-      "noPlan": "Pas encore de formule",
       "price": "Prix",
       "nothingDueHint": "Aucun renouvellement prévu"
     },
     "newLocation": {
       "subtitle": "Un nouveau magasin de {business}",
       "nameHint": "Le magasin où vos clients déposent leurs objets, affiché sur leur page de suivi.",
-      "planNotice": "Chaque établissement a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
+      "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",
       "submit": "Créer et choisir une formule"
     },
     "settings": {
-      "detailsTitle": "Informations de l'entreprise",
-      "detailsHint": "Affichées sur chaque établissement, pour votre équipe et vos clients.",
       "name": "Nom de l'entreprise",
-      "nameHint": "Votre entreprise dans son ensemble, au-dessus de ses établissements.",
       "saved": "Nom de l'entreprise enregistré",
       "failed": "Le nom n'a pas été enregistré. Réessayez.",
       "logo": "Logo",
@@ -999,15 +954,42 @@
       "logoSaved": "Logo mis à jour",
       "logoFailed": "Le logo n'a pas été enregistré. Essayez une autre image.",
       "transferTitle": "Transférer la propriété",
-      "transferHint": "Confiez l'entreprise à l'un de vos admins. Il ou elle devient propriétaire de chaque établissement et vous restez admin.",
       "transferTo": "Nouveau propriétaire",
-      "transferNoAdmin": "Seul un admin peut reprendre l'entreprise. Nommez d'abord quelqu'un admin sur la page Équipe d'un établissement.",
-      "transferAction": "Transférer la propriété",
-      "transferConfirmTitle": "Faire de {name} le propriétaire ?",
+      "transferAction": "Transférer cette entreprise",
       "transferConfirmBody": "{business} et sa facturation lui sont transférées, et vous ne pourrez pas annuler vous-même. Vous restez admin, sans accès à ces pages.",
-      "transferConfirm": "Oui, transférer",
+      "transferConfirm": "Transférer",
       "transferring": "Transfert…",
       "transferFailed": "Le transfert n'a pas abouti. Réessayez."
+    },
+    "home": {
+      "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
+      "seeBilling": "Voir la facturation",
+      "emptyTitle": "Ajoutez votre premier magasin",
+      "emptyHint": "Chaque magasin a ses propres tickets, son équipe et sa formule."
+    },
+    "team": {
+      "people": "{count, plural, one {# personne} other {# personnes}}",
+      "person": "Personne",
+      "worksAt": "Travaille à",
+      "ownerEverywhere": "Propriétaire de chaque magasin",
+      "manageAt": "Gérer sur la page Équipe de {location}",
+      "more": "{count} de plus",
+      "whichLocations": "Quels magasins ?",
+      "pickLocation": "Choisissez au moins un magasin.",
+      "blocked": {
+        "frozen": "Pas de formule active",
+        "full": "Plus de place sur Essentiel"
+      }
+    },
+    "invite": {
+      "action": "Inviter une entreprise",
+      "title": "Invitez un magasin, gagnez un mois",
+      "link": "Votre lien d'invitation",
+      "steps": {
+        "share": "Envoyez votre lien à un autre magasin.",
+        "they": "Il reçoit un demi-mois offert sur sa première facture.",
+        "you": "Vous recevez un mois de sa formule en crédit."
+      }
     }
   }
 }

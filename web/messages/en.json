@@ -59,7 +59,7 @@
         },
         {
           "title": "One list for your team",
-          "text": "Everyone at the counter sees the same Tickets, at every Location."
+          "text": "Everyone at the counter sees the same Tickets, at every shop."
         }
       ]
     },
@@ -73,17 +73,13 @@
   "dashboard": {
     "signOut": "Sign out",
     "loading": "Loading",
-    "chooseLocation": "Choose a Location",
-    "businessSettings": "Business settings",
-    "businessOverview": "Business overview",
-    "add": "Add",
-    "addLocation": "Add a Location",
-    "searchLocations": "Search Locations",
-    "noLocationFound": "No Location found",
+    "chooseLocation": "Choose a shop",
+    "addLocation": "Add a shop",
+    "searchLocations": "Search shops",
+    "noLocationFound": "No shop found",
     "noLocationFoundHint": "Try another name, or clear the search.",
     "countsUnavailable": "Numbers unavailable right now",
-    "allLocations": "All Locations",
-    "switchLocation": "{location}, switch Location",
+    "switchLocation": "{location}, switch shop",
     "navigation": "Navigation",
     "manage": "Manage",
     "roles": {
@@ -104,7 +100,10 @@
     "language": "Language",
     "more": "More",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "youAreHere": "You are here",
+    "switchBusiness": "{business}, switch Business",
+    "switchBusinessLabel": "Businesses"
   },
   "tickets": {
     "title": "Tickets",
@@ -190,7 +189,7 @@
       "notesTooLong": "Keep it to 5000 characters.",
       "datePast": "Choose today or a later date.",
       "invalid": "Check this field.",
-      "frozen": "New Tickets are paused at this Location because its plan has ended. An Owner or Admin can restart it under Billing.",
+      "frozen": "New Tickets are paused at this shop because its plan has ended. An Owner or Admin can restart it under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
@@ -219,7 +218,7 @@
     "name": "Business name",
     "nameHint": "Your company as a whole. If you have several shops, they all go under this one name.",
     "namePlaceholder": "e.g. Atelier Dupont",
-    "locationName": "Location name",
+    "locationName": "Shop name",
     "locationNameHint": "The shop your customers bring their items to, shown on their tracking page. With several shops, you'll add the others later.",
     "locationNamePlaceholder": "e.g. {name} Ixelles",
     "businessType": "Type of business",
@@ -232,14 +231,14 @@
     "unexpected": "Something went wrong. Please try again.",
     "stepOf": "Step {step} of {steps}",
     "stepBusiness": "Business",
-    "stepLocation": "Location",
+    "stepLocation": "Shop",
     "next": "Next",
     "back": "Back",
     "phoneInvalid": "Enter a valid phone number.",
     "contactEmailHint": "Shown to your customers, so they can reach you.",
     "nameMissing": "Enter your Business's name.",
     "businessTypeMissing": "Choose a type of business.",
-    "locationNameMissing": "Enter your Location's name.",
+    "locationNameMissing": "Enter your shop's name.",
     "emailInvalid": "Enter a valid email, like name@example.be.",
     "creating": "Creating…",
     "previewTitle": "What your customers will see",
@@ -287,7 +286,7 @@
     "codeHint": "To answer, you'll sign in with a code sent to {email}."
   },
   "common": {
-    "home": "Your Locations",
+    "home": "Your shops",
     "close": "Close",
     "stepDone": "done",
     "clearSearch": "Clear the search",
@@ -409,7 +408,6 @@
     "notes": "Notes for your team",
     "noNotes": "No notes yet",
     "photos": "Photos",
-    "photosHint": "The Customer sees these on their tracking page.",
     "addPhoto": "Add photo",
     "uploading": "Uploading…",
     "noPhotosExpired": "No photos, and this Ticket's tracking link has expired.",
@@ -463,7 +461,6 @@
     "backToWork": "Back to work",
     "cancelledHint": "The Customer backed out",
     "rejectedHint": "The job can't be done",
-    "customerSees": "The Customer sees this on their tracking page.",
     "stopTitle": "Mark this Ticket {status}?",
     "stopHint": "The Customer sees this on their tracking page and gets an email.",
     "keepGoing": "Keep it open",
@@ -542,7 +539,8 @@
     },
     "comingUp": "Coming up",
     "nothingDue": "Nothing due",
-    "vsLastWeek": "vs last week"
+    "vsLastWeek": "vs last week",
+    "nothingComing": "Nothing due in the next days"
   },
   "plans": {
     "title": "Keep ReadyYet running",
@@ -558,7 +556,7 @@
     "essentiel": "2 team members and the default Workflow",
     "toPayment": "Continue to payment",
     "opening": "Opening…",
-    "perLocation": "Per Location, VAT excluded. Without a plan, new Tickets stop when the trial ends. Tracking links keep working.",
+    "perLocation": "Per shop. Without a plan, new Tickets stop when the trial ends. Tracking links keep working.",
     "errors": {
       "tooManyMembers": "Essentiel allows 2 team members. Remove some first, or choose Pro.",
       "unexpected": "The payment page didn't open. Please try again."
@@ -577,19 +575,19 @@
     "pausedTitle": "New Tickets are paused",
     "pausedBody": "Choose a plan to start again. Nothing is lost, open Tickets keep moving and tracking links keep working.",
     "pastDueTitle": "Your last payment failed",
-    "pastDueBody": "Stripe keeps trying for up to 2 weeks and your Location keeps working. Update the card so it doesn't stop.",
-    "pastDueBodyAdmin": "Stripe keeps trying for up to 2 weeks and your Location keeps working. Ask the Owner to update the card.",
+    "pastDueBody": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Update the card so it doesn't stop.",
+    "pastDueBodyAdmin": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Ask the Owner to update the card.",
     "stoppingTitle": "{plan} stops on {date}",
     "stoppingBody": "You keep everything until then. After that, new Tickets pause and tracking links keep working.",
     "waitingBody": "You move to {plan} at {price} on {date}.",
-    "activeBody": "{price}, per Location, VAT excluded.",
+    "activeBody": "{price}, per shop.",
     "keep": "Keep {plan}",
     "kept": "You're staying on {plan}",
     "updateCard": "Update the card",
     "nextPayment": "Next payment",
     "nothingDue": "Nothing due",
     "noCardYet": "No card needed until you choose a plan.",
-    "noMorePayments": "No more payments on this Location.",
+    "noMorePayments": "No more payments on this shop.",
     "cardsAndInvoices": "Cards and invoices",
     "opening": "Opening…",
     "ownerOnlyInvoices": "Only the Owner can see cards and invoices.",
@@ -601,7 +599,7 @@
     "moveTo": "Move to {plan}",
     "payYearly": "Pay yearly",
     "payMonthly": "Pay monthly",
-    "bothPlans": "Both plans include unlimited Tickets, the tracking page, Customer emails, photos and reminders. Per Location, VAT excluded.",
+    "bothPlans": "Both plans include unlimited Tickets, the tracking page, Customer emails, photos and reminders. Per shop.",
     "features": {
       "team": "Unlimited team members",
       "workflow": "Your own custom Workflow",
@@ -627,10 +625,8 @@
     "codePreview": "Your next invoice goes from {now} to {withCode}. This replaces any discount running now.",
     "applyCode": "Apply the code",
     "codeApplied": "Your code is applied from the next invoice",
-    "stopTitle": "Stop paying",
-    "stopHint": "You keep everything until {date}.",
     "stopAction": "Stop paying",
-    "stopConfirmTitle": "Stop paying for this Location?",
+    "stopConfirmTitle": "Stop paying for this shop?",
     "stopConfirmBody": "You keep everything until {date}. After that, new Tickets pause and tracking links keep working. Choose a plan again at any time and nothing is lost.",
     "stopped": "Payments stop on {date}",
     "errors": {
@@ -638,16 +634,16 @@
       "portal": "Stripe's page didn't open. Please try again.",
       "badCode": "This code doesn't exist, has expired or doesn't apply here.",
       "cardDeclined": "The payment for this change failed. Update the card and try again.",
-      "alreadyPaying": "This Location already has a plan. Refresh the page in a moment."
+      "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
-    "intervalLaterBody": "Nothing changes until {date}, then you pay {price}."
+    "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
+    "haveCode": "Have a promotion code?"
   },
   "feedback": {
-    "pageTitle": "Private Customer feedback",
-    "pageSubtitle": "Read a Customer's message, open their Ticket to follow up, then mark it handled.",
+    "pageTitle": "Feedback",
     "viewsLabel": "Feedback status",
     "views": {
       "waiting": "Needs follow-up",
@@ -659,7 +655,6 @@
     "messageTitle": "Customer's message",
     "ticketFollowUp": "Contact the Customer from their Ticket.",
     "openTicket": "Open Ticket",
-    "handleHint": "After you follow up, mark this Feedback handled. It will stay available in Handled.",
     "markHandled": "Mark handled",
     "marking": "Marking…",
     "moved": "Moved to Handled",
@@ -680,13 +675,13 @@
       "plan": {
         "title": "Private feedback comes with Pro",
         "description": "On Pro, each Customer is asked how it went after collecting their item, and what they tell you privately lands here.",
-        "notice": "This Location is no longer on Pro, so Customers can't send new feedback. What they already sent stays here.",
+        "notice": "This shop is no longer on Pro, so Customers can't send new feedback. What they already sent stays here.",
         "action": "See plans"
       },
       "reviewLink": {
         "title": "Customers aren't being asked yet",
-        "description": "Customers are asked how it went once this Location has its Google review link. Add it in Settings to start hearing from them.",
-        "notice": "Customers aren't being asked for feedback, as this Location has no Google review link.",
+        "description": "Customers are asked how it went once this shop has its Google review link. Add it in Settings to start hearing from them.",
+        "notice": "Customers aren't being asked for feedback, as this shop has no Google review link.",
         "action": "Go to Settings"
       }
     }
@@ -733,19 +728,17 @@
   },
   "team": {
     "members": "Members",
-    "people": "People at this Location",
     "you": "You",
     "joined": "Joined {date}",
     "manage": "Manage",
     "leave": "Leave",
     "close": "Close",
-    "noLimit": "Your plan has no limit on your team.",
     "essentielPlaces": "{taken} of {limit} places taken on Essentiel, invitations included.",
     "essentielFull": "All {limit} places on Essentiel are taken, invitations included. Move to Pro for a bigger team.",
     "invite": "Invite someone",
     "movePro": "Move to Pro",
     "seePlans": "See plans",
-    "frozen": "This Location has no active plan, so you can't invite anyone. Your team keeps its access to what's already here.",
+    "frozen": "This shop has no active plan, so you can't invite anyone. Your team keeps its access to what's already here.",
     "invitations": "Invitations",
     "noInvitations": "No invitations waiting",
     "noInvitationsHint": "Whoever you invite shows here until they answer.",
@@ -769,18 +762,18 @@
       "ADMIN": "Also manages Feedback, Billing, Workflow, Settings and Employees."
     },
     "roleChanged": "Role changed.",
-    "removeTitle": "Remove from this Location",
+    "removeTitle": "Remove from this shop",
     "removeHint": "They lose access at once. The Tickets and changes they made stay.",
     "removeAction": "Remove",
     "removeConfirmTitle": "Remove {name}?",
-    "removeConfirmBody": "They lose access to this Location at once. The Tickets and changes they made stay. You can invite them again later.",
-    "removed": "Removed from this Location.",
-    "leaveTitle": "Leave this Location?",
+    "removeConfirmBody": "They lose access to this shop at once. The Tickets and changes they made stay. You can invite them again later.",
+    "removed": "Removed from this shop.",
+    "leaveTitle": "Leave this shop?",
     "leaveBody": "You lose access at once. To come back, you'd need a new invitation.",
     "errors": {
       "alreadyThere": "This person is already on the team, or already has an invitation waiting.",
       "full": "Your plan has no room left for another person. Move to Pro for a bigger team.",
-      "frozen": "This Location has no active plan, so you can't invite anyone.",
+      "frozen": "This shop has no active plan, so you can't invite anyone.",
       "tooMany": "Too many invitations just now. Wait a minute, then try again.",
       "failed": "That didn't work. Please try again."
     },
@@ -790,7 +783,7 @@
     "saveFailed": "Your changes weren't saved. Please try again.",
     "seePlans": "See plans",
     "shopTitle": "Your shop",
-    "name": "Location name",
+    "name": "Shop name",
     "phone": "Shop phone",
     "email": "Shop email",
     "street": "Street and number",
@@ -802,7 +795,7 @@
     "languageHint": "Their emails and tracking page use this language, unless you choose another one for a Customer.",
     "timeZone": "Time zone",
     "timeZoneHint": "Choose the one where your shop is. Dates, opening hours and reminder emails follow this clock.",
-    "nameMissing": "Enter the Location's name.",
+    "nameMissing": "Enter the shop's name.",
     "tooLong": "That's too long.",
     "phoneInvalid": "Enter a valid phone number.",
     "emailInvalid": "Enter a valid email, like name@example.be.",
@@ -831,14 +824,14 @@
     "turnaroundUnsetTitle": "No default ready date",
     "turnaroundUnsetHint": "Choose a date when you create each Ticket.",
     "turnaroundInvalid": "Enter a whole number from 1 to 60, or leave it empty.",
-    "deleteTitle": "Delete this Location",
-    "deleteAction": "Delete Location",
+    "deleteTitle": "Delete this shop",
+    "deleteAction": "Delete shop",
     "deleteConfirmTitle": "Delete {name}?",
     "deleteConfirmBody": "Its tracking links stop working, its photos are deleted, its plan is cancelled at once and everyone on its team loses access. This can't be undone.",
     "deleteType": "Type {name} to confirm",
     "deleteConfirm": "Delete for good",
     "deleting": "Deleting…",
-    "deleteFailed": "The Location wasn't deleted. Please try again.",
+    "deleteFailed": "The shop wasn't deleted. Please try again.",
     "navLabel": "Settings sections",
     "nav": {
       "shop": "Your shop",
@@ -878,7 +871,6 @@
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",
-    "pathHint": "Every Ticket follows these steps. Add the ones your shop really goes through, and put them in order.",
     "pathDefault": "Your Tickets follow the usual path for: {type}.",
     "firstNote": "Every Ticket starts here",
     "readyNote": "Emails the Customer that it's ready",
@@ -886,7 +878,7 @@
     "emails": "Emails the Customer",
     "emailsShort": "Email",
     "stoppedNote": "At any step, a Ticket can also end as {cancelled} or {rejected}.",
-    "openTicketsNote": "Tickets already open keep the steps they started with. Only new Tickets follow this.",
+    "openTicketsNote": "New Tickets only. Open ones keep their steps.",
     "moveUp": "Move {step} up",
     "moveDown": "Move {step} down",
     "remove": "Remove {step}",
@@ -910,14 +902,12 @@
     "proHint": "With Pro, you choose the steps your Customers see and put them in your order."
   },
   "business": {
-    "locationCount": "{count, plural, =0 {No Locations yet} one {# Location} other {# Locations}}",
-    "monthlyCost": "Monthly cost",
+    "locationCount": "{count, plural, =0 {No shops yet} one {# shop} other {# shops}}",
     "nav": {
-      "overview": "Overview",
+      "locations": "Shops",
+      "team": "Team",
       "billing": "Billing",
-      "settings": "Settings",
-      "locations": "Locations",
-      "add": "Add a Location"
+      "settings": "Settings"
     },
     "plan": {
       "trial": "{days, plural, one {Trial, # day left} other {Trial, # days left}}",
@@ -927,68 +917,33 @@
       "changing": "Changing plan"
     },
     "overview": {
-      "open": "Open",
-      "ready": "Ready",
-      "late": "Late",
-      "location": "Location",
-      "plan": "Plan",
-      "noNumber": "n/a",
-      "unavailable": "Numbers unavailable right now",
-      "summary": "{open} open, {ready} ready, {late} late",
-      "emptyTitle": "Add your first shop",
-      "emptyHint": "Each Location gets its own Tickets, team and plan.",
-      "noneReady": "Nothing waiting",
-      "noneLate": "All on time",
-      "noneOpen": "No Tickets in the shops",
-      "mostAt": "Most at {location}",
-      "paying": "{paying} of {total} paying"
-    },
-    "attention": {
-      "title": "Needs you",
-      "paused": "New Tickets are paused",
-      "failed": "A payment failed",
-      "trial": "{count, plural, one {Trial ends tomorrow} other {Trial ends in # days}}",
-      "late": "{count, plural, one {# Ticket is late} other {# Tickets are late}}",
-      "feedback": "{count, plural, one {# private feedback to read} other {# private feedbacks to read}}",
-      "clearTitle": "Nothing needs you",
-      "clearHint": "Every Location is running and no Ticket is late."
+      "location": "Shop",
+      "plan": "Plan"
     },
     "billing": {
-      "listPrice": "List prices, before discounts",
       "nextPayment": "Next payment",
       "nothingDue": "Nothing due",
-      "locations": "Plans by Location",
+      "locations": "Plans by shop",
       "renewsOn": "Renews {date}",
       "stopsOn": "Stops {date}",
       "trialEnds": "Ends {date}",
       "choosePlan": "Choose a plan",
       "fixPayment": "Fix payment",
       "manage": "Manage plan",
-      "cardsTitle": "Payment details",
-      "cardsHint": "Your card and every invoice, on Stripe's secure page.",
-      "cardsNone": "Your card and invoices will be here once a Location has a plan.",
-      "inviteTitle": "Invite a shop, earn a month",
-      "inviteHint": "When a shop you invite pays its first invoice, your Business gets one month of their plan as credit.",
-      "inviteLink": "Your invitation link",
       "pausedHint": "New Tickets paused",
       "failedHint": "Update the card",
-      "mix": "Plans by Location",
-      "noPlan": "No plan yet",
       "price": "Price",
-      "nothingDueHint": "No Location renews soon"
+      "nothingDueHint": "No shop renews soon"
     },
     "newLocation": {
       "subtitle": "A new shop under {business}",
       "nameHint": "The shop your customers bring their items to, shown on their tracking page.",
-      "planNotice": "Each Location has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
+      "planNotice": "Each shop has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
       "cancel": "Cancel",
       "submit": "Create and choose a plan"
     },
     "settings": {
-      "detailsTitle": "Business details",
-      "detailsHint": "Shown on every Location, to your team and your customers.",
       "name": "Business name",
-      "nameHint": "Your company as a whole, above its Locations.",
       "saved": "Business name saved",
       "failed": "The name wasn't saved. Please try again.",
       "logo": "Logo",
@@ -999,15 +954,42 @@
       "logoSaved": "Logo updated",
       "logoFailed": "The logo wasn't saved. Try another image.",
       "transferTitle": "Transfer ownership",
-      "transferHint": "Hand the Business to one of your Admins. They become Owner of every Location and you stay on as Admin.",
       "transferTo": "New Owner",
-      "transferNoAdmin": "Only an Admin can take over. Make someone Admin on a Location's Team page first.",
-      "transferAction": "Transfer ownership",
-      "transferConfirmTitle": "Make {name} the Owner?",
+      "transferAction": "Transfer this Business",
       "transferConfirmBody": "{business} and its billing move to them, and you can't undo this yourself. You'll stay on as Admin, without access to these pages.",
-      "transferConfirm": "Yes, transfer",
+      "transferConfirm": "Transfer",
       "transferring": "Transferring…",
       "transferFailed": "The transfer didn't go through. Please try again."
+    },
+    "home": {
+      "stopped": "{count, plural, one {# shop can't take new Tickets, or has a failed payment.} other {# shops can't take new Tickets, or have a failed payment.}}",
+      "seeBilling": "See billing",
+      "emptyTitle": "Add your first shop",
+      "emptyHint": "Each shop gets its own Tickets, team and plan."
+    },
+    "team": {
+      "people": "{count, plural, one {# person} other {# people}}",
+      "person": "Person",
+      "worksAt": "Works at",
+      "ownerEverywhere": "Owner of every shop",
+      "manageAt": "Manage on {location}'s Team page",
+      "more": "{count} more",
+      "whichLocations": "Which shops?",
+      "pickLocation": "Choose at least one shop.",
+      "blocked": {
+        "frozen": "No active plan",
+        "full": "No place left on Essentiel"
+      }
+    },
+    "invite": {
+      "action": "Invite a business",
+      "title": "Invite a shop, earn a month",
+      "link": "Your invitation link",
+      "steps": {
+        "share": "Send your link to another shop.",
+        "they": "They get half a month off their first invoice.",
+        "you": "You get a month of their plan as credit."
+      }
     }
   }
 }
