@@ -2,20 +2,20 @@
 
 import { calendarDateIn, DESCRIPTION_MAX_LENGTH, LOCALES, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { Avatar } from "@/components/ui/avatar";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { DateField } from "@/components/ui/date-field";
 import { Field, SelectField, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
-import { Panel } from "@/components/ui/panel";
 import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
 import { createTicket, findCustomers } from "./actions";
+import type { CreatedTicket, NewTicketProps } from "./new-ticket-panel";
 import { newCustomerSchema, ticketSchema } from "./schema";
 
 type Customer = components["schemas"]["CustomerDto"];
@@ -55,21 +55,24 @@ function CustomerRow({ customer }: { customer: Customer }) {
   );
 }
 
-interface Props {
-  locationId: string;
-  timeZone: string;
-  today: string;
-  // The Location's turnaround date (ADR 0036), or empty without one.
-  suggestedDate: string;
-  // The Location's language, which applies to a Customer left on it.
-  locationLocale: string;
-  country: string | undefined;
+interface Props extends NewTicketProps {
+  onCreated: (ticket: CreatedTicket) => void;
+  onCancel: () => void;
 }
 
 // Whoever works the counter fills this in with someone waiting, so one field
 // both finds a returning Customer and starts a new one. The form is checked by
 // its schemas, then by the API, whose refusals land in the same places.
-export function TicketForm({ locationId, timeZone, today, suggestedDate, locationLocale, country }: Props) {
+export function TicketForm({
+  locationId,
+  timeZone,
+  today,
+  suggestedDate,
+  locationLocale,
+  country,
+  onCreated,
+  onCancel,
+}: Props) {
   const t = useTranslations("tickets.form");
   const pageLocale = useLocale();
   const [chosen, setChosen] = useState<Customer | null>(null);
@@ -157,19 +160,14 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
     // Now, not when the page opened: it may have stayed open overnight.
     const now = calendarDateIn(new Date(), timeZone);
     const ticket = ticketSchema(t, now).safeParse({ title, description, estimatedReadyDate: date });
-    // A date half typed, or one that doesn't exist, reads as "" like a cleared
-    // one, and would be saved as no date.
-    const dateField = event.currentTarget.elements.namedItem("estimatedReadyDate") as HTMLInputElement;
-    const dateUnfinished = dateField.validity.badInput;
     const customer = chosen ? null : newCustomerSchema(t).safeParse({ customer: { fullName, email, phone } });
     setErrors({
       ...(ticket.success ? {} : fieldErrors(ticket.error)),
       ...(customer && !customer.success ? fieldErrors(customer.error) : {}),
-      ...(dateUnfinished && { estimatedReadyDate: t("dateUnfinished") }),
     });
     setFailure(null);
     setCustomerGone(false);
-    if (!ticket.success || (customer && !customer.success) || dateUnfinished) return;
+    if (!ticket.success || (customer && !customer.success)) return;
     startTransition(async () => {
       const result = await orFailure(
         createTicket(locationId, {
@@ -185,7 +183,10 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
             : { customerId: chosen!.id }),
         }),
       );
-      if (result.ok) return;
+      if (result.ok) {
+        onCreated(result);
+        return;
+      }
       setFailure(result);
       // Erased by a colleague since being chosen, retrying can't work.
       if (result.code === "NOT_FOUND" && chosen) {
@@ -207,13 +208,13 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
   const shown = matches.query === query ? matches.customers : [];
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-      {failureMessage && <FormAlert>{failureMessage}</FormAlert>}
-      <div className="grid gap-5 xl:grid-cols-2">
-        <Panel as="section" aria-labelledby="ticket-customer" className="min-w-0 md:p-6">
-          <h2 id="ticket-customer" className="mb-4 text-label-lg">
+    <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 py-3 md:px-7">
+        {failureMessage && <FormAlert>{failureMessage}</FormAlert>}
+        <section aria-labelledby="ticket-customer" className="min-w-0">
+          <h3 id="ticket-customer" className="sr-only">
             {t("customerSection")}
-          </h2>
+          </h3>
           {chosen ? (
             <div className="flex items-center gap-3 rounded-2xl bg-subtle p-3">
               <CustomerRow customer={chosen} />
@@ -238,7 +239,7 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
                   error={errorFor("customer.fullName")}
                 />
                 {shown.length > 0 && (
-                  <div className="mt-2 rounded-2xl border border-border p-1.5">
+                  <div className="mt-2 rounded-card border border-border p-1.5">
                     <p className="px-2.5 pt-1 pb-1.5 text-label-xs text-muted">{t("existing")}</p>
                     <ul>
                       {shown.map((customer) => (
@@ -288,11 +289,11 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
               </div>
             </div>
           )}
-        </Panel>
-        <Panel as="section" aria-labelledby="ticket-details" className="flex min-w-0 flex-col gap-4 md:p-6">
-          <h2 id="ticket-details" className="text-label-lg">
+        </section>
+        <section aria-labelledby="ticket-details" className="flex min-w-0 flex-col gap-4 border-t border-border pt-5">
+          <h3 id="ticket-details" className="sr-only">
             {t("ticketSection")}
-          </h2>
+          </h3>
           <Field
             label={t("title")}
             hint={t("titleHint")}
@@ -318,35 +319,34 @@ export function TicketForm({ locationId, timeZone, today, suggestedDate, locatio
             }}
             error={errorFor("description")}
           />
-          <Field
+          <DateField
             label={t("date")}
             hint={t("dateHint")}
-            type="date"
-            name="estimatedReadyDate"
+            today={today}
             min={today}
             value={date}
-            onChange={(event) => {
-              setDate(event.target.value);
+            onChange={(value) => {
+              setDate(value);
               edited("estimatedReadyDate");
             }}
             error={errorFor("estimatedReadyDate")}
           />
-        </Panel>
+        </section>
       </div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <p role="status" className="min-w-0 text-p-sm wrap-anywhere text-muted">
+      <div className="flex flex-col gap-3 border-t border-border px-6 py-4 md:px-7">
+        <p role="status" className="min-w-0 text-p-xs wrap-anywhere text-muted">
           {emailFails
             ? t("emailFails", { email: chosen.email ?? "" })
             : emailed
               ? t("willEmail", { email: emailed })
               : t("noEmail")}
         </p>
-        <div className="grid shrink-0 grid-cols-2 gap-3 md:flex">
-          <Link href={`/locations/${locationId}`} className={buttonClass({ variant: "secondary" })}>
-            {t("cancel")}
-          </Link>
-          <Button type="submit" pending={pending} pendingLabel={t("creating")}>
+        <div className="flex gap-2">
+          <Button type="submit" pending={pending} pendingLabel={t("creating")} className="flex-1">
             {t("create")}
+          </Button>
+          <Button variant="secondary" onClick={onCancel}>
+            {t("cancel")}
           </Button>
         </div>
       </div>

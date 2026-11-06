@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newCustomerSchema, ticketSchema } from "../src/app/(dashboard)/locations/[locationId]/tickets/new/schema";
+import { newCustomerSchema, ticketSchema } from "../src/app/(dashboard)/locations/[locationId]/new-ticket/schema";
 
 const t = (key: string) => key;
 const TODAY = "2026-11-05";
