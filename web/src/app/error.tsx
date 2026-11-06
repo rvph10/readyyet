@@ -48,7 +48,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   }, [fromServer, retry]);
 
   return (
-    <ErrorMessage title={t("title")}>
+    <ErrorMessage illustration="overcoming" title={t("title")}>
       <p className="text-p-md text-muted">
         {t("body")} {fromServer && t("retrying")}
       </p>

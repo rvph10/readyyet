@@ -149,7 +149,7 @@ export function LocationPicker({ title, subtitle, groups, counts }: Props) {
           })}
         </div>
       ) : (
-        <EmptyState icon="search" title={t("noLocationFound")} description={t("noLocationFoundHint")} />
+        <EmptyState illustration="search" title={t("noLocationFound")} description={t("noLocationFoundHint")} />
       )}
     </>
   );

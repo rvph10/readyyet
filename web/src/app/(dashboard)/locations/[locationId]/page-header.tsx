@@ -22,7 +22,7 @@ export function PageHeader({ locationId, title, subtitle, backHref }: Props) {
   const { newTicket } = useLocationActions();
   return (
     <header className="flex items-center justify-between gap-6">
-      <div className="flex min-w-0 items-center gap-3 md:gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
         {backHref && (
           <Link
             href={backHref}
@@ -33,13 +33,19 @@ export function PageHeader({ locationId, title, subtitle, backHref }: Props) {
           </Link>
         )}
         <div className="min-w-0">
-          <h1 className="text-title-h5 wrap-anywhere md:line-clamp-1 md:text-title-h4">{title}</h1>
+          <h1 title={title} className="text-title-h5 wrap-anywhere md:line-clamp-1 md:text-title-h4">
+            {title}
+          </h1>
           {subtitle && <p className="text-p-sm text-muted md:truncate">{subtitle}</p>}
         </div>
       </div>
-      <div className="hidden min-w-0 flex-1 items-center justify-end gap-3 md:flex">
-        <HeaderSearch locationId={locationId} />
-        <Button onClick={newTicket} className="shrink-0">
+      {/* A fixed size, as a Ticket's title can be 200 characters and would
+          otherwise squeeze these until they overlap. */}
+      <div className="hidden shrink-0 items-center gap-3 md:flex">
+        <div className="w-52 xl:w-72">
+          <HeaderSearch locationId={locationId} />
+        </div>
+        <Button onClick={newTicket}>
           <Icon name="add" className="size-3.5 text-brand" />
           {t("new")}
         </Button>

@@ -2,6 +2,7 @@ import { calendarDateIn } from "@readyyet/shared";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { IllustrationName } from "@/components/illustration";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -17,6 +18,14 @@ import { parseQuery, parseView, ticketsHref, VIEWS, type View } from "./ticket-v
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
+
+const EMPTY_ILLUSTRATIONS: Record<View, IllustrationName> = {
+  open: "coffee",
+  ready: "box",
+  late: "chill",
+  collected: "done",
+  all: "tag",
+};
 
 // For looking something up, so newest first and with every Ticket. Today is
 // where the day's work is sorted by urgency (ADR 0088).
@@ -100,7 +109,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           </>
         ) : q ? (
           <EmptyState
-            icon="search"
+            illustration="search"
             title={t("noMatch", { query: q })}
             description={t("noMatchHint")}
             action={
@@ -116,7 +125,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           />
         ) : (
           <EmptyState
-            icon="tag"
+            illustration={EMPTY_ILLUSTRATIONS[view]}
             title={t(`empty.${view}.title`)}
             description={t(`empty.${view}.description`)}
             action={(view === "open" || view === "all") && <NewTicketButton />}

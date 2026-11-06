@@ -282,7 +282,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
             </ul>
           </>
         ) : (
-          <EmptyState icon="check" title={t("noneHere")} description={t("noneHereHint")} />
+          <EmptyState illustration="chill" title={t("noneHere")} description={t("noneHereHint")} />
         )}
         <div className="flex justify-center border-t border-border p-3">
           <Link

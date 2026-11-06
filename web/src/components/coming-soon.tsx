@@ -10,8 +10,13 @@ export function ComingSoon({ title, children }: { title?: string; children?: Rea
   return (
     <>
       {title && <h1 className="text-title-h5 wrap-anywhere md:text-title-h4">{title}</h1>}
-      <Panel padding="none">
-        <EmptyState icon="time" title={t("comingSoonTitle")} description={t("comingSoon")} action={children} />
+      <Panel padding="none" className="flex flex-1 flex-col">
+        <EmptyState
+          illustration="daily"
+          title={t("comingSoonTitle")}
+          description={t("comingSoon")}
+          action={children}
+        />
       </Panel>
     </>
   );
