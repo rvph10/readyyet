@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getMe } from "@/lib/me";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { LocationActions } from "./location-actions";
 import { getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
 import { LocationNav } from "./location-nav";
-import { SIDEBAR_COOKIE } from "./sections";
 
 export async function generateMetadata({ params }: LayoutProps<"/locations/[locationId]">): Promise<Metadata> {
   const [{ locationId }, { memberships }] = await Promise.all([params, getMe()]);

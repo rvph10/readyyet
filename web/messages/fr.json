@@ -105,7 +105,8 @@
     "language": "Langue",
     "more": "Plus",
     "collapseSidebar": "Réduire le menu",
-    "expandSidebar": "Développer le menu"
+    "expandSidebar": "Développer le menu",
+    "businessOverview": "Vue d'ensemble de l'entreprise"
   },
   "tickets": {
     "title": "Tickets",

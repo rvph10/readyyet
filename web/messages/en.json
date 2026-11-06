@@ -105,7 +105,8 @@
     "language": "Language",
     "more": "More",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "businessOverview": "Business overview"
   },
   "tickets": {
     "title": "Tickets",

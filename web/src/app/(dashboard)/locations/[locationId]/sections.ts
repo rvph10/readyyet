@@ -1,7 +1,5 @@
 import type { IconName } from "@/components/ui/icon";
 
-export const SIDEBAR_COOKIE = "sidebar";
-
 // What a Location's navigation offers. `managers` follows the API's own
 // @LocationRoles: an Employee works Tickets and Customers (ADR 0017).
 export const SECTIONS = [
