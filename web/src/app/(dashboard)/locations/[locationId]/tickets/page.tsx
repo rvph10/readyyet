@@ -92,7 +92,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           />
           {q && (
             <Link
-              href={ticketsHref(locationId, { view })}
+              href={ticketsHref(locationId, { view, sort })}
               className={buttonClass({ variant: "secondary", size: "sm" })}
             >
               {t("clearSearch")}
@@ -123,7 +123,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
             action={
               view !== "all" && (
                 <Link
-                  href={ticketsHref(locationId, { view: "all", q })}
+                  href={ticketsHref(locationId, { view: "all", q, sort })}
                   className={buttonClass({ variant: "secondary" })}
                 >
                   {t("searchAll")}

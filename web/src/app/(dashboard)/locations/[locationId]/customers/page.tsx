@@ -58,7 +58,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
       {search.erased && <Banner>{t("erased")}</Banner>}
       <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
-          <CustomerSearch key={q} locationId={locationId} action={customersHref(locationId)} query={q} />
+          <CustomerSearch key={q} locationId={locationId} action={customersHref(locationId)} query={q} sort={sort} />
         </div>
         {list.items.length > 0 ? (
           <>
@@ -80,7 +80,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
             title={t("noMatch", { query: q })}
             description={t("noMatchHint")}
             action={
-              <Link href={customersHref(locationId)} className={buttonClass({ variant: "secondary" })}>
+              <Link href={customersHref(locationId, { sort })} className={buttonClass({ variant: "secondary" })}>
                 {t("clearSearch")}
               </Link>
             }

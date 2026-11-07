@@ -8,14 +8,23 @@ import { useState } from "react";
 import { formatPhone } from "@/components/phone-number";
 import { Avatar } from "@/components/ui/avatar";
 import { SearchField } from "@/components/ui/search-field";
+import type { Sort } from "@/lib/sort";
 import { useCustomerLookup } from "../new-ticket/use-customer-lookup";
+import { customersHref, type CustomerSort } from "./customer-views";
 
 const SEARCH_FROM_LETTERS = 2;
+
+interface Props {
+  locationId: string;
+  action: string;
+  query: string;
+  sort: Sort<CustomerSort> | null;
+}
 
 // Finds someone while typing and opens them in one click. Enter lists every
 // match, in the URL like the Tickets page's search. Emptying the box leaves the
 // search, as there's nothing left to press Enter for.
-export function CustomerSearch({ locationId, action, query }: { locationId: string; action: string; query: string }) {
+export function CustomerSearch({ locationId, action, query, sort }: Props) {
   const t = useTranslations("customers");
   const router = useRouter();
   const [value, setValue] = useState(query);
@@ -33,6 +42,12 @@ export function CustomerSearch({ locationId, action, query }: { locationId: stri
       }}
     >
       <Form action={action} role="search">
+        {sort && (
+          <>
+            <input type="hidden" name="sort" value={sort.column} />
+            <input type="hidden" name="dir" value={sort.dir} />
+          </>
+        )}
         <SearchField
           name="q"
           label={t("search")}
@@ -42,7 +57,7 @@ export function CustomerSearch({ locationId, action, query }: { locationId: stri
           value={value}
           onChange={(next) => {
             setValue(next);
-            if (!next && query) router.replace(action);
+            if (!next && query) router.replace(customersHref(locationId, { sort }));
           }}
         />
       </Form>
