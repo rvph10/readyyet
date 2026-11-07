@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { calendarDateIn } from "@readyyet/shared";
+import { calendarDateIn, LONG_WAIT_DAYS } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -24,6 +24,7 @@ interface Overview {
     emailFails: boolean;
     customer: { phone: string | null };
   }[];
+  needsYou: Record<"collected" | "failing" | "longWaits", { id: string }[]>;
 }
 
 // ADR 0088.
@@ -165,6 +166,62 @@ describe("Ticket overview", () => {
     await prisma.customer.update({ where: { id: ticket.customerId }, data: { emailBouncedAt: new Date() } });
     const { tickets } = await overview();
     expect(tickets.find((item) => item.id === id)?.emailFails).toBe(true);
+  });
+
+  describe("past the 100 Tickets the table shows", () => {
+    let quiet: { collected: string; failing: string; waiting: string; fresh: string };
+    const farOff = inDays(60);
+
+    beforeAll(async () => {
+      // Straight into the database, as creating them through the API would hit its rate limit.
+      const first = await createTicket("Busy", inDays(-5));
+      const { statusEvents, ...ticket } = await prisma.ticket.findUniqueOrThrow({
+        where: { id: BigInt(first) },
+        omit: { id: true },
+        include: { statusEvents: { omit: { id: true, ticketId: true } } },
+      });
+      for (let index = 1; index < 100; index++) {
+        const copy = await prisma.ticket.create({
+          data: { ...ticket, trackingCode: `${ticket.trackingCode}${index}` },
+        });
+        await prisma.ticketStatusEvent.create({ data: { ...statusEvents[0], ticketId: copy.id } });
+      }
+      const [collected, failing, waiting, fresh] = await Promise.all(
+        ["Quiet collected", "Quiet failing", "Quiet waiting", "Quiet fresh"].map((title) =>
+          createTicket(title, farOff),
+        ),
+      );
+      quiet = { collected, failing, waiting, fresh };
+
+      await prisma.ticket.update({ where: { id: BigInt(collected) }, data: { customerCollectedAt: new Date() } });
+      const { customerId } = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(failing) } });
+      await prisma.customer.update({ where: { id: customerId }, data: { emailBouncedAt: new Date() } });
+      for (const id of [waiting, fresh]) await move(id, "READY");
+      await prisma.ticketStatusEvent.updateMany({
+        where: { ticketId: BigInt(waiting) },
+        data: { createdAt: new Date(Date.now() - LONG_WAIT_DAYS * DAY_MS) },
+      });
+    });
+
+    const ids = (tickets: { id: string }[]) => tickets.map(({ id }) => id);
+
+    it("still lists what needs a person, however far down it is", async () => {
+      const { tickets, needsYou, counts } = await overview();
+      expect(tickets).toHaveLength(100);
+      expect(counts.open).toBeGreaterThan(100);
+      expect(ids(tickets)).not.toContain(quiet.collected);
+      expect(ids(tickets)).not.toContain(quiet.failing);
+      expect(ids(needsYou.collected)).toContain(quiet.collected);
+      expect(ids(needsYou.failing)).toContain(quiet.failing);
+      expect(ids(needsYou.longWaits)).toContain(quiet.waiting);
+    });
+
+    it("leaves out a shorter wait, and one the Customer says is over", async () => {
+      await prisma.ticket.update({ where: { id: BigInt(quiet.waiting) }, data: { customerCollectedAt: new Date() } });
+      const { needsYou } = await overview();
+      expect(ids(needsYou.longWaits)).not.toContain(quiet.fresh);
+      expect(ids(needsYou.longWaits)).not.toContain(quiet.waiting);
+    });
   });
 
   it("is refused to someone with no Membership", async () => {

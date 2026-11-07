@@ -1,4 +1,4 @@
-import { calendarDateIn, showsEstimatedReadyDate, type CalendarDate } from "@readyyet/shared";
+import { calendarDateIn, LONG_WAIT_DAYS, showsEstimatedReadyDate, type CalendarDate } from "@readyyet/shared";
 import type { operations } from "@/lib/api/schema";
 import { setSort, type Sort } from "../../../../../lib/sort";
 
@@ -13,7 +13,7 @@ export const VIEWS = {
 
 export type View = keyof typeof VIEWS;
 
-// Today's table, filtered on the page as it holds every open Ticket already.
+// Today's table, filtered on the page among the 100 most urgent Tickets it holds.
 const FILTERS = ["all", "late", "ready", "received", "working", "waiting"] as const;
 export type Filter = (typeof FILTERS)[number];
 
@@ -96,7 +96,6 @@ export function daysBetween(from: CalendarDate, to: CalendarDate) {
 
 // How worrying a wait to be collected is: the reminders go at 3 and 10 days
 // (ADR 0028).
-export const LONG_WAIT_DAYS = 10;
 const SOME_WAIT_DAYS = 3;
 
 export function waitTone(days: number) {

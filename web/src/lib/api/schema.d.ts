@@ -1315,11 +1315,17 @@ export interface components {
             nextStatus: components["schemas"]["StatusDto"] | null;
             emailFails: boolean;
         };
+        OverviewNeedsYouDto: {
+            collected: components["schemas"]["OverviewTicketDto"][];
+            failing: components["schemas"]["OverviewTicketDto"][];
+            longWaits: components["schemas"]["OverviewTicketDto"][];
+        };
         TicketOverviewDto: {
             counts: components["schemas"]["OverviewCountsDto"];
             steps: components["schemas"]["OverviewStepDto"][];
             handedOver: components["schemas"]["OverviewHandedOverDto"];
             tickets: components["schemas"]["OverviewTicketDto"][];
+            needsYou: components["schemas"]["OverviewNeedsYouDto"];
         };
         TicketStatusEventDto: {
             id: string;

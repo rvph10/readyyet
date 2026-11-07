@@ -10,7 +10,11 @@ import { LocationActions } from "./location-actions";
 import { getDaysToChoosePlan, getLatestFeedback, getLocation, getOverview } from "./location-data";
 import { LocationNav } from "./location-nav";
 import { isManager } from "./sections";
-import { daysBetween, formatMoment, LONG_WAIT_DAYS } from "./tickets/ticket-views";
+import { daysBetween, formatMoment } from "./tickets/ticket-views";
+
+// Enough to work through. The rest come up as these are dealt with, and the bell's
+// count still says how many there are.
+const MOST_ROWS_OF_A_KIND = 20;
 
 export async function generateMetadata({ params }: LayoutProps<"/locations/[locationId]">): Promise<Metadata> {
   const [{ locationId }, { memberships }] = await Promise.all([params, getMe()]);
@@ -40,6 +44,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
     manager ? getLatestFeedback(locationId) : [],
     current.role === "OWNER" ? getOwnedBusiness(current.location.business.id) : null,
   ]);
+  const { collected, failing, longWaits } = overview.needsYou;
   const now = new Date();
   const today = calendarDateIn(now, location.timeZone);
   const moment = (instant: string) =>
@@ -91,18 +96,16 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
               shown: moment(createdAt),
             })),
             feedbackCount: manager ? overview.counts.unhandledFeedback : 0,
-            collected: overview.tickets.flatMap((ticket) =>
-              ticket.customerCollectedAt ? [{ ...customer(ticket), shown: moment(ticket.customerCollectedAt) }] : [],
-            ),
-            failing: overview.tickets.filter(({ emailFails }) => emailFails).map(customer),
-            longWaits: overview.tickets
-              .filter(
-                (ticket) =>
-                  ticket.currentStatus.code === "READY" &&
-                  !ticket.customerCollectedAt &&
-                  readySince(ticket) >= LONG_WAIT_DAYS,
-              )
+            collected: collected
+              .slice(0, MOST_ROWS_OF_A_KIND)
+              .map((ticket) => ({ ...customer(ticket), shown: moment(ticket.customerCollectedAt!) })),
+            collectedCount: collected.length,
+            failing: failing.slice(0, MOST_ROWS_OF_A_KIND).map(customer),
+            failingCount: failing.length,
+            longWaits: longWaits
+              .slice(0, MOST_ROWS_OF_A_KIND)
               .map((ticket) => ({ ...customer(ticket), days: readySince(ticket) })),
+            longWaitsCount: longWaits.length,
           }}
         >
           {children}
