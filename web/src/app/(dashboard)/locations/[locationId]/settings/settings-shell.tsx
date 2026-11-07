@@ -48,8 +48,12 @@ export function SettingsShell({ start, sections, reviewsOff }: Props) {
                   window.history.replaceState(null, "", `?section=${name}`);
                 }}
                 className={`flex h-11 items-center gap-3 rounded-xl px-3 text-label-sm whitespace-nowrap transition-colors ${
-                  name === active ? "bg-subtle text-ink" : "text-muted hover:bg-subtle hover:text-ink"
-                } ${name === "delete" ? "lg:mt-4" : ""}`}
+                  name === "delete"
+                    ? `text-danger hover:bg-danger-subtle lg:mt-4 ${name === active ? "bg-danger-subtle" : ""}`
+                    : name === active
+                      ? "bg-subtle text-ink"
+                      : "text-muted hover:bg-subtle hover:text-ink"
+                }`}
               >
                 <Icon name={ICONS[name]} className="size-3.5 shrink-0" />
                 <span className="flex-1">{t(`nav.${name}`)}</span>

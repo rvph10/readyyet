@@ -2552,7 +2552,14 @@
     "/locations/{locationId}/review-link/check": {
       "post": {
         "operationId": "LocationController_checkReviewLink",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {}
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

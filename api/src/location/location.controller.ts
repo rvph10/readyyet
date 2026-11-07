@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
@@ -44,6 +44,7 @@ export class LocationController {
   @UseGuards(LocationMembershipGuard)
   // Each one is a few calls to Google, made on someone's behalf.
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiParam({ name: "locationId" })
   @ApiOperation({ summary: "Follow a Google review link to see if it still leads somewhere (ADR 0109)" })
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
   async checkReviewLink(@Body() dto: CheckReviewLinkDto): Promise<ReviewLinkCheckDto> {

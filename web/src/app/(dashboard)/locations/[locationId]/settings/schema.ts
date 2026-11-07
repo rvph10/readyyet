@@ -2,9 +2,7 @@ import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
-type Message = "nameMissing" | "tooLong" | "phoneInvalid" | "emailInvalid" | "addressIncomplete" | "turnaroundInvalid";
-
-const MAX_TURNAROUND_DAYS = 60;
+type Message = "nameMissing" | "tooLong" | "phoneInvalid" | "emailInvalid" | "addressIncomplete";
 
 // Shaped for PATCH /locations/:id, its limits the API's (ADR 0073). An address
 // is all four parts or none (ADR 0034), and the country always has a value.
@@ -30,15 +28,4 @@ export function shopSchema(t: (key: Message) => string) {
         if (!value) context.addIssue({ code: "custom", path: [key], message: t("addressIncomplete") });
       }
     });
-}
-
-// Empty stops prefilling a new Ticket's date (ADR 0036).
-export function turnaroundSchema(t: (key: Message) => string) {
-  return z
-    .string()
-    .trim()
-    .refine((days) => !days || (/^\d+$/.test(days) && Number(days) >= 1 && Number(days) <= MAX_TURNAROUND_DAYS), {
-      error: t("turnaroundInvalid"),
-    })
-    .transform((days) => (days ? Number(days) : null));
 }

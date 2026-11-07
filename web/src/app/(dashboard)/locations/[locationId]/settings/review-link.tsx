@@ -1,15 +1,15 @@
 "use client";
 
 import { ErrorCode } from "@readyyet/shared";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState, useTransition, type FormEvent } from "react";
-import { buttonClass } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { Icon } from "@/components/ui/icon";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
-import { updateLocation } from "./actions";
+import { checkReviewLink, updateLocation } from "./actions";
 import { SectionForm, SectionHeading } from "./section-form";
 
 interface Props {
@@ -20,43 +20,90 @@ interface Props {
 }
 
 const PROFILE_URL = "https://business.google.com";
-const googleGuideUrl = (locale: string) =>
-  `https://support.google.com/business/answer/16816815?hl=${locale === "fr" ? "fr" : "en"}`;
+const STEPS = ["reviewStep1", "reviewStep2", "reviewStep3"] as const;
+const CHECKS: Record<"works" | "dead" | "unknown", { tone: string; icon: IconName }> = {
+  works: { tone: "bg-brand text-ink", icon: "check" },
+  dead: { tone: "bg-danger-subtle text-danger", icon: "info-triangle" },
+  unknown: { tone: "bg-subtle text-ink", icon: "info" },
+};
 
-// What was typed, once it can safely be an address to open.
-function testableLink(value: string) {
+// What was typed, once it can safely be sent to be checked or opened.
+function checkableLink(value: string) {
   const link = value.trim();
   return link.startsWith("https://") && URL.canParse(link) ? link : null;
 }
 
+// What this setting turns on, drawn rather than explained (ADR 0076).
+function CustomerPreview() {
+  const t = useTranslations("settings");
+  return (
+    <aside className="on-pine flex flex-col rounded-3xl bg-pine p-5 text-surface">
+      <p className="text-label-sm">{t("reviewPreviewTitle")}</p>
+      <div className="mt-4 rounded-2xl bg-surface p-4 text-center text-ink">
+        <p className="text-label-md">{t("reviewPreviewAsk")}</p>
+        <p aria-hidden="true" className="mt-1 text-2xl leading-8 tracking-widest text-pine">
+          ★★★★★
+        </p>
+      </div>
+      <ul className="mt-4 flex flex-col gap-3 text-p-sm">
+        <li className="flex gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-ink">
+            <Icon name="check" className="size-3" />
+          </span>
+          {t("reviewPreviewHappy")}
+        </li>
+        <li className="flex gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface/15">
+            <Icon name="comment" className="size-3" />
+          </span>
+          {t("reviewPreviewUnhappy")}
+        </li>
+      </ul>
+    </aside>
+  );
+}
+
 // ADR 0100: bold when it's missing on a plan that includes it, as nothing tells
-// a shop otherwise that its Customers are never being asked.
+// a shop otherwise that its Customers are never being asked. ADR 0109: the app
+// follows the link itself, rather than opening it for the shop to judge.
 export function ReviewLink({ locationId, url, hasPro }: Props) {
   const t = useTranslations("settings");
-  const locale = useLocale();
   const toast = useToast();
   const saved = url ?? "";
   const [value, setValue] = useState(saved);
   const [error, setError] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const [check, setCheck] = useState<keyof typeof CHECKS | null>(null);
+  const [checking, startChecking] = useTransition();
   const [pending, startTransition] = useTransition();
 
   if (!hasPro) {
     return (
       <>
         <SectionHeading title={t("nav.reviews")} hint={t("reviewHint")} />
-        <div className="flex flex-col items-start gap-4 rounded-card bg-subtle p-5">
-          <p className="text-p-md">{t(url ? "reviewPaused" : "reviewNeedsPro")}</p>
-          <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
-            {t("seePlans")}
-            <Icon name="arrow-right" className="size-2.5" />
-          </Link>
+        <div className="grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+          <div className="flex flex-col items-start gap-4 rounded-3xl bg-subtle p-6">
+            <p className="text-title-h6 text-balance">{t(url ? "reviewPaused" : "reviewNeedsPro")}</p>
+            <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
+              {t("seePlans")}
+              <Icon name="arrow-right" className="size-2.5" />
+            </Link>
+          </div>
+          <CustomerPreview />
         </div>
       </>
     );
   }
 
-  const testable = testableLink(value);
+  const checkable = checkableLink(value);
+
+  function runCheck() {
+    setCheck(null);
+    startChecking(async () => {
+      const result = await orFailure(checkReviewLink(locationId, checkable!).then((found) => ({ ok: true, found })));
+      setCheck("found" in result ? result.found : "unknown");
+    });
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,92 +127,98 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
         setValue(saved);
         setError(null);
         setFailure(null);
+        setCheck(null);
       }}
       dirty={value.trim() !== saved}
       pending={pending}
       failure={failure}
     >
-      {url ? (
-        <p className="mb-6 flex items-center gap-3 rounded-card bg-subtle p-4 text-label-sm">
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand">
-            <Icon name="check" className="size-3" />
-          </span>
-          {t("reviewOn")}
-        </p>
-      ) : (
-        <p className="mb-6 rounded-card bg-brand p-4 text-label-sm">{t("reviewMissing")}</p>
-      )}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-card border border-border p-5">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-subtle text-label-sm">
-              1
+      <div className="grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <div className="flex min-w-0 flex-col gap-5">
+          <p
+            className={`flex items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface text-ink">
+              <Icon name={url ? "check" : "info"} className="size-3" />
             </span>
-            <h3 className="text-label-md">{t("reviewGuideTitle")}</h3>
-          </div>
-          <ol className="list-decimal space-y-2 pl-5 text-p-sm text-muted">
-            <li>{t("reviewStep1")}</li>
-            <li>{t("reviewStep2")}</li>
-            <li>{t("reviewStep3")}</li>
-          </ol>
-          <p className="mt-3 text-p-sm text-muted">{t("reviewComputer")}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <a
-              href={PROFILE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonClass({ variant: "secondary", size: "sm" })}
-            >
-              {t("reviewOpenProfile")}
-              <Icon name="arrow-right" className="size-2.5" />
-            </a>
-            <a
-              href={googleGuideUrl(locale)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonClass({ variant: "link" })}
-            >
-              {t("reviewGoogleGuide")}
-            </a>
-          </div>
-        </section>
+            {t(url ? "reviewOn" : "reviewMissing")}
+          </p>
 
-        <section className="rounded-card bg-subtle p-5">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-label-sm">
-              2
-            </span>
-            <h3 className="text-label-md">{t("reviewPasteTitle")}</h3>
+          <div>
+            <div className="flex items-start gap-2">
+              <Field
+                className="min-w-0 flex-1"
+                label={t("reviewLabel")}
+                type="url"
+                autoComplete="off"
+                placeholder="https://g.page/r/.../review"
+                maxLength={2048}
+                value={value}
+                onChange={(event) => {
+                  setValue(event.target.value);
+                  setError(null);
+                  setCheck(null);
+                }}
+                error={error}
+              />
+              <Button
+                variant="secondary"
+                className="mt-7"
+                disabled={!checkable}
+                pending={checking}
+                pendingLabel={t("reviewChecking")}
+                onClick={runCheck}
+              >
+                {t("reviewCheck")}
+              </Button>
+            </div>
+            <div aria-live="polite">
+              {check && (
+                <p className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-p-sm ${CHECKS[check].tone}`}>
+                  <Icon name={CHECKS[check].icon} className="size-3.5 shrink-0" />
+                  <span className="min-w-0 flex-1">{t(`reviewCheckResult.${check}`)}</span>
+                  {check === "works" && checkable && (
+                    <a
+                      href={checkable}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 font-semibold underline underline-offset-4"
+                    >
+                      {t("reviewOpen")}
+                    </a>
+                  )}
+                </p>
+              )}
+            </div>
           </div>
-          <p className="mb-4 text-p-sm text-muted">{t("reviewPasteHint")}</p>
-          <Field
-            label={t("reviewLabel")}
-            type="url"
-            autoComplete="off"
-            placeholder="https://g.page/r/.../review"
-            maxLength={2048}
-            value={value}
-            onChange={(event) => {
-              setValue(event.target.value);
-              setError(null);
-            }}
-            error={error}
-          />
-          {testable && (
-            <div className="mt-4">
+
+          {/* Only for finding the link, so it goes once there's one. */}
+          {!value.trim() && (
+            <section className="rounded-3xl border border-border-strong p-5">
+              <h3 className="text-label-md">{t("reviewFindTitle")}</h3>
+              <ol className="mt-3 flex flex-col gap-2.5">
+                {STEPS.map((step, index) => (
+                  <li key={step} className="flex items-center gap-3 text-p-sm">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-subtle text-label-xs font-semibold">
+                      {index + 1}
+                    </span>
+                    {t(step)}
+                  </li>
+                ))}
+              </ol>
               <a
-                href={testable}
+                href={PROFILE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={buttonClass({ variant: "secondary", size: "sm" })}
+                className={`${buttonClass({ variant: "secondary", size: "sm" })} mt-4`}
               >
-                {t("reviewTest")}
+                {t("reviewOpenProfile")}
                 <Icon name="arrow-right" className="size-2.5" />
               </a>
-              <p className="mt-2 text-p-sm text-muted">{t("reviewTestHint")}</p>
-            </div>
+            </section>
           )}
-        </section>
+        </div>
+        <CustomerPreview />
       </div>
     </SectionForm>
   );

@@ -411,6 +411,16 @@
     }
   }
 
+  /* Wider than its bell, from the bar's right edge. */
+  .needs-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: min(28rem, calc(100vw - 2rem));
+    max-height: min(36rem, 80dvh);
+    position-area: bottom span-left;
+    position-try-fallbacks: flip-inline;
+  }
+
   .menu-popover {
     inset: auto;
     margin: 0.375rem 0;
@@ -419,6 +429,47 @@
       flip-block,
       flip-inline,
       flip-block flip-inline;
+  }
+}
+
+/* A range field: pine up to the thumb, its share in --fill, set by the page. */
+@utility range-field {
+  height: 2.75rem;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-slider-runnable-track {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: linear-gradient(to right, var(--color-pine) var(--fill, 0%), var(--color-border) var(--fill, 0%));
+  }
+  &::-moz-range-track {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+  &::-moz-range-progress {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: var(--color-pine);
+  }
+  &::-webkit-slider-thumb {
+    appearance: none;
+    margin-top: -0.6875rem;
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid var(--color-pine);
+    border-radius: 999px;
+    background: var(--color-brand);
+  }
+  &::-moz-range-thumb {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.25rem solid var(--color-pine);
+    border-radius: 999px;
+    background: var(--color-brand);
   }
 }
 

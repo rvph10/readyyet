@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useSyncExternalStore, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { getCountries, isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { Field, SelectField } from "@/components/ui/field";
@@ -11,16 +11,15 @@ import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
 import { updateLocation } from "./actions";
 import { shopSchema } from "./schema";
-import { SectionForm, SettingRow } from "./section-form";
+import { FieldGroup, SectionForm, useInBrowser } from "./section-form";
 
 type Location = components["schemas"]["LocationDto"];
 
 const LOCALES = ["EN", "FR"] as const;
 const FALLBACK_COUNTRY = "BE";
 const FIRST_COUNTRIES = ["BE", "FR", "LU", "NL"];
-const noSubscription = () => () => undefined;
 
-function fromLocation({ name, contactPhone, contactEmail, address, locale, timeZone }: Location) {
+function fromLocation({ name, contactPhone, contactEmail, address, locale }: Location) {
   return {
     name,
     contactPhone,
@@ -30,7 +29,6 @@ function fromLocation({ name, contactPhone, contactEmail, address, locale, timeZ
     addressLocality: address?.addressLocality ?? "",
     addressCountry: address?.addressCountry ?? FALLBACK_COUNTRY,
     locale,
-    timeZone,
   };
 }
 
@@ -52,13 +50,7 @@ export function ShopDetails({ location }: { location: Location }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  // The server and the browser can list these differently, so the long lists
-  // wait for the browser, the saved value being all a first paint needs.
-  const inBrowser = useSyncExternalStore(
-    noSubscription,
-    () => true,
-    () => false,
-  );
+  const inBrowser = useInBrowser();
   const languages = new Intl.DisplayNames([pageLocale], { type: "language" });
   const regions = new Intl.DisplayNames([pageLocale], { type: "region" });
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
@@ -93,7 +85,6 @@ export function ShopDetails({ location }: { location: Location }) {
           ...(contactPhone !== saved.contactPhone && { contactPhone }),
           ...(contactEmail !== saved.contactEmail && { contactEmail }),
           ...(form.locale !== saved.locale && { locale: form.locale }),
-          ...(form.timeZone !== saved.timeZone && { timeZone: form.timeZone }),
           ...(addressChanged && { address }),
         }),
       );
@@ -125,85 +116,19 @@ export function ShopDetails({ location }: { location: Location }) {
       pending={pending}
       failure={failure}
     >
-      <SettingRow label={t("name")} hint={t("nameHint")}>
+      <FieldGroup title={t("identityTitle")} hint={t("nameHint")}>
         <Field
+          className="col-span-6 sm:col-span-4"
           label={t("name")}
-          hideLabel
           autoComplete="off"
           maxLength={100}
           value={form.name}
           onChange={(event) => set("name", event.target.value)}
           error={errors.name}
         />
-      </SettingRow>
-      <SettingRow label={t("phone")} hint={t("contactHint")}>
-        <PhoneField
-          label={t("phone")}
-          hideLabel
-          value={form.contactPhone}
-          onChange={(value) => set("contactPhone", value)}
-          defaultCountry={isSupportedCountry(form.addressCountry) ? form.addressCountry : FALLBACK_COUNTRY}
-          error={errors.contactPhone}
-        />
-      </SettingRow>
-      <SettingRow label={t("email")} hint={t("emailHint")}>
-        <Field
-          label={t("email")}
-          hideLabel
-          type="email"
-          autoComplete="off"
-          value={form.contactEmail}
-          onChange={(event) => set("contactEmail", event.target.value)}
-          error={errors.contactEmail}
-        />
-      </SettingRow>
-      <SettingRow label={t("addressLabel")} hint={t("addressRowHint")}>
-        <Field
-          label={t("street")}
-          placeholder={t("street")}
-          hideLabel
-          autoComplete="off"
-          value={form.streetAddress}
-          onChange={(event) => set("streetAddress", event.target.value)}
-          error={errors.streetAddress}
-        />
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-          <Field
-            label={t("postalCode")}
-            placeholder={t("postalCode")}
-            hideLabel
-            autoComplete="off"
-            value={form.postalCode}
-            onChange={(event) => set("postalCode", event.target.value)}
-            error={errors.postalCode}
-          />
-          <Field
-            label={t("city")}
-            placeholder={t("city")}
-            hideLabel
-            autoComplete="off"
-            value={form.addressLocality}
-            onChange={(event) => set("addressLocality", event.target.value)}
-            error={errors.addressLocality}
-          />
-        </div>
         <SelectField
-          label={t("country")}
-          hideLabel
-          value={form.addressCountry}
-          onChange={(event) => set("addressCountry", event.target.value)}
-        >
-          {(inBrowser ? countryCodes(pageLocale) : [form.addressCountry]).map((code) => (
-            <option key={code} value={code}>
-              {regions.of(code)}
-            </option>
-          ))}
-        </SelectField>
-      </SettingRow>
-      <SettingRow label={t("language")} hint={t("languageHint")}>
-        <SelectField
-          label={t("language")}
-          hideLabel
+          className="col-span-6 sm:col-span-2"
+          label={t("languageShort")}
           value={form.locale}
           onChange={(event) => set("locale", event.target.value)}
         >
@@ -213,21 +138,66 @@ export function ShopDetails({ location }: { location: Location }) {
             </option>
           ))}
         </SelectField>
-      </SettingRow>
-      <SettingRow label={t("timeZone")} hint={t("timeZoneHint")}>
+      </FieldGroup>
+      <FieldGroup title={t("contactTitle")} hint={t("contactHint")}>
+        <div className="col-span-6 sm:col-span-3">
+          <PhoneField
+            label={t("phone")}
+            value={form.contactPhone}
+            onChange={(value) => set("contactPhone", value)}
+            defaultCountry={isSupportedCountry(form.addressCountry) ? form.addressCountry : FALLBACK_COUNTRY}
+            error={errors.contactPhone}
+          />
+        </div>
+        <Field
+          className="col-span-6 sm:col-span-3"
+          label={t("email")}
+          hint={t("emailHint")}
+          type="email"
+          autoComplete="off"
+          value={form.contactEmail}
+          onChange={(event) => set("contactEmail", event.target.value)}
+          error={errors.contactEmail}
+        />
+      </FieldGroup>
+      <FieldGroup title={t("addressLabel")} hint={t("addressRowHint")}>
+        <Field
+          className="col-span-6"
+          label={t("street")}
+          autoComplete="off"
+          value={form.streetAddress}
+          onChange={(event) => set("streetAddress", event.target.value)}
+          error={errors.streetAddress}
+        />
+        <Field
+          className="col-span-2"
+          label={t("postalCode")}
+          autoComplete="off"
+          value={form.postalCode}
+          onChange={(event) => set("postalCode", event.target.value)}
+          error={errors.postalCode}
+        />
+        <Field
+          className="col-span-4 sm:col-span-2"
+          label={t("city")}
+          autoComplete="off"
+          value={form.addressLocality}
+          onChange={(event) => set("addressLocality", event.target.value)}
+          error={errors.addressLocality}
+        />
         <SelectField
-          label={t("timeZone")}
-          hideLabel
-          value={form.timeZone}
-          onChange={(event) => set("timeZone", event.target.value)}
+          className="col-span-6 sm:col-span-2"
+          label={t("country")}
+          value={form.addressCountry}
+          onChange={(event) => set("addressCountry", event.target.value)}
         >
-          {(inBrowser ? Intl.supportedValuesOf("timeZone") : [form.timeZone]).map((zone) => (
-            <option key={zone} value={zone}>
-              {zone.replaceAll("_", " ")}
+          {(inBrowser ? countryCodes(pageLocale) : [form.addressCountry]).map((code) => (
+            <option key={code} value={code}>
+              {regions.of(code)}
             </option>
           ))}
         </SelectField>
-      </SettingRow>
+      </FieldGroup>
     </SectionForm>
   );
 }

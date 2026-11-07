@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getMe } from "@/lib/me";
-import { getBilling, getLocation } from "../location-data";
+import { getBilling, getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
 import { DeleteLocation } from "./delete-location";
@@ -24,7 +24,11 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   if (!membership || !isManager(membership.role)) {
     notFound();
   }
-  const [location, billing] = await Promise.all([getLocation(locationId), getBilling(locationId)]);
+  const [location, billing, overview] = await Promise.all([
+    getLocation(locationId),
+    getBilling(locationId),
+    getOverview(locationId),
+  ]);
   const hasPro = billing.plan === "PRO" && !billing.frozen;
   const owner = membership.role === "OWNER";
   const allowed = SETTINGS_SECTIONS.filter((section) => section !== "delete" || owner);
@@ -37,7 +41,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
         reviewsOff={hasPro && !location.googleReviewUrl}
         sections={{
           shop: <ShopDetails location={location} />,
-          hours: <OpeningHours locationId={locationId} hours={location.openingHours} />,
+          hours: <OpeningHours locationId={locationId} hours={location.openingHours} timeZone={location.timeZone} />,
           tickets: (
             <Turnaround
               locationId={locationId}
@@ -53,6 +57,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
                 locationId={locationId}
                 businessId={membership.location.business.id}
                 name={location.name}
+                openTickets={overview.counts.open}
               />
             ),
           }),
