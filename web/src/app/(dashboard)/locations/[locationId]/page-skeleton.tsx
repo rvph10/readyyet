@@ -16,7 +16,7 @@ export function PageSkeleton({
 }) {
   const t = useTranslations("dashboard");
   return (
-    <div aria-busy className="flex flex-1 flex-col gap-4 lg:gap-5">
+    <div aria-busy className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-5">
       <p className="sr-only" role="status">
         {t("loading")}
       </p>
