@@ -3,18 +3,14 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { api } from "@/lib/api/client";
-import { pageData } from "@/lib/api/errors";
 import { getOwnedBusiness, referralLink } from "@/lib/business";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { LocationActions } from "./location-actions";
-import { getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
+import { getDaysToChoosePlan, getLatestFeedback, getLocation, getOverview } from "./location-data";
 import { LocationNav } from "./location-nav";
 import { isManager } from "./sections";
 import { daysBetween, formatMoment, LONG_WAIT_DAYS } from "./tickets/ticket-views";
-
-const FEEDBACK_ON_THE_BELL = 5;
 
 export async function generateMetadata({ params }: LayoutProps<"/locations/[locationId]">): Promise<Metadata> {
   const [{ locationId }, { memberships }] = await Promise.all([params, getMe()]);
@@ -24,26 +20,26 @@ export async function generateMetadata({ params }: LayoutProps<"/locations/[loca
 // ADR 0077: the Location is in the URL, nothing remembers a "current" one, so
 // two tabs can show two Locations and an email's link opens the right one.
 export default async function LocationLayout({ children, params }: LayoutProps<"/locations/[locationId]">) {
-  const [{ locationId }, me, cookieStore, tTickets, tDetail, locale, client] = await Promise.all([
+  const [{ locationId }, me, cookieStore, tTickets, tDetail, locale] = await Promise.all([
     params,
     getMe(),
     cookies(),
     getTranslations("tickets"),
     getTranslations("ticketDetail"),
     getLocale(),
-    api(),
   ]);
   const current = me.memberships.find(({ location }) => location.id === locationId);
   if (!current) {
     notFound();
   }
-  const [location, overview, trialDaysLeft] = await Promise.all([
+  const manager = isManager(current.role);
+  const [location, overview, trialDaysLeft, feedback] = await Promise.all([
     getLocation(locationId),
     getOverview(locationId),
     getDaysToChoosePlan(locationId, current.role),
+    manager ? getLatestFeedback(locationId) : [],
   ]);
   const now = new Date();
-  const manager = isManager(current.role);
   const today = calendarDateIn(now, location.timeZone);
   const moment = (instant: string) =>
     formatMoment(new Date(instant), location.timeZone, today, locale, (parts) => tDetail("moment", parts));
@@ -54,13 +50,6 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   });
   const readySince = ({ statusSince }: (typeof overview.tickets)[number]) =>
     daysBetween(calendarDateIn(new Date(statusSince), location.timeZone), today);
-  const feedback = manager
-    ? await client
-        .GET("/locations/{locationId}/feedback", {
-          params: { path: { locationId }, query: { handled: "false", take: FEEDBACK_ON_THE_BELL } },
-        })
-        .then(pageData)
-    : null;
   const owned = current.role === "OWNER" ? await getOwnedBusiness(current.location.business.id) : null;
 
   return (
@@ -95,7 +84,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           inviteLink={owned && (await referralLink(owned.referralCode))}
           needsYou={{
             trialDaysLeft: trialDaysLeft !== null && trialDaysLeft <= 3 ? trialDaysLeft : null,
-            feedback: (feedback?.items ?? []).map(({ id, customer: { fullName }, message, createdAt }) => ({
+            feedback: feedback.map(({ id, customer: { fullName }, message, createdAt }) => ({
               id,
               name: fullName,
               detail: message,

@@ -1,4 +1,6 @@
 import "server-only";
+import * as Sentry from "@sentry/nextjs";
+import { unstable_rethrow } from "next/navigation";
 import { cache } from "react";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
@@ -15,6 +17,28 @@ export const getOverview = cache(async (locationId: string) =>
 export const getBilling = cache(async (locationId: string) =>
   pageData(await (await api()).GET("/locations/{locationId}/billing", { params: { path: { locationId } } })),
 );
+
+const FEEDBACK_ON_THE_BELL = 5;
+
+// The layout reads this on every page, for a preview the bell can do without: its
+// count comes from the overview, and it still links to Feedback. So a failure is
+// reported, not shown as the whole shop's error page.
+export async function getLatestFeedback(locationId: string) {
+  try {
+    const { items } = await pageData(
+      await (
+        await api()
+      ).GET("/locations/{locationId}/feedback", {
+        params: { path: { locationId }, query: { handled: "false", take: FEEDBACK_ON_THE_BELL } },
+      }),
+    );
+    return items;
+  } catch (error) {
+    unstable_rethrow(error);
+    Sentry.captureException(error);
+    return [];
+  }
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
