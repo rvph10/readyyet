@@ -6,7 +6,7 @@ import { PhoneNumber } from "@/components/phone-number";
 import { QrCode } from "@/components/qr-code";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { WorkflowTrack } from "@/components/workflow-track";
-import { StatusPill } from "@/components/status-pill";
+import { StatusMark } from "@/components/status-pill";
 import { Avatar } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
 import { buttonClass } from "@/components/ui/button";
@@ -85,15 +85,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
   return (
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <PageHeader
-        title={ticket.title}
-        subtitle={t("subtitle", {
-          id: ticket.id,
-          name,
-          date: formatDay(calendarDateIn(new Date(ticket.createdAt), location.timeZone), today, locale),
-        })}
-        backHref={`/locations/${locationId}/tickets`}
-      />
+      <PageHeader title={ticket.title} crumb={`#${ticket.id}`} />
 
       {ticket.emailProblem === "GAVE_UP" && (
         <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>
@@ -104,151 +96,167 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
       {emailFails && <Banner tone="error">{t("emailFails", { name, email: customer.email ?? "" })}</Banner>}
       {stoppedUpdates && <Banner>{t("updatesStopped", { name })}</Banner>}
 
-      {/* ADR 0090: one grid, so each area takes the space it deserves. */}
-      <div className="grid flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-4">
-        <StatusPanel
-          className="md:col-span-2 xl:col-span-3"
-          locationId={locationId}
-          ticketId={ticketId}
-          status={status}
-          flag={flag}
-          since={t("since", {
-            date: formatDay(calendarDateIn(new Date(latest.createdAt), location.timeZone), today, locale),
-            name: latest.changedByName,
-          })}
-          next={next}
-          others={others}
-          ended={ended}
-          undoUntil={undoUntil}
-          collectedAt={status.code === "READY" ? ticket.customerCollectedAt : null}
-          track={
-            <WorkflowTrack
-              steps={track}
-              currentCode={status.code}
-              reachedCode={reached?.status.code ?? null}
-              label={t("workflow")}
-            />
-          }
-        />
-
-        <Panel as="section" aria-labelledby="ticket-customer" className="flex flex-col">
-          <h2 id="ticket-customer" className="text-title-h6">
-            {t("customer")}
-          </h2>
-          <div className="mt-4 flex items-center gap-3">
-            <Avatar id={customer.fullName} name={name} src={null} size="lg" />
-            {erased ? (
-              <p className="min-w-0 text-label-md wrap-anywhere">{name}</p>
-            ) : (
-              <Link
-                href={`/locations/${locationId}/customers/${customer.id}`}
-                className="min-w-0 text-label-md wrap-anywhere underline-offset-4 hover:underline"
-              >
-                {name}
-              </Link>
-            )}
-          </div>
-          <div className="mt-4 flex flex-col gap-1">
-            {customer.phone && (
-              <p className="text-p-sm text-muted">
-                <PhoneNumber value={customer.phone} />
-              </p>
-            )}
-            {customer.email && <p className="text-p-sm wrap-anywhere text-muted">{customer.email}</p>}
-            {!erased && !customer.email && !customer.phone && <p className="text-p-sm text-muted">{t("noContact")}</p>}
-          </div>
-          {(customer.phone || customer.email) && (
-            <div className="mt-auto flex gap-2 pt-5">
-              {customer.phone && (
-                <a
-                  href={`tel:${customer.phone}`}
-                  className={`${buttonClass({ variant: "secondary", size: "sm" })} min-w-0 flex-1`}
-                >
-                  <Icon name="phone" className="size-3.5" />
-                  {t("call")}
-                </a>
-              )}
-              {customer.email && (
-                <a
-                  href={`mailto:${customer.email}`}
-                  className={`${buttonClass({ variant: "secondary", size: "sm" })} min-w-0 flex-1`}
-                >
-                  <Icon name="message" className="size-3.5" />
-                  {t("sendEmail")}
-                </a>
-              )}
-            </div>
-          )}
-        </Panel>
-
-        <Panel as="section" className="xl:col-span-2">
-          <TicketDetails
+      {/* ADR 0108: the work on the left, the Customer's side on the right. Each
+          column stacks on its own, so no tile is stretched to match a neighbour,
+          and the last one takes what's left. Under 1280px the columns dissolve,
+          and the order puts the Customer straight after the Status. */}
+      <div className="grid flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-12">
+        <div className="contents xl:col-span-8 xl:flex xl:min-w-0 xl:flex-col xl:gap-5">
+          <StatusPanel
+            className="max-xl:order-1 md:max-xl:col-span-2"
             locationId={locationId}
             ticketId={ticketId}
-            title={ticket.title}
-            notes={ticket.description}
-            date={ticket.estimatedReadyDate}
-            dateShown={ticket.estimatedReadyDate && formatDay(ticket.estimatedReadyDate, today, locale)}
-            receivedShown={moment(ticket.createdAt)}
-            timeZone={location.timeZone}
-            today={today}
-            dateEditable={!ended}
-            dateLate={late}
-          />
-        </Panel>
-
-        <Panel
-          as="section"
-          aria-labelledby="ticket-history"
-          className={`flex flex-col md:min-h-72 xl:row-span-2 ${erased ? "xl:col-span-2" : ""}`}
-        >
-          <h2 id="ticket-history" className="text-title-h6">
-            {t("history")}
-          </h2>
-          {/* It grows with every change, so it scrolls inside its tile. */}
-          <ol className="mt-3 min-h-0 overflow-y-auto max-md:max-h-72 md:grow md:basis-0">
-            {[...ticket.statusEvents].reverse().map((event) => (
-              <li key={event.id} className="border-t border-border py-3 first:border-t-0 first:pt-0">
-                <StatusPill code={event.status.code} label={statusLabel(event.status, locale)} />
-                <p className="mt-1.5 text-p-xs text-muted">
-                  <time dateTime={event.createdAt}>{moment(event.createdAt)}</time>
-                </p>
-                <p className="truncate text-p-xs text-muted">{event.changedByName}</p>
-              </li>
-            ))}
-          </ol>
-        </Panel>
-
-        {!erased && (
-          <Panel as="section" aria-labelledby="ticket-tracking" className="flex flex-col xl:row-span-2">
-            <h2 id="ticket-tracking" className="mb-4 text-title-h6">
-              {t("tracking")}
-            </h2>
-            {ticket.trackingLinkExpired ? (
-              <p className="text-p-sm text-muted">{t("linkExpired")}</p>
-            ) : (
-              <TrackingPanel
-                locationId={locationId}
-                ticketId={ticketId}
-                url={ticket.trackingUrl}
-                code={ticket.trackingCode}
-                qr={<QrCode value={ticket.trackingUrl} label={t("qrLabel", { name })} className="w-full" />}
-                qrFirst={!emailWorks || ticket.emailProblem !== null}
-                resendTo={emailWorks ? customer.email : null}
+            status={status}
+            flag={flag}
+            since={t("since", {
+              date: formatDay(calendarDateIn(new Date(latest.createdAt), location.timeZone), today, locale),
+              name: latest.changedByName,
+            })}
+            next={next}
+            others={others}
+            ended={ended}
+            undoUntil={undoUntil}
+            collectedAt={status.code === "READY" ? ticket.customerCollectedAt : null}
+            track={
+              <WorkflowTrack
+                steps={track}
+                currentCode={status.code}
+                reachedCode={reached?.status.code ?? null}
+                label={t("workflow")}
               />
+            }
+          />
+
+          <Panel as="section" padding="lg" className="max-xl:order-3">
+            <TicketDetails
+              locationId={locationId}
+              ticketId={ticketId}
+              title={ticket.title}
+              notes={ticket.description}
+              date={ticket.estimatedReadyDate}
+              dateShown={ticket.estimatedReadyDate && formatDay(ticket.estimatedReadyDate, today, locale)}
+              receivedShown={moment(ticket.createdAt)}
+              timeZone={location.timeZone}
+              today={today}
+              dateEditable={!ended}
+              dateLate={late}
+            />
+          </Panel>
+
+          <Panel as="section" padding="lg" className="flex flex-col max-xl:order-4 xl:flex-1">
+            <TicketPhotos
+              locationId={locationId}
+              ticketId={ticketId}
+              photos={ticket.photos}
+              canAdd={!ticket.trackingLinkExpired}
+              deletableBy={{ userId: me.id, any: membership.role !== "EMPLOYEE" }}
+            />
+          </Panel>
+        </div>
+
+        <div className="contents xl:col-span-4 xl:flex xl:min-w-0 xl:flex-col xl:gap-5">
+          <Panel as="section" aria-labelledby="ticket-customer" padding="lg" className="max-xl:order-2">
+            <h2 id="ticket-customer" className="sr-only">
+              {t("customer")}
+            </h2>
+            <div className="flex items-center gap-3">
+              <Avatar id={customer.fullName} name={name} src={null} size="lg" />
+              <div className="min-w-0">
+                {erased ? (
+                  <p className="text-label-md wrap-anywhere">{name}</p>
+                ) : (
+                  <Link
+                    href={`/locations/${locationId}/customers/${customer.id}`}
+                    className="text-label-md wrap-anywhere underline-offset-4 hover:underline"
+                  >
+                    {name}
+                  </Link>
+                )}
+                {customer.phone && (
+                  <p className="text-p-sm text-muted">
+                    <PhoneNumber value={customer.phone} />
+                  </p>
+                )}
+                {customer.email && <p className="text-p-sm wrap-anywhere text-muted">{customer.email}</p>}
+                {!erased && !customer.email && !customer.phone && (
+                  <p className="text-p-sm text-muted">{t("noContact")}</p>
+                )}
+              </div>
+            </div>
+            {(customer.phone || customer.email) && (
+              <div className="mt-4 flex gap-2">
+                {customer.phone && (
+                  <a
+                    href={`tel:${customer.phone}`}
+                    className={`${buttonClass({ variant: "secondary", size: "sm" })} min-w-0 flex-1`}
+                  >
+                    <Icon name="phone" className="size-3.5" />
+                    {t("call")}
+                  </a>
+                )}
+                {customer.email && (
+                  <a
+                    href={`mailto:${customer.email}`}
+                    className={`${buttonClass({ variant: "secondary", size: "sm" })} min-w-0 flex-1`}
+                  >
+                    <Icon name="message" className="size-3.5" />
+                    {t("sendEmail")}
+                  </a>
+                )}
+              </div>
             )}
           </Panel>
-        )}
 
-        <Panel as="section" className="md:col-span-2">
-          <TicketPhotos
-            locationId={locationId}
-            ticketId={ticketId}
-            photos={ticket.photos}
-            canAdd={!ticket.trackingLinkExpired}
-            deletableBy={{ userId: me.id, any: membership.role !== "EMPLOYEE" }}
-          />
-        </Panel>
+          {!erased && (
+            <Panel as="section" aria-labelledby="ticket-tracking" padding="lg" className="max-xl:order-5">
+              <h2 id="ticket-tracking" className="mb-4 text-title-h6">
+                {t("tracking")}
+              </h2>
+              {ticket.trackingLinkExpired ? (
+                <p className="text-p-sm text-muted">{t("linkExpired")}</p>
+              ) : (
+                <TrackingPanel
+                  locationId={locationId}
+                  ticketId={ticketId}
+                  url={ticket.trackingUrl}
+                  code={ticket.trackingCode}
+                  qr={<QrCode value={ticket.trackingUrl} label={t("qrLabel", { name })} className="w-full" />}
+                  qrFirst={!emailWorks || ticket.emailProblem !== null}
+                  resendTo={emailWorks ? customer.email : null}
+                />
+              )}
+            </Panel>
+          )}
+
+          <Panel
+            as="section"
+            aria-labelledby="ticket-history"
+            padding="lg"
+            className="flex flex-col max-xl:order-6 md:max-xl:col-span-2 xl:min-h-72 xl:flex-1"
+          >
+            <h2 id="ticket-history" className="text-title-h6">
+              {t("history")}
+            </h2>
+            {/* It grows with every change, so it scrolls inside its tile. */}
+            <ol className="mt-4 min-h-0 overflow-y-auto max-xl:max-h-80 xl:grow xl:basis-0">
+              {[...ticket.statusEvents].reverse().map((event) => (
+                <li key={event.id} className="group relative flex gap-3 pb-4 last:pb-0">
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-9 bottom-0 left-4 w-0.5 -translate-x-1/2 bg-border group-last:hidden"
+                  />
+                  <StatusMark code={event.status.code} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-label-sm">{statusLabel(event.status, locale)}</p>
+                    <p className="truncate text-p-xs text-muted" title={event.changedByName}>
+                      <time dateTime={event.createdAt}>{moment(event.createdAt)}</time>, {event.changedByName}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </Panel>
+        </div>
       </div>
     </>
   );

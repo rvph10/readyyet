@@ -14,6 +14,7 @@ interface Actions {
   // Opens on this Customer already chosen, with their details filled in.
   newTicketFor: (customer: Customer) => void;
   choosePlan: () => void;
+  locationName: string;
 }
 
 const ActionsContext = createContext<Actions | null>(null);
@@ -25,12 +26,13 @@ export function useLocationActions() {
 }
 
 interface Props extends NewTicketProps {
+  locationName: string;
   // Days left of the trial, 0 once it's over, null when there's no plan to choose.
   trialDaysLeft: number | null;
   children: ReactNode;
 }
 
-export function LocationActions({ trialDaysLeft, children, ...newTicket }: Props) {
+export function LocationActions({ locationName, trialDaysLeft, children, ...newTicket }: Props) {
   const t = useTranslations("plans");
   const tTickets = useTranslations("tickets");
   const [creating, setCreating] = useState(false);
@@ -48,8 +50,9 @@ export function LocationActions({ trialDaysLeft, children, ...newTicket }: Props
       newTicket: () => open(null),
       newTicketFor: open,
       choosePlan: () => setChoosing(true),
+      locationName,
     };
-  }, []);
+  }, [locationName]);
 
   return (
     <ActionsContext.Provider value={actions}>

@@ -102,6 +102,7 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "youAreHere": "You are here",
+    "breadcrumbs": "Breadcrumbs",
     "switchBusiness": "{business}, switch Business",
     "switchBusinessLabel": "Businesses"
   },
@@ -288,6 +289,7 @@
   "common": {
     "home": "Your shops",
     "close": "Close",
+    "sortBy": "Sort by {column}",
     "stepDone": "done",
     "clearSearch": "Clear the search",
     "notifications": "Notifications",
@@ -383,7 +385,6 @@
     "collectedNotYet": "Not yet"
   },
   "ticketDetail": {
-    "back": "Back",
     "status": "Status",
     "history": "History",
     "moveTo": "Move to {status}",
@@ -451,7 +452,6 @@
     "endedNote": "This Ticket has ended. Reopen it if it was closed by mistake.",
     "emailGaveUpEnded": "The last email to {name} couldn't be delivered, and we've stopped trying.",
     "emailRetryingEnded": "The last email to {name} hasn't gone out yet. We keep trying for a day.",
-    "subtitle": "#{id}, {name}, received {date}",
     "since": "Since {date}, moved by {name}",
     "workflow": "Workflow",
     "handOver": "Hand over",

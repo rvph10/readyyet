@@ -18,6 +18,7 @@ import { BusinessPanel, TopBar } from "@/components/top-bar";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
 import type { Membership } from "@/lib/memberships";
+import { BusinessNameContext } from "./business-crumbs";
 
 const SECTIONS = [
   { slug: "", key: "locations", icon: "home" },
@@ -162,7 +163,7 @@ export function BusinessNav({
 }: Props & { collapsed: boolean; children: ReactNode }) {
   const [collapsed, toggle] = useCollapsed(initial);
   return (
-    <>
+    <BusinessNameContext.Provider value={props.business.name}>
       <TopBar memberships={props.memberships} business={props.business} owned location={null} />
       <div className="flex min-w-0 flex-1">
         <SidebarFrame collapsed={collapsed} onToggle={toggle}>
@@ -178,6 +179,6 @@ export function BusinessNav({
         </div>
       </div>
       <BottomNav businessId={props.business.id} />
-    </>
+    </BusinessNameContext.Provider>
   );
 }

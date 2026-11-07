@@ -6,7 +6,7 @@ const ROWS = 6;
 
 export default function Loading() {
   return (
-    <PageSkeleton back>
+    <PageSkeleton>
       <div className="grid flex-1 grid-cols-2 gap-3 lg:gap-5 xl:grid-cols-3 xl:grid-rows-[auto_minmax(0,1fr)]">
         <Panel padding="lg" className="col-span-2 flex flex-col gap-3 xl:col-span-1 xl:row-span-2">
           <Skeleton className="size-20 rounded-full!" />

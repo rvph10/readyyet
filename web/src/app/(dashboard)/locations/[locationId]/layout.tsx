@@ -33,6 +33,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   return (
     <LocationActions
       locationId={locationId}
+      locationName={location.name}
       timeZone={location.timeZone}
       today={calendarDateIn(now, location.timeZone)}
       suggestedDate={

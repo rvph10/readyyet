@@ -102,6 +102,7 @@
     "collapseSidebar": "Réduire le menu",
     "expandSidebar": "Développer le menu",
     "youAreHere": "Vous êtes ici",
+    "breadcrumbs": "Fil d'Ariane",
     "switchBusiness": "{business}, changer d'entreprise",
     "switchBusinessLabel": "Entreprises"
   },
@@ -288,6 +289,7 @@
   "common": {
     "home": "Vos magasins",
     "close": "Fermer",
+    "sortBy": "Trier par {column}",
     "stepDone": "terminé",
     "clearSearch": "Effacer la recherche",
     "notifications": "Notifications",
@@ -383,7 +385,6 @@
     "collectedNotYet": "Pas encore"
   },
   "ticketDetail": {
-    "back": "Retour",
     "status": "Statut",
     "history": "Historique",
     "moveTo": "Passer à {status}",
@@ -451,7 +452,6 @@
     "endedNote": "Ce ticket est terminé. Rouvrez-le s'il a été clôturé par erreur.",
     "emailGaveUpEnded": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer.",
     "emailRetryingEnded": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée.",
-    "subtitle": "#{id}, {name}, reçu le {date}",
     "since": "Depuis le {date}, par {name}",
     "workflow": "Workflow",
     "handOver": "Remis",
