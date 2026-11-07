@@ -66,15 +66,17 @@ export function canonicalTimeZone(value: unknown): string | undefined {
 // Google's review pages only, by host and path: the tracking page sends
 // Customers to this link, and a Google host alone would let through
 // google.com/url?q=, which redirects anywhere (ADR 0039).
-const GOOGLE_REVIEW_PATHS: Record<string, RegExp> = {
-  "g.page": /^\/r\//,
-  "search.google.com": /^\/local\/writereview$/,
-  "www.google.com": /^\/maps\//,
-  "google.com": /^\/maps\//,
-  "maps.google.com": /^\/maps\//,
+// A Map, as a host comes from the user: on an object, https://constructor/ would
+// find Object's own constructor rather than nothing.
+const GOOGLE_REVIEW_PATHS = new Map([
+  ["g.page", /^\/r\//],
+  ["search.google.com", /^\/local\/writereview$/],
+  ["www.google.com", /^\/maps\//],
+  ["google.com", /^\/maps\//],
+  ["maps.google.com", /^\/maps\//],
   // Google's own short links, they only open Google Maps.
-  "maps.app.goo.gl": /^\/[A-Za-z0-9]+$/,
-};
+  ["maps.app.goo.gl", /^\/[A-Za-z0-9]+$/],
+]);
 
 function isGoogleReviewUrl(value: unknown) {
   if (typeof value !== "string" || !URL.canParse(value)) {
@@ -86,7 +88,7 @@ function isGoogleReviewUrl(value: unknown) {
     url.username === "" &&
     url.password === "" &&
     url.port === "" &&
-    (GOOGLE_REVIEW_PATHS[url.hostname]?.test(url.pathname) ?? false)
+    (GOOGLE_REVIEW_PATHS.get(url.hostname)?.test(url.pathname) ?? false)
   );
 }
 
