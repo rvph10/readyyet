@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRef, useState, useTransition, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import { useRef, useTransition, type ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -121,23 +122,24 @@ function Reader({ item, locationId, shopName }: { item: Item; locationId: string
 interface Props {
   locationId: string;
   shopName: string;
-  // The message a link asked for. Any other row opens if it's not on this page.
-  start: string | null;
   items: Item[];
   tabs: ReactNode;
   pager: ReactNode;
 }
 
 // ADR 0096: an inbox, the open message taking most of the page. Choosing one
-// stays in the browser, so messages open at once. Once one is handled and leaves
-// the list, the fallback to the first row opens the next.
-export function FeedbackBoard({ locationId, shopName, start, items, tabs, pager }: Props) {
+// stays in the browser, so messages open at once. The URL holds it, so the bell's
+// links open a message on this page too. One that isn't here, handled or on
+// another page, falls back to the first row.
+export function FeedbackBoard({ locationId, shopName, items, tabs, pager }: Props) {
   const t = useTranslations("feedback");
-  const [openId, setOpenId] = useState(start);
+  const search = useSearchParams();
   const readerTop = useRef<HTMLSpanElement>(null);
-  const open = items.find(({ id }) => id === openId) ?? items[0];
+  const open = items.find(({ id }) => id === search.get("message")) ?? items[0];
   function choose(id: string) {
-    setOpenId(id);
+    const next = new URLSearchParams(search);
+    next.set("message", id);
+    window.history.replaceState(null, "", `?${next}`);
     // On a phone the message sits above the list, out of sight.
     readerTop.current!.scrollIntoView({ block: "nearest" });
   }

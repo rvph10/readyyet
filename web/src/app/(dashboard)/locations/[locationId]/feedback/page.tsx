@@ -111,11 +111,8 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
             </Banner>
           )}
           <FeedbackBoard
-            // A row chosen in one tab or page means nothing in another.
-            key={`${view}-${page}`}
             locationId={locationId}
             shopName={location.name}
-            start={typeof search.message === "string" ? search.message : null}
             items={list.items.map((item) => ({
               ...item,
               receivedShown: moment(item.createdAt),
