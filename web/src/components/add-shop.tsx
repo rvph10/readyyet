@@ -2,7 +2,16 @@
 
 import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { createContext, useCallback, useContext, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useTransition,
+  type FormEvent,
+  type ReactNode,
+  type TransitionStartFunction,
+} from "react";
 import { newLocation } from "@/app/(create-business)/businesses/new/schema";
 import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { PhoneField } from "@/components/phone-field";
@@ -30,7 +39,16 @@ export const useAddShop = () => useContext(AddShopContext);
 
 type Data = Awaited<ReturnType<typeof addShopData>>;
 
-function AddShopForm({ businessId, data, onClose }: { businessId: string; data: Data; onClose: () => void }) {
+interface FormProps {
+  businessId: string;
+  data: Data;
+  onClose: () => void;
+  // Held by the drawer, which stays open while the API answers.
+  pending: boolean;
+  startSubmit: TransitionStartFunction;
+}
+
+function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormProps) {
   const t = useTranslations("createBusiness");
   const tNew = useTranslations("business.newLocation");
   const format = useFormatter();
@@ -43,12 +61,9 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
   const [contactEmail, setContactEmail] = useState(data.email);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pending, startTransition] = useTransition();
   const otherType = data.businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
   const isOther = businessTypeCode === OTHER_BUSINESS_TYPE;
   const last = step === STEPS.length - 1;
-
-  const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
 
   function edited(field: string) {
     setErrors((shown) => Object.fromEntries(Object.entries(shown).filter(([other]) => other !== field)));
@@ -72,7 +87,8 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
       return;
     }
     if (!location.success) return;
-    startTransition(async () => {
+    setFailure(null);
+    startSubmit(async () => {
       const result = await orFailure(
         addLocation(businessId, {
           ...location.data,
@@ -82,10 +98,14 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
         }),
       );
       if (result.ok) return;
-      setFailure(result);
-      // Back to whatever the API refused.
-      const refused = STEPS.findIndex((fields) => fields.some((field) => result.fields?.[field]));
-      if (refused >= 0) setStep(refused);
+      const refused = STEPS.flat().filter((field) => result.fields?.[field]);
+      if (refused.length === 0) {
+        setFailure(result);
+        return;
+      }
+      // Back to whatever the API refused, where editing it clears the error.
+      setErrors(Object.fromEntries(refused.map((field) => [field, t("invalid")])));
+      setStep(STEPS.findIndex((fields) => fields.includes(refused[0])));
     });
   }
 
@@ -97,9 +117,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
           current={step + 1}
           label={t("stepOf", { step: step + 1, steps: STEPS.length })}
         />
-        {failure && !STEPS.flat().some((field) => failure.fields?.[field]) && (
-          <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
-        )}
+        {failure && <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>}
         {step === 0 && (
           <>
             <div>
@@ -116,7 +134,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
                 setName(event.target.value);
                 edited("name");
               }}
-              error={errorFor("name")}
+              error={errors.name}
             />
           </>
         )}
@@ -147,7 +165,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
                 setBusinessTypeCode(code);
                 edited("businessTypeCode");
               }}
-              error={errorFor("businessTypeCode")}
+              error={errors.businessTypeCode}
             />
           </>
         )}
@@ -165,7 +183,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
                 edited("contactPhone");
               }}
               defaultCountry={data.country ?? FALLBACK_COUNTRY}
-              error={errorFor("contactPhone")}
+              error={errors.contactPhone}
             />
             <Field
               label={t("contactEmail")}
@@ -177,7 +195,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
                 setContactEmail(event.target.value);
                 edited("contactEmail");
               }}
-              error={errorFor("contactEmail")}
+              error={errors.contactEmail}
             />
             <p className="rounded-2xl bg-brand px-4 py-3 text-p-sm text-ink">
               {tNew("planNotice", {
@@ -219,6 +237,7 @@ export function AddShopProvider({ businessId, children }: { businessId: string; 
   const [run, setRun] = useState(0);
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
+  const [submitting, startSubmit] = useTransition();
 
   const start = useCallback(() => {
     setRun((value) => value + 1);
@@ -230,8 +249,17 @@ export function AddShopProvider({ businessId, children }: { businessId: string; 
   return (
     <AddShopContext.Provider value={start}>
       {children}
-      <Dialog open={open} onClose={() => setOpen(false)} title={t("addLocation")} variant="panel">
-        {open && data && <AddShopForm key={run} businessId={businessId} data={data} onClose={() => setOpen(false)} />}
+      <Dialog open={open} onClose={() => setOpen(false)} title={t("addLocation")} variant="panel" locked={submitting}>
+        {open && data && (
+          <AddShopForm
+            key={run}
+            businessId={businessId}
+            data={data}
+            onClose={() => setOpen(false)}
+            pending={submitting}
+            startSubmit={startSubmit}
+          />
+        )}
         {open && !data && !failed && (
           <div aria-busy className="flex flex-col gap-4 px-6 py-4 md:px-7">
             <Skeleton className="h-7 w-full" />
