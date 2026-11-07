@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  isLowRating,
   journey,
   openingState,
   parseStars,
@@ -146,11 +145,5 @@ describe("parseStars", () => {
     for (const value of ["0", "6", "2.5", "abc", "", undefined, ["1", "2"]]) {
       expect(parseStars(value)).toBeUndefined();
     }
-  });
-});
-
-describe("isLowRating", () => {
-  it("is 1 to 3 stars", () => {
-    expect([1, 2, 3, 4, 5].map(isLowRating)).toEqual([true, true, true, false, false]);
   });
 });

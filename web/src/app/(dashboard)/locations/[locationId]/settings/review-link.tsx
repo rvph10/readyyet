@@ -50,13 +50,13 @@ function CustomerPreview() {
           <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-ink">
             <Icon name="check" className="size-3" />
           </span>
-          {t("reviewPreviewHappy")}
+          {t("reviewPreviewGoogle")}
         </li>
         <li className="flex gap-3">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface/15">
             <Icon name="comment" className="size-3" />
           </span>
-          {t("reviewPreviewUnhappy")}
+          {t("reviewPreviewPrivate")}
         </li>
       </ul>
     </aside>

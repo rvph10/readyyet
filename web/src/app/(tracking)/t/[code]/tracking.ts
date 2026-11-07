@@ -19,10 +19,6 @@ export function parseStars(value: string | string[] | undefined) {
   return STARS.find((star) => String(star) === value);
 }
 
-export function isLowRating(stars: number) {
-  return stars <= 3;
-}
-
 // Dates read day first and times on a 24-hour clock in both languages, as
 // on a Belgian or French Location's door, not the American order "en" implies.
 function intlLocale(locale: string) {
