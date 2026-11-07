@@ -24,7 +24,7 @@ const tones = {
 interface Item {
   id: string;
   name: string;
-  // What it's about, the Ticket's title or the start of a message.
+  // What it's about, the Ticket's title or the message.
   detail: string;
   // When it happened, where that's known.
   shown?: string;

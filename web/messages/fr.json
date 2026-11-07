@@ -786,8 +786,7 @@
       "frozen": "Ce magasin n'a pas de plan actif : vous ne pouvez inviter personne.",
       "tooMany": "Trop d'invitations pour le moment. Attendez une minute, puis réessayez.",
       "failed": "Cela n'a pas fonctionné. Veuillez réessayer."
-    },
-    "waitingToJoin": "{count, plural, one {# invité, pas encore arrivé} other {# invités, pas encore arrivés}}"
+    }
   },
   "settings": {
     "saveFailed": "Vos modifications n'ont pas été enregistrées. Veuillez réessayer.",
@@ -957,7 +956,6 @@
       "nothingDueHint": "Aucun renouvellement prévu"
     },
     "newLocation": {
-      "subtitle": "Un nouveau magasin de {business}",
       "nameHint": "Les clients le voient sur leur page de suivi.",
       "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",

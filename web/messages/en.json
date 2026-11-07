@@ -786,8 +786,7 @@
       "frozen": "This shop has no active plan, so you can't invite anyone.",
       "tooMany": "Too many invitations just now. Wait a minute, then try again.",
       "failed": "That didn't work. Please try again."
-    },
-    "waitingToJoin": "{count, plural, one {# invited, not joined yet} other {# invited, not joined yet}}"
+    }
   },
   "settings": {
     "saveFailed": "Your changes weren't saved. Please try again.",
@@ -957,7 +956,6 @@
       "nothingDueHint": "No shop renews soon"
     },
     "newLocation": {
-      "subtitle": "A new shop under {business}",
       "nameHint": "Customers see it on their tracking page.",
       "planNotice": "Each shop has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
       "cancel": "Cancel",

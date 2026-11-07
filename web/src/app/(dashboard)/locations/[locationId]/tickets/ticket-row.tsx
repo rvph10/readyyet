@@ -14,8 +14,8 @@ import { daysBetween, expected, formatDay, waitTone, type ListSort, type QueueSo
 type ListTicket = components["schemas"]["TicketListItemDto"];
 type OverviewTicket = components["schemas"]["OverviewTicketDto"];
 
-// Today's table shares its row with the rail, so the next step drops its word
-// when the tile is narrow. A long title shortens, the whole value on hover.
+// In a narrow tile, like Today's on a small laptop, the next step drops its word.
+// A long title shortens, the whole value on hover.
 const QUEUE_GRID =
   "lg:grid-cols-[minmax(0,1fr)_8.5rem_7rem_3rem] lg:gap-x-4 lg:@3xl:grid-cols-[minmax(0,1fr)_9.5rem_7.5rem_10rem]";
 const LIST_GRID =
