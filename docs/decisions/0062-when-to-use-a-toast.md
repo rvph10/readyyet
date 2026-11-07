@@ -15,14 +15,14 @@ A toast (ADR 0059, 0060) is for an action the person just took, when its result 
 
 **Don't use a toast when:**
 
-| The message                                                   | Goes in                                   |
-| ------------------------------------------------------------- | ----------------------------------------- |
-| Repeats what the page already shows, like a pill turning lime  | Nothing, the page says it                 |
-| Is about one field                                            | The field's own error                     |
-| Is about the whole form, like the API unreachable             | A `FormAlert` at the top of the form      |
-| Must stay until it's fixed, like a failed payment             | A `Banner`                                |
-| Needs a decision, like cancelling a Ticket                    | A `Dialog`                                |
-| Is needed later, like a new Ticket's code                     | The page it belongs to                    |
+| The message                                                   | Goes in                              |
+| ------------------------------------------------------------- | ------------------------------------ |
+| Repeats what the page already shows, like a pill turning lime | Nothing, the page says it            |
+| Is about one field                                            | The field's own error                |
+| Is about the whole form, like the API unreachable             | A `FormAlert` at the top of the form |
+| Must stay until it's fixed, like a failed payment             | A `Banner`                           |
+| Needs a decision, like cancelling a Ticket                    | A `Dialog`                           |
+| Is needed later, like a new Ticket's code                     | The page it belongs to               |
 
 The Customer's tracking page has no toasts: what the Customer does there, like saying they've collected their item, changes the page itself.
 

@@ -1,6 +1,6 @@
 import { calendarDateIn, ERASED_CUSTOMER_NAME, turnaroundReadyDate } from "@readyyet/shared";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { api } from "@/lib/api/client";
@@ -12,7 +12,9 @@ import { LocationActions } from "./location-actions";
 import { getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
 import { LocationNav } from "./location-nav";
 import { isManager } from "./sections";
-import { daysBetween, LONG_WAIT_DAYS } from "./tickets/ticket-views";
+import { daysBetween, formatMoment, LONG_WAIT_DAYS } from "./tickets/ticket-views";
+
+const FEEDBACK_ON_THE_BELL = 5;
 
 export async function generateMetadata({ params }: LayoutProps<"/locations/[locationId]">): Promise<Metadata> {
   const [{ locationId }, { memberships }] = await Promise.all([params, getMe()]);
@@ -22,11 +24,13 @@ export async function generateMetadata({ params }: LayoutProps<"/locations/[loca
 // ADR 0077: the Location is in the URL, nothing remembers a "current" one, so
 // two tabs can show two Locations and an email's link opens the right one.
 export default async function LocationLayout({ children, params }: LayoutProps<"/locations/[locationId]">) {
-  const [{ locationId }, me, cookieStore, tTickets, client] = await Promise.all([
+  const [{ locationId }, me, cookieStore, tTickets, tDetail, locale, client] = await Promise.all([
     params,
     getMe(),
     cookies(),
     getTranslations("tickets"),
+    getTranslations("ticketDetail"),
+    getLocale(),
     api(),
   ]);
   const current = me.memberships.find(({ location }) => location.id === locationId);
@@ -41,16 +45,19 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   const now = new Date();
   const manager = isManager(current.role);
   const today = calendarDateIn(now, location.timeZone);
-  const customer = ({ id, customer: { fullName } }: (typeof overview.tickets)[number]) => ({
+  const moment = (instant: string) =>
+    formatMoment(new Date(instant), location.timeZone, today, locale, (parts) => tDetail("moment", parts));
+  const customer = ({ id, title, customer: { fullName } }: (typeof overview.tickets)[number]) => ({
     id,
     name: fullName === ERASED_CUSTOMER_NAME ? tTickets("erasedCustomer") : fullName,
+    detail: title,
   });
   const readySince = ({ statusSince }: (typeof overview.tickets)[number]) =>
     daysBetween(calendarDateIn(new Date(statusSince), location.timeZone), today);
   const feedback = manager
     ? await client
         .GET("/locations/{locationId}/feedback", {
-          params: { path: { locationId }, query: { handled: "false", take: 1 } },
+          params: { path: { locationId }, query: { handled: "false", take: FEEDBACK_ON_THE_BELL } },
         })
         .then(pageData)
     : null;
@@ -88,9 +95,16 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           inviteLink={owned && (await referralLink(owned.referralCode))}
           needsYou={{
             trialDaysLeft: trialDaysLeft !== null && trialDaysLeft <= 3 ? trialDaysLeft : null,
-            feedback: feedback?.items[0] ?? null,
+            feedback: (feedback?.items ?? []).map(({ id, customer: { fullName }, message, createdAt }) => ({
+              id,
+              name: fullName,
+              detail: message,
+              shown: moment(createdAt),
+            })),
             feedbackCount: manager ? overview.counts.unhandledFeedback : 0,
-            collected: overview.tickets.filter(({ customerCollectedAt }) => customerCollectedAt).map(customer),
+            collected: overview.tickets.flatMap((ticket) =>
+              ticket.customerCollectedAt ? [{ ...customer(ticket), shown: moment(ticket.customerCollectedAt) }] : [],
+            ),
             failing: overview.tickets.filter(({ emailFails }) => emailFails).map(customer),
             longWaits: overview.tickets
               .filter(

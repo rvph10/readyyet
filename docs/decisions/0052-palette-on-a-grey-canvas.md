@@ -8,18 +8,18 @@ This replaces the neutrals, brand colours and `highlight` of ADR 0042. Its Statu
 
 The palette is built from four colours: ink `#091315`, lime `#D6FF53`, white `#FFFFFF` and the grey `#EBECEA`, which is the page background. White panels sit on the grey, and every other role is derived from those two.
 
-| Token           | Value     | For                                              |
-| --------------- | --------- | ------------------------------------------------ |
-| `canvas`        | `#EBECEA` | Page background                                  |
-| `surface`       | `#FFFFFF` | Cards, tables, dialogs, inputs                   |
-| `subtle`        | `#F5F6F4` | Hovered rows and fills inside a white panel      |
-| `border`        | `#DCDEDB` | Dividers and outlines                            |
-| `border-strong` | `#A8ADA7` | Outlines of controls on hover (ADR 0053)         |
-| `ink`           | `#091315` | Text, primary buttons, icons, focus              |
-| `muted`         | `#56605D` | Secondary text                                   |
-| `brand`         | `#D6FF53` | Fills with ink on them                           |
-| `brand-hover`   | `#BFE632` | The lime button on hover                         |
-| `brand-text`    | `#4B6A00` | Links and lime-toned text                        |
+| Token           | Value     | For                                         |
+| --------------- | --------- | ------------------------------------------- |
+| `canvas`        | `#EBECEA` | Page background                             |
+| `surface`       | `#FFFFFF` | Cards, tables, dialogs, inputs              |
+| `subtle`        | `#F5F6F4` | Hovered rows and fills inside a white panel |
+| `border`        | `#DCDEDB` | Dividers and outlines                       |
+| `border-strong` | `#A8ADA7` | Outlines of controls on hover (ADR 0053)    |
+| `ink`           | `#091315` | Text, primary buttons, icons, focus         |
+| `muted`         | `#56605D` | Secondary text                              |
+| `brand`         | `#D6FF53` | Fills with ink on them                      |
+| `brand-hover`   | `#BFE632` | The lime button on hover                    |
+| `brand-text`    | `#4B6A00` | Links and lime-toned text                   |
 
 `highlight` is removed. Keyboard focus (ADR 0048) and a focused input's border (ADR 0049) use `ink`.
 

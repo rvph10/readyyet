@@ -97,7 +97,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   return (
     <div
       ref={box}
-      className={compact ? "absolute inset-x-4 top-3 z-30" : "relative w-full max-w-[22rem] min-w-0"}
+      className={compact ? "absolute inset-x-4 top-3 z-30" : "relative w-full min-w-0"}
       onFocus={() => setOpen(true)}
       onKeyDown={(event) => {
         if (event.key === "ArrowDown") setActive((value) => Math.min(value + 1, results.length - 1));

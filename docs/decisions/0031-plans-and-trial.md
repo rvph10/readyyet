@@ -10,14 +10,14 @@ Replaces the free plan in ADR 0003 and ADR 0027: there is none. Per-location bil
 
 Each Location subscribes to one of two plans. Prices exclude VAT.
 
-| | Essentiel | Pro |
-| --- | --- | --- |
-| Monthly | €29 | €49 |
-| Yearly | €290 | €490 |
-| Tickets | Unlimited | Unlimited |
-| Members | 2 | Unlimited |
-| Workflow | The Business type's default | Custom (ADR 0003) |
-| Review request and private feedback (ADR 0027) | | ✓ |
+|                                                | Essentiel                   | Pro               |
+| ---------------------------------------------- | --------------------------- | ----------------- |
+| Monthly                                        | €29                         | €49               |
+| Yearly                                         | €290                        | €490              |
+| Tickets                                        | Unlimited                   | Unlimited         |
+| Members                                        | 2                           | Unlimited         |
+| Workflow                                       | The Business type's default | Custom (ADR 0003) |
+| Review request and private feedback (ADR 0027) |                             | ✓                 |
 
 Everything else is on both plans: tracking page, customer emails, photos, reminders, estimated ready date, address and opening hours.
 

@@ -31,7 +31,7 @@ export function controlClass(error: string | null | undefined) {
   return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
     error
       ? "border-danger focus:ring-3 focus:ring-danger/15"
-      : "border-border hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-border"
+      : "border-input hover:border-muted focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-input"
   }`;
 }
 

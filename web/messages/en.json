@@ -501,9 +501,6 @@
     "needsYou": "Needs you",
     "caughtUp": "All clear",
     "caughtUpHint": "No feedback or problems waiting for you.",
-    "privateFeedback": "Private feedback",
-    "read": "Read",
-    "markHandled": "Mark handled",
     "saysCollected": "Says they collected",
     "notYet": "Not yet",
     "confirm": "Confirm",
@@ -540,7 +537,15 @@
         "body": "They see each step, without calling."
       }
     },
-    "vsLastWeek": "vs last week"
+    "vsLastWeek": "vs last week",
+    "needsYouCount": "{count, plural, =0 {Needs you, nothing right now} one {Needs you, # thing} other {Needs you, # things}}",
+    "seeAll": "See all {count}",
+    "groups": {
+      "failing": "Emails that failed",
+      "collected": "To confirm",
+      "feedback": "Feedback",
+      "waiting": "Waiting to be collected"
+    }
   },
   "plans": {
     "title": "Keep ReadyYet running",
@@ -655,11 +660,6 @@
       "handled": "Handled"
     },
     "messagesTitle": "Customer messages",
-    "waitingSummary": "{count, plural, =0 {No messages need follow-up} one {# message needs follow-up} other {# messages need follow-up}}",
-    "handledSummary": "These messages have already been handled.",
-    "messageTitle": "Customer's message",
-    "ticketFollowUp": "Contact the Customer from their Ticket.",
-    "openTicket": "Open Ticket",
     "markHandled": "Mark handled",
     "marking": "Marking…",
     "moved": "Moved to Handled",
@@ -689,7 +689,12 @@
         "notice": "Customers aren't being asked for feedback, as this shop has no Google review link.",
         "action": "Go to Settings"
       }
-    }
+    },
+    "waitingFor": "{days, plural, =0 {New today} one {Waiting # day} other {Waiting # days}}",
+    "replyEmail": "Reply by email",
+    "replyCall": "Call",
+    "replySubject": "{shop}: about {ticket}",
+    "noContact": "No email or phone for this Customer."
   },
   "customers": {
     "title": "Customers",
@@ -916,8 +921,7 @@
     "resetConfirm": "New Tickets will go through these steps, between Received and Ready:",
     "resetDone": "Back to the usual path.",
     "proTitle": "Make the path your own",
-    "proHint": "With Pro, you choose the steps your Customers see and put them in your order.",
-    "stepCount": "{count} steps"
+    "proHint": "With Pro, you choose the steps your Customers see and put them in your order."
   },
   "business": {
     "locationCount": "{count, plural, =0 {No shops yet} one {# shop} other {# shops}}",
@@ -988,7 +992,7 @@
       "bannerSaved": "Banner updated",
       "bannerFailed": "The banner wasn't saved. Try another image.",
       "imagesTitle": "Logo and banner",
-      "imagesHint": "On every tracking page. Banners work best at 1600 by 480, in JPG, PNG or WebP.",
+      "imagesHint": "On every tracking page. A banner is shown at 3:1, best at 1500 by 500, in JPG, PNG or WebP.",
       "logoRemoveLong": "Remove logo"
     },
     "home": {

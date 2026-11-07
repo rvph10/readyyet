@@ -4,7 +4,7 @@ import { isNotifyingStatus } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState, useTransition, type LiHTMLAttributes, type ReactNode } from "react";
-import { statusTone, toneIcons, type StatusTone } from "@/components/status-pill";
+import { statusTone, toneIcons } from "@/components/status-pill";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -33,38 +33,13 @@ interface Props {
   canEdit: boolean;
 }
 
-// ADR 0111: the colours of ADR 0042's tones, so the kind of each step reads at a
-// glance, down the path and in what can be added to it.
-const TONES: Record<StatusTone, { row: string; mark: string; bar: string; text: string }> = {
-  received: {
-    row: "bg-status-received/10",
-    mark: "bg-status-received text-surface",
-    bar: "bg-status-received",
-    text: "text-info",
-  },
-  working: {
-    row: "bg-status-working/10",
-    mark: "bg-status-working text-surface",
-    bar: "bg-status-working",
-    text: "text-status-working",
-  },
-  waiting: {
-    row: "bg-status-waiting/10",
-    mark: "bg-status-waiting text-surface",
-    bar: "bg-status-waiting",
-    text: "text-warning",
-  },
-  ready: { row: "bg-brand/35", mark: "bg-brand text-ink", bar: "bg-brand", text: "text-ink" },
-  completed: { row: "bg-pine-subtle", mark: "bg-pine text-brand", bar: "bg-pine", text: "text-pine" },
-  stopped: { row: "bg-danger-subtle", mark: "bg-danger text-surface", bar: "bg-danger", text: "text-danger" },
-};
-
 // One stop on the path: the same round marks as a Ticket's track, joined by a
 // line that the last one doesn't draw.
 function PathRow({
   code,
   label,
   last,
+  fixed,
   note,
   children,
   rowProps,
@@ -72,24 +47,33 @@ function PathRow({
   code: string;
   label: string;
   last?: boolean;
+  fixed?: boolean;
   note?: string;
   children?: ReactNode;
   rowProps?: LiHTMLAttributes<HTMLLIElement>;
 }) {
   const tone = statusTone(code);
+  const mark =
+    tone === "ready"
+      ? "bg-brand text-ink"
+      : fixed
+        ? "bg-pine text-brand"
+        : tone === "waiting"
+          ? "bg-warning-subtle text-warning"
+          : "bg-pine-subtle text-pine";
   return (
     <li
       {...rowProps}
-      className={`relative grid min-h-16 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-2xl px-3 lg:gap-4 ${TONES[tone].row} ${rowProps?.className ?? ""}`}
+      className={`relative grid min-h-16 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 lg:gap-4 ${rowProps?.className ?? ""}`}
     >
       {!last && (
         <span
           aria-hidden="true"
-          className="absolute top-13 bottom-[-0.75rem] left-[1.875rem] w-1 rounded-full bg-border-strong"
+          className="absolute top-11 bottom-[-1.25rem] left-[1.125rem] w-1 rounded-full bg-border-strong"
         />
       )}
       <span
-        className={`relative z-10 flex size-10 shrink-0 self-center items-center justify-center rounded-full ${TONES[tone].mark}`}
+        className={`relative z-10 flex size-10 shrink-0 self-center items-center justify-center rounded-full ${mark}`}
       >
         <Icon name={toneIcons[tone]} className="size-3.5" />
       </span>
@@ -140,7 +124,6 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
     });
   }
 
-  const path = ["RECEIVED", ...steps, "READY", "COMPLETED"];
   const emailsNote = (code: string) => (isNotifyingStatus(code) ? t("emails") : undefined);
 
   return (
@@ -153,17 +136,9 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
       >
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="px-5 pt-5 lg:px-7 lg:pt-6">
-            <div className="flex items-center justify-between gap-3">
-              <h2 id="workflow-path" className="text-title-h6">
-                {t("pathTitle")}
-              </h2>
-              <span className="text-label-sm text-muted">{t("stepCount", { count: path.length })}</span>
-            </div>
-            <div aria-hidden="true" className="mt-3 flex h-2.5 gap-0.5">
-              {path.map((code) => (
-                <span key={code} title={label(code)} className={`flex-1 rounded-full ${TONES[statusTone(code)].bar}`} />
-              ))}
-            </div>
+            <h2 id="workflow-path" className="text-title-h6">
+              {t("pathTitle")}
+            </h2>
             {!canEdit && <p className="mt-0.5 text-p-sm text-muted">{t("pathDefault", { type: businessTypeName })}</p>}
             {failure && (
               <div className="mt-3">
@@ -172,7 +147,7 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
             )}
           </div>
           <ol className="min-h-0 flex-1 space-y-2 overflow-y-auto px-5 py-5 lg:px-7">
-            <PathRow code="RECEIVED" label={label("RECEIVED")} note={t("firstNote")} />
+            <PathRow code="RECEIVED" label={label("RECEIVED")} fixed note={t("firstNote")} />
             {steps.map((code, index) => (
               <PathRow
                 key={code}
@@ -235,8 +210,8 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
                 )}
               </PathRow>
             ))}
-            <PathRow code="READY" label={label("READY")} note={t("readyNote")} />
-            <PathRow code="COMPLETED" label={label("COMPLETED")} last note={t("completedNote")} />
+            <PathRow code="READY" label={label("READY")} fixed note={t("readyNote")} />
+            <PathRow code="COMPLETED" label={label("COMPLETED")} fixed last note={t("completedNote")} />
           </ol>
           <p className="mx-5 mb-4 flex gap-2 rounded-xl bg-subtle px-3.5 py-3 text-p-sm text-muted lg:mx-7">
             <Icon name="ban" className="mt-1 size-3.5 shrink-0" />
@@ -279,10 +254,7 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
               <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
                 {groups.map(({ group, statuses: inGroup }) => (
                   <section key={group} className="mb-4 last:mb-0">
-                    <h3 className={`flex items-center gap-2 pb-1 text-label-xs font-semibold ${TONES[group].text}`}>
-                      <span className={`size-2.5 rounded-full ${TONES[group].bar}`} />
-                      {t(`groups.${group}`)}
-                    </h3>
+                    <h3 className="pb-1 text-label-xs text-muted">{t(`groups.${group}`)}</h3>
                     <ul>
                       {inGroup.map((status) => (
                         <li key={status.code}>
@@ -291,9 +263,7 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
                             onClick={() => setSteps((current) => [...current, status.code])}
                             className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-subtle"
                           >
-                            <span
-                              className={`flex size-7 shrink-0 items-center justify-center rounded-full ${TONES[group].row} ${TONES[group].text}`}
-                            >
+                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-subtle">
                               <Icon name="add" className="size-3" />
                             </span>
                             <span className="min-w-0 flex-1 text-label-sm wrap-anywhere">

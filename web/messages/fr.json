@@ -501,9 +501,6 @@
     "needsYou": "À traiter",
     "caughtUp": "Tout est à jour",
     "caughtUpHint": "Aucun retour ni problème ne vous attend.",
-    "privateFeedback": "Retour privé",
-    "read": "Lire",
-    "markHandled": "Marquer traité",
     "saysCollected": "Dit avoir retiré",
     "notYet": "Pas encore",
     "confirm": "Confirmer",
@@ -540,7 +537,15 @@
         "body": "Il voit chaque étape sans appeler."
       }
     },
-    "vsLastWeek": "vs la semaine passée"
+    "vsLastWeek": "vs la semaine passée",
+    "needsYouCount": "{count, plural, =0 {À traiter, rien pour le moment} one {À traiter, # élément} other {À traiter, # éléments}}",
+    "seeAll": "Tout voir ({count})",
+    "groups": {
+      "failing": "Emails en échec",
+      "collected": "À confirmer",
+      "feedback": "Retours",
+      "waiting": "En attente de retrait"
+    }
   },
   "plans": {
     "title": "Gardez ReadyYet actif",
@@ -655,11 +660,6 @@
       "handled": "Traités"
     },
     "messagesTitle": "Messages des clients",
-    "waitingSummary": "{count, plural, =0 {Aucun message à traiter} one {# message à traiter} other {# messages à traiter}}",
-    "handledSummary": "Ces messages ont déjà été traités.",
-    "messageTitle": "Message du client",
-    "ticketFollowUp": "Contactez le client depuis son ticket.",
-    "openTicket": "Ouvrir le ticket",
     "markHandled": "Marquer comme traité",
     "marking": "Enregistrement…",
     "moved": "Déplacé dans Traités",
@@ -689,7 +689,12 @@
         "notice": "Les clients ne sont pas invités à donner leur avis : ce magasin n'a pas de lien d'avis Google.",
         "action": "Aller aux réglages"
       }
-    }
+    },
+    "waitingFor": "{days, plural, =0 {Nouveau aujourd'hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
+    "replyEmail": "Répondre par email",
+    "replyCall": "Appeler",
+    "replySubject": "{shop} : à propos de {ticket}",
+    "noContact": "Pas d'email ni de téléphone pour ce client."
   },
   "customers": {
     "title": "Clients",
@@ -916,8 +921,7 @@
     "resetConfirm": "Les nouveaux tickets passeront par ces étapes, entre Reçu et Prêt :",
     "resetDone": "Retour au parcours habituel.",
     "proTitle": "Faites de ce parcours le vôtre",
-    "proHint": "Avec Pro, vous choisissez les étapes que voient vos clients, dans votre ordre.",
-    "stepCount": "{count} étapes"
+    "proHint": "Avec Pro, vous choisissez les étapes que voient vos clients, dans votre ordre."
   },
   "business": {
     "locationCount": "{count, plural, =0 {Aucun magasin} one {# magasin} other {# magasins}}",
@@ -988,7 +992,7 @@
       "bannerSaved": "Bannière mise à jour",
       "bannerFailed": "La bannière n'a pas été enregistrée. Essayez une autre image.",
       "imagesTitle": "Logo et bannière",
-      "imagesHint": "Sur chaque page de suivi. Une bannière rend mieux en 1600 sur 480, en JPG, PNG ou WebP.",
+      "imagesHint": "Sur chaque page de suivi. La bannière est affichée en 3:1, idéalement en 1500 sur 500, en JPG, PNG ou WebP.",
       "logoRemoveLong": "Retirer le logo"
     },
     "home": {

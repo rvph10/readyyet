@@ -10,12 +10,12 @@ Date: 2026-09-28
 
 **Dialog variants**, one component with a `variant`:
 
-| Variant        | For                                         | Shape                                                              |
-| -------------- | ------------------------------------------- | ------------------------------------------------------------------ |
-| `default`      | Forms and questions                         | Title and ink close button on top, content, actions at the end     |
-| `destructive`  | Confirming what can't be undone             | A red warning badge above the title, the action a `danger` button  |
-| `announcement` | What's new, offers, plan news               | A picture or a lime band on top, a larger title under it           |
-| `image`        | A Ticket's photos                           | The image alone on a darker backdrop, its title as the caption     |
+| Variant        | For                             | Shape                                                             |
+| -------------- | ------------------------------- | ----------------------------------------------------------------- |
+| `default`      | Forms and questions             | Title and ink close button on top, content, actions at the end    |
+| `destructive`  | Confirming what can't be undone | A red warning badge above the title, the action a `danger` button |
+| `announcement` | What's new, offers, plan news   | A picture or a lime band on top, a larger title under it          |
+| `image`        | A Ticket's photos               | The image alone on a darker backdrop, its title as the caption    |
 
 `Button` gains `danger`, `red-700` with white text, for the one action a destructive dialog confirms.
 

@@ -2,109 +2,118 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState, useTransition, type ReactNode } from "react";
+import { useTransition, type ReactNode } from "react";
+import { Illustration } from "@/components/illustration";
 import { Popover } from "@/components/sidebar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
-import type { components } from "@/lib/api/schema";
-import { markFeedbackHandled } from "./actions";
 import { useLocationActions } from "./location-actions";
 import { changeStatus, dismissCollected } from "./tickets/[ticketId]/actions";
 
-type Feedback = components["schemas"]["FeedbackDto"];
+const MOST_SHOWN_ON_THE_BELL = 9;
 
 const tones = {
   lime: "bg-brand text-ink",
-  late: "bg-danger-subtle text-danger",
-  wait: "bg-warning-subtle text-warning",
+  late: "bg-danger text-surface",
+  wait: "bg-pine text-brand",
 };
 
-function Row({
-  icon,
-  tone,
-  title,
-  children,
-  highlight,
-  actions,
-}: {
-  icon: IconName;
-  tone: keyof typeof tones;
-  title: string;
-  children?: ReactNode;
-  highlight?: boolean;
-  actions?: ReactNode;
-}) {
-  return (
-    <li
-      className={
-        highlight ? "-mx-2.5 rounded-card bg-brand/25 p-2.5" : "border-t border-border py-2.5 first:border-t-0"
-      }
-    >
-      <div className="flex items-center gap-3">
-        <span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${tones[tone]}`}>
-          <Icon name={icon} className="size-3.5" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-label-sm">{title}</span>
-          {children}
-        </span>
-      </div>
-      {actions && <div className="mt-2 flex flex-wrap justify-end gap-1">{actions}</div>}
-    </li>
-  );
-}
-
-// With one thing to do, the whole row is the link.
-function LinkRow({
-  href,
-  ...props
-}: {
-  href: string;
-  icon: IconName;
-  tone: keyof typeof tones;
-  title: string;
-  line: string;
-}) {
-  return (
-    <li className="border-t border-border first:border-t-0">
-      <Link href={href} className="flex items-center gap-3 rounded-xl py-2.5 transition-colors hover:bg-subtle">
-        <span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${tones[props.tone]}`}>
-          <Icon name={props.icon} className="size-3.5" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-label-sm">{props.title}</span>
-          <span className="block truncate text-p-sm text-muted">{props.line}</span>
-        </span>
-        <Icon name="arrow-right" className="size-2.5 shrink-0 text-muted" />
-      </Link>
-    </li>
-  );
+interface Item {
+  id: string;
+  name: string;
+  // What it's about, the Ticket's title or the start of a message.
+  detail: string;
+  // When it happened, where that's known.
+  shown?: string;
 }
 
 export interface NeedsYouItems {
   // Set when it's close enough to act on, 0 once over.
   trialDaysLeft: number | null;
-  feedback: Feedback | null;
+  // The latest few, out of feedbackCount.
+  feedback: Item[];
   feedbackCount: number;
-  collected: { id: string; name: string }[];
-  failing: { id: string; name: string }[];
-  longWaits: { id: string; name: string; days: number }[];
+  collected: Item[];
+  failing: Item[];
+  longWaits: (Item & { days: number })[];
 }
 
-// ADR 0111: what needs someone, wherever they are in the shop, behind a bell
-// with a solid count. It opens wide, as a busy shop's list has actions in it.
+// One thing to deal with, like a row of any inbox: who, with a badge for what
+// kind of thing it is, what happened, and when. The whole row is the link, its
+// buttons sitting above it.
+function Row({
+  href,
+  name,
+  icon,
+  tone,
+  line,
+  detail,
+  shown,
+  actions,
+}: Omit<Item, "id" | "detail"> & {
+  href: string;
+  icon: IconName;
+  tone: keyof typeof tones;
+  line: string;
+  detail?: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <li className="relative flex gap-3 rounded-xl p-2.5 transition-colors hover:bg-subtle">
+      <span className="relative flex h-fit shrink-0">
+        <Avatar id={name} name={name} src={null} />
+        <span
+          className={`absolute -right-1.5 -bottom-1.5 flex size-5 items-center justify-center rounded-full ring-2 ring-surface ${tones[tone]}`}
+        >
+          <Icon name={icon} className="size-2.5" />
+        </span>
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="flex items-baseline justify-between gap-3">
+          <Link href={href} className="min-w-0 truncate text-label-sm after:absolute after:inset-0 after:rounded-xl">
+            {name}
+          </Link>
+          {shown && <span className="shrink-0 text-p-xs text-muted">{shown}</span>}
+        </p>
+        <p className="line-clamp-2 text-p-sm">{line}</p>
+        {detail && (
+          <p title={detail} className="truncate text-p-xs text-muted">
+            {detail}
+          </p>
+        )}
+        {actions && <div className="relative mt-2 flex gap-2">{actions}</div>}
+      </div>
+    </li>
+  );
+}
+
+function Group({ title, link, children }: { title: string; link?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="not-first:mt-2">
+      <div className="flex min-h-8 items-center justify-between gap-3 px-2.5">
+        <h3 className="text-label-xs font-semibold text-muted">{title}</h3>
+        {link}
+      </div>
+      <ul className="flex flex-col gap-0.5">{children}</ul>
+    </section>
+  );
+}
+
+// ADR 0112: nothing here is a notification to dismiss. Each row is work that
+// leaves the list once it's done, so there's no read state and no "mark all as
+// read", and the count is what's left to do. The most urgent kinds come first.
 export function NeedsYou({ locationId, items }: { locationId: string; items: NeedsYouItems }) {
   const { feedback, feedbackCount, collected, failing, longWaits, trialDaysLeft } = items;
   const t = useTranslations("today");
   const tDetail = useTranslations("ticketDetail");
   const { choosePlan } = useLocationActions();
   const toast = useToast();
-  const [reading, setReading] = useState(false);
   const [pending, startTransition] = useTransition();
   const total = feedbackCount + collected.length + failing.length + longWaits.length + (trialDaysLeft === null ? 0 : 1);
+  const ticket = (id: string) => `/locations/${locationId}/tickets/${id}`;
 
   function run(action: () => Promise<{ ok: boolean }>) {
     startTransition(async () => {
@@ -113,151 +122,143 @@ export function NeedsYou({ locationId, items }: { locationId: string; items: Nee
     });
   }
 
-  const handled = () => {
-    setReading(false);
-    run(() => markFeedbackHandled(locationId, feedback!.id));
-  };
-
   return (
-    <>
-      <Popover
-        label={`${t("needsYou")}: ${total}`}
-        popoverClass="needs-popover"
-        triggerClass="relative flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-subtle transition-colors hover:bg-border has-[+:popover-open]:bg-pine has-[+:popover-open]:text-brand"
-        trigger={
-          <>
-            <Icon name="notification" className="size-4.5" />
-            {total > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-danger px-1 text-xs leading-none font-bold text-surface ring-2 ring-surface">
-                {total}
-              </span>
-            )}
-          </>
-        }
-      >
-        <div className="p-2">
-          <h2 className="flex items-center gap-2.5 text-title-h6">
-            {t("needsYou")}
-            {total > 0 && (
-              <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-danger px-2 text-label-xs font-bold text-surface">
-                {total}
-              </span>
-            )}
-          </h2>
-          {total === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-brand text-ink">
-                <Icon name="check" className="size-4" />
-              </span>
-              <p className="mt-3 text-label-md">{t("caughtUp")}</p>
-              <p className="mt-0.5 max-w-60 text-p-sm text-muted">{t("caughtUpHint")}</p>
-            </div>
-          ) : (
-            <ul className="mt-2">
-              {trialDaysLeft !== null && (
-                <li className="border-t border-border first:border-t-0">
-                  <button
-                    type="button"
-                    onClick={choosePlan}
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl py-2.5 text-left transition-colors hover:bg-subtle"
-                  >
-                    <span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${tones.late}`}>
-                      <Icon name="receipt" className="size-3.5" />
-                    </span>
-                    <span className="min-w-0 flex-1 text-label-sm">
-                      {trialDaysLeft === 0 ? t("trialEnded") : t("trialEnds", { days: trialDaysLeft })}
-                    </span>
-                    <Icon name="arrow-right" className="size-2.5 shrink-0 text-muted" />
-                  </button>
-                </li>
-              )}
-              {feedback && (
-                <Row
-                  icon="comment"
-                  tone="lime"
-                  highlight
-                  title={feedback.customer.fullName}
-                  actions={
-                    <>
-                      <Button variant="secondary" size="sm" disabled={pending} onClick={handled}>
-                        {t("markHandled")}
-                      </Button>
-                      <Button size="sm" onClick={() => setReading(true)}>
-                        {t("read")}
-                      </Button>
-                    </>
-                  }
-                >
-                  <span className="block truncate text-p-sm text-muted">{t("privateFeedback")}</span>
-                  <span className="mt-0.5 line-clamp-2 text-p-sm text-muted">{feedback.message}</span>
-                </Row>
-              )}
-              {collected.map(({ id, name }) => (
-                <Row
-                  key={id}
-                  icon="check"
-                  tone="wait"
-                  title={name}
-                  actions={
-                    <>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={pending}
-                        onClick={() => run(() => dismissCollected(locationId, id))}
-                      >
-                        {t("notYet")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        disabled={pending}
-                        onClick={() => run(() => changeStatus(locationId, id, "COMPLETED"))}
-                      >
-                        {t("confirm")}
-                      </Button>
-                    </>
-                  }
-                >
-                  <span className="block truncate text-p-sm text-muted">{t("saysCollected")}</span>
-                </Row>
-              ))}
-              {failing.map(({ id, name }) => (
-                <LinkRow
-                  key={id}
-                  href={`/locations/${locationId}/tickets/${id}`}
-                  icon="info-triangle"
-                  tone="late"
-                  title={name}
-                  line={t("emailFailed")}
-                />
-              ))}
-              {longWaits.map(({ id, name, days }) => (
-                <LinkRow
-                  key={id}
-                  href={`/locations/${locationId}/tickets/${id}`}
-                  icon="time"
-                  tone="wait"
-                  title={name}
-                  line={t("waiting", { days })}
-                />
-              ))}
-            </ul>
+    <Popover
+      label={t("needsYouCount", { count: total })}
+      popoverClass="needs-popover overflow-hidden! p-0!"
+      triggerClass="relative flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-subtle transition-colors hover:bg-border has-[+:popover-open]:bg-pine has-[+:popover-open]:text-brand"
+      trigger={
+        <>
+          <Icon name="notification" className="size-4.5" />
+          {total > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-danger px-1 text-xs leading-none font-bold text-surface ring-2 ring-surface">
+              {total > MOST_SHOWN_ON_THE_BELL ? `${MOST_SHOWN_ON_THE_BELL}+` : total}
+            </span>
           )}
-        </div>
-      </Popover>
-      <Dialog open={reading} onClose={() => setReading(false)} title={feedback?.customer.fullName ?? ""}>
-        {feedback && (
-          <>
-            <p className="text-p-xs text-muted">{feedback.ticket.title}</p>
-            <p className="mt-3 text-p-md wrap-anywhere whitespace-pre-line">{feedback.message}</p>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button pending={pending} onClick={handled}>
-                {t("markHandled")}
-              </Button>
-            </div>
-          </>
+        </>
+      }
+    >
+      <div className="flex max-h-[min(38rem,80dvh)] flex-col">
+        <header className="flex items-center gap-2.5 border-b border-border px-4 py-3.5">
+          <h2 className="text-title-h6">{t("needsYou")}</h2>
+          {total > 0 && (
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-danger px-1.5 text-label-xs font-bold text-surface">
+              {total}
+            </span>
+          )}
+        </header>
+
+        {total === 0 ? (
+          <div className="flex flex-col items-center px-6 py-8 text-center">
+            <Illustration name="chill" className="h-32 w-auto" />
+            <p className="mt-4 text-label-md">{t("caughtUp")}</p>
+            <p className="mt-0.5 max-w-64 text-p-sm text-muted">{t("caughtUpHint")}</p>
+          </div>
+        ) : (
+          <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            {trialDaysLeft !== null && (
+              <button
+                type="button"
+                data-closes-popover
+                onClick={choosePlan}
+                className="mb-1 flex w-full cursor-pointer items-center gap-3 rounded-xl bg-danger-subtle p-2.5 text-left text-danger transition-colors hover:bg-danger/15"
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger text-surface">
+                  <Icon name="receipt" className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1 text-label-sm">
+                  {trialDaysLeft === 0 ? t("trialEnded") : t("trialEnds", { days: trialDaysLeft })}
+                </span>
+                <Icon name="arrow-right" className="size-2.5 shrink-0" />
+              </button>
+            )}
+            {failing.length > 0 && (
+              <Group title={t("groups.failing")}>
+                {failing.map(({ id, ...item }) => (
+                  <Row key={id} {...item} href={ticket(id)} icon="info-triangle" tone="late" line={t("emailFailed")} />
+                ))}
+              </Group>
+            )}
+            {collected.length > 0 && (
+              <Group title={t("groups.collected")}>
+                {collected.map(({ id, ...item }) => (
+                  <Row
+                    key={id}
+                    {...item}
+                    href={ticket(id)}
+                    icon="check"
+                    tone="lime"
+                    line={t("saysCollected")}
+                    actions={
+                      <>
+                        <Button
+                          size="sm"
+                          disabled={pending}
+                          onClick={() => run(() => changeStatus(locationId, id, "COMPLETED"))}
+                        >
+                          {t("confirm")}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          disabled={pending}
+                          onClick={() => run(() => dismissCollected(locationId, id))}
+                        >
+                          {t("notYet")}
+                        </Button>
+                      </>
+                    }
+                  />
+                ))}
+              </Group>
+            )}
+            {feedbackCount > 0 && (
+              <Group
+                title={t("groups.feedback")}
+                link={
+                  feedbackCount > feedback.length && (
+                    <Link
+                      href={`/locations/${locationId}/feedback`}
+                      className="text-label-xs font-semibold underline underline-offset-4"
+                    >
+                      {t("seeAll", { count: feedbackCount })}
+                    </Link>
+                  )
+                }
+              >
+                {feedback.map(({ id, name, detail, shown }) => (
+                  <Row
+                    key={id}
+                    name={name}
+                    shown={shown}
+                    href={`/locations/${locationId}/feedback?message=${id}`}
+                    icon="comment"
+                    tone="wait"
+                    line={detail}
+                  />
+                ))}
+              </Group>
+            )}
+            {longWaits.length > 0 && (
+              <Group title={t("groups.waiting")}>
+                {longWaits.map(({ id, days, ...item }) => (
+                  <Row key={id} {...item} href={ticket(id)} icon="time" tone="wait" line={t("waiting", { days })} />
+                ))}
+              </Group>
+            )}
+          </div>
         )}
-      </Dialog>
-    </>
+
+        <footer className="border-t border-border p-2">
+          <Link
+            href={`/locations/${locationId}/tickets?view=all`}
+            className="flex h-11 items-center justify-center gap-2 rounded-xl text-label-sm transition-colors hover:bg-subtle"
+          >
+            {t("allTickets")}
+            <Icon name="arrow-right" className="size-2.5" />
+          </Link>
+        </footer>
+      </div>
+    </Popover>
   );
 }

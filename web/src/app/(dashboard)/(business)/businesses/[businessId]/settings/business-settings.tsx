@@ -71,7 +71,7 @@ function Identity({ business }: { business: Business }) {
     "relative flex h-10 items-center gap-2 overflow-clip rounded-full bg-surface px-3.5 text-label-xs font-semibold text-ink transition-colors hover:bg-subtle";
   return (
     <div aria-busy={pending}>
-      <div className="relative h-40 overflow-clip rounded-t-[inherit] bg-pine md:h-52">
+      <div className="relative aspect-[3/1] overflow-clip rounded-t-[inherit] bg-pine">
         {business.bannerUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={business.bannerUrl} alt="" className="absolute inset-0 size-full object-cover" />

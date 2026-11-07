@@ -10,29 +10,22 @@ interface Props {
   children?: ReactNode;
 }
 
-// ADR 0109: the Business's banner with its logo on the edge, as a profile opens
-// on most apps. Without a banner, the pine band still carries the logo.
+// ADR 0109: the banner whole, at 3:1. Across the page that would be half the
+// screen, so from a laptop up it sits beside the greeting.
 export function BusinessHero({ business, title, subtitle, corner, children }: Props) {
   return (
-    <section className="overflow-clip rounded-sheet border border-border bg-surface">
-      <div className="relative h-24 bg-pine md:h-32">
+    <section className="flex flex-col overflow-clip rounded-sheet border border-border bg-surface lg:flex-row">
+      <div className="relative aspect-[3/1] w-full shrink-0 bg-pine lg:h-44 lg:w-auto">
         {business.bannerUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={business.bannerUrl} alt="" className="absolute inset-0 size-full object-cover" />
         )}
         {corner && <div className="absolute top-3 right-3">{corner}</div>}
       </div>
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-5 pb-5 lg:px-7">
-        <div className="flex min-w-0 items-end gap-4">
-          <Avatar
-            id={business.id}
-            name={business.name}
-            src={business.logoUrl}
-            shape="square"
-            size="xl"
-            className="relative -mt-8 shrink-0 ring-4 ring-surface"
-          />
-          <div className="min-w-0 pt-3">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-6 gap-y-3 p-5 lg:px-7">
+        <div className="flex min-w-0 items-center gap-4">
+          <Avatar id={business.id} name={business.name} src={business.logoUrl} shape="square" size="lg" />
+          <div className="min-w-0">
             <h1 className="text-title-h5 wrap-anywhere md:text-title-h4">{title}</h1>
             <p className="text-p-sm text-muted">{subtitle}</p>
           </div>

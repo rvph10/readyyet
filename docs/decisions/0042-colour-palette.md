@@ -8,30 +8,30 @@ A light design, built from the logo's two colours: lime `#C9E260` and ink `#1E1E
 
 Pages use colours by role, the tokens in each app's `globals.css`:
 
-| Token        | Value     | Source          | For                                                  |
-| ------------ | --------- | --------------- | ---------------------------------------------------- |
-| `canvas`     | `#FBFBF9` | Tailwind olive-50  | Page background                                   |
-| `surface`    | `#FFFFFF` |                 | Cards, tables, dialogs                               |
-| `subtle`     | `#F4F4F0` | Tailwind olive-100 | Hovered rows, code boxes, inputs at rest          |
-| `border`     | `#E8E8E3` | Tailwind olive-200 | Dividers and outlines                             |
-| `ink`        | `#1E1E1E` | logo            | Text, primary buttons, icons                         |
-| `muted`      | `#5B5B4B` | Tailwind olive-600 | Secondary text                                    |
-| `brand`      | `#C9E260` | logo            | Fills: READY, key highlights, one accent button      |
-| `brand-text` | `#556E18` | lime-700 below  | Links and lime-toned text                            |
+| Token        | Value     | Source              | For                                               |
+| ------------ | --------- | ------------------- | ------------------------------------------------- |
+| `canvas`     | `#FBFBF9` | Tailwind olive-50   | Page background                                   |
+| `surface`    | `#FFFFFF` |                     | Cards, tables, dialogs                            |
+| `subtle`     | `#F4F4F0` | Tailwind olive-100  | Hovered rows, code boxes, inputs at rest          |
+| `border`     | `#E8E8E3` | Tailwind olive-200  | Dividers and outlines                             |
+| `ink`        | `#1E1E1E` | logo                | Text, primary buttons, icons                      |
+| `muted`      | `#5B5B4B` | Tailwind olive-600  | Secondary text                                    |
+| `brand`      | `#C9E260` | logo                | Fills: READY, key highlights, one accent button   |
+| `brand-text` | `#556E18` | lime-700 below      | Links and lime-toned text                         |
 | `highlight`  | `#7F22FE` | Tailwind violet-600 | Focus rings, the Pro plan, rare marketing accents |
 
 The brand lime scale, the logo colour at 300, every step at its hue (118.9 in OKLCH): 50 `#F8FEE6`, 100 `#EFFBCB`, 200 `#E2F6A0`, 300 `#C9E260`, 400 `#B3CB47`, 500 `#95AB2A`, 600 `#6E8D25`, 700 `#556E18`, 800 `#415511`, 900 `#34440E`, 950 `#1D2904`. A step becomes a token when a page first needs it.
 
 Ticket Statuses are shown in six tones, a Tailwind background and text pair each:
 
-| Tone       | Statuses                                                                                      | Colours                 |
-| ---------- | --------------------------------------------------------------------------------------------- | ----------------------- |
-| Received   | `RECEIVED`, `INSPECTING`, `DIAGNOSING`, `QUOTE_PREPARED`                                      | olive-700 on olive-100  |
-| Working    | `APPROVED`, `IN_PROGRESS` and every other work step                                           | blue-700 on blue-50     |
-| Waiting    | `AWAITING_APPROVAL`, `AWAITING_PARTS`, `PARTS_ORDERED`, `BACKORDERED`, `AWAITING_CLIENT_INFO`, `ON_HOLD` | amber-800 on amber-50 |
-| Ready      | `READY`                                                                                       | ink on brand            |
-| Completed  | `COMPLETED`                                                                                   | muted on surface, outlined with border |
-| Stopped    | `CANCELLED`, `REJECTED`                                                                       | red-700 on red-50       |
+| Tone      | Statuses                                                                                                 | Colours                                |
+| --------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Received  | `RECEIVED`, `INSPECTING`, `DIAGNOSING`, `QUOTE_PREPARED`                                                 | olive-700 on olive-100                 |
+| Working   | `APPROVED`, `IN_PROGRESS` and every other work step                                                      | blue-700 on blue-50                    |
+| Waiting   | `AWAITING_APPROVAL`, `AWAITING_PARTS`, `PARTS_ORDERED`, `BACKORDERED`, `AWAITING_CLIENT_INFO`, `ON_HOLD` | amber-800 on amber-50                  |
+| Ready     | `READY`                                                                                                  | ink on brand                           |
+| Completed | `COMPLETED`                                                                                              | muted on surface, outlined with border |
+| Stopped   | `CANCELLED`, `REJECTED`                                                                                  | red-700 on red-50                      |
 
 Rules:
 

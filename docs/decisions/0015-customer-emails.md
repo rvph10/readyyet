@@ -6,13 +6,13 @@ Date: 2026-09-23
 
 ### Who receives what
 
-| Recipient | Email | When |
-| --- | --- | --- |
-| Customer | Ticket created, with the tracking link | Right after the ticket is created |
-| Customer | Status update | 2 minutes after the ticket reaches a notifying Status (below), if it's still there |
-| Customer | Tracking link, again | When staff use "resend tracking link" |
-| User | Sign-in code | ADR 0011 |
-| Invitee | Invitation to a Location | Existing invitation flow |
+| Recipient | Email                                  | When                                                                               |
+| --------- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| Customer  | Ticket created, with the tracking link | Right after the ticket is created                                                  |
+| Customer  | Status update                          | 2 minutes after the ticket reaches a notifying Status (below), if it's still there |
+| Customer  | Tracking link, again                   | When staff use "resend tracking link"                                              |
+| User      | Sign-in code                           | ADR 0011                                                                           |
+| Invitee   | Invitation to a Location               | Existing invitation flow                                                           |
 
 Staff receive no email about ticket activity, they work in the dashboard. Billing emails (trial ending, failed payment, receipts) will come from Stripe's own customer emails when billing is built, not from ReadyYet.
 
@@ -22,13 +22,13 @@ A Customer without an email address receives nothing, the QR code at drop-off co
 
 Only these Statuses send an email, a fixed list in code, not configurable per Location:
 
-| Status | Why |
-| --- | --- |
-| `READY` | The customer can come and collect their item |
-| `AWAITING_APPROVAL` | The customer has to accept or refuse a quote |
-| `AWAITING_CLIENT_INFO` | The shop can't continue until the customer answers |
-| `CANCELLED` | The job won't happen, the customer still has to collect their item |
-| `REJECTED` | The job can't be done, the customer still has to collect their item |
+| Status                 | Why                                                                 |
+| ---------------------- | ------------------------------------------------------------------- |
+| `READY`                | The customer can come and collect their item                        |
+| `AWAITING_APPROVAL`    | The customer has to accept or refuse a quote                        |
+| `AWAITING_CLIENT_INFO` | The shop can't continue until the customer answers                  |
+| `CANCELLED`            | The job won't happen, the customer still has to collect their item  |
+| `REJECTED`             | The job can't be done, the customer still has to collect their item |
 
 Every other Status, work in progress or delays alike, is visible on the tracking page only. `COMPLETED` sends nothing, the customer is at the counter when it happens.
 
@@ -44,7 +44,7 @@ The ticket-created email is sent immediately, there's nothing it could contradic
 
 ### Sender, content and language
 
-- Sent as "*Location name* via ReadyYet" from `EMAIL_FROM`'s address, with Reply-To set to the Location's contact email, so a customer's reply reaches the shop.
+- Sent as "_Location name_ via ReadyYet" from `EMAIL_FROM`'s address, with Reply-To set to the Location's contact email, so a customer's reply reaches the shop.
 - Every customer email contains the tracking link and a "stop updates for this job" link.
 - Language: the Customer's `locale` if staff set one at drop-off, otherwise the Location's `locale`, which is required. The tracking page opens in the same language. Adding a language means adding it to the `Locale` enum and translating the catalogue and the email templates, no design change.
 

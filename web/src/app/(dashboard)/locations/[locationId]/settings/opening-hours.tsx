@@ -101,6 +101,28 @@ export function OpeningHours({ locationId, hours, timeZone }: Props) {
       failure={failure}
     >
       <div className="flex max-w-3xl flex-col gap-5">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl bg-subtle p-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface">
+            <Icon name="globe" className="size-4" />
+          </span>
+          <div className="min-w-48 flex-1">
+            <p className="text-label-sm">{t("timeZone")}</p>
+            <p className="text-p-xs text-muted">{t("timeZoneHint")}</p>
+          </div>
+          <SelectField
+            className="w-full sm:w-64"
+            label={t("timeZone")}
+            hideLabel
+            value={zone}
+            onChange={(event) => setZone(event.target.value)}
+          >
+            {(inBrowser ? Intl.supportedValuesOf("timeZone") : [zone]).map((option) => (
+              <option key={option} value={option}>
+                {option.replaceAll("_", " ")}
+              </option>
+            ))}
+          </SelectField>
+        </div>
         <ul className="flex flex-col gap-2">
           {DAYS.map((day) => {
             const ranges = week[day];
@@ -176,28 +198,6 @@ export function OpeningHours({ locationId, hours, timeZone }: Props) {
             );
           })}
         </ul>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl bg-subtle p-4">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface">
-            <Icon name="globe" className="size-4" />
-          </span>
-          <div className="min-w-48 flex-1">
-            <p className="text-label-sm">{t("timeZone")}</p>
-            <p className="text-p-xs text-muted">{t("timeZoneHint")}</p>
-          </div>
-          <SelectField
-            className="w-full sm:w-64"
-            label={t("timeZone")}
-            hideLabel
-            value={zone}
-            onChange={(event) => setZone(event.target.value)}
-          >
-            {(inBrowser ? Intl.supportedValuesOf("timeZone") : [zone]).map((option) => (
-              <option key={option} value={option}>
-                {option.replaceAll("_", " ")}
-              </option>
-            ))}
-          </SelectField>
-        </div>
       </div>
     </SectionForm>
   );

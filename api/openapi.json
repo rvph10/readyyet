@@ -10688,11 +10688,21 @@
           },
           "fullName": {
             "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
-          "fullName"
+          "fullName",
+          "email",
+          "phone"
         ]
       },
       "FeedbackHandlerDto": {

@@ -6,16 +6,16 @@ Date: 2026-09-28
 
 Eight more base components in `web/src/components/ui/`, each on the browser's own elements where one exists:
 
-| Component    | For                                                        | Built as                                                                                          |
-| ------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `Panel`      | The white layer on the canvas                              | A `div`, `section`, `aside` or `article`, `md` or `lg` padding                                     |
-| `Badge`      | A small label like an invitation's "Pending"               | Ink at 6% behind `muted` text, never coloured                                                      |
-| `SearchField`| Filtering a list, like Tickets by name or code             | A 44px pill `type="search"` with its own clear button, cleared by Escape too                       |
-| `RadioCards` | Choosing one of a few, like a Business type or a Role      | Native radios under cards, the chosen one with an ink outline and check                            |
-| `Toast`      | Confirming what just happened, with at most one action     | `useToast()` under `ToastProvider` in the root layout, a manual popover at the bottom centre       |
-| `Menu`       | A row's actions behind the three dots                      | A native `popover` placed by CSS anchor positioning, with arrow keys, Home and End                 |
-| `CopyField`  | A value to hand on, like a tracking link                   | A read-only field with a Copy button that says "Copied" for 2 seconds                              |
-| `Banner`     | A notice about the whole Business or Location              | Neutral on white, or red, with an optional link to where it's fixed, and no close button           |
+| Component     | For                                                    | Built as                                                                                     |
+| ------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `Panel`       | The white layer on the canvas                          | A `div`, `section`, `aside` or `article`, `md` or `lg` padding                               |
+| `Badge`       | A small label like an invitation's "Pending"           | Ink at 6% behind `muted` text, never coloured                                                |
+| `SearchField` | Filtering a list, like Tickets by name or code         | A 44px pill `type="search"` with its own clear button, cleared by Escape too                 |
+| `RadioCards`  | Choosing one of a few, like a Business type or a Role  | Native radios under cards, the chosen one with an ink outline and check                      |
+| `Toast`       | Confirming what just happened, with at most one action | `useToast()` under `ToastProvider` in the root layout, a manual popover at the bottom centre |
+| `Menu`        | A row's actions behind the three dots                  | A native `popover` placed by CSS anchor positioning, with arrow keys, Home and End           |
+| `CopyField`   | A value to hand on, like a tracking link               | A read-only field with a Copy button that says "Copied" for 2 seconds                        |
+| `Banner`      | A notice about the whole Business or Location          | Neutral on white, or red, with an optional link to where it's fixed, and no close button     |
 
 A toast stays 5 seconds, 10 with an action like Undo, held while the pointer or focus is on it, and at most three show at once. Screen readers hear it from live regions that stay in the page, polite for success and info, assertive for an error.
 

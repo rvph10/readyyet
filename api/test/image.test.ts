@@ -44,10 +44,10 @@ describe("processImage", () => {
     expect(key).toMatch(/^avatars\/.+\.webp$/);
   });
 
-  it("crops a banner to 1600 by 480", async () => {
+  it("crops a banner to 3:1", async () => {
     const { key, body } = await processImage(await solid(2000, 2000).jpeg().toBuffer(), "banner");
 
-    expect(await sharp(body).metadata()).toMatchObject({ format: "webp", width: 1600, height: 480 });
+    expect(await sharp(body).metadata()).toMatchObject({ format: "webp", width: 1500, height: 500 });
     expect(key).toMatch(/^banners\/.+\.webp$/);
   });
 

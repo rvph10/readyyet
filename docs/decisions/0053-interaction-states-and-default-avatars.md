@@ -8,13 +8,13 @@ Replaces ADR 0049's hover and focus rules for buttons and inputs. Motion stays a
 
 **States.** Every control changes visibly on hover, on press and on focus:
 
-| Control         | Hover                                              | Pressed                | Focus                                |
-| --------------- | -------------------------------------------------- | ---------------------- | ------------------------------------ |
-| Primary button  | `ink` at 80%                                       | `ink` at 70%           | the global 2px `ink` outline         |
-| Secondary button| `canvas` fill, `border-strong` outline, `ink` text | `border` fill          | the global 2px `ink` outline         |
-| Lime button     | `brand-hover`                                      | 5% darker still        | the global 2px `ink` outline         |
-| Link            | `ink` and underlined                               |                        | the global 2px `ink` outline         |
-| Input           | `border-strong` outline                            |                        | `ink` border and a 3px `ink` ring at 10% |
+| Control          | Hover                                              | Pressed         | Focus                                    |
+| ---------------- | -------------------------------------------------- | --------------- | ---------------------------------------- |
+| Primary button   | `ink` at 80%                                       | `ink` at 70%    | the global 2px `ink` outline             |
+| Secondary button | `canvas` fill, `border-strong` outline, `ink` text | `border` fill   | the global 2px `ink` outline             |
+| Lime button      | `brand-hover`                                      | 5% darker still | the global 2px `ink` outline             |
+| Link             | `ink` and underlined                               |                 | the global 2px `ink` outline             |
+| Input            | `border-strong` outline                            |                 | `ink` border and a 3px `ink` ring at 10% |
 
 A disabled input is filled `subtle` with `muted` text and doesn't react to hover. `border-strong` is darkened to `#A8ADA7` (ADR 0052) so the hover outline shows.
 

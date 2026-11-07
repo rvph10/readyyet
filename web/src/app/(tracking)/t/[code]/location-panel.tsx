@@ -60,6 +60,14 @@ export async function LocationPanel({ location, locale, now, className }: Props)
 
   return (
     <Panel as="aside" padding="lg" aria-labelledby="location-title" className={`flex flex-col ${className}`}>
+      {location.bannerUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={location.bannerUrl}
+          alt=""
+          className="-mx-6 -mt-6 mb-5 hidden aspect-[3/1] w-[calc(100%+3rem)] max-w-none rounded-t-[inherit] object-cover lg:block"
+        />
+      )}
       <h2 id="location-title" className="mb-3 text-title-h6">
         {t("location")}
       </h2>

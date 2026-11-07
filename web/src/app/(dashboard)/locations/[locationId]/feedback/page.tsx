@@ -16,7 +16,7 @@ import { getMe } from "@/lib/me";
 import { getBilling, getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
-import { formatMoment } from "../tickets/ticket-views";
+import { daysBetween, formatMoment } from "../tickets/ticket-views";
 import { FeedbackBoard } from "./feedback-board";
 import { feedbackBlock, feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
 
@@ -72,6 +72,7 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
         href: feedbackHref(locationId, { view: name }),
         label: t(`views.${name}`),
         current: name === view,
+        count: name === "waiting" ? overview.counts.unhandledFeedback : undefined,
       }))}
     />
   );
@@ -113,12 +114,15 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
             // A row chosen in one tab or page means nothing in another.
             key={`${view}-${page}`}
             locationId={locationId}
-            waiting={overview.counts.unhandledFeedback}
-            view={view}
+            shopName={location.name}
+            start={typeof search.message === "string" ? search.message : null}
             items={list.items.map((item) => ({
               ...item,
               receivedShown: moment(item.createdAt),
               handledShown: item.handledAt && moment(item.handledAt),
+              waitingDays: item.handledAt
+                ? null
+                : daysBetween(calendarDateIn(new Date(item.createdAt), timeZone), today),
             }))}
             tabs={tabs}
             pager={

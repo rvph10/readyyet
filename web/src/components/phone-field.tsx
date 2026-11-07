@@ -56,7 +56,7 @@ function CountrySelect({
   }, [options]);
 
   return (
-    <div className="relative flex h-full shrink-0 items-center gap-1.5 border-r border-border pr-3">
+    <div className="relative flex h-full shrink-0 items-center gap-1.5 border-r border-input pr-3">
       {value && (
         // eslint-disable-next-line @next/next/no-img-element -- a data: URL, nothing to optimise
         <img src={flagUrl(value)} alt="" className="h-3.5 w-5 rounded-[3px] shadow-[0_0_0_1px] shadow-ink/10" />
@@ -120,7 +120,7 @@ export function PhoneField({ label, hideLabel, value, onChange, defaultCountry, 
         className={`flex h-12 items-center gap-3 rounded-xl border bg-surface px-4 transition has-focus:ring-3 ${
           error
             ? "border-danger has-focus:ring-danger/15"
-            : "border-border hover:border-border-strong has-focus:border-ink has-focus:ring-ink/10"
+            : "border-input hover:border-muted has-focus:border-ink has-focus:ring-ink/10"
         }`}
         numberInputProps={{
           ...describedBy(id, undefined, error),

@@ -6,6 +6,9 @@ export class FeedbackTicketDto {
 export class FeedbackCustomerDto {
   id!: string;
   fullName!: string;
+  // To answer them, null when they gave none or were erased.
+  email!: string | null;
+  phone!: string | null;
 }
 
 export class FeedbackHandlerDto {

@@ -57,7 +57,7 @@ export async function processImage(input: Buffer, kind: ImageKind): Promise<Proc
       : kind === "avatar"
         ? oriented.resize(256, 256, { fit: "cover" }).webp()
         : kind === "banner"
-          ? oriented.resize(1600, 480, { fit: "cover" }).webp()
+          ? oriented.resize(1500, 500, { fit: "cover" }).webp()
           : oriented.resize(512, 512, { fit: "inside", withoutEnlargement: true }).png();
   const body = await resized.toBuffer().catch(() => {
     throw new ValidationError("This image is damaged and can't be read");

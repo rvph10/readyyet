@@ -155,7 +155,7 @@ function BarActions({ locationId, needsYou }: { locationId: string; needsYou: Ne
   const { newTicket } = useLocationActions();
   return (
     <div className="flex shrink-0 items-center gap-3">
-      <div className="w-52 xl:w-72">
+      <div className="w-52 lg:w-64 xl:w-96">
         <HeaderSearch locationId={locationId} />
       </div>
       <NeedsYou locationId={locationId} items={needsYou} />
