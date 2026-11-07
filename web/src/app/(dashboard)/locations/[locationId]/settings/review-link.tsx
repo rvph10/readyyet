@@ -73,7 +73,7 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
   const [value, setValue] = useState(saved);
   const [error, setError] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
-  const [check, setCheck] = useState<keyof typeof CHECKS | null>(null);
+  const [check, setCheck] = useState<{ link: string; found: keyof typeof CHECKS | "invalid" } | null>(null);
   const [checking, startChecking] = useTransition();
   const [pending, startTransition] = useTransition();
 
@@ -96,12 +96,16 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
   }
 
   const checkable = checkableLink(value);
+  // Only says something about the link that was checked, which may have been
+  // edited while Google answered.
+  const checked = check?.link === checkable ? check : null;
 
   function runCheck() {
+    const link = checkable!;
     setCheck(null);
     startChecking(async () => {
-      const result = await orFailure(checkReviewLink(locationId, checkable!).then((found) => ({ ok: true, found })));
-      setCheck("found" in result ? result.found : "unknown");
+      const result = await orFailure(checkReviewLink(locationId, link).then((found) => ({ ok: true, found })));
+      setCheck({ link, found: "found" in result ? result.found : "unknown" });
     });
   }
 
@@ -157,9 +161,8 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
                 onChange={(event) => {
                   setValue(event.target.value);
                   setError(null);
-                  setCheck(null);
                 }}
-                error={error}
+                error={error ?? (checked?.found === "invalid" ? t("reviewInvalid") : null)}
               />
               <Button
                 variant="secondary"
@@ -173,13 +176,15 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
               </Button>
             </div>
             <div aria-live="polite">
-              {check && (
-                <p className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-p-sm ${CHECKS[check].tone}`}>
-                  <Icon name={CHECKS[check].icon} className="size-3.5 shrink-0" />
-                  <span className="min-w-0 flex-1">{t(`reviewCheckResult.${check}`)}</span>
-                  {check === "works" && checkable && (
+              {checked && checked.found !== "invalid" && (
+                <p
+                  className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-p-sm ${CHECKS[checked.found].tone}`}
+                >
+                  <Icon name={CHECKS[checked.found].icon} className="size-3.5 shrink-0" />
+                  <span className="min-w-0 flex-1">{t(`reviewCheckResult.${checked.found}`)}</span>
+                  {checked.found === "works" && (
                     <a
-                      href={checkable}
+                      href={checked.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="shrink-0 font-semibold underline underline-offset-4"

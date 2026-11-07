@@ -15,10 +15,15 @@ export async function updateLocation(locationId: string, changes: components["sc
   return actionResult(result);
 }
 
-export async function checkReviewLink(locationId: string, url: string) {
-  const { data } = await (
+export async function checkReviewLink(
+  locationId: string,
+  url: string,
+): Promise<components["schemas"]["ReviewLinkCheckDto"]["result"] | "invalid"> {
+  const { data, response } = await (
     await api()
   ).POST("/locations/{locationId}/review-link/check", { ...path(locationId), body: { url } });
+  // Refused by the rule Save applies, so Google was never asked.
+  if (response.status === 400) return "invalid";
   return data?.result ?? "unknown";
 }
 
