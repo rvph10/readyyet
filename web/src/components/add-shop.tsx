@@ -243,7 +243,10 @@ export function AddShopProvider({ businessId, children }: { businessId: string; 
     setRun((value) => value + 1);
     setFailed(false);
     setOpen(true);
-    addShopData(businessId).then(setData, () => setFailed(true));
+    addShopData(businessId).then(setData, () => {
+      setData(null);
+      setFailed(true);
+    });
   }, [businessId]);
 
   return (
