@@ -1,0 +1,39 @@
+{
+  "name": "@readyyet/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port ${PORT:-3001}",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "icon": "node --env-file-if-exists=.env.local scripts/icon.mjs"
+  },
+  "dependencies": {
+    "@readyyet/shared": "workspace:*",
+    "@sentry/nextjs": "11.10.0",
+    "better-auth": "1.7.14",
+    "country-flag-icons": "1.6.20",
+    "input-otp": "1.5.0",
+    "next": "16.4.3",
+    "next-intl": "4.14.9",
+    "openapi-fetch": "0.17.0",
+    "qrcode-generator": "2.0.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-phone-number-input": "3.4.18",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.20.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

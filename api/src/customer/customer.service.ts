@@ -1,40 +1,52 @@
 import { Injectable } from "@nestjs/common";
-import type { Locale } from "@readyyet/db";
+import { Prisma, type Locale } from "@readyyet/db";
+import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
-import { NotFoundError, ValidationError } from "../common/errors/app-error";
-import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
+import { StorageService } from "../storage/storage.service";
+import { NotFoundError } from "../common/errors/app-error";
+import { parseBigIntId } from "../common/parse-bigint-id";
+import { customerIdsMatching } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
+const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
+
+function customerOrder({ sort, dir = "asc" }: ListCustomersQueryDto): Prisma.CustomerOrderByWithRelationInput[] {
+  const orders = {
+    name: { fullName: dir },
+    email: { email: { sort: dir, nulls: "last" } },
+    phone: { phone: { sort: dir, nulls: "last" } },
+    since: { createdAt: dir },
+  } satisfies Record<NonNullable<ListCustomersQueryDto["sort"]>, Prisma.CustomerOrderByWithRelationInput>;
+  return [sort ? orders[sort] : { fullName: "asc" }, { id: "asc" }];
+}
 
 @Injectable()
 export class CustomerService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   async list(locationId: string, query: ListCustomersQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const after = query.cursor ? await this.cursorPosition(locationId, query.cursor) : undefined;
-    const customers = await this.prisma.customer.findMany({
-      where: {
-        locationId,
-        deletedAt: null,
-        ...(query.q && { fullName: { contains: query.q, mode: "insensitive" } }),
-        ...(after && {
-          OR: [{ fullName: { gt: after.fullName } }, { fullName: after.fullName, id: { gt: after.id } }],
-        }),
-      },
-      orderBy: [{ fullName: "asc" }, { id: "asc" }],
-      // One extra row says whether there's a next page.
-      take: take + 1,
-    });
-
-    const page = customers.slice(0, take);
-    const last = page[page.length - 1];
-    return {
-      items: page.map((customer) => this.serialize(customer)),
-      nextCursor: customers.length > take ? last.id.toString() : null,
+    const where = {
+      locationId,
+      deletedAt: null,
+      ...(query.q && { id: { in: await customerIdsMatching(this.prisma, locationId, query.q) } }),
     };
+    const [customers, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        where,
+        orderBy: customerOrder(query),
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+      }),
+      this.prisma.customer.count({ where }),
+    ]);
+
+    return { items: customers.map((customer) => this.serialize(customer)), total };
   }
 
   async findOne(locationId: string, customerId: string) {
@@ -65,28 +77,36 @@ export class CustomerService {
     // it gone, a Ticket referencing this customer can't be deleted
     // (onDelete: Restrict) so the row itself has to survive.
     // See docs/architecture/data-model.md#gdpr-erasure.
-    await this.prisma.customer.update({
-      where: { id: customer.id },
-      data: { deletedAt: new Date(), fullName: "[deleted]", email: null, phone: null },
+    // Their Tickets' photos can show them too: a face, a number plate.
+    const photos = await this.prisma.ticketPhoto.findMany({
+      where: { ticket: { customerId: customer.id } },
+      select: { objectKey: true },
     });
-  }
-
-  // Keyset pagination on (fullName, id), like tickets on (createdAt, id), see
-  // docs/architecture/data-model.md#pagination. The cursor is only the last
-  // customer's id, the name is looked up here: a cursor carrying it would
-  // put a customer's name in every URL, which the logs and Railway's proxy
-  // record as is.
-  private async cursorPosition(locationId: string, cursor: string) {
-    const customer = isBigIntId(cursor)
-      ? await this.prisma.customer.findFirst({
-          where: { id: BigInt(cursor), locationId },
-          select: { id: true, fullName: true },
-        })
-      : null;
-    if (!customer) {
-      throw new ValidationError("Invalid cursor");
-    }
-    return customer;
+    await this.prisma.$transaction([
+      this.prisma.customer.update({
+        where: { id: customer.id },
+        data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
+      }),
+      this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+      // Their own words (ADR 0039).
+      this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
+      // What was sent about them: their address, their name, the staff copy of
+      // their feedback. Through the Ticket, the same address at another
+      // Location is another Customer.
+      this.prisma.emailLog.updateMany({
+        where: { ticket: { customerId: customer.id } },
+        data: {
+          to: ERASED_EMAIL_ADDRESS,
+          subject: ERASED_CUSTOMER_NAME,
+          html: null,
+          text: null,
+          lastError: null,
+          lastEvent: Prisma.DbNull,
+          gaveUpAt: new Date(),
+        },
+      }),
+    ]);
+    await this.storage.delete(photos.map((photo) => photo.objectKey));
   }
 
   private async loadActive(locationId: string, customerId: string) {

@@ -9,28 +9,39 @@ datasource db {
 
 // Managed by Better Auth's Prisma adapter, shown here for relation completeness only.
 model User {
-  id            String    @id
-  email         String    @unique
-  name          String
-  image         String?
-  emailVerified Boolean   @default(false) @map("email_verified")
+  id                String    @id
+  email             String    @unique
+  name              String
+  // The avatar's key in the bucket, never a URL (ADR 0026). Better Auth's
+  // own name for the column.
+  image             String?
+  emailVerified     Boolean   @default(false) @map("email_verified")
   // Language of the emails this User receives (ADR 0018). Declared to
   // Better Auth as an additionalField in api/src/auth/auth.ts.
-  locale        Locale    @default(EN)
+  locale            Locale    @default(EN)
   // Set when the User deleted their account: name and email are replaced,
   // the row stays for the history that points at it (ADR 0018).
-  deletedAt     DateTime? @map("deleted_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+  // Set by the platform admin, null when not a sales partner (ADR 0032).
+  salesPartnerSince DateTime? @map("sales_partner_since")
+  // Kept when the status is removed, so marking them again brings the same
+  // link back (ADR 0040).
+  referralCode      String?   @unique @map("referral_code")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   sessions Session[]
   accounts Account[]
 
-  ownedBusinesses Business[]          @relation("BusinessOwner")
-  memberships     Membership[]
-  invitationsSent Invitation[]        @relation("InvitedBy")
-  ticketsCreated  Ticket[]            @relation("TicketCreatedBy")
-  statusEvents    TicketStatusEvent[]
+  ownedBusinesses    Business[]          @relation("BusinessOwner")
+  memberships        Membership[]
+  invitationsSent    Invitation[]        @relation("InvitedBy")
+  ticketsCreated     Ticket[]            @relation("TicketCreatedBy")
+  statusEvents       TicketStatusEvent[]
+  photosUploaded     TicketPhoto[]       @relation("TicketPhotoUploadedBy")
+  referredBusinesses Business[]          @relation("SalesPartnerReferral")
+  feedbackHandled    TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  commissions        Commission[]
 
   @@map("user")
 }
@@ -104,6 +115,7 @@ enum InvitationStatus {
   ACCEPTED
   REVOKED
   EXPIRED
+  DECLINED
 }
 
 enum Locale {
@@ -112,26 +124,57 @@ enum Locale {
 }
 
 enum Plan {
-  TRIAL
+  ESSENTIEL
   PRO
 }
 
+enum BillingInterval {
+  MONTH
+  YEAR
+}
+
+// TRIAL is ours alone, Stripe has no subscription yet. The other three
+// mirror the Stripe subscription (ADR 0033).
 enum SubscriptionStatus {
-  TRIALING
+  TRIAL
   ACTIVE
   PAST_DUE
-  CANCELED
+  ENDED
 }
 
 model Business {
-  id        String   @id @default(uuid()) @db.Uuid
-  ownerId   String   @map("owner_id")
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                       String    @id @default(uuid()) @db.Uuid
+  ownerId                  String    @map("owner_id")
+  name                     String
+  stripeCustomerId         String?   @unique @map("stripe_customer_id")
+  // The Owner's sponsor link for this Business (ADR 0040).
+  referralCode             String    @unique @map("referral_code")
+  // Set at creation, never changed, at most one of the two
+  // (business_one_referrer, ADR 0032).
+  referredByBusinessId     String?   @map("referred_by_business_id") @db.Uuid
+  referredBySalesPartnerId String?   @map("referred_by_sales_partner_id")
+  // A checkout with the referral coupon completed, it's not offered again
+  // (ADR 0040).
+  referralDiscountUsedAt   DateTime? @map("referral_discount_used_at")
+  // Where the period of the first invoice paid for more than zero starts:
+  // a sales partner's 6 months start here (ADR 0040).
+  paidFrom                 DateTime? @map("paid_from")
+  // The logo's key in the bucket, never a URL (ADR 0026), shown for every
+  // Location of the Business (ADR 0051).
+  logoKey                  String?   @map("logo_key")
+  // A wide picture behind the Business's name, kept like the logo (ADR 0109).
+  bannerKey                String?   @map("banner_key")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
 
-  owner     User       @relation("BusinessOwner", fields: [ownerId], references: [id])
-  locations Location[]
+  owner                  User            @relation("BusinessOwner", fields: [ownerId], references: [id])
+  locations              Location[]
+  referredByBusiness     Business?       @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[]      @relation("BusinessReferral")
+  referredBySalesPartner User?           @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  commissions            Commission[]
+  sponsorCreditEarned    SponsorCredit?  @relation("SponsorCreditEarned")
+  sponsorCreditsReceived SponsorCredit[] @relation("SponsorCreditReceived")
 
   @@map("business")
 }
@@ -160,19 +203,38 @@ model BusinessTypeTranslation {
 }
 
 model Location {
-  id             String    @id @default(uuid()) @db.Uuid
-  businessId     String    @map("business_id") @db.Uuid
-  businessTypeId Int       @map("business_type_id")
-  name           String
-  contactPhone   String    @map("contact_phone")
-  contactEmail   String    @map("contact_email")
-  logoUrl        String?   @map("logo_url")
+  id                 String    @id @default(uuid()) @db.Uuid
+  businessId         String    @map("business_id") @db.Uuid
+  businessTypeId     Int       @map("business_type_id")
+  // What an OTHER Location does, in the owner's words, optional and set
+  // with no other type (ADR 0071).
+  businessTypeDetail String?   @map("business_type_detail")
+  name               String
+  contactPhone       String    @map("contact_phone")
+  contactEmail       String    @map("contact_email")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
-  locale         Locale
-  deletedAt      DateTime? @map("deleted_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  locale             Locale
+  // ADR 0034: schema.org's PostalAddress fields, all four or none.
+  streetAddress      String?   @map("street_address")
+  postalCode         String?   @map("postal_code")
+  addressLocality    String?   @map("address_locality")
+  // ISO 3166-1 alpha-2.
+  addressCountry     String?   @map("address_country")
+  // A region's IANA name, never an offset, opening hours are wall-clock
+  // times in it.
+  timeZone           String    @map("time_zone")
+  // schema.org OpeningHoursSpecification entries, see ADR 0034.
+  openingHours       Json      @default("[]") @map("opening_hours")
+  // Open days to a new Ticket's estimated ready date, null leaves it
+  // empty. 1 to 60, a CHECK enforces it (ADR 0036).
+  turnaroundDays     Int?      @map("turnaround_days")
+  // Google's "write a review" link, it turns review requests on (ADR 0027,
+  // ADR 0039).
+  googleReviewUrl    String?   @map("google_review_url")
+  deletedAt          DateTime? @map("deleted_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
   businessType BusinessType  @relation(fields: [businessTypeId], references: [id], onDelete: Restrict)
@@ -213,8 +275,9 @@ model Invitation {
   acceptedAt DateTime?        @map("accepted_at")
   createdAt  DateTime         @default(now()) @map("created_at")
 
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  inviter  User     @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  location  Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  inviter   User       @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Restrict)
+  emailLogs EmailLog[]
   // Partial unique index (location_id, lower(email)) WHERE status = 'PENDING'
   // added via raw SQL migrations, see docs/architecture/data-model.md.
 
@@ -316,6 +379,23 @@ model Ticket {
   // Set when the Customer used the "stop updates" link, no more status
   // update emails for this ticket from then on (ADR 0015).
   notificationsStoppedAt DateTime? @map("notifications_stopped_at")
+  // A date on the Location's clock, no time (ADR 0030).
+  estimatedReadyDate     DateTime? @map("estimated_ready_date") @db.Date
+  // The last date an email told the Customer: moving the date past it
+  // queues an email due at readyDateEmailDueAt, it's only sent if the date
+  // is still later then.
+  customerToldReadyDate  DateTime? @map("customer_told_ready_date") @db.Date
+  readyDateEmailDueAt    DateTime? @map("ready_date_email_due_at")
+  // The ticket-created email still to send, set with the Ticket so a crash
+  // can't lose it (ADR 0081).
+  trackingEmailDueAt     DateTime? @map("tracking_email_due_at")
+  // Uncollected item reminders (ADR 0028, ADR 0037): reaching READY
+  // resets the count and schedules the first one.
+  customerCollectedAt    DateTime? @map("customer_collected_at")
+  readyRemindersSent     Int       @default(0) @map("ready_reminders_sent")
+  nextReadyReminderAt    DateTime? @map("next_ready_reminder_at")
+  // At most one "how did it go?" email per Ticket (ADR 0039).
+  feedbackEmailSentAt    DateTime? @map("feedback_email_sent_at")
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -324,6 +404,9 @@ model Ticket {
   currentStatus Status              @relation(fields: [currentStatusId], references: [id], onDelete: Restrict)
   creator       User                @relation("TicketCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict)
   statusEvents  TicketStatusEvent[]
+  photos        TicketPhoto[]
+  feedback      TicketFeedback?
+  emailLogs     EmailLog[]
 
   // Composite FKs enforce the tenant boundary and the workflow/status
   // relationship at the database level, not just in application code.
@@ -335,7 +418,43 @@ model Ticket {
   @@index([locationId, createdAt(sort: Desc)])
   @@index([locationId, currentStatusId, createdAt(sort: Desc)])
   @@index([customerId])
+  @@index([readyDateEmailDueAt])
+  @@index([trackingEmailDueAt])
+  @@index([currentStatusId, nextReadyReminderAt])
   @@map("ticket")
+}
+
+// What a Customer told the shop privately from the tracking page, one per
+// Ticket (ADR 0027, ADR 0039). Erased with the Customer.
+model TicketFeedback {
+  id        BigInt    @id @default(autoincrement())
+  ticketId  BigInt    @unique @map("ticket_id")
+  message   String
+  handledAt DateTime? @map("handled_at")
+  handledBy String?   @map("handled_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  ticket  Ticket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  handler User?  @relation("TicketFeedbackHandledBy", fields: [handledBy], references: [id], onDelete: Restrict)
+
+  @@index([createdAt(sort: Desc)])
+  @@map("ticket_feedback")
+}
+
+// At most 5 per Ticket, deleted when its tracking link expires (ADR 0026).
+model TicketPhoto {
+  id         BigInt   @id @default(autoincrement())
+  ticketId   BigInt   @map("ticket_id")
+  // The object's key in the bucket, never a URL.
+  objectKey  String   @unique @map("object_key")
+  uploadedBy String   @map("uploaded_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  uploader User   @relation("TicketPhotoUploadedBy", fields: [uploadedBy], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_photo")
 }
 
 model TicketStatusEvent {
@@ -389,11 +508,23 @@ model EmailLog {
   lastError     String?     @map("last_error")
   lastEvent     Json?       @map("last_event")
   lastAttemptAt DateTime?   @map("last_attempt_at")
+  // No more retries: failing for too long, or no longer wanted.
+  gaveUpAt      DateTime?   @map("gave_up_at")
+  // Set for an email that must only ever exist once, whatever retries it.
+  dedupeKey     String?     @unique @map("dedupe_key")
+  // What it's about, so a late retry can check it's still wanted (ADR 0081).
+  ticketId      BigInt?     @map("ticket_id")
+  invitationId  String?     @map("invitation_id") @db.Uuid
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
+  ticket     Ticket?     @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+
   @@index([status, lastAttemptAt])
+  @@index([ticketId])
+  @@index([invitationId])
   @@map("email_log")
 }
 
@@ -407,13 +538,22 @@ enum EmailStatus {
   FAILED
 }
 
+// A Location's billing state (ADR 0031, ADR 0033). During a trial `plan`
+// is PRO, a Location that never had a trial nor paid has none.
 model Subscription {
   locationId           String             @id @map("location_id") @db.Uuid
-  stripeCustomerId     String             @map("stripe_customer_id")
+  status               SubscriptionStatus
+  plan                 Plan?
+  interval             BillingInterval?
+  trialEndsAt          DateTime?          @map("trial_ends_at")
+  trialReminderSentAt  DateTime?          @map("trial_reminder_sent_at")
   stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
-  plan                 Plan               @default(TRIAL)
-  status               SubscriptionStatus @default(TRIALING)
   currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  // A move to a cheaper price waiting for the period to end.
+  scheduledPlan        Plan?              @map("scheduled_plan")
+  scheduledInterval    BillingInterval?   @map("scheduled_interval")
+  createdAt            DateTime           @default(now()) @map("created_at")
   updatedAt            DateTime           @updatedAt @map("updated_at")
 
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
@@ -431,4 +571,50 @@ model PendingStatusNotification {
 
   @@index([sendAfter])
   @@map("pending_status_notification")
+}
+
+// A sales partner's share of one paid invoice (ADR 0032). Pending, owed or
+// voided is computed from the dates, never stored (ADR 0040).
+model Commission {
+  id              BigInt    @id @default(autoincrement())
+  salesPartnerId  String    @map("sales_partner_id")
+  businessId      String    @map("business_id") @db.Uuid
+  // Unique, so a redelivered invoice.paid records nothing more.
+  stripeInvoiceId String    @unique @map("stripe_invoice_id")
+  // In cents.
+  amount          Int
+  invoicePaidAt   DateTime  @map("invoice_paid_at")
+  // Refunded or disputed within 14 days of invoicePaidAt.
+  voidedAt        DateTime? @map("voided_at")
+  // Marked by the platform admin, the payment itself is made outside.
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  salesPartner User     @relation(fields: [salesPartnerId], references: [id], onDelete: Restrict)
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+
+  @@index([salesPartnerId, invoicePaidAt])
+  @@map("commission")
+}
+
+// What a referred Business earns its sponsor, from its first paid invoice.
+// Held 14 days like a commission before it goes on the sponsor's Stripe
+// balance, voided by a refund or dispute in that time (ADR 0040).
+model SponsorCredit {
+  // One per referred Business: a voided one isn't replaced by a later invoice.
+  businessId        String    @id @map("business_id") @db.Uuid
+  sponsorBusinessId String    @map("sponsor_business_id") @db.Uuid
+  stripeInvoiceId   String    @unique @map("stripe_invoice_id")
+  // In cents, a month of the plan at the monthly price.
+  amount            Int
+  invoicePaidAt     DateTime  @map("invoice_paid_at")
+  voidedAt          DateTime? @map("voided_at")
+  // Stripe accepted the balance transaction.
+  creditedAt        DateTime? @map("credited_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  business        Business @relation("SponsorCreditEarned", fields: [businessId], references: [id], onDelete: Restrict)
+  sponsorBusiness Business @relation("SponsorCreditReceived", fields: [sponsorBusinessId], references: [id], onDelete: Restrict)
+
+  @@map("sponsor_credit")
 }

@@ -1,6 +1,5 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "react-email";
-import { Locale } from "@readyyet/db";
-import type { InvitationRole } from "@readyyet/db";
+import type { InvitationRole, Locale } from "@readyyet/db";
 import type { ReactElement, ReactNode } from "react";
 import { styles } from "../email-styles";
 import { MESSAGES } from "./messages";
@@ -16,20 +15,13 @@ const codeStyle = {
   textAlign: "center" as const,
 };
 
-// A sign-in happens before we know anything about the User, the browser's
-// preferred language is the only hint. English when none we support.
-export function localeFromAcceptLanguage(header: string | null | undefined): Locale {
-  const preferred = (header ?? "")
-    .split(",")
-    .map((part) => {
-      const [tag, q] = part.trim().split(";q=");
-      return { language: tag.split("-")[0].toUpperCase(), q: q === undefined ? 1 : Number(q) };
-    })
-    .filter(({ q }) => q > 0)
-    .sort((a, b) => b.q - a.q)
-    .find(({ language }) => Object.hasOwn(Locale, language));
-  return (preferred?.language as Locale | undefined) ?? Locale.EN;
-}
+// The Customer's own words, line breaks kept.
+const quoteStyle = {
+  ...styles.text,
+  borderLeft: "4px solid #d4d4d8",
+  paddingLeft: "12px",
+  whiteSpace: "pre-wrap" as const,
+};
 
 function Layout({ locale, preview, children }: { locale: Locale; preview: string; children: ReactNode }) {
   return (
@@ -161,4 +153,53 @@ export function buildAccountDeletedEmail(input: { locale: Locale; email: string 
     </Layout>
   );
   return { subject: messages.subject, react };
+}
+
+export function buildTrialEndingEmail(input: { locale: Locale; location: string; days: number; billingUrl: string }) {
+  const messages = MESSAGES[input.locale].trialEnding;
+  const body = messages.body(input);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        {input.location}
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Section style={{ margin: "24px 0" }}>
+        <Button href={input.billingUrl} style={styles.button}>
+          {messages.button}
+        </Button>
+      </Section>
+      <Text style={styles.text}>{messages.kept}</Text>
+    </Layout>
+  );
+  return { subject: oneLine(messages.subject(input)), react };
+}
+
+// ADR 0039: sent at once, private feedback is the shop's chance to fix a
+// problem before it becomes a public review.
+export function buildFeedbackReceivedEmail(input: {
+  locale: Locale;
+  location: string;
+  customer: string;
+  title: string;
+  message: string;
+  feedbackUrl: string;
+}) {
+  const messages = MESSAGES[input.locale].feedbackReceived;
+  const body = messages.body(input);
+  const react: ReactElement = (
+    <Layout locale={input.locale} preview={body}>
+      <Heading as="h1" style={styles.heading}>
+        {input.location}
+      </Heading>
+      <Text style={styles.text}>{body}</Text>
+      <Text style={quoteStyle}>{input.message}</Text>
+      <Section style={{ margin: "24px 0" }}>
+        <Button href={input.feedbackUrl} style={styles.button}>
+          {messages.button}
+        </Button>
+      </Section>
+    </Layout>
+  );
+  return { subject: oneLine(messages.subject(input)), react };
 }

@@ -61,10 +61,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Type-aware rules need the Prisma client and @readyyet/shared's
-      # declarations to exist, same as the api job's typecheck does.
+      # Type-aware rules need the Prisma client, @readyyet/shared's
+      # declarations and the Next.js apps' route types (LayoutProps,
+      # PageProps) to exist, same as the typecheck jobs do.
       - run: pnpm --filter @readyyet/db run generate
       - run: pnpm --filter @readyyet/shared run build
+      - run: pnpm --filter @readyyet/site exec next typegen
+      - run: pnpm --filter @readyyet/web exec next typegen
       - run: pnpm lint
       - run: pnpm format:check
 
@@ -123,9 +126,21 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Stands in for the Railway Bucket, like docker-compose.yml's.
+      s3:
+        image: adobe/s3mock:5.2.3
+        env:
+          COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: readyyet
+        ports:
+          - 9090:9090
 
     env:
       DATABASE_URL: postgresql://readyyet:readyyet@localhost:5432/readyyet
+      S3_ENDPOINT: http://localhost:9090
+      S3_REGION: us-east-1
+      S3_BUCKET: readyyet
+      S3_ACCESS_KEY_ID: ci
+      S3_SECRET_ACCESS_KEY: ci
       # The email e2e tests send real (test-mode) emails via Resend, see
       # docs/decisions/0010-resend-mail-infrastructure.md. RESEND_API_KEY
       # must be set as a repo secret.
@@ -137,6 +152,9 @@ jobs:
       # it only signs sessions of a throwaway CI database.
       BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
       BETTER_AUTH_URL: http://localhost:3000
+      # Never called: the billing tests replace the Stripe client
+      # (api/src/billing/stripe-client.ts), startup only checks the shape.
+      STRIPE_SECRET_KEY: sk_test_ci_only_never_used
 
     steps:
       - uses: actions/checkout@v7
@@ -162,3 +180,45 @@ jobs:
           pnpm --filter @readyyet/api run openapi
           git diff --exit-code api/openapi.json || { echo "::error::api/openapi.json is out of date, run: pnpm --filter @readyyet/api run openapi"; exit 1; }
       - run: pnpm --filter @readyyet/api run test
+
+  web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @readyyet/shared run build
+      - name: Check web/src/lib/api/schema.d.ts is up to date
+        run: |
+          pnpm run api-types
+          git diff --exit-code web/src/lib/api/schema.d.ts || { echo "::error::web/src/lib/api/schema.d.ts is out of date, run: pnpm run api-types"; exit 1; }
+      - run: pnpm --filter @readyyet/web run typecheck
+      - run: pnpm --filter @readyyet/web run test
+      - run: pnpm --filter @readyyet/web run build
+
+  site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @readyyet/site run typecheck
+      - run: pnpm --filter @readyyet/site run build

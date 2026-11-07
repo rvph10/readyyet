@@ -1,8 +1,9 @@
-import { Controller, Get, Header, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Header, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
+import { SendFeedbackDto } from "../feedback/dto/send-feedback.dto";
 import { TrackingDto } from "./dto/tracking.response.dto";
 import { TrackingService } from "./tracking.service";
 
@@ -34,5 +35,24 @@ export class TrackingController {
   @ApiErrors(HttpStatus.NOT_FOUND)
   stopNotifications(@Param("code") code: string) {
     return this.tracking.stopNotifications(code);
+  }
+
+  @Post(":code/collected")
+  @HttpCode(204)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({ summary: "The customer says they already picked the item up, stops its reminders (ADR 0028)" })
+  @ApiErrors(HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  markCollected(@Param("code") code: string) {
+    return this.tracking.markCollected(code);
+  }
+
+  @Post(":code/feedback")
+  @HttpCode(204)
+  // Each one emails the shop's Owner and Admins.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: "The customer tells the shop privately how it went, once per ticket (ADR 0027)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  sendFeedback(@Param("code") code: string, @Body() dto: SendFeedbackDto) {
+    return this.tracking.sendFeedback(code, dto.message);
   }
 }

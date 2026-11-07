@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Query, UseGuards } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
@@ -19,7 +20,12 @@ export class CustomerController {
   constructor(private readonly customer: CustomerService) {}
 
   @Get()
-  @ApiOperation({ summary: "Search/list customers at a location, optionally by partial name (?q=)" })
+  // All of a Location's screens share one address, and the new Ticket form searches
+  // as someone types.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
+  @ApiOperation({
+    summary: "Search/list customers at a location, optionally by part of their name, email or phone (?q=)",
+  })
   @ApiErrors(HttpStatus.BAD_REQUEST)
   list(@Param("locationId") locationId: string, @Query() query: ListCustomersQueryDto): Promise<CustomerPageDto> {
     return this.customer.list(locationId, query);

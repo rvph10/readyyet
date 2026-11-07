@@ -16,6 +16,17 @@ interface TransferParams {
   newOwnerEmail: string;
 }
 
+interface TrialEndingParams {
+  location: string;
+  days: number;
+}
+
+interface FeedbackParams {
+  location: string;
+  customer: string;
+  title: string;
+}
+
 interface StaffMessages {
   signInCode: {
     subject: string;
@@ -51,6 +62,17 @@ interface StaffMessages {
     stillAdmin: string;
     notYou: string;
   };
+  trialEnding: {
+    subject: (params: TrialEndingParams) => string;
+    body: (params: TrialEndingParams) => string;
+    kept: string;
+    button: string;
+  };
+  feedbackReceived: {
+    subject: (params: FeedbackParams) => string;
+    body: (params: FeedbackParams) => string;
+    button: string;
+  };
 }
 
 const ROLES: Record<Locale, Record<InvitationRole, string>> = {
@@ -79,24 +101,37 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
     newOwner: {
       subject: ({ business }) => `You're now the owner of ${business} on ReadyYet`,
       body: ({ business, previousOwner }) =>
-        `${previousOwner} transferred ${business} to you, you're now its owner at every one of its locations.`,
+        `${previousOwner} transferred ${business} to you, you're now its owner at every one of its shops.`,
       powers:
-        "As the owner, you alone can add or delete locations, make someone an admin or remove one, and transfer the business.",
+        "As the owner, you alone can add or delete shops, make someone an admin or remove one, and transfer the business.",
       button: "Open ReadyYet",
     },
     previousOwner: {
       subject: ({ business, newOwner }) => `You transferred ${business} to ${newOwner}`,
       body: ({ business, newOwner, newOwnerEmail }) =>
         `${business} now belongs to ${newOwner} (${newOwnerEmail}), as you asked.`,
-      stillAdmin: "You remain an admin at each of its locations, until you choose to leave them.",
+      stillAdmin: "You remain an admin at each of its shops, until you choose to leave them.",
       notYou: "If you didn't make this transfer, reply to this email right away.",
     },
     accountDeleted: {
       subject: "Your ReadyYet account was deleted",
-      body: (email) => `Your ReadyYet account (${email}) was deleted, you no longer have access to any location.`,
+      body: (email) => `Your ReadyYet account (${email}) was deleted, you no longer have access to any shop.`,
       history: "Tickets and changes you made stay in each shop's history, without your name or email address.",
       newAccount: "You can create a new account at any time by signing in with this address.",
       notYou: "If you didn't delete your account, reply to this email right away.",
+    },
+    trialEnding: {
+      subject: ({ location, days }) =>
+        `Your ReadyYet trial for ${location} ends in ${days} day${days === 1 ? "" : "s"}`,
+      body: ({ location, days }) =>
+        `The free trial of ReadyYet at ${location} ends in ${days} day${days === 1 ? "" : "s"}. Choose a plan to keep creating tickets and inviting your team.`,
+      kept: "Tickets already open keep working, and your customers' tracking links stay online either way.",
+      button: "Choose a plan",
+    },
+    feedbackReceived: {
+      subject: ({ location, customer }) => `${customer} sent private feedback to ${location}`,
+      body: ({ customer, title }) => `${customer} wrote about "${title}", only your team can see it:`,
+      button: "See the feedback",
     },
   },
   FR: {
@@ -120,9 +155,9 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
     newOwner: {
       subject: ({ business }) => `Vous êtes maintenant propriétaire de ${business} sur ReadyYet`,
       body: ({ business, previousOwner }) =>
-        `${previousOwner} vous a transféré ${business}, vous en êtes maintenant propriétaire, dans chacun de ses établissements.`,
+        `${previousOwner} vous a transféré ${business}, vous en êtes maintenant propriétaire, dans chacun de ses magasins.`,
       powers:
-        "En tant que propriétaire, vous seul pouvez ajouter ou supprimer un établissement, nommer ou retirer un administrateur, et transférer l'entreprise.",
+        "En tant que propriétaire, vous seul pouvez ajouter ou supprimer un magasin, nommer ou retirer un administrateur, et transférer l'entreprise.",
       button: "Ouvrir ReadyYet",
     },
     previousOwner: {
@@ -130,16 +165,30 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       body: ({ business, newOwner, newOwnerEmail }) =>
         `${business} appartient désormais à ${newOwner} (${newOwnerEmail}), comme vous l'avez demandé.`,
       stillAdmin:
-        "Vous restez administrateur de chacun de ses établissements, jusqu'à ce que vous choisissiez de les quitter.",
+        "Vous restez administrateur de chacun de ses magasins, jusqu'à ce que vous choisissiez de les quitter.",
       notYou: "Si vous n'êtes pas à l'origine de ce transfert, répondez à cet e-mail sans attendre.",
     },
     accountDeleted: {
       subject: "Votre compte ReadyYet a été supprimé",
-      body: (email) => `Votre compte ReadyYet (${email}) a été supprimé, vous n'avez plus accès à aucun établissement.`,
+      body: (email) => `Votre compte ReadyYet (${email}) a été supprimé, vous n'avez plus accès à aucun magasin.`,
       history:
         "Les tickets et modifications que vous avez faits restent dans l'historique de chaque commerce, sans votre nom ni votre adresse e-mail.",
       newAccount: "Vous pouvez créer un nouveau compte à tout moment en vous connectant avec cette adresse.",
       notYou: "Si vous n'avez pas supprimé votre compte, répondez à cet e-mail sans attendre.",
+    },
+    trialEnding: {
+      subject: ({ location, days }) =>
+        `Votre essai ReadyYet pour ${location} se termine dans ${days}\u00a0jour${days > 1 ? "s" : ""}`,
+      body: ({ location, days }) =>
+        `L'essai gratuit de ReadyYet pour ${location} se termine dans ${days}\u00a0jour${days > 1 ? "s" : ""}. Choisissez une formule pour continuer à créer des tickets et à inviter votre équipe.`,
+      kept: "Les tickets en cours continuent de fonctionner, et les liens de suivi de vos clients restent en ligne dans tous les cas.",
+      button: "Choisir une formule",
+    },
+    feedbackReceived: {
+      subject: ({ location, customer }) => `${customer} a envoyé un avis privé à ${location}`,
+      body: ({ customer, title }) =>
+        `${customer} a écrit à propos de «\u00a0${title}\u00a0», seule votre équipe peut le voir\u00a0:`,
+      button: "Voir l'avis",
     },
   },
 };

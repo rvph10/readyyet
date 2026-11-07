@@ -1,11 +1,13 @@
 // Must run before AppModule is imported: auth.ts constructs a PrismaClient
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
+import { randomUUID } from "node:crypto";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createTestApp } from "./support/create-test-app";
 import { PrismaService } from "../src/database/prisma.service";
+import { getResendClient } from "../src/email/resend-client";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
 async function readOtp(prisma: PrismaService, email: string): Promise<string> {
@@ -109,9 +111,52 @@ describe("Better Auth email OTP", () => {
     }
     await sent.send({ email, type: "sign-in" });
 
-    const log = await prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } });
+    // Sent after the answer (ADR 0047).
+    const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } }));
     expect(log.subject).toBe(subject);
     expect(log.html).toContain(await readOtp(prisma, email));
+  });
+
+  // Their own client IP, so they don't count toward the default one's rate limit.
+  const sendFromOwnIp = (email: string) =>
+    request(app.getHttpServer())
+      .post("/api/auth/email-otp/send-verification-otp")
+      .set("X-Real-IP", "203.0.113.50")
+      .send({ email, type: "sign-in" });
+
+  it("refuses a disposable address before sending a code", async () => {
+    const email = `someone-${Date.now()}@yopmail.com`;
+
+    const response = await sendFromOwnIp(email);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+    expect(await prisma.verification.count({ where: { identifier: `sign-in-otp-${email}` } })).toBe(0);
+  });
+
+  it("refuses a subdomain of a disposable domain, whatever its case", async () => {
+    const response = await sendFromOwnIp(`someone-${Date.now()}@Mail.YOPMAIL.com`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("DISPOSABLE_EMAIL");
+  });
+
+  it("still sends a code to an existing User on a listed domain, who'd otherwise be locked out", async () => {
+    const send = vi
+      .spyOn(getResendClient().emails, "send")
+      .mockResolvedValue({ data: { id: "mocked" }, error: null } as never);
+    const email = `existing-${Date.now()}@yopmail.com`;
+    await prisma.user.create({ data: { id: randomUUID(), email, name: "Existing User" } });
+
+    const response = await sendFromOwnIp(email);
+
+    expect(response.status).toBe(200);
+    await vi.waitFor(() => expect(send).toHaveBeenCalled());
+    send.mockRestore();
+  });
+
+  it("still sends a code to an ordinary address", async () => {
+    expect((await sendFromOwnIp(`delivered+auth-otp-ordinary-${Date.now()}@resend.dev`)).status).toBe(200);
   });
 
   // Last: it uses up the rate limit for every test after it.
@@ -120,13 +165,17 @@ describe("Better Auth email OTP", () => {
     // api/src/auth/auth.ts); 10 rapid attempts on top of earlier tests'
     // calls guarantees at least one 429.
     const email = `delivered+auth-otp-ratelimit-${Date.now()}@resend.dev`;
-    const attempts = await Promise.all(
-      Array.from({ length: 10 }, () =>
-        request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" }),
-      ),
-    );
+    // One after another: supertest opens and closes the unlistened server
+    // around each request, so parallel ones can find it closed under them.
+    const statuses: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      const response = await request(app.getHttpServer())
+        .post("/api/auth/email-otp/send-verification-otp")
+        .send({ email, type: "sign-in" });
+      statuses.push(response.status);
+    }
 
-    expect(attempts.some((response) => response.status === 429)).toBe(true);
+    expect(statuses).toContain(429);
   });
 
   // An invalid email: the rate limiter runs before validation, and no email is sent.

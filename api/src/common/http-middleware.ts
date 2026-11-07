@@ -33,4 +33,6 @@ export function applyHttpMiddleware(app: INestApplication) {
   // req._body after a successful parse, which makes that later json()
   // call skip re-parsing.
   app.use("/webhooks/resend", express.raw({ type: "application/json" }));
+  // Same for Stripe's signature.
+  app.use("/webhooks/stripe", express.raw({ type: "application/json" }));
 }

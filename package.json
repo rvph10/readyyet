@@ -5,15 +5,20 @@
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "api-types": "openapi-typescript api/openapi.json -o web/src/lib/api/schema.d.ts",
+    "disposable-domains": "curl -sSfL https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/main/disposable_email_blocklist.conf -o api/src/auth/disposable-domains.txt"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "eslint": "10.11.0",
+    "@next/eslint-plugin-next": "16.4.3",
+    "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
-    "prettier": "3.9.9",
-    "railway": "3.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "openapi-typescript": "7.13.0",
+    "prettier": "3.9.10",
+    "railway": "3.16.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.1"
+    "typescript-eslint": "8.72.1"
   }
 }

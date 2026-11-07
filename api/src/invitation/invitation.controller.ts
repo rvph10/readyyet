@@ -22,7 +22,7 @@ export class InvitationController {
 
   @Post()
   @ApiOperation({ summary: "Invite someone by email to a location with a role (an admin invites employees only)" })
-  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT, HttpStatus.PAYMENT_REQUIRED)
   create(
     @Param("locationId") locationId: string,
     @CurrentUser() user: User,
@@ -31,6 +31,9 @@ export class InvitationController {
     return this.invitation.create(locationId, user.id, dto);
   }
 
+  // A Business's pages read every Location's, so a chain goes through this many
+  // times per page, and each one is the same counter (ADR 0102).
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @Get()
   @ApiOperation({ summary: "List invitations for a location" })
   list(@Param("locationId") locationId: string): Promise<InvitationDto[]> {
@@ -54,7 +57,7 @@ export class InvitationController {
   // Each call sends an email, same limit as resending a tracking link.
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: "Email a pending invitation again, extending its expiry (ADR 0017)" })
-  @ApiErrors(HttpStatus.CONFLICT)
+  @ApiErrors(HttpStatus.CONFLICT, HttpStatus.PAYMENT_REQUIRED)
   resend(
     @Param("locationId") locationId: string,
     @Param("invitationId") invitationId: string,

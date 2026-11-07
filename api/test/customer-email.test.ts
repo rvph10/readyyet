@@ -5,6 +5,9 @@ import { type CustomerEmailKind } from "../src/notification/customer-email/messa
 
 const KINDS: CustomerEmailKind[] = [
   "TICKET_CREATED",
+  "READY_DATE_CHANGED",
+  "READY_REMINDER",
+  "FEEDBACK_REQUEST",
   "READY",
   "AWAITING_APPROVAL",
   "AWAITING_CLIENT_INFO",
@@ -19,8 +22,18 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     businessTypeCode: "GARAGE",
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
-    location: { name: "Joe's Garage", contactPhone: "+3221234567", contactEmail: "shop@joes.test" },
+    estimatedReadyDate: null,
+    location: {
+      name: "Joe's Garage",
+      contactPhone: "+3221234567",
+      contactEmail: "shop@joes.test",
+      address: null,
+      logoUrl: null,
+    },
     trackingUrl: "https://readyyet.app/t/AbC123xyz789",
+    collectedUrl: "https://readyyet.app/t/AbC123xyz789/collected",
+    ratingUrl: "https://readyyet.app/t/AbC123xyz789/review",
+    asksForFeedback: false,
     stopUpdatesUrl: "https://readyyet.app/t/AbC123xyz789/stop-updates",
     ...overrides,
   };
@@ -89,6 +102,68 @@ describe("Customer emails", () => {
     });
   });
 
+  describe("estimated ready date", () => {
+    // Tuesday 29 September 2026.
+    const estimatedReadyDate = "2026-09-29";
+    const text = async (overrides: Partial<CustomerEmailInput>) =>
+      (
+        await render(buildCustomerEmail(input({ estimatedReadyDate, ...overrides })).react, { plainText: true })
+      ).replace(/\s+/g, " ");
+
+    it.each([
+      ["EN", "GARAGE", "It should be ready on Tuesday 29 September."],
+      ["FR", "TAILORING", "Elle devrait être prête le mardi 29 septembre."],
+      ["FR", "PRESSING", "Il devrait être prêt le mardi 29 septembre."],
+    ] as const)("is written out in the %s ticket-created email for %s", async (locale, businessTypeCode, sentence) => {
+      expect(await text({ kind: "TICKET_CREATED", locale, businessTypeCode })).toContain(sentence);
+    });
+
+    it("is left out of the ticket-created email when there's none, and of status emails", async () => {
+      expect(await text({ kind: "TICKET_CREATED", estimatedReadyDate: null })).not.toContain("should be ready");
+      expect(await text({ kind: "AWAITING_APPROVAL" })).not.toContain("29 September");
+    });
+
+    it("is the news of a READY_DATE_CHANGED email", async () => {
+      expect(await text({ kind: "READY_DATE_CHANGED" })).toContain(
+        'Joe\'s Garage needs a little more time for your repair "Brake pads". It should now be ready on Tuesday 29 September.',
+      );
+      expect(await text({ kind: "READY_DATE_CHANGED", locale: "FR", businessTypeCode: "TAILORING" })).toContain(
+        "Elle devrait maintenant être prête le mardi 29 septembre.",
+      );
+    });
+  });
+
+  describe("ready reminder", () => {
+    it.each([
+      ["EN", "GARAGE", "I already picked it up"],
+      ["FR", "TAILORING", "Je l'ai déjà récupérée"],
+      ["FR", "PRESSING", "Je l'ai déjà récupéré"],
+    ] as const)("links %s %s to the collected page", async (locale, businessTypeCode, label) => {
+      const html = await render(buildCustomerEmail(input({ kind: "READY_REMINDER", locale, businessTypeCode })).react);
+
+      expect(html).toMatch(
+        new RegExp(`href="https://readyyet.app/t/AbC123xyz789/collected"[^>]*>${label.replace("'", "&#x27;")}</a>`),
+      );
+    });
+
+    it("leaves the collected link out of every other email", async () => {
+      const html = await render(buildCustomerEmail(input({ kind: "READY" })).react);
+
+      expect(html).not.toContain("/collected");
+    });
+  });
+
+  it("gives each star of a FEEDBACK_REQUEST its own link and name, in the Customer's language", async () => {
+    const { react } = buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST", locale: "FR" }));
+    const html = await render(react);
+
+    for (const stars of [1, 2, 3, 4, 5]) {
+      expect(html).toContain(`/review?stars=${stars}"`);
+    }
+    expect(html).toContain('aria-label="1 étoile sur 5"');
+    expect(html).toContain('aria-label="5 étoiles sur 5"');
+  });
+
   it("escapes user-entered text instead of rendering it as HTML", async () => {
     const { react } = buildCustomerEmail(
       input({ customerName: "<b>Mallory</b>", ticketTitle: '<script>alert("x")</script>' }),
@@ -102,9 +177,85 @@ describe("Customer emails", () => {
 
   it("keeps the subject on one line when a location name contains a line break", () => {
     const { subject } = buildCustomerEmail(
-      input({ location: { name: "Joe's\r\nBcc: victim@example.test", contactPhone: "+32", contactEmail: "a@b.test" } }),
+      input({
+        location: {
+          name: "Joe's\r\nBcc: victim@example.test",
+          contactPhone: "+32",
+          contactEmail: "a@b.test",
+          address: null,
+          logoUrl: null,
+        },
+      }),
     );
 
     expect(subject).not.toMatch(/[\r\n]/);
+  });
+
+  it("shows the Location's address as a Google Maps link when it has one", async () => {
+    const address = {
+      streetAddress: "Rue Neuve 12",
+      postalCode: "1000",
+      addressLocality: "Bruxelles",
+      addressCountry: "BE",
+    };
+    const html = await render(buildCustomerEmail(input({ location: { ...input().location, address } })).react);
+
+    expect(html).toContain(">Rue Neuve 12, 1000 Bruxelles</a>");
+    expect(html).toContain(
+      "https://www.google.com/maps/search/?api=1&amp;query=Rue%20Neuve%2012%2C%201000%20Bruxelles%2C%20BE",
+    );
+  });
+
+  it("leaves the address out when the Location has none", async () => {
+    const html = await render(buildCustomerEmail(input()).react);
+
+    expect(html).not.toContain("google.com/maps");
+  });
+
+  it("shows the Location's logo above its name when it has one", async () => {
+    const logoUrl = "https://api.readyyet.app/images/logos/0b7c7a9e-3f2a-4d7e-9a53-1c2d3e4f5a6b.png";
+    const html = await render(buildCustomerEmail(input({ location: { ...input().location, logoUrl } })).react);
+
+    expect(html).toMatch(new RegExp(`<img[^>]+src="${logoUrl}"[^>]*>.*Joe&#x27;s Garage</h1>`, "s"));
+  });
+
+  it("shows no image when the Location has no logo", async () => {
+    const html = await render(buildCustomerEmail(input()).react);
+
+    expect(html).not.toContain("<img");
+  });
+
+  describe("feedback (ADR 0039)", () => {
+    it.each([
+      ["EN", "How did your repair at Joe's Garage go?", "1 star is poor"],
+      // The subject is flattened to one line, a non-breaking space included.
+      ["FR", "Comment s'est passée votre réparation chez Joe's Garage ?", "excellent"],
+    ] as const)("asks how it went in %s, with five stars to the rating page", async (locale, subject, hint) => {
+      const email = buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST", locale }));
+      const html = await render(email.react);
+
+      expect(email.subject).toBe(subject);
+      expect(html).toContain(hint);
+      for (const stars of [1, 2, 3, 4, 5]) {
+        expect(html).toContain(`href="https://readyyet.app/t/AbC123xyz789/review?stars=${stars}"`);
+      }
+    });
+
+    it("never links to Google", async () => {
+      const html = await render(buildCustomerEmail(input({ kind: "FEEDBACK_REQUEST" })).react);
+
+      expect(html).not.toMatch(/google|g\.page|goo\.gl/i);
+    });
+
+    it("tells the Customer at drop-off, only when the Location asks for feedback", async () => {
+      const notice = "Once you've picked it up, you'll get one email asking how it went.";
+      const asks = await render(buildCustomerEmail(input({ kind: "TICKET_CREATED", asksForFeedback: true })).react);
+      const silent = await render(buildCustomerEmail(input({ kind: "TICKET_CREATED" })).react);
+      const status = await render(buildCustomerEmail(input({ kind: "READY", asksForFeedback: true })).react);
+
+      expect(asks).toContain("Once you&#x27;ve picked it up");
+      expect(silent).not.toContain(notice.slice(0, 20));
+      expect(status).not.toContain("Once you&#x27;ve picked it up");
+    });
   });
 });

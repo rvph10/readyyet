@@ -2,11 +2,11 @@
 
 ReadyYet lets businesses that take in physical items for work (repairs, cleaning, etc.) give their customers a way to track progress, without phone calls and without the customer needing an account.
 
-Status: early development, API only, no frontend yet.
+Status: early development. The API is built, the web app is being scaffolded.
 
 ## Stack
 
-NestJS API (`api/`) + Postgres via Prisma (`packages/db/`) + Better Auth (email OTP, no passwords) + Resend for transactional email. See `docs/decisions/0001-stack-and-repo-structure.md` for why, and `docs/` generally for the reasoning behind everything else, this README only covers running the thing.
+NestJS API (`api/`) + Next.js web app (`web/`, Tailwind, next-intl) + Next.js sales site (`site/`) + Postgres via Prisma (`packages/db/`) + Better Auth (email OTP, no passwords) + Resend for transactional email. See `docs/decisions/0001-stack-and-repo-structure.md` for why, and `docs/` generally for the reasoning behind everything else, this README only covers running the thing.
 
 ## Prerequisites
 
@@ -46,6 +46,10 @@ Then, from the repo root:
 pnpm --filter @readyyet/db run migrate:dev
 pnpm --filter @readyyet/db run seed
 pnpm --filter @readyyet/api run start:dev
+pnpm --filter @readyyet/shared run build   # the web app imports its compiled output
+cp web/.env.example web/.env.local          # once
+pnpm --filter @readyyet/web run dev        # http://localhost:3001
+pnpm --filter @readyyet/site run dev       # the sales site, http://localhost:3002
 ```
 
 ## Testing
@@ -53,11 +57,12 @@ pnpm --filter @readyyet/api run start:dev
 ```bash
 pnpm --filter @readyyet/db run test
 pnpm --filter @readyyet/api run test
+pnpm --filter @readyyet/web run test
 pnpm lint
 pnpm format:check   # or pnpm format to fix
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO. The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
 
 ## CI
 
@@ -70,9 +75,9 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 ## Deploy
 
-The API runs on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, by a squash-merged PR. Releasing is a PR from `staging` into `main`, merged once staging runs that exact commit and `/health` answers 200 (the `promotion` job), see ADR 0023.
+The API, the web app and the sales site run on Railway, project `readyyet`, with two environments: `staging` deploys the `staging` branch, `production` deploys `main`, and only commits that passed CI can reach either branch. Changes go to `staging` first, by a squash-merged PR. Releasing is a PR from `staging` into `main`, merged once staging's API, web app and sales site all run that exact commit and answer 200 on `/health` (the `promotion` job), see ADR 0023.
 
-Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api` service, its settings and variables, and a Postgres per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
+Both environments are described by `.railway/railway.ts` (Railway Infrastructure as Code, see ADR 0022): the `api`, `web` and `site` services, their settings and variables, a Postgres and an images bucket per environment. Railway doesn't read it on deploy, after changing it, apply it to each environment with the [Railway CLI](https://docs.railway.com/cli):
 
 ```bash
 railway link                    # once, pick the readyyet project
@@ -81,9 +86,11 @@ railway config plan             # review, then
 railway config apply
 ```
 
-Production answers on `api.readyyet.app`. Railway's IaC can't register a custom domain, so it's attached to the production `api` service in Railway, with the CNAME Railway gives added at the DNS provider. Staging keeps the domain Railway generates.
+Production answers on `readyyet.app` (`site`), `app.readyyet.app` (`web`) and `api.readyyet.app` (`api`), staging on the same names under `readyyet-staging.app` (ADR 0043). Railway's IaC can't register a custom domain, so each one is attached to its service in Railway, with the CNAME Railway gives added at the DNS provider.
 
-Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `WEB_URL`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
+Secrets, and values that differ per environment, stay in Railway, never in the file, the repo is public: `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `EMAIL_FROM`, `SUPPORT_EMAIL` and `SENTRY_DSN` (see `api/.env.example`). The file only says they must be kept. The API refuses to start without them.
+
+The `web` service also needs `NEXT_PUBLIC_SENTRY_DSN` (the API's DSN, read at build time for the browser) and, for readable browser stack traces, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` and `SENTRY_PROJECT` so the build uploads source maps. Without them the web app runs and reports nothing.
 
 Each deploy builds `@readyyet/db`, `@readyyet/shared` and the API, then runs `prisma migrate deploy` and the catalogue seed (it only adds what's missing) before starting the new version. Node starts with `--enable-source-maps`, so stack traces in logs and Sentry point at the TypeScript sources. Traffic switches over once `/health` answers 200. Railway only calls `/health` during a deploy, it doesn't restart a running service on it.
 

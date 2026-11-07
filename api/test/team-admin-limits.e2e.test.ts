@@ -66,6 +66,7 @@ describe("What an admin can do to the team", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "shop@teamlimits.test",
           locale: "EN",

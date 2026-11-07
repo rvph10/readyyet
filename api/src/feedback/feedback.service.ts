@@ -1,0 +1,126 @@
+import { Injectable, Logger } from "@nestjs/common";
+import { Prisma, Role } from "@readyyet/db";
+import { parseBigIntId } from "../common/parse-bigint-id";
+import { NotFoundError } from "../common/errors/app-error";
+import { PrismaService } from "../database/prisma.service";
+import { EmailService } from "../email/email.service";
+import { buildFeedbackReceivedEmail } from "../notification/staff-email/staff-email";
+import { ListFeedbackQueryDto } from "./dto/list-feedback.query.dto";
+
+const DEFAULT_LIST_TAKE = 20;
+
+const FEEDBACK_INCLUDE = {
+  ticket: {
+    select: { id: true, title: true, customer: { select: { id: true, fullName: true, email: true, phone: true } } },
+  },
+  handler: { select: { id: true, name: true } },
+} as const;
+
+type LoadedFeedback = Prisma.TicketFeedbackGetPayload<{ include: typeof FEEDBACK_INCLUDE }>;
+
+// Private feedback from the tracking page (ADR 0027, ADR 0039).
+@Injectable()
+export class FeedbackService {
+  private readonly logger = new Logger(FeedbackService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly email: EmailService,
+  ) {}
+
+  // The caller checked the Ticket may take it. A second one for the same
+  // Ticket fails on the unique ticket_id with a 409.
+  async create(ticketId: bigint, message: string) {
+    const feedback = await this.prisma.ticketFeedback.create({
+      data: { ticketId, message },
+      include: { ticket: { include: { customer: true, location: true } } },
+    });
+    // Not awaited: the Customer's form shouldn't wait on the rate limit or
+    // retries of one send per Owner and Admin. A failed send is recorded
+    // and retried by EmailService, like an invitation's.
+    this.notifyStaff(feedback.ticket, message).catch((err) => {
+      this.logger.error(`Failed to email feedback ${feedback.id} to staff`, err instanceof Error ? err.stack : err);
+    });
+  }
+
+  // Every Owner and Admin, each in their own language.
+  private async notifyStaff(
+    {
+      id,
+      location,
+      customer,
+      title,
+    }: { id: bigint; location: { id: string; name: string }; customer: { fullName: string }; title: string },
+    message: string,
+  ) {
+    const staff = await this.prisma.membership.findMany({
+      where: { locationId: location.id, role: { in: [Role.OWNER, Role.ADMIN] } },
+      select: { user: { select: { email: true, locale: true } } },
+    });
+    for (const { user } of staff) {
+      const email = buildFeedbackReceivedEmail({
+        locale: user.locale,
+        location: location.name,
+        customer: customer.fullName,
+        title,
+        message,
+        feedbackUrl: `${process.env.WEB_URL}/locations/${location.id}/feedback`,
+      });
+      await this.email.send({ to: user.email, ...email, type: "feedback_received", ticketId: id });
+    }
+  }
+
+  async list(locationId: string, query: ListFeedbackQueryDto) {
+    const take = query.take ?? DEFAULT_LIST_TAKE;
+    const where = {
+      ticket: { locationId },
+      ...(query.handled && { handledAt: query.handled === "true" ? { not: null } : null }),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.ticketFeedback.findMany({
+        where,
+        include: FEEDBACK_INCLUDE,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+      }),
+      this.prisma.ticketFeedback.count({ where }),
+    ]);
+
+    return { items: rows.map(toResponse), total };
+  }
+
+  // Repeating it keeps who handled it first.
+  async markHandled(locationId: string, feedbackId: string, userId: string) {
+    const id = parseBigIntId(feedbackId, "Feedback");
+    await this.prisma.ticketFeedback.updateMany({
+      where: { id, ticket: { locationId }, handledAt: null },
+      data: { handledAt: new Date(), handledBy: userId },
+    });
+    const feedback = await this.prisma.ticketFeedback.findFirst({
+      where: { id, ticket: { locationId } },
+      include: FEEDBACK_INCLUDE,
+    });
+    if (!feedback) {
+      throw new NotFoundError("Feedback not found");
+    }
+    return toResponse(feedback);
+  }
+}
+
+function toResponse({ ticket, handler, ...feedback }: LoadedFeedback) {
+  return {
+    id: feedback.id.toString(),
+    message: feedback.message,
+    ticket: { id: ticket.id.toString(), title: ticket.title },
+    customer: {
+      id: ticket.customer.id.toString(),
+      fullName: ticket.customer.fullName,
+      email: ticket.customer.email,
+      phone: ticket.customer.phone,
+    },
+    handledAt: feedback.handledAt,
+    handledBy: handler,
+    createdAt: feedback.createdAt,
+  };
+}

@@ -1,30 +1,81 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, IsUrl, MaxLength } from "class-validator";
-import { NAME_MAX_LENGTH } from "../../common/text-limits";
+import { Transform, Type } from "class-transformer";
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from "class-validator";
+import { OptionalNotNull } from "../../common/decorators/optional-not-null.decorator";
+import { NAME_MAX_LENGTH } from "@readyyet/shared";
+import { canonicalTimeZone, IsGoogleReviewUrl, IsRegionTimeZone, IsWeeklyOpeningHours } from "../location-info";
+import { OpeningHoursSpecificationDto, PostalAddressDto } from "./location-info.dto";
 
 export class UpdateLocationDto {
-  @IsOptional()
+  @OptionalNotNull()
   @IsString()
   @IsNotEmpty()
   @MaxLength(NAME_MAX_LENGTH)
   name?: string;
 
-  @IsOptional()
+  @OptionalNotNull()
   @IsPhoneNumber()
   contactPhone?: string;
 
-  @IsOptional()
+  @OptionalNotNull()
   @IsEmail()
   contactEmail?: string;
 
-  // Shown as an image in customer emails and on the tracking page, so only
-  // an https address, never a javascript: or data: one.
-  @IsOptional()
-  @IsUrl({ protocols: ["https"], require_protocol: true })
-  @MaxLength(2048)
-  logoUrl?: string;
-
-  @IsOptional()
+  @OptionalNotNull()
   @IsEnum(Locale)
   locale?: Locale;
+
+  @OptionalNotNull()
+  @Transform(({ value }: { value: unknown }) => canonicalTimeZone(value) ?? value)
+  @IsRegionTimeZone()
+  timeZone?: string;
+
+  // null removes it.
+  @ApiPropertyOptional({ type: PostalAddressDto, nullable: true })
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => PostalAddressDto)
+  address?: PostalAddressDto | null;
+
+  // The whole week, replacing what was there. An empty list removes it.
+  @OptionalNotNull()
+  @IsArray()
+  @ArrayMaxSize(14)
+  @ValidateNested({ each: true })
+  @Type(() => OpeningHoursSpecificationDto)
+  @IsWeeklyOpeningHours()
+  openingHours?: OpeningHoursSpecificationDto[];
+
+  // Open days a new Ticket's estimated ready date is set to, null stops
+  // prefilling it (ADR 0036).
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  turnaroundDays?: number | null;
+
+  // Google's "write a review" link, Pro only. Setting it turns on the
+  // feedback email and the review choice on the tracking page, null turns
+  // them off (ADR 0039).
+  @IsOptional()
+  @IsGoogleReviewUrl()
+  @MaxLength(2048)
+  googleReviewUrl?: string | null;
 }

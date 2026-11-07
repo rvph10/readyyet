@@ -1,0 +1,57 @@
+import { BillingInterval, Plan, SubscriptionStatus, type Subscription } from "@readyyet/db";
+
+const TRIAL_DAYS = 14;
+export const ESSENTIEL_MEMBER_LIMIT = 2;
+
+// ADR 0082: an Owner's first Business gets the trial on its first Location,
+// everything later starts without, so neither a new Business nor deleting and
+// recreating a Location can restart it.
+export function trialSubscription(now = new Date()) {
+  return {
+    status: SubscriptionStatus.TRIAL,
+    plan: Plan.PRO,
+    trialEndsAt: new Date(now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
+  };
+}
+
+export const UNPAID_SUBSCRIPTION = { status: SubscriptionStatus.ENDED };
+
+// Computed, never stored (ADR 0033): no job has to run for a trial to end.
+export function isFrozen(subscription: Subscription, now = new Date()) {
+  if (subscription.status === SubscriptionStatus.TRIAL) {
+    return subscription.trialEndsAt! <= now;
+  }
+  return subscription.status === SubscriptionStatus.ENDED;
+}
+
+// Pro's features (ADR 0031): a trial is Pro, a frozen Location isn't.
+export function hasPro(subscription: Subscription, now = new Date()) {
+  return subscription.plan === Plan.PRO && !isFrozen(subscription, now);
+}
+
+// A move to Essentiel waiting for the period to end already holds the
+// Location to its limit, or it could grow past it before the switch.
+export function memberLimit(subscription: Subscription) {
+  const essentiel = subscription.plan === Plan.ESSENTIEL || subscription.scheduledPlan === Plan.ESSENTIEL;
+  return essentiel ? ESSENTIEL_MEMBER_LIMIT : null;
+}
+
+// The lookup keys of the four prices, the same in test mode and in live
+// mode (ADR 0033).
+export function lookupKey(plan: Plan, interval: BillingInterval) {
+  return `${plan === Plan.PRO ? "pro" : "essentiel"}_${interval === BillingInterval.YEAR ? "yearly" : "monthly"}`;
+}
+
+export function fromLookupKey(key: string | null) {
+  const [plan, interval] = (key ?? "").split("_");
+  return {
+    plan: plan === "pro" ? Plan.PRO : Plan.ESSENTIEL,
+    interval: interval === "yearly" ? BillingInterval.YEAR : BillingInterval.MONTH,
+  };
+}
+
+// Half a month of the plan off (ADR 0032). Fixed ids, the same in test mode
+// and in live mode, like the lookup keys (ADR 0040).
+export function referralCoupon(plan: Plan) {
+  return plan === Plan.PRO ? "referral-pro" : "referral-essentiel";
+}

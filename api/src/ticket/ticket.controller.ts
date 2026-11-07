@@ -9,7 +9,13 @@ import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
-import { TicketDetailDto, TicketDto, TicketPageDto, TrackingLinkSentDto } from "./dto/ticket.response.dto";
+import {
+  TicketDetailDto,
+  TicketDto,
+  TicketOverviewDto,
+  TicketPageDto,
+  TrackingLinkSentDto,
+} from "./dto/ticket.response.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
 import { TicketService } from "./ticket.service";
@@ -25,7 +31,7 @@ export class TicketController {
 
   @Post()
   @ApiOperation({ summary: "Create a ticket (with an inline customer or an existing customerId)" })
-  @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.PAYMENT_REQUIRED)
   create(
     @Param("locationId") locationId: string,
     @CurrentUser() user: User,
@@ -35,10 +41,20 @@ export class TicketController {
   }
 
   @Get()
+  // All of a Location's screens share one address, and each refreshes and searches.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "List tickets for a location, newest first" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
   list(@Param("locationId") locationId: string, @Query() query: ListTicketsQueryDto): Promise<TicketPageDto> {
     return this.ticket.list(locationId, query);
+  }
+
+  @Get("overview")
+  // Read on every page of a Location, for the navigation's counts.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
+  @ApiOperation({ summary: "A Location's counts, open Tickets by urgency and the week's handovers (ADR 0088)" })
+  overview(@Param("locationId") locationId: string): Promise<TicketOverviewDto> {
+    return this.ticket.overview(locationId);
   }
 
   @Get(":ticketId")
@@ -48,8 +64,8 @@ export class TicketController {
   }
 
   @Patch(":ticketId")
-  @ApiOperation({ summary: "Edit a ticket's title/description" })
-  @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiOperation({ summary: "Edit a ticket's title, description or estimated ready date" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
   update(
     @Param("locationId") locationId: string,
     @Param("ticketId") ticketId: string,
@@ -81,6 +97,17 @@ export class TicketController {
     @Param("ticketId") ticketId: string,
   ): Promise<TrackingLinkSentDto> {
     return this.ticket.resendTrackingLink(locationId, ticketId);
+  }
+
+  @Post(":ticketId/customer-collected/dismiss")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Clear the Customer\'s "I already picked it up" mark, the item is still here (ADR 0028)' })
+  @ApiErrors(HttpStatus.CONFLICT)
+  dismissCustomerCollected(
+    @Param("locationId") locationId: string,
+    @Param("ticketId") ticketId: string,
+  ): Promise<TicketDto> {
+    return this.ticket.dismissCustomerCollected(locationId, ticketId);
   }
 
   @Post(":ticketId/status/undo")

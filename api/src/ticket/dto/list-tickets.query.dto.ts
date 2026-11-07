@@ -2,8 +2,18 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
 import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 import { IsBigIntId } from "../../common/parse-bigint-id";
+import { MAX_PAGE } from "../../common/pagination";
 
 export class ListTicketsQueryDto {
+  // Newest first without it.
+  @IsOptional()
+  @IsIn(["number", "customer", "title", "status", "expected", "received"])
+  sort?: "number" | "customer" | "title" | "status" | "expected" | "received";
+
+  @IsOptional()
+  @IsIn(["asc", "desc"])
+  dir?: "asc" | "desc";
+
   // One search box: matched against title, description, tracking code and
   // the customer's name, email and phone.
   @IsOptional()
@@ -23,6 +33,18 @@ export class ListTicketsQueryDto {
   @IsOptional()
   @IsIn(["open", "ended"])
   state?: "open" | "ended";
+
+  // Past their estimated ready date on the Location's clock and not yet
+  // READY or ended (ADR 0030). Only "true" filters.
+  @IsOptional()
+  @IsIn(["true", "false"])
+  overdue?: "true" | "false";
+
+  // The Customer said they picked the item up (ADR 0028), staff close
+  // these as COMPLETED or dismiss them. Only "true" filters.
+  @IsOptional()
+  @IsIn(["true", "false"])
+  customerCollected?: "true" | "false";
 
   @IsOptional()
   @IsISO8601()
@@ -48,8 +70,11 @@ export class ListTicketsQueryDto {
   @Max(100)
   take?: number;
 
-  // Opaque, the nextCursor of the previous page.
+  // 1 for the first, past the last it's an empty page.
   @IsOptional()
-  @IsString()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(MAX_PAGE)
+  page?: number;
 }

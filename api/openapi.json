@@ -504,6 +504,486 @@
         ]
       }
     },
+    "/businesses/{businessId}/logo": {
+      "put": {
+        "operationId": "BusinessController_setLogo",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG or WebP, 15 MB at most"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the file is over 15 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Upload the business's logo, shown for all its locations (owner only, ADR 0051)",
+        "tags": [
+          "Businesses"
+        ]
+      },
+      "delete": {
+        "operationId": "BusinessController_removeLogo",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove the business's logo (owner only)",
+        "tags": [
+          "Businesses"
+        ]
+      }
+    },
+    "/businesses/{businessId}/banner": {
+      "put": {
+        "operationId": "BusinessController_setBanner",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG or WebP, 15 MB at most"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the file is over 15 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Upload the business's banner (owner only, ADR 0109)",
+        "tags": [
+          "Businesses"
+        ]
+      },
+      "delete": {
+        "operationId": "BusinessController_removeBanner",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove the business's banner (owner only)",
+        "tags": [
+          "Businesses"
+        ]
+      }
+    },
     "/businesses/{businessId}/locations": {
       "post": {
         "operationId": "BusinessController_addLocation",
@@ -766,6 +1246,972 @@
         ]
       }
     },
+    "/businesses/{businessId}/billing/portal": {
+      "post": {
+        "operationId": "BusinessController_billingPortal",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Open Stripe's page for the business's cards, invoices and billing details (owner only)",
+        "tags": [
+          "Businesses"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing": {
+      "get": {
+        "operationId": "BillingController_get",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a location's plan, trial and payment state (ADR 0031)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing/checkout": {
+      "post": {
+        "operationId": "BillingController_checkout",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Start paying for a location, returns the Stripe Checkout page to open",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing/plan": {
+      "post": {
+        "operationId": "BillingController_changePlan",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChoosePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Change a paying location's plan or interval: at once when it costs more per month, at the period end otherwise. The current plan undoes a waiting change or cancellation",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing/promotion-codes/{code}": {
+      "get": {
+        "operationId": "BillingController_previewPromotionCode",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodePreviewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Preview a paying location's next invoice with a campaign code, before applying it (ADR 0040)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing/promotion-code": {
+      "post": {
+        "operationId": "BillingController_applyPromotionCode",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Apply a campaign code to a paying location, replacing its current discount from the next invoice on",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/locations/{locationId}/billing/cancel": {
+      "post": {
+        "operationId": "BillingController_cancel",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Stop paying for a location at the end of its period, owner only (ADR 0033)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/images/{prefix}/{file}": {
+      "get": {
+        "operationId": "ImageController_find",
+        "parameters": [
+          {
+            "name": "prefix",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A PNG logo or a WebP avatar",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "A Location's logo or a User's avatar, public (ADR 0026)",
+        "tags": [
+          "Images"
+        ]
+      }
+    },
     "/locations/{locationId}": {
       "get": {
         "operationId": "LocationController_findOne",
@@ -916,6 +2362,16 @@
           },
           "401": {
             "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "PLAN_REQUIRED: a Google review link needs Pro",
             "content": {
               "application/json": {
                 "schema": {
@@ -1088,6 +2544,130 @@
           }
         ],
         "summary": "Delete a location for good, owner only (ADR 0017)",
+        "tags": [
+          "Locations"
+        ]
+      }
+    },
+    "/locations/{locationId}/review-link/check": {
+      "post": {
+        "operationId": "LocationController_checkReviewLink",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckReviewLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewLinkCheckDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Follow a Google review link to see if it still leads somewhere (ADR 0109)",
         "tags": [
           "Locations"
         ]
@@ -1353,6 +2933,188 @@
         ]
       }
     },
+    "/me/avatar": {
+      "put": {
+        "operationId": "MeController_setAvatar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG or WebP, 15 MB at most"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the file is over 15 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Upload the current user's avatar, replacing any previous one (ADR 0026)",
+        "tags": [
+          "Me"
+        ]
+      },
+      "delete": {
+        "operationId": "MeController_removeAvatar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove the current user's avatar",
+        "tags": [
+          "Me"
+        ]
+      }
+    },
     "/locations/{locationId}/workflow": {
       "get": {
         "operationId": "WorkflowController_getActive",
@@ -1457,6 +3219,248 @@
         "tags": [
           "Workflow"
         ]
+      },
+      "put": {
+        "description": "Takes the operational statuses in order. RECEIVED is added first and READY, COMPLETED, CANCELLED, REJECTED last. Open tickets keep the workflow they were created with.",
+        "operationId": "WorkflowController_replace",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "PLAN_REQUIRED: custom workflows are a Pro feature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the location's custom workflow, Pro only",
+        "tags": [
+          "Workflow"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkflowController_reset",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Go back to the business type's default workflow for new tickets",
+        "tags": [
+          "Workflow"
+        ]
       }
     },
     "/locations/{locationId}/tickets": {
@@ -1505,6 +3509,16 @@
           },
           "401": {
             "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "LOCATION_FROZEN: the location's trial or subscription is over",
             "content": {
               "application/json": {
                 "schema": {
@@ -1605,6 +3619,34 @@
             }
           },
           {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "number",
+                "customer",
+                "title",
+                "status",
+                "expected",
+                "received"
+              ]
+            }
+          },
+          {
+            "name": "dir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -1633,6 +3675,30 @@
               "enum": [
                 "open",
                 "ended"
+              ]
+            }
+          },
+          {
+            "name": "overdue",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          },
+          {
+            "name": "customerCollected",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
               ]
             }
           },
@@ -1671,11 +3737,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -1777,6 +3845,112 @@
           }
         ],
         "summary": "List tickets for a location, newest first",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/locations/{locationId}/tickets/overview": {
+      "get": {
+        "operationId": "TicketController_overview",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketOverviewDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "A Location's counts, open Tickets by urgency and the week's handovers (ADR 0088)",
         "tags": [
           "Tickets"
         ]
@@ -1976,6 +4150,16 @@
               }
             }
           },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "413": {
             "description": "VALIDATION_ERROR: the request body is over the size limit",
             "content": {
@@ -2022,7 +4206,7 @@
             "cookie": []
           }
         ],
-        "summary": "Edit a ticket's title/description",
+        "summary": "Edit a ticket's title, description or estimated ready date",
         "tags": [
           "Tickets"
         ]
@@ -2296,6 +4480,130 @@
         ]
       }
     },
+    "/locations/{locationId}/tickets/{ticketId}/customer-collected/dismiss": {
+      "post": {
+        "operationId": "TicketController_dismissCustomerCollected",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ticketId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Clear the Customer's \"I already picked it up\" mark, the item is still here (ADR 0028)",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
     "/locations/{locationId}/tickets/{ticketId}/status/undo": {
       "post": {
         "operationId": "TicketController_undoStatus",
@@ -2420,6 +4728,275 @@
         ]
       }
     },
+    "/locations/{locationId}/tickets/{ticketId}/photos": {
+      "post": {
+        "operationId": "TicketPhotoController_add",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ticketId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG or WebP, 15 MB at most"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketPhotoDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the file is over 15 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Add a photo the Customer sees on the tracking page, 5 per ticket (ADR 0026)",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/locations/{locationId}/tickets/{ticketId}/photos/{photoId}": {
+      "delete": {
+        "operationId": "TicketPhotoController_remove",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ticketId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a photo: an Employee their own, an Owner or Admin any",
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
     "/locations/{locationId}/customers": {
       "get": {
         "operationId": "CustomerController_list",
@@ -2430,6 +5007,32 @@
             "in": "path",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "email",
+                "phone",
+                "since"
+              ]
+            }
+          },
+          {
+            "name": "dir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -2452,11 +5055,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -2557,7 +5162,7 @@
             "cookie": []
           }
         ],
-        "summary": "Search/list customers at a location, optionally by partial name (?q=)",
+        "summary": "Search/list customers at a location, optionally by part of their name, email or phone (?q=)",
         "tags": [
           "Customers"
         ]
@@ -2968,6 +5573,16 @@
               }
             }
           },
+          "402": {
+            "description": "LOCATION_FROZEN: the location's trial or subscription is over",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "403": {
             "description": "UNAUTHORIZED: signed in, but not allowed to do this",
             "content": {
@@ -3323,6 +5938,16 @@
               }
             }
           },
+          "402": {
+            "description": "LOCATION_FROZEN: the location's trial or subscription is over",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "403": {
             "description": "UNAUTHORIZED: signed in, but not allowed to do this",
             "content": {
@@ -3400,6 +6025,221 @@
           }
         ],
         "summary": "Email a pending invitation again, extending its expiry (ADR 0017)",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/invitations/{invitationId}": {
+      "get": {
+        "operationId": "InvitationAcceptController_findOne",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivedInvitationDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Read an invitation sent to you, before accepting it",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/invitations/{invitationId}/decline": {
+      "post": {
+        "operationId": "InvitationAcceptController_decline",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Decline an invitation sent to you (ADR 0051)",
         "tags": [
           "Invitations"
         ]
@@ -3516,6 +6356,87 @@
           }
         ],
         "summary": "Accept an invitation (creates a real Membership)",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/invitations/{invitationId}/preview": {
+      "get": {
+        "operationId": "InvitationPreviewController_preview",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationPreviewDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Public view of an invitation, for its link's page before sign-in",
         "tags": [
           "Invitations"
         ]
@@ -4153,6 +7074,456 @@
         ]
       }
     },
+    "/tracking/{code}/collected": {
+      "post": {
+        "operationId": "TrackingController_markCollected",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "The customer says they already picked the item up, stops its reminders (ADR 0028)",
+        "tags": [
+          "Tracking"
+        ]
+      }
+    },
+    "/tracking/{code}/feedback": {
+      "post": {
+        "operationId": "TrackingController_sendFeedback",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "The customer tells the shop privately how it went, once per ticket (ADR 0027)",
+        "tags": [
+          "Tracking"
+        ]
+      }
+    },
+    "/locations/{locationId}/feedback": {
+      "get": {
+        "operationId": "FeedbackController_list",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "handled",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackPageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List the private feedback Customers sent, newest first (ADR 0027)",
+        "tags": [
+          "Feedback"
+        ]
+      }
+    },
+    "/locations/{locationId}/feedback/{feedbackId}/handled": {
+      "post": {
+        "operationId": "FeedbackController_markHandled",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "feedbackId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Mark a piece of feedback as dealt with",
+        "tags": [
+          "Feedback"
+        ]
+      }
+    },
     "/catalogue/business-types": {
       "get": {
         "operationId": "CatalogueController_listBusinessTypes",
@@ -4282,6 +7653,781 @@
           "Catalogue"
         ]
       }
+    },
+    "/admin/sales-partners": {
+      "get": {
+        "operationId": "AdminController_listSalesPartners",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SalesPartnerDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List the sales partners (platform admin only, ADR 0032)",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_markSalesPartner",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkSalesPartnerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesPartnerDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Make the user with this email a sales partner, giving them a referral code",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/sales-partners/{userId}": {
+      "delete": {
+        "operationId": "AdminController_removeSalesPartner",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Stop a user being a sales partner, commissions already recorded stay (ADR 0040)",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/commissions": {
+      "get": {
+        "operationId": "AdminController_listCommissions",
+        "parameters": [
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "OWED",
+                "PAID",
+                "VOIDED"
+              ]
+            }
+          },
+          {
+            "name": "salesPartnerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCommissionPageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List commissions, newest first, by state and sales partner (ADR 0040)",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/commissions/mark-paid": {
+      "post": {
+        "operationId": "AdminController_markCommissionsPaid",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkCommissionsPaidDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminCommissionDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Record that owed commissions were paid, all or none: one no longer owed refuses the request",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/me/sales-partner": {
+      "get": {
+        "operationId": "SalesPartnerController_overview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesPartnerOverviewDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "The current user's sales partner page: their code, the Businesses they brought in and totals (ADR 0032)",
+        "tags": [
+          "Sales partners"
+        ]
+      }
+    },
+    "/me/sales-partner/commissions": {
+      "get": {
+        "operationId": "SalesPartnerController_commissionList",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionPageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "The current user's commissions, newest first",
+        "tags": [
+          "Sales partners"
+        ]
+      }
     }
   },
   "info": {
@@ -4330,6 +8476,9 @@
               "REAUTHENTICATION_REQUIRED",
               "NOT_FOUND",
               "CONFLICT",
+              "LOCATION_FROZEN",
+              "MEMBER_LIMIT_REACHED",
+              "PLAN_REQUIRED",
               "RATE_LIMITED",
               "INTERNAL_ERROR"
             ],
@@ -4364,6 +8513,61 @@
           "error"
         ]
       },
+      "PostalAddressDto": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "addressLocality": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "addressCountry": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "required": [
+          "streetAddress",
+          "postalCode",
+          "addressLocality",
+          "addressCountry"
+        ]
+      },
+      "OpeningHoursSpecificationDto": {
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "enum": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ],
+            "type": "string"
+          },
+          "opens": {
+            "type": "string"
+          },
+          "closes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayOfWeek",
+          "opens",
+          "closes"
+        ]
+      },
       "CreateLocationDto": {
         "type": "object",
         "properties": {
@@ -4373,6 +8577,10 @@
           },
           "businessTypeCode": {
             "type": "string"
+          },
+          "businessTypeDetail": {
+            "type": "string",
+            "maxLength": 100
           },
           "contactPhone": {
             "type": "string"
@@ -4387,6 +8595,19 @@
               "FR"
             ],
             "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/PostalAddressDto"
+          },
+          "openingHours": {
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
           }
         },
         "required": [
@@ -4394,7 +8615,8 @@
           "businessTypeCode",
           "contactPhone",
           "contactEmail",
-          "locale"
+          "locale",
+          "timeZone"
         ]
       },
       "CreateBusinessDto": {
@@ -4406,6 +8628,10 @@
           },
           "location": {
             "$ref": "#/components/schemas/CreateLocationDto"
+          },
+          "referralCode": {
+            "type": "string",
+            "maxLength": 64
           }
         },
         "required": [
@@ -4432,6 +8658,10 @@
           "businessTypeCode": {
             "type": "string"
           },
+          "businessTypeDetail": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -4442,6 +8672,32 @@
             "type": "string"
           },
           "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
+          "openingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "turnaroundDays": {
+            "type": "number",
+            "nullable": true
+          },
+          "googleReviewUrl": {
             "type": "string",
             "nullable": true
           },
@@ -4459,10 +8715,16 @@
           "id",
           "businessId",
           "businessTypeCode",
+          "businessTypeDetail",
           "name",
           "contactPhone",
           "contactEmail",
           "logoUrl",
+          "timeZone",
+          "address",
+          "openingHours",
+          "turnaroundDays",
+          "googleReviewUrl",
           "createdAt",
           "updatedAt"
         ]
@@ -4485,6 +8747,17 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -4499,6 +8772,9 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
+          "logoUrl",
+          "bannerUrl",
           "createdAt",
           "updatedAt"
         ]
@@ -4541,6 +8817,17 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -4555,6 +8842,9 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
+          "logoUrl",
+          "bannerUrl",
           "createdAt",
           "updatedAt"
         ]
@@ -4583,6 +8873,17 @@
           "ownerId": {
             "type": "string"
           },
+          "referralCode": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -4596,6 +8897,9 @@
           "id",
           "name",
           "ownerId",
+          "referralCode",
+          "logoUrl",
+          "bannerUrl",
           "createdAt",
           "updatedAt"
         ]
@@ -4611,9 +8915,188 @@
           "userId"
         ]
       },
+      "RedirectDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "BillingDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "TRIAL",
+              "ACTIVE",
+              "PAST_DUE",
+              "ENDED"
+            ],
+            "type": "string"
+          },
+          "plan": {
+            "nullable": true,
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "interval": {
+            "nullable": true,
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "scheduledPlan": {
+            "nullable": true,
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "scheduledInterval": {
+            "nullable": true,
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "trialEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "currentPeriodEnd": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "frozen": {
+            "type": "boolean"
+          },
+          "memberLimit": {
+            "type": "number",
+            "nullable": true
+          },
+          "referralDiscount": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "plan",
+          "interval",
+          "scheduledPlan",
+          "scheduledInterval",
+          "trialEndsAt",
+          "currentPeriodEnd",
+          "cancelAtPeriodEnd",
+          "frozen",
+          "memberLimit",
+          "referralDiscount"
+        ]
+      },
+      "CheckoutDto": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "interval": {
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          },
+          "promotionCode": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "plan",
+          "interval"
+        ]
+      },
+      "ChoosePlanDto": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "enum": [
+              "ESSENTIEL",
+              "PRO"
+            ],
+            "type": "string"
+          },
+          "interval": {
+            "enum": [
+              "MONTH",
+              "YEAR"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan",
+          "interval"
+        ]
+      },
+      "PromotionCodePreviewDto": {
+        "type": "object",
+        "properties": {
+          "nextInvoiceAmount": {
+            "type": "number"
+          },
+          "nextInvoiceAmountWithCode": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "nextInvoiceAmount",
+          "nextInvoiceAmountWithCode"
+        ]
+      },
+      "PromotionCodeDto": {
+        "type": "object",
+        "properties": {
+          "promotionCode": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "promotionCode"
+        ]
+      },
       "UpdateLocationDto": {
         "type": "object",
         "properties": {
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
           "name": {
             "type": "string",
             "maxLength": 100
@@ -4625,19 +9108,62 @@
             "type": "string",
             "format": "email"
           },
-          "logoUrl": {
-            "type": "string",
-            "maxLength": 2048,
-            "format": "uri"
-          },
           "locale": {
             "type": "string",
             "enum": [
               "EN",
               "FR"
             ]
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "openingHours": {
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "turnaroundDays": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 60
+          },
+          "googleReviewUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2048
           }
         }
+      },
+      "CheckReviewLinkDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "ReviewLinkCheckDto": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "enum": [
+              "works",
+              "dead",
+              "unknown"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ]
       },
       "MyBusinessDto": {
         "type": "object",
@@ -4647,11 +9173,16 @@
           },
           "name": {
             "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "logoUrl"
         ]
       },
       "MyLocationDto": {
@@ -4703,6 +9234,12 @@
             ],
             "type": "string"
           },
+          "ownedBusinessIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "memberships": {
             "type": "array",
             "items": {
@@ -4717,14 +9254,28 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "salesPartner": {
+            "type": "boolean"
+          },
+          "platformAdmin": {
+            "type": "boolean"
           }
         },
         "required": [
           "locale",
+          "ownedBusinessIds",
           "memberships",
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl",
+          "salesPartner",
+          "platformAdmin"
         ]
       },
       "UpdateMeDto": {
@@ -4760,13 +9311,26 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "salesPartner": {
+            "type": "boolean"
+          },
+          "platformAdmin": {
+            "type": "boolean"
           }
         },
         "required": [
           "locale",
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl",
+          "salesPartner",
+          "platformAdmin"
         ]
       },
       "TranslationDto": {
@@ -4847,6 +9411,22 @@
           "steps"
         ]
       },
+      "UpdateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "statusCodes": {
+            "uniqueItems": true,
+            "maxItems": 26,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "statusCodes"
+        ]
+      },
       "CreateCustomerDto": {
         "type": "object",
         "properties": {
@@ -4876,6 +9456,11 @@
       "CreateTicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -4949,6 +9534,11 @@
       "TicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "id": {
             "type": "string"
           },
@@ -4967,6 +9557,11 @@
             "type": "string",
             "nullable": true
           },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -4979,11 +9574,13 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "id",
           "trackingCode",
           "title",
           "description",
           "notificationsStoppedAt",
+          "customerCollectedAt",
           "createdAt",
           "customer",
           "currentStatus"
@@ -4994,15 +9591,30 @@
         "properties": {
           "fullName": {
             "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
-          "fullName"
+          "fullName",
+          "email",
+          "phone"
         ]
       },
       "TicketListItemDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "id": {
             "type": "string"
           },
@@ -5012,7 +9624,16 @@
           "title": {
             "type": "string"
           },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "statusSince": {
             "format": "date-time",
             "type": "string"
           },
@@ -5024,10 +9645,13 @@
           }
         },
         "required": [
+          "estimatedReadyDate",
           "id",
           "trackingCode",
           "title",
+          "customerCollectedAt",
           "createdAt",
+          "statusSince",
           "customer",
           "currentStatus"
         ]
@@ -5041,14 +9665,225 @@
               "$ref": "#/components/schemas/TicketListItemDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
+        ]
+      },
+      "OverviewCountsDto": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "number"
+          },
+          "ready": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "dueToday": {
+            "type": "number"
+          },
+          "dueTomorrow": {
+            "type": "number"
+          },
+          "inShop": {
+            "type": "number"
+          },
+          "toConfirm": {
+            "type": "number"
+          },
+          "unhandledFeedback": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "open",
+          "ready",
+          "late",
+          "dueToday",
+          "dueTomorrow",
+          "inShop",
+          "toConfirm",
+          "unhandledFeedback"
+        ]
+      },
+      "OverviewStepDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/StatusDto"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status",
+          "count"
+        ]
+      },
+      "OverviewDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "count"
+        ]
+      },
+      "OverviewHandedOverDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewDayDto"
+            }
+          },
+          "previousWeek": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "days",
+          "previousWeek"
+        ]
+      },
+      "OverviewTicketDto": {
+        "type": "object",
+        "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "id": {
+            "type": "string"
+          },
+          "trackingCode": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "statusSince": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/TicketListCustomerDto"
+          },
+          "currentStatus": {
+            "$ref": "#/components/schemas/StatusDto"
+          },
+          "nextStatus": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusDto"
+              }
+            ]
+          },
+          "emailFails": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "estimatedReadyDate",
+          "id",
+          "trackingCode",
+          "title",
+          "customerCollectedAt",
+          "createdAt",
+          "statusSince",
+          "customer",
+          "currentStatus",
+          "nextStatus",
+          "emailFails"
+        ]
+      },
+      "OverviewNeedsYouDto": {
+        "type": "object",
+        "properties": {
+          "collected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          },
+          "failing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          },
+          "longWaits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          }
+        },
+        "required": [
+          "collected",
+          "failing",
+          "longWaits"
+        ]
+      },
+      "TicketOverviewDto": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/OverviewCountsDto"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewStepDto"
+            }
+          },
+          "handedOver": {
+            "$ref": "#/components/schemas/OverviewHandedOverDto"
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          },
+          "needsYou": {
+            "$ref": "#/components/schemas/OverviewNeedsYouDto"
+          }
+        },
+        "required": [
+          "counts",
+          "steps",
+          "handedOver",
+          "tickets",
+          "needsYou"
         ]
       },
       "TicketStatusEventDto": {
@@ -5058,6 +9893,9 @@
             "type": "string"
           },
           "changedBy": {
+            "type": "string"
+          },
+          "changedByName": {
             "type": "string"
           },
           "status": {
@@ -5071,13 +9909,75 @@
         "required": [
           "id",
           "changedBy",
+          "changedByName",
           "status",
+          "createdAt"
+        ]
+      },
+      "TicketPhotoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "uploadedBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "uploadedBy",
           "createdAt"
         ]
       },
       "TicketDetailDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "emailProblem": {
+            "nullable": true,
+            "enum": [
+              "RETRYING",
+              "GAVE_UP"
+            ],
+            "type": "string"
+          },
+          "statusEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketStatusEventDto"
+            }
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketPhotoDto"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepDto"
+            }
+          },
+          "trackingUrl": {
+            "type": "string"
+          },
+          "trackingLinkExpired": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -5096,6 +9996,11 @@
             "type": "string",
             "nullable": true
           },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -5105,29 +10010,35 @@
           },
           "currentStatus": {
             "$ref": "#/components/schemas/StatusDto"
-          },
-          "statusEvents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TicketStatusEventDto"
-            }
           }
         },
         "required": [
+          "estimatedReadyDate",
+          "emailProblem",
+          "statusEvents",
+          "photos",
+          "steps",
+          "trackingUrl",
+          "trackingLinkExpired",
           "id",
           "trackingCode",
           "title",
           "description",
           "notificationsStoppedAt",
+          "customerCollectedAt",
           "createdAt",
           "customer",
-          "currentStatus",
-          "statusEvents"
+          "currentStatus"
         ]
       },
       "UpdateTicketDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -5169,14 +10080,13 @@
               "$ref": "#/components/schemas/CustomerDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       },
       "UpdateCustomerDto": {
@@ -5253,7 +10163,8 @@
               "PENDING",
               "ACCEPTED",
               "REVOKED",
-              "EXPIRED"
+              "EXPIRED",
+              "DECLINED"
             ],
             "type": "string"
           },
@@ -5295,6 +10206,124 @@
           "createdAt"
         ]
       },
+      "TeamMemberDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarUrl"
+        ]
+      },
+      "InvitationBusinessDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "logoUrl"
+        ]
+      },
+      "InvitationLocationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "business": {
+            "$ref": "#/components/schemas/InvitationBusinessDto"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "business"
+        ]
+      },
+      "ReceivedInvitationDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "ADMIN",
+              "EMPLOYEE"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REVOKED",
+              "EXPIRED",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "team": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamMemberDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "invitedBy": {
+            "$ref": "#/components/schemas/InviterDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InvitationLocationDto"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "status",
+          "team",
+          "id",
+          "email",
+          "invitedBy",
+          "location",
+          "expiresAt",
+          "createdAt"
+        ]
+      },
       "MembershipDto": {
         "type": "object",
         "properties": {
@@ -5328,6 +10357,58 @@
           "createdAt"
         ]
       },
+      "InvitationPreviewDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "ADMIN",
+              "EMPLOYEE"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REVOKED",
+              "EXPIRED",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "invitedBy": {
+            "$ref": "#/components/schemas/InviterDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InvitationLocationDto"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "status",
+          "id",
+          "email",
+          "invitedBy",
+          "location",
+          "expiresAt",
+          "createdAt"
+        ]
+      },
       "MemberUserDto": {
         "type": "object",
         "properties": {
@@ -5339,12 +10420,17 @@
           },
           "name": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "email",
-          "name"
+          "name",
+          "avatarUrl"
         ]
       },
       "MemberDto": {
@@ -5414,13 +10500,44 @@
           "logoUrl": {
             "type": "string",
             "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostalAddressDto"
+              }
+            ]
+          },
+          "mapsUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "openingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "timeZone": {
+            "type": "string"
           }
         },
         "required": [
           "name",
           "contactPhone",
           "contactEmail",
-          "logoUrl"
+          "logoUrl",
+          "bannerUrl",
+          "address",
+          "mapsUrl",
+          "openingHours",
+          "timeZone"
         ]
       },
       "PublicStatusDto": {
@@ -5472,9 +10589,30 @@
           "createdAt"
         ]
       },
+      "TrackingPhotoDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "createdAt"
+        ]
+      },
       "TrackingDto": {
         "type": "object",
         "properties": {
+          "estimatedReadyDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
           "locale": {
             "enum": [
               "EN",
@@ -5487,6 +10625,11 @@
           },
           "title": {
             "type": "string"
+          },
+          "customerCollectedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "format": "date-time",
@@ -5509,17 +10652,166 @@
             "items": {
               "$ref": "#/components/schemas/TrackingHistoryEntryDto"
             }
+          },
+          "reviewUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "feedbackSentAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrackingPhotoDto"
+            }
           }
         },
         "required": [
+          "estimatedReadyDate",
           "locale",
           "trackingCode",
           "title",
+          "customerCollectedAt",
           "createdAt",
           "location",
           "currentStatus",
           "steps",
-          "statusHistory"
+          "statusHistory",
+          "reviewUrl",
+          "feedbackSentAt",
+          "photos"
+        ]
+      },
+      "SendFeedbackDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "FeedbackTicketDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "FeedbackCustomerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "email",
+          "phone"
+        ]
+      },
+      "FeedbackHandlerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "FeedbackDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "ticket": {
+            "$ref": "#/components/schemas/FeedbackTicketDto"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/FeedbackCustomerDto"
+          },
+          "handledAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "handledBy": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FeedbackHandlerDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "message",
+          "ticket",
+          "customer",
+          "handledAt",
+          "handledBy",
+          "createdAt"
+        ]
+      },
+      "FeedbackPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ]
       },
       "DefaultWorkflowStepDto": {
@@ -5593,6 +10885,320 @@
           "code",
           "translations",
           "isSystem"
+        ]
+      },
+      "SalesPartnerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "salesPartnerSince": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "referralCode": {
+            "type": "string"
+          },
+          "pendingAmount": {
+            "type": "number"
+          },
+          "owedAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "salesPartnerSince",
+          "referralCode",
+          "pendingAmount",
+          "owedAmount"
+        ]
+      },
+      "MarkSalesPartnerDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CommissionSalesPartnerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ]
+      },
+      "AdminCommissionBusinessDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AdminCommissionDto": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "enum": [
+              "PENDING",
+              "OWED",
+              "PAID",
+              "VOIDED"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "salesPartner": {
+            "$ref": "#/components/schemas/CommissionSalesPartnerDto"
+          },
+          "business": {
+            "$ref": "#/components/schemas/AdminCommissionBusinessDto"
+          },
+          "stripeInvoiceId": {
+            "type": "string"
+          },
+          "invoicePaidAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "paidAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "state",
+          "id",
+          "salesPartner",
+          "business",
+          "stripeInvoiceId",
+          "invoicePaidAt",
+          "amount",
+          "paidAt"
+        ]
+      },
+      "AdminCommissionPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCommissionDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "MarkCommissionsPaidDto": {
+        "type": "object",
+        "properties": {
+          "commissionIds": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "commissionIds"
+        ]
+      },
+      "ReferredBusinessDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "paidFrom": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "commissionsEndAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "paidFrom",
+          "commissionsEndAt"
+        ]
+      },
+      "MonthlyTotalDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "month",
+          "amount"
+        ]
+      },
+      "SalesPartnerOverviewDto": {
+        "type": "object",
+        "properties": {
+          "referralCode": {
+            "type": "string"
+          },
+          "salesPartner": {
+            "type": "boolean"
+          },
+          "businesses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferredBusinessDto"
+            }
+          },
+          "monthlyTotals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyTotalDto"
+            }
+          },
+          "pendingAmount": {
+            "type": "number"
+          },
+          "owedAmount": {
+            "type": "number"
+          },
+          "paidAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "referralCode",
+          "salesPartner",
+          "businesses",
+          "monthlyTotals",
+          "pendingAmount",
+          "owedAmount",
+          "paidAmount"
+        ]
+      },
+      "CommissionBusinessDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "CommissionDto": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "enum": [
+              "PENDING",
+              "OWED",
+              "PAID",
+              "VOIDED"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "business": {
+            "$ref": "#/components/schemas/CommissionBusinessDto"
+          },
+          "invoicePaidAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "paidAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "state",
+          "id",
+          "business",
+          "invoicePaidAt",
+          "amount",
+          "paidAt"
+        ]
+      },
+      "CommissionPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommissionDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       }
     }

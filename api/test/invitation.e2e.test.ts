@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailRetryService } from "../src/email/email-retry.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
@@ -14,6 +15,7 @@ describe("Invitations", () => {
   let ownerCookie: string;
   let employeeCookie: string;
   let employeeEmail: string;
+  let otherEmail: string;
   let otherCookie: string;
   let locationId: string;
 
@@ -25,7 +27,8 @@ describe("Invitations", () => {
     ownerCookie = await signInViaOtp(app, prisma, `delivered+invite-owner-${stamp}@resend.dev`);
     employeeEmail = `delivered+invite-employee-${stamp}@resend.dev`;
     employeeCookie = await signInViaOtp(app, prisma, employeeEmail);
-    otherCookie = await signInViaOtp(app, prisma, `delivered+invite-other-${stamp}@resend.dev`);
+    otherEmail = `delivered+invite-other-${stamp}@resend.dev`;
+    otherCookie = await signInViaOtp(app, prisma, otherEmail);
 
     const created = await request(app.getHttpServer())
       .post("/businesses")
@@ -35,6 +38,7 @@ describe("Invitations", () => {
         location: {
           name: "Main Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@invitetest.test",
           locale: "EN",
@@ -124,6 +128,140 @@ describe("Invitations", () => {
     expect(response.body.some((i: { email: string }) => i.email === employeeEmail)).toBe(true);
   });
 
+  describe("reading an invitation before accepting it", () => {
+    async function pendingInvitationId() {
+      const list = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie);
+      return list.body.find((i: { email: string }) => i.email === employeeEmail).id as string;
+    }
+
+    it("shows the invited user who invited them, where, as what, and the team they'd join", async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${await pendingInvitationId()}`)
+        .set("Cookie", employeeCookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        email: employeeEmail,
+        role: "EMPLOYEE",
+        status: "PENDING",
+        invitedBy: { name: "Test User" },
+        location: { id: locationId, name: "Main Shop", business: { name: "Invite Test Garage", logoUrl: null } },
+        team: [{ name: "Test User", avatarUrl: null }],
+      });
+      expect(Date.parse(response.body.createdAt)).not.toBeNaN();
+    });
+
+    it("shows a signed-out visitor who invites which address, but not the team", async () => {
+      const response = await request(app.getHttpServer()).get(`/invitations/${await pendingInvitationId()}/preview`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        email: employeeEmail,
+        status: "PENDING",
+        invitedBy: { name: "Test User" },
+        location: { name: "Main Shop", business: { name: "Invite Test Garage" } },
+      });
+      expect(response.body).not.toHaveProperty("team");
+    });
+
+    async function invite(email: string) {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email, role: "EMPLOYEE" });
+      expect(response.status).toBe(201);
+      return response.body.id as string;
+    }
+
+    function revoke(invitationId: string) {
+      return request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations/${invitationId}/revoke`)
+        .set("Cookie", ownerCookie)
+        .expect(200);
+    }
+
+    it("stops showing the team once the invitation is revoked", async () => {
+      const email = `delivered+invite-revoked-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const id = await invite(email);
+      await revoke(id);
+
+      const response = await request(app.getHttpServer()).get(`/invitations/${id}`).set("Cookie", cookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({ status: "REVOKED", team: [] });
+    });
+
+    it("shows nothing of a deleted Location, signed in or not", async () => {
+      const id = await invite(`delivered+invite-deleted-${Date.now()}@resend.dev`);
+      await prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } });
+
+      const response = await request(app.getHttpServer()).get(`/invitations/${id}/preview`);
+      await prisma.location.update({ where: { id: locationId }, data: { deletedAt: null } });
+
+      expect(response.status).toBe(404);
+      await revoke(id);
+    });
+
+    it("drops a failed invitation email once the invitation is revoked", async () => {
+      const email = `delivered+invite-late-${Date.now()}@resend.dev`;
+      const id = await invite(email);
+      const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id } }));
+      await prisma.emailLog.update({
+        where: { id: log.id },
+        data: { status: "FAILED", resendId: null, attempts: 3, lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
+      });
+      await revoke(id);
+
+      await app.get(EmailRetryService).sweep();
+
+      const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: log.id } });
+      expect(after.gaveUpAt).toBeTruthy();
+      expect(after.attempts).toBe(3);
+    });
+
+    it("previews nothing for an unknown or malformed id", async () => {
+      for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid"]) {
+        expect((await request(app.getHttpServer()).get(`/invitations/${id}/preview`)).status).toBe(404);
+      }
+    });
+
+    it("hides it from any other signed-in user", async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${await pendingInvitationId()}`)
+        .set("Cookie", otherCookie);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe("UNAUTHORIZED");
+    });
+
+    it("says a lapsed invitation expired, even before anyone tried to accept it", async () => {
+      const invited = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email: otherEmail, role: "EMPLOYEE" });
+      await prisma.invitation.update({
+        where: { id: invited.body.id },
+        data: { expiresAt: new Date(Date.now() - 1000) },
+      });
+
+      const response = await request(app.getHttpServer())
+        .get(`/invitations/${invited.body.id}`)
+        .set("Cookie", otherCookie);
+
+      expect(response.body.status).toBe("EXPIRED");
+    });
+
+    it("returns 404 for an unknown or malformed id", async () => {
+      for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid"]) {
+        const response = await request(app.getHttpServer()).get(`/invitations/${id}`).set("Cookie", employeeCookie);
+        expect(response.status).toBe(404);
+      }
+    });
+  });
+
   it("rejects accepting with a mismatched signed-in user", async () => {
     const list = await request(app.getHttpServer())
       .get(`/locations/${locationId}/invitations`)
@@ -190,6 +328,50 @@ describe("Invitations", () => {
       .post(`/invitations/${invitationId}/accept`)
       .set("Cookie", revokeeCookie);
     expect(accept.status).toBe(409);
+  });
+
+  describe("declining", () => {
+    async function invite() {
+      const email = `delivered+invite-decline-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const invited = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie)
+        .send({ email, role: "EMPLOYEE" });
+      return { id: invited.body.id as string, cookie };
+    }
+
+    it("marks it declined for the Location's staff, and it can't be accepted after", async () => {
+      const { id, cookie } = await invite();
+
+      const response = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      expect(response.status).toBe(204);
+      const list = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/invitations`)
+        .set("Cookie", ownerCookie);
+      expect(list.body.find((i: { id: string }) => i.id === id).status).toBe("DECLINED");
+      const accept = await request(app.getHttpServer()).post(`/invitations/${id}/accept`).set("Cookie", cookie);
+      expect(accept.status).toBe(409);
+    });
+
+    it("refuses declining twice", async () => {
+      const { id, cookie } = await invite();
+      await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      const again = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", cookie);
+
+      expect(again.status).toBe(409);
+    });
+
+    it("refuses anyone but the invited address", async () => {
+      const { id } = await invite();
+
+      const response = await request(app.getHttpServer()).post(`/invitations/${id}/decline`).set("Cookie", otherCookie);
+
+      expect(response.status).toBe(403);
+      expect((await prisma.invitation.findUniqueOrThrow({ where: { id } })).status).toBe("PENDING");
+    });
   });
 
   it("returns 404, not a raw DB error, for a malformed invitation id", async () => {

@@ -39,6 +39,7 @@ describe("GET /me", () => {
         location: {
           name: "Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "shop@metest.test",
           locale: "EN",
@@ -52,6 +53,7 @@ describe("GET /me", () => {
     expect(response.body.memberships[0].role).toBe("OWNER");
     expect(response.body.memberships[0].location.name).toBe("Shop");
     expect(response.body.memberships[0].location.business.name).toBe("Me Test Garage");
+    expect(response.body.memberships[0].location.business.logoUrl).toBeNull();
   });
 
   it("rejects the request without a session", async () => {

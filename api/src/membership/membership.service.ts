@@ -1,10 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { Role } from "@readyyet/db";
+import { Prisma, Role } from "@readyyet/db";
 import { ConflictError, NotFoundError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
 import { PrismaService } from "../database/prisma.service";
+import { publicImageUrl } from "../storage/image";
 import { UpdateMembershipRoleDto } from "./dto/update-membership-role.dto";
 import { assertCanManage, roleAt } from "./team-rules";
+
+const MEMBER_INCLUDE = { user: { select: { id: true, email: true, name: true, image: true } } } as const;
+
+function toMember({
+  user: { image, ...user },
+  ...membership
+}: Prisma.MembershipGetPayload<{ include: typeof MEMBER_INCLUDE }>) {
+  return { ...membership, id: membership.id.toString(), user: { ...user, avatarUrl: publicImageUrl(image) } };
+}
 
 @Injectable()
 export class MembershipService {
@@ -13,10 +23,10 @@ export class MembershipService {
   async list(locationId: string) {
     const memberships = await this.prisma.membership.findMany({
       where: { locationId },
-      include: { user: { select: { id: true, email: true, name: true } } },
+      include: MEMBER_INCLUDE,
       orderBy: { createdAt: "asc" },
     });
-    return memberships.map((membership) => ({ ...membership, id: membership.id.toString() }));
+    return memberships.map(toMember);
   }
 
   async updateRole(locationId: string, actorId: string, membershipId: string, dto: UpdateMembershipRoleDto) {
@@ -29,9 +39,9 @@ export class MembershipService {
     const updated = await this.prisma.membership.update({
       where: { id: membership.id },
       data: { role: dto.role },
-      include: { user: { select: { id: true, email: true, name: true } } },
+      include: MEMBER_INCLUDE,
     });
-    return { ...updated, id: updated.id.toString() };
+    return toMember(updated);
   }
 
   async remove(locationId: string, actorId: string, membershipId: string) {

@@ -36,6 +36,7 @@ describe("Transferring a business's ownership", () => {
   const location = (name: string) => ({
     name,
     businessTypeCode: "GARAGE",
+    timeZone: "Europe/Brussels",
     contactPhone: "+32470123456",
     contactEmail: "shop@transfer.test",
     locale: "EN",

@@ -1,0 +1,89 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
+interface Tip {
+  title: string;
+  text: string;
+  icon: ReactNode;
+}
+
+interface Props {
+  tips: Tip[];
+  label: string;
+  nextLabel: string;
+}
+
+// The active tip's ring animation is the timer: when it ends, the next tip
+// slides in. Hovering or focusing the carousel pauses it, and with reduced
+// motion it never runs, so the button is the only way on.
+export function TipsCarousel({ tips, label, nextLabel }: Props) {
+  const [index, setIndex] = useState(0);
+  const track = useRef<HTMLDivElement>(null);
+  const next = () => setIndex((index + 1) % tips.length);
+  // The button pressed is on the slide going inert, so focus has to follow to
+  // the next one. Not when the timer moves on, it would pull focus from the form.
+  const followFocus = useRef(false);
+
+  useEffect(() => {
+    const slide = track.current?.children[index] as HTMLElement | undefined;
+    if (!track.current || !slide) {
+      return;
+    }
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.current.scrollTo({ left: slide.offsetLeft, behavior: reduce ? "auto" : "smooth" });
+    if (followFocus.current) {
+      followFocus.current = false;
+      slide.querySelector("button")?.focus({ preventScroll: true });
+    }
+  }, [index]);
+
+  return (
+    <section aria-label={label} className="group">
+      <div ref={track} className="relative flex gap-14 overflow-hidden">
+        {tips.map((tip, i) => (
+          <div key={tip.title} inert={i !== index} className="w-full shrink-0 rounded-xl bg-subtle p-3">
+            <div className="mb-2 flex items-center gap-3">
+              <div className="flex size-10 shrink-0 -rotate-10 items-center justify-center rounded-xl border border-border bg-surface">
+                {tip.icon}
+              </div>
+              <h2 className="text-label-lg">{tip.title}</h2>
+              <button
+                type="button"
+                onClick={() => {
+                  followFocus.current = true;
+                  next();
+                }}
+                aria-label={nextLabel}
+                className="ml-auto flex shrink-0 items-center gap-3 rounded-full text-label-lg tabular-nums"
+              >
+                {i + 1}/{tips.length}
+                <svg viewBox="0 0 36 36" aria-hidden="true" className="size-6.5 -rotate-90">
+                  <circle cx="18" cy="18" r="16" fill="none" strokeWidth="3" className="stroke-ink/10" />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="none"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    pathLength={100}
+                    strokeDasharray="100"
+                    strokeDashoffset="100"
+                    onAnimationEnd={next}
+                    className={`stroke-ink ${
+                      i === index
+                        ? "animate-fill-ring group-focus-within:[animation-play-state:paused] group-hover:[animation-play-state:paused] motion-reduce:animate-none"
+                        : ""
+                    }`}
+                  />
+                </svg>
+              </button>
+            </div>
+            <p className="line-clamp-2 min-h-12 pl-13 text-label-sm text-muted">{tip.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

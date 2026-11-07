@@ -5,3 +5,5 @@ pnpm-lock.yaml
 api/openapi.json
 # ADRs are an append-only record, never reformatted after the fact.
 docs/decisions/
+# Written by pnpm run api-types from api/openapi.json, CI compares it byte for byte.
+web/src/lib/api/schema.d.ts
