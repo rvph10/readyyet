@@ -350,6 +350,17 @@
   .switcher-popover {
     position-area: bottom span-right;
   }
+  /* The top bar's: exactly its button's width, as one control that opens,
+     unless a tablet's bar squeezes the button too narrow to read a name. */
+  .bar-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: 13rem;
+    width: anchor-size(width);
+    min-width: 13rem;
+    position-area: bottom span-right;
+    position-try-fallbacks: flip-block;
+  }
   .user-popover {
     position-area: top span-right;
   }
