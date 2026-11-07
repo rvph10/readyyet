@@ -9,16 +9,11 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { Tabs } from "@/components/ui/tabs";
 import { buttonClass } from "@/components/ui/button";
-import { api } from "@/lib/api/client";
-import { pageData } from "@/lib/api/errors";
-import { addDays } from "@/lib/calendar-grid";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
 import { parseSort, setSort, type Sort } from "@/lib/sort";
-import { getBilling, getDaysToChoosePlan, getLocation, getOverview } from "./location-data";
-import { ComingUp } from "./overview/coming-up";
+import { getBilling, getLocation, getOverview } from "./location-data";
 import { FirstTicket } from "./overview/first-ticket";
-import { NeedsYou } from "./overview/needs-you";
 import { PlanCelebration } from "./overview/plan-celebration";
 import { WeekChart } from "./overview/week-chart";
 import { PageHeader } from "./page-header";
@@ -29,7 +24,6 @@ import {
   daysBetween,
   expected,
   intlLocale,
-  LONG_WAIT_DAYS,
   parseFilter,
   QUEUE_SORTS,
   type Filter,
@@ -38,7 +32,6 @@ import {
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
-const COMING_DAYS = 4;
 
 function Stat({
   href,
@@ -69,8 +62,8 @@ function Stat({
         <span
           className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
             lime
-              ? "bg-pine text-brand"
-              : `xl:max-[88rem]:hidden ${late ? "bg-danger-subtle text-danger" : "bg-subtle text-muted"}`
+              ? "bg-pine text-brand max-sm:hidden"
+              : `max-sm:hidden xl:max-[110rem]:hidden ${late ? "bg-danger-subtle text-danger" : "bg-subtle text-muted"}`
           }`}
         >
           <Icon name={icon} className="size-3" />
@@ -90,31 +83,19 @@ function Stat({
 
 // ADR 0088: a Location opens on what its day looks like and what needs someone.
 export default async function TodayPage({ params, searchParams }: PageProps<"/locations/[locationId]">) {
-  const [{ locationId }, search, t, tTickets, locale, me, client] = await Promise.all([
+  const [{ locationId }, search, t, tTickets, locale, me] = await Promise.all([
     params,
     searchParams,
     getTranslations("today"),
     getTranslations("tickets"),
     getLocale(),
     getMe(),
-    api(),
   ]);
   const membership = me.memberships.find(({ location }) => location.id === locationId);
   if (!membership) notFound();
   const manager = isManager(membership.role);
 
-  const [location, overview, trialDaysLeft, feedback] = await Promise.all([
-    getLocation(locationId),
-    getOverview(locationId),
-    getDaysToChoosePlan(locationId, membership.role),
-    manager
-      ? client
-          .GET("/locations/{locationId}/feedback", {
-            params: { path: { locationId }, query: { handled: "false", take: 1 } },
-          })
-          .then(pageData)
-      : null,
-  ]);
+  const [location, overview] = await Promise.all([getLocation(locationId), getOverview(locationId)]);
 
   const now = new Date();
   const { timeZone } = location;
@@ -207,161 +188,110 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
     const query = params.toString();
     return `/locations/${locationId}${query ? `?${query}` : ""}`;
   };
-  const comingUp = Array.from({ length: COMING_DAYS }, (_, offset) => {
-    const day = addDays(today, offset);
-    const weekday = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : locale, {
-      timeZone: "UTC",
-      weekday: "long",
-      day: "numeric",
-      month: "short",
-    }).format(new Date(`${day}T00:00:00Z`));
-    return {
-      date: day,
-      label:
-        offset === 0
-          ? tTickets("today")
-          : offset === 1
-            ? tTickets("tomorrow")
-            : weekday.charAt(0).toUpperCase() + weekday.slice(1),
-      customers: tickets
-        .filter((ticket) => ticket.estimatedReadyDate === day && ticket.currentStatus.code !== "READY")
-        .map((ticket) => ({ id: ticket.id, name: name(ticket) })),
-    };
-  });
   const longest = Math.max(0, ...ready.map(readySince));
   const latest = Math.max(0, ...late.map(({ estimatedReadyDate }) => daysBetween(estimatedReadyDate!, today)));
 
   return (
     // ADR 0108: from 1280px the page fits the window and the table scrolls in
-    // its tile, as a shop can have 50 open Tickets. Under that the columns
-    // dissolve, and what needs doing comes straight after the stats.
-    <div className="flex flex-1 flex-col gap-4 lg:gap-5 xl:h-[calc(100dvh-6.5rem)] xl:min-h-[49rem] xl:flex-none">
+    // its tile, as a shop can have 50 open Tickets. ADR 0111: nothing sits beside
+    // the table any more, so it has the page's whole width.
+    <div className="flex flex-1 flex-col gap-4 lg:gap-5 xl:h-[calc(100dvh-6.5rem)] xl:min-h-[40rem] xl:flex-none">
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       {header}
       {celebration}
-      <div className="grid min-h-0 flex-1 gap-3 md:grid-cols-2 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="contents xl:flex xl:min-h-0 xl:min-w-0 xl:flex-col xl:gap-5">
-          <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-5">
-            <Stat
-              href={`${filterHref("ready")}#open-tickets`}
-              icon="check"
-              label={t("ready")}
-              value={counts.ready}
-              sub={counts.ready ? t("longestWait", { days: longest }) : t("nothingReady")}
-              tone="lime"
-            />
-            <Stat
-              href={`${filterHref("late")}#open-tickets`}
-              icon="time"
-              label={t("late")}
-              value={counts.late}
-              sub={counts.late ? t("upToLate", { days: latest }) : t("nothingLate")}
-              tone="late"
-            />
-            <Stat
-              href={`${filterHref("all")}#open-tickets`}
-              icon="date"
-              label={t("dueToday")}
-              value={counts.dueToday}
-              sub={t("dueTomorrow", { count: counts.dueTomorrow })}
-            />
-            <Stat
-              href={`${filterHref("all")}#open-tickets`}
-              icon="settings"
-              label={t("inShop")}
-              value={counts.inShop}
-              sub={t("waitingOnSomeone", { count: stages.waiting })}
-            />
-          </div>
-
-          <Panel
-            as="section"
-            id="open-tickets"
-            aria-labelledby="open-tickets-title"
-            padding="none"
-            className="@container flex scroll-mt-4 flex-col overflow-clip max-xl:order-4 md:col-span-2 xl:min-h-0 xl:flex-1"
-          >
-            <div className="flex flex-col gap-3 px-5 pt-5 pb-3 lg:px-7">
-              <div className="flex items-center justify-between gap-4">
-                <h2 id="open-tickets-title" className="text-title-h6">
-                  {t("openTickets")}
-                </h2>
-                <Link
-                  href={`/locations/${locationId}/tickets?view=all`}
-                  className={buttonClass({ variant: "secondary", size: "sm" })}
-                >
-                  {t("allTickets")}
-                  <Icon name="arrow-right" className="size-2.5" />
-                </Link>
-              </div>
-              <Tabs
-                label={tTickets("viewsLabel")}
-                scroll={false}
-                tabs={(
-                  [
-                    ["all", counts.open],
-                    ["late", counts.late],
-                    ["ready", counts.ready],
-                    ["received", stages.received],
-                    ["working", stages.working],
-                    ["waiting", stages.waiting],
-                  ] as const
-                )
-                  .filter(([id, count]) => count > 0 || id === "all" || id === filter)
-                  .map(([id, count]) => ({
-                    href: filterHref(id),
-                    label: t(`filters.${id}`),
-                    count,
-                    current: filter === id,
-                  }))}
-              />
-            </div>
-            {rows.length > 0 ? (
-              <>
-                <QueueHeader sort={sort} href={(next) => filterHref(filter, next)} />
-                <ul className="min-h-0 flex-1 overflow-y-auto max-xl:max-h-[32rem]">
-                  {rows.map((ticket) => (
-                    <TicketRow
-                      key={ticket.id}
-                      ticket={ticket}
-                      locationId={locationId}
-                      timeZone={timeZone}
-                      today={today}
-                    />
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <EmptyState illustration="chill" title={t("noneHere")} description={t("noneHereHint")} />
-            )}
-          </Panel>
-        </div>
-
-        <div className="contents xl:flex xl:min-h-0 xl:min-w-0 xl:flex-col xl:gap-5">
-          <NeedsYou
-            locationId={locationId}
-            className="max-xl:order-1 xl:min-h-44 xl:flex-1"
-            trialDaysLeft={trialDaysLeft !== null && trialDaysLeft <= 3 ? trialDaysLeft : null}
-            feedback={feedback?.items[0] ?? null}
-            feedbackCount={manager ? counts.unhandledFeedback : 0}
-            collected={tickets
-              .filter((ticket) => ticket.customerCollectedAt)
-              .map((ticket) => ({ id: ticket.id, name: name(ticket) }))}
-            failing={tickets
-              .filter((ticket) => ticket.emailFails)
-              .map((ticket) => ({ id: ticket.id, name: name(ticket) }))}
-            longWaits={ready
-              .filter((ticket) => !ticket.customerCollectedAt && readySince(ticket) >= LONG_WAIT_DAYS)
-              .map((ticket) => ({ id: ticket.id, name: name(ticket), days: readySince(ticket) }))}
-          />
-          <ComingUp days={comingUp} className="max-xl:order-2" />
-          <WeekChart
-            days={handedOver.days}
-            previousWeek={handedOver.previousWeek}
-            className="max-xl:order-3 md:col-span-2"
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-5 xl:grid-cols-[1.3fr_1fr_1fr_1fr_1.7fr]">
+        <Stat
+          href={`${filterHref("ready")}#open-tickets`}
+          icon="check"
+          label={t("ready")}
+          value={counts.ready}
+          sub={counts.ready ? t("longestWait", { days: longest }) : t("nothingReady")}
+          tone="lime"
+        />
+        <Stat
+          href={`${filterHref("late")}#open-tickets`}
+          icon="time"
+          label={t("late")}
+          value={counts.late}
+          sub={counts.late ? t("upToLate", { days: latest }) : t("nothingLate")}
+          tone="late"
+        />
+        <Stat
+          href={`${filterHref("all")}#open-tickets`}
+          icon="date"
+          label={t("dueToday")}
+          value={counts.dueToday}
+          sub={t("dueTomorrow", { count: counts.dueTomorrow })}
+        />
+        <Stat
+          href={`${filterHref("all")}#open-tickets`}
+          icon="settings"
+          label={t("inShop")}
+          value={counts.inShop}
+          sub={t("waitingOnSomeone", { count: stages.waiting })}
+        />
+        <WeekChart
+          days={handedOver.days}
+          previousWeek={handedOver.previousWeek}
+          className="col-span-2 md:col-span-4 xl:col-span-1"
+        />
       </div>
+
+      <Panel
+        as="section"
+        id="open-tickets"
+        aria-labelledby="open-tickets-title"
+        padding="none"
+        className="@container flex scroll-mt-4 flex-col overflow-clip xl:min-h-0 xl:flex-1"
+      >
+        <div className="flex flex-col gap-3 px-5 pt-5 pb-3 lg:px-7">
+          <div className="flex items-center justify-between gap-4">
+            <h2 id="open-tickets-title" className="text-title-h6">
+              {t("openTickets")}
+            </h2>
+            <Link
+              href={`/locations/${locationId}/tickets?view=all`}
+              className={buttonClass({ variant: "secondary", size: "sm" })}
+            >
+              {t("allTickets")}
+              <Icon name="arrow-right" className="size-2.5" />
+            </Link>
+          </div>
+          <Tabs
+            label={tTickets("viewsLabel")}
+            scroll={false}
+            tabs={(
+              [
+                ["all", counts.open],
+                ["late", counts.late],
+                ["ready", counts.ready],
+                ["received", stages.received],
+                ["working", stages.working],
+                ["waiting", stages.waiting],
+              ] as const
+            )
+              .filter(([id, count]) => count > 0 || id === "all" || id === filter)
+              .map(([id, count]) => ({
+                href: filterHref(id),
+                label: t(`filters.${id}`),
+                count,
+                current: filter === id,
+              }))}
+          />
+        </div>
+        {rows.length > 0 ? (
+          <>
+            <QueueHeader sort={sort} href={(next) => filterHref(filter, next)} />
+            <ul className="min-h-0 flex-1 overflow-y-auto max-xl:max-h-[32rem]">
+              {rows.map((ticket) => (
+                <TicketRow key={ticket.id} ticket={ticket} locationId={locationId} timeZone={timeZone} today={today} />
+              ))}
+            </ul>
+          </>
+        ) : (
+          <EmptyState illustration="chill" title={t("noneHere")} description={t("noneHereHint")} />
+        )}
+      </Panel>
     </div>
   );
 }

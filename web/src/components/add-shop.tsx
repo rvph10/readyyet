@@ -2,15 +2,7 @@
 
 import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  useTransition,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { newLocation } from "@/app/(create-business)/businesses/new/schema";
 import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { PhoneField } from "@/components/phone-field";
@@ -59,7 +51,7 @@ function AddShopForm({ businessId, data, onClose }: { businessId: string; data: 
   const errorFor = (field: string) => errors[field] ?? (failure?.fields?.[field] ? t("invalid") : null);
 
   function edited(field: string) {
-    setErrors(({ [field]: _, ...rest }) => rest);
+    setErrors((shown) => Object.fromEntries(Object.entries(shown).filter(([other]) => other !== field)));
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {

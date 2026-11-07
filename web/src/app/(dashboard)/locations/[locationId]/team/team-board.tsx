@@ -110,8 +110,8 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
   }
 
   return (
-    <div className="grid flex-1 grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(20rem,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-5">
-      <Panel as="section" aria-labelledby="team-members" padding="none" className="lg:row-span-2">
+    <div className="grid flex-1 grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(20rem,1fr)] lg:gap-5">
+      <Panel as="section" aria-labelledby="team-members" padding="none">
         <h2 id="team-members" className="px-5 pt-5 pb-3 text-title-h6 lg:px-7 lg:pt-6">
           {t("members")}
         </h2>
@@ -165,32 +165,33 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
         </ul>
       </Panel>
 
-      <Panel as="section" padding="lg" className="flex flex-col max-lg:order-first">
-        {waiting > 0 && <p className="mb-3 text-label-sm">{t("waitingToJoin", { count: waiting })}</p>}
-        {limit !== null && (
-          <p className="mb-4 text-p-sm text-muted">
-            {canInvite ? t("essentielPlaces", { taken, limit }) : t("essentielFull", { limit })}
-          </p>
-        )}
-        <div>
+      <Panel as="section" aria-labelledby="team-invitations" className="flex flex-col max-lg:order-first lg:min-h-0">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="team-invitations" className="flex items-center gap-2 text-title-h6">
+            {t("invitations")}
+            {waiting > 0 && (
+              <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-brand px-2 text-label-xs font-bold">
+                {waiting}
+              </span>
+            )}
+          </h2>
           {canInvite ? (
-            <Button onClick={() => startInvite()} className="w-full">
-              <Icon name="add" className="size-3.5 text-brand" />
+            <Button size="sm" onClick={() => startInvite()}>
+              <Icon name="add" className="size-3 text-brand" />
               {t("invite")}
             </Button>
           ) : (
-            <Link href={`/locations/${locationId}/billing`} className={`${buttonClass({ variant: "brand" })} w-full`}>
+            <Link href={`/locations/${locationId}/billing`} className={buttonClass({ variant: "brand", size: "sm" })}>
               {t(limit === null ? "seePlans" : "movePro")}
               <Icon name="arrow-right" className="size-2.5" />
             </Link>
           )}
         </div>
-      </Panel>
-
-      <Panel as="section" aria-labelledby="team-invitations" className="flex flex-col lg:min-h-0">
-        <h2 id="team-invitations" className="text-title-h6">
-          {t("invitations")}
-        </h2>
+        {limit !== null && (
+          <p className="mt-2 text-p-sm text-muted">
+            {canInvite ? t("essentielPlaces", { taken, limit }) : t("essentielFull", { limit })}
+          </p>
+        )}
         {invitations.length === 0 ? (
           <EmptyState illustration="talking" title={t("noInvitations")} description={t("noInvitationsHint")} />
         ) : (

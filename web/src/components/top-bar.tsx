@@ -263,9 +263,7 @@ export function PickerFrame({
   const chosen = chooseBusiness(groupByBusiness(memberships), businessId);
   return (
     <AddShopProvider businessId={chosen?.business.id ?? ""}>
-      {chosen && (
-        <TopBar memberships={memberships} business={chosen.business} owned={chosen.owned} location={null} />
-      )}
+      {chosen && <TopBar memberships={memberships} business={chosen.business} owned={chosen.owned} location={null} />}
       <div className="flex min-w-0 flex-1">
         {chosen && (
           <SidebarFrame collapsed={collapsed} onToggle={toggle}>

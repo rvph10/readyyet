@@ -25,6 +25,7 @@ import { Menu } from "@/components/ui/menu";
 import type { Membership } from "@/lib/memberships";
 import { HeaderSearch } from "./header-search";
 import { useLocationActions } from "./location-actions";
+import { NeedsYou, type NeedsYouItems } from "./needs-you";
 import { chargedAtTrialEnd } from "./plan-prices";
 import { isManager, SECTIONS, type Section } from "./sections";
 import { isUrgentTrial, TrialMeter } from "./trial-meter";
@@ -149,7 +150,7 @@ function NavLinks({ props }: { props: Props }) {
   );
 }
 
-function BarActions({ locationId }: { locationId: string }) {
+function BarActions({ locationId, needsYou }: { locationId: string; needsYou: NeedsYouItems }) {
   const t = useTranslations("tickets");
   const { newTicket } = useLocationActions();
   return (
@@ -157,6 +158,7 @@ function BarActions({ locationId }: { locationId: string }) {
       <div className="w-52 xl:w-72">
         <HeaderSearch locationId={locationId} />
       </div>
+      <NeedsYou locationId={locationId} items={needsYou} />
       <Button onClick={newTicket}>
         <Icon name="add" className="size-3.5 text-brand" />
         {t("new")}
@@ -205,6 +207,7 @@ function PhoneBar({ props }: { props: Props }) {
         )}
       </div>
       <HeaderSearch locationId={current.location.id} compact />
+      <NeedsYou locationId={current.location.id} items={props.needsYou} />
       {props.trialDaysLeft === null && props.inviteLink && <InviteBusinessRound link={props.inviteLink} />}
       <Popover
         label={me.name}
@@ -292,6 +295,7 @@ interface Props {
   trialDaysLeft: number | null;
   // Owners only.
   inviteLink: string | null;
+  needsYou: NeedsYouItems;
 }
 
 // ADR 0087: the shared sidebar, and a bar and bottom navigation on a phone.
@@ -306,7 +310,7 @@ export function LocationNav({
   return (
     <AddShopProvider businessId={location.business.id}>
       <TopBar memberships={props.memberships} business={location.business} owned={role === "OWNER"} location={location}>
-        <BarActions locationId={location.id} />
+        <BarActions locationId={location.id} needsYou={props.needsYou} />
       </TopBar>
       <div className="flex min-w-0 flex-1">
         <Sidebar props={props} collapsed={collapsed} onToggle={toggle} />

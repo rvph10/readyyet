@@ -36,7 +36,7 @@ function useImage(businessId: string) {
   }
   return {
     pending,
-    upload(kind: ImageKind, chosen: File) {
+    upload: (kind: ImageKind, chosen: File) => {
       const body = new FormData();
       body.set("file", chosen);
       run(kind, () => setImage(businessId, kind, body));
