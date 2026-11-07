@@ -23,12 +23,10 @@ export function WeekChart({ days, previousWeek, className }: { days: Day[]; prev
   });
 
   return (
-    <section className={`on-pine flex flex-col rounded-sheet bg-pine p-5 text-surface lg:p-6 ${className}`}>
+    <section className={`on-pine flex flex-col rounded-sheet bg-pine p-5 text-surface ${className}`}>
       <h2 className="text-label-sm">{t("handedOver")}</h2>
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <p className="text-[2.5rem] leading-[3rem] font-bold tracking-tight lg:text-[3.25rem] lg:leading-[3.75rem]">
-          {total}
-        </p>
+        <p className="text-[2.5rem] leading-[3rem] font-bold tracking-tight">{total}</p>
         <span
           className={`inline-flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-label-sm font-bold ${
             change > 0 ? "bg-brand text-ink" : "bg-surface/15 text-surface"
@@ -39,7 +37,7 @@ export function WeekChart({ days, previousWeek, className }: { days: Day[]; prev
         </span>
         <span className="text-p-sm">{t("vsLastWeek")}</span>
       </div>
-      <ul className="flex min-h-44 flex-1 gap-2 pt-9 lg:gap-3" aria-label={t("handedOver")}>
+      <ul className="flex min-h-28 flex-1 gap-2 pt-8 lg:gap-3 xl:min-h-24" aria-label={t("handedOver")}>
         {days.map(({ date, count }, index) => {
           const day = new Date(`${date}T00:00:00Z`);
           const label = t("ticketCount", { count });

@@ -1,5 +1,6 @@
 import { calendarDateIn, showsEstimatedReadyDate, type CalendarDate } from "@readyyet/shared";
 import type { operations } from "@/lib/api/schema";
+import { setSort, type Sort } from "../../../../../lib/sort";
 
 // Each tab of the list and what it asks the API for (ADR 0014, 0028, 0030).
 export const VIEWS = {
@@ -38,10 +39,19 @@ export function parseQuery(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, MAX_QUERY) : "";
 }
 
-export function ticketsHref(locationId: string, { view, q, page }: { view: View; q?: string; page?: number }) {
+export const LIST_SORTS = ["number", "customer", "title", "status", "expected", "received"] as const;
+export const QUEUE_SORTS = ["customer", "status", "expected"] as const;
+export type ListSort = (typeof LIST_SORTS)[number];
+export type QueueSort = (typeof QUEUE_SORTS)[number];
+
+export function ticketsHref(
+  locationId: string,
+  { view, q, page, sort }: { view: View; q?: string; page?: number; sort?: Sort<ListSort> | null },
+) {
   const params = new URLSearchParams();
   if (view !== DEFAULT_VIEW) params.set("view", view);
   if (q) params.set("q", q);
+  setSort(params, sort);
   if (page && page > 1) params.set("page", String(page));
   const query = params.toString();
   return `/locations/${locationId}/tickets${query ? `?${query}` : ""}`;

@@ -20,20 +20,20 @@ export function ComingUp({ days, className }: { days: ComingDay[]; className: st
     <Panel as="section" className={`flex flex-col ${className}`}>
       <h2 className="text-title-h6">{t("comingUp")}</h2>
       {clear ? (
-        <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
-          <span className="flex size-14 items-center justify-center rounded-full bg-subtle text-ink">
-            <Icon name="date" className="size-5" />
+        <p className="mt-3 flex items-center gap-3 text-label-sm">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-subtle">
+            <Icon name="date" className="size-3.5" />
           </span>
-          <p className="mt-3 text-label-lg">{t("nothingComing")}</p>
-        </div>
+          {t("nothingComing")}
+        </p>
       ) : (
-        <ul className="mt-3 flex flex-1 flex-col justify-between">
+        <ul className="mt-2 flex flex-1 flex-col justify-between">
           {days.map(({ date, label, customers }) => {
             const hidden = customers.length - AVATARS_SHOWN;
             return (
               <li
                 key={date}
-                className="flex min-h-13 items-center justify-between gap-3 border-t border-border first:border-t-0"
+                className="flex min-h-10 items-center justify-between gap-3 border-t border-border first:border-t-0"
               >
                 <span className={`min-w-0 truncate text-label-sm ${customers.length ? "" : "text-muted"}`}>
                   {label}

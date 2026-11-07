@@ -10,15 +10,17 @@ import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { lastPage, parsePage } from "@/lib/pagination";
+import { parseSort, type Sort } from "@/lib/sort";
 import { getLocation } from "../location-data";
 import { NewTicketButton } from "../new-ticket/new-ticket-button";
 import { PageHeader } from "../page-header";
 import { formatDay, parseQuery } from "../tickets/ticket-views";
 import { CustomerListHeader, CustomerRow } from "./customer-row";
 import { CustomerSearch } from "./customer-search";
-import { customersHref } from "./customer-views";
+import { CUSTOMER_SORTS, customersHref, type CustomerSort } from "./customer-views";
 
 const PAGE_SIZE = 30;
+const A_TO_Z: Sort<CustomerSort> = { column: "name", dir: "asc" };
 
 // ADR 0097: for looking someone up, so A to Z. The work itself is on Tickets.
 export default async function CustomersPage({ params, searchParams }: PageProps<"/locations/[locationId]/customers">) {
@@ -31,10 +33,14 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
   ]);
   const q = parseQuery(search.q);
   const page = parsePage(search.page);
+  const sort = parseSort(search, CUSTOMER_SORTS);
   const [list, { timeZone }] = await Promise.all([
     client
       .GET("/locations/{locationId}/customers", {
-        params: { path: { locationId }, query: { q: q || undefined, page, take: PAGE_SIZE } },
+        params: {
+          path: { locationId },
+          query: { q: q || undefined, page, take: PAGE_SIZE, sort: sort?.column, dir: sort?.dir },
+        },
       })
       .then(pageData),
     getLocation(locationId),
@@ -42,7 +48,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
 
   // Customers were erased, and this page is now past the last one.
   if (page > 1 && list.items.length === 0) {
-    redirect(customersHref(locationId, { q, page: lastPage(list.total, PAGE_SIZE) }));
+    redirect(customersHref(locationId, { q, sort, page: lastPage(list.total, PAGE_SIZE) }));
   }
 
   const today = calendarDateIn(new Date(), timeZone);
@@ -56,7 +62,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
         </div>
         {list.items.length > 0 ? (
           <>
-            <CustomerListHeader />
+            <CustomerListHeader sort={sort ?? A_TO_Z} href={(next) => customersHref(locationId, { q, sort: next })} />
             <ul>
               {list.items.map((customer) => (
                 <CustomerRow
@@ -92,7 +98,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
             page={page}
             pageSize={PAGE_SIZE}
             total={list.total}
-            href={(number) => customersHref(locationId, { q, page: number })}
+            href={(number) => customersHref(locationId, { q, sort, page: number })}
             className="mt-auto border-t border-border px-5 py-3 lg:px-7"
           />
         )}

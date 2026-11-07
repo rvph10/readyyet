@@ -119,7 +119,7 @@ export function NeedsYou(props: Props) {
   };
 
   return (
-    <Panel as="section" className={`flex flex-col md:min-h-80 ${props.className}`}>
+    <Panel as="section" className={`flex flex-col max-xl:md:min-h-72 ${props.className}`}>
       <h2 className="flex items-center gap-2.5 text-title-h6">
         {t("needsYou")}
         {total > 0 && (
@@ -129,12 +129,12 @@ export function NeedsYou(props: Props) {
         )}
       </h2>
       {total === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
-          <span className="flex size-14 items-center justify-center rounded-full bg-brand text-ink">
-            <Icon name="check" className="size-5" />
+        <div className="flex flex-1 flex-col items-center justify-center py-2 text-center">
+          <span className="flex size-11 items-center justify-center rounded-full bg-brand text-ink">
+            <Icon name="check" className="size-4" />
           </span>
-          <p className="mt-3 text-label-lg">{t("caughtUp")}</p>
-          <p className="mt-0.5 max-w-48 text-p-sm text-muted">{t("caughtUpHint")}</p>
+          <p className="mt-2 text-label-md">{t("caughtUp")}</p>
+          <p className="mt-0.5 max-w-52 text-p-sm text-muted">{t("caughtUpHint")}</p>
         </div>
       ) : (
         <ul className="-mx-2.5 mt-2 min-h-0 overflow-y-auto px-2.5 max-md:max-h-96 md:grow md:basis-0">

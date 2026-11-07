@@ -3,19 +3,36 @@ import Link from "next/link";
 import { PhoneNumber } from "@/components/phone-number";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
+import { SortHeader } from "@/components/ui/sort-header";
 import type { components } from "@/lib/api/schema";
-import { emailFails } from "./customer-views";
+import type { Sort } from "@/lib/sort";
+import { emailFails, type CustomerSort } from "./customer-views";
 
 const GRID = "lg:grid-cols-[minmax(14rem,1fr)_minmax(0,1.2fr)_11rem_8rem] lg:gap-x-5";
 
-export function CustomerListHeader() {
+export function CustomerListHeader({
+  sort,
+  href,
+}: {
+  sort: Sort<CustomerSort>;
+  href: (sort: Sort<CustomerSort>) => string;
+}) {
   const t = useTranslations("customers.columns");
+  const header = { sort, href };
   return (
     <div className={`hidden px-7 pb-3 text-p-xs text-muted lg:grid ${GRID}`}>
-      <span>{t("customer")}</span>
-      <span>{t("email")}</span>
-      <span>{t("phone")}</span>
-      <span>{t("since")}</span>
+      <span>
+        <SortHeader {...header} column="name" label={t("customer")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="email" label={t("email")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="phone" label={t("phone")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="since" label={t("since")} first="desc" />
+      </span>
     </div>
   );
 }
