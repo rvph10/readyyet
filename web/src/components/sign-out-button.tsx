@@ -9,14 +9,23 @@ import { Tooltip } from "./ui/tooltip";
 // An icon in a page's header, a labelled button where it's the page's action.
 // Red, since it ends the session, and the pack's icon mirrored so its arrow
 // leaves the door rather than entering it (ADR 0064).
-export function SignOutButton({ labelled = false, row = false }: { labelled?: boolean; row?: boolean }) {
+export function SignOutButton({
+  labelled = false,
+  row = false,
+  next,
+}: {
+  labelled?: boolean;
+  row?: boolean;
+  // Where signing back in leads.
+  next?: string;
+}) {
   const t = useTranslations("dashboard");
 
   async function signOut() {
     await authClient.signOut();
     // A full load, as the router keeps pages in memory (ADR 0094), and Back
     // mustn't show Customer details on a shop's shared computer.
-    window.location.replace("/sign-in");
+    window.location.replace(next ? `/sign-in?${new URLSearchParams({ next })}` : "/sign-in");
   }
 
   if (row) {
