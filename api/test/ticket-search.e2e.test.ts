@@ -126,6 +126,23 @@ describe("Ticket search and filters", () => {
     expect(await titles({ q: trackingCode })).toEqual(["Tire rotation 100% free"]);
   });
 
+  it("sorts by a column in either direction, and keeps a Ticket without a date last", async () => {
+    const titles = async (query: Record<string, string>) =>
+      ((await list({ ...query, take: "100" })).body as ListResponse).items.map(({ title }) => title);
+    const up = await titles({ sort: "title", dir: "asc" });
+    expect(up).toEqual([...up].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" })));
+    expect(await titles({ sort: "title", dir: "desc" })).toEqual([...up].reverse());
+
+    const dated = { where: { id: BigInt(ids.brakes) } };
+    await prisma.ticket.update({ ...dated, data: { estimatedReadyDate: new Date("2099-01-01") } });
+    for (const dir of ["asc", "desc"]) {
+      const { items } = (await list({ sort: "expected", dir, take: "100" })).body as ListResponse;
+      expect(items[0].id).toBe(ids.brakes);
+    }
+    await prisma.ticket.update({ ...dated, data: { estimatedReadyDate: null } });
+    expect((await list({ sort: "price" })).status).toBe(400);
+  });
+
   it("treats % and _ in the search as plain characters", async () => {
     expect(await titles({ q: "100%" })).toEqual(["Tire rotation 100% free"]);
     expect(await titles({ q: "%" })).toEqual(["Tire rotation 100% free"]);

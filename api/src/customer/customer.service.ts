@@ -12,6 +12,16 @@ import { UpdateCustomerDto } from "./dto/update-customer.dto";
 const DEFAULT_LIST_TAKE = 20;
 const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 
+function customerOrder({ sort, dir = "asc" }: ListCustomersQueryDto): Prisma.CustomerOrderByWithRelationInput[] {
+  const orders = {
+    name: { fullName: dir },
+    email: { email: { sort: dir, nulls: "last" } },
+    phone: { phone: { sort: dir, nulls: "last" } },
+    since: { createdAt: dir },
+  } satisfies Record<NonNullable<ListCustomersQueryDto["sort"]>, Prisma.CustomerOrderByWithRelationInput>;
+  return [sort ? orders[sort] : { fullName: "asc" }, { id: "asc" }];
+}
+
 @Injectable()
 export class CustomerService {
   constructor(
@@ -29,7 +39,7 @@ export class CustomerService {
     const [customers, total] = await Promise.all([
       this.prisma.customer.findMany({
         where,
-        orderBy: [{ fullName: "asc" }, { id: "asc" }],
+        orderBy: customerOrder(query),
         skip: ((query.page ?? 1) - 1) * take,
         take,
       }),

@@ -3255,6 +3255,34 @@
             }
           },
           {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "number",
+                "customer",
+                "title",
+                "status",
+                "expected",
+                "received"
+              ]
+            }
+          },
+          {
+            "name": "dir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -4615,6 +4643,32 @@
             "in": "path",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "email",
+                "phone",
+                "since"
+              ]
+            }
+          },
+          {
+            "name": "dir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {

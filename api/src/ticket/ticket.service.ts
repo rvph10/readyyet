@@ -41,6 +41,21 @@ const LIST_INCLUDE = {
 
 type ListTicket = Prisma.TicketGetPayload<{ include: typeof LIST_INCLUDE }>;
 
+function ticketOrder({ sort, dir = "asc" }: ListTicketsQueryDto): Prisma.TicketOrderByWithRelationInput[] {
+  const orders = {
+    number: { id: dir },
+    customer: { customer: { fullName: dir } },
+    title: { title: dir },
+    // A Workflow's order lives on its steps, which a sort can't reach, so this
+    // groups a Status's Tickets together rather than following the Workflow.
+    status: { currentStatusId: dir },
+    expected: { estimatedReadyDate: { sort: dir, nulls: "last" } },
+    received: { createdAt: dir },
+  } satisfies Record<NonNullable<ListTicketsQueryDto["sort"]>, Prisma.TicketOrderByWithRelationInput>;
+  // id breaks ties, so a row can't land on two pages.
+  return [sort ? orders[sort] : { createdAt: "desc" }, { id: "desc" }];
+}
+
 function listItem(ticket: ListTicket) {
   return {
     id: ticket.id.toString(),
@@ -228,8 +243,7 @@ export class TicketService {
     const [tickets, total] = await Promise.all([
       this.prisma.ticket.findMany({
         where,
-        // id breaks createdAt ties, so a row can't land on two pages.
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        orderBy: ticketOrder(query),
         skip: ((query.page ?? 1) - 1) * take,
         take,
         include: LIST_INCLUDE,

@@ -4066,6 +4066,8 @@ export interface operations {
         parameters: {
             query?: {
                 customerId?: string;
+                sort?: "number" | "customer" | "title" | "status" | "expected" | "received";
+                dir?: "asc" | "desc";
                 q?: string;
                 status?: string[];
                 state?: "open" | "ended";
@@ -5138,6 +5140,8 @@ export interface operations {
     CustomerController_list: {
         parameters: {
             query?: {
+                sort?: "name" | "email" | "phone" | "since";
+                dir?: "asc" | "desc";
                 q?: string;
                 take?: number;
                 page?: number;
