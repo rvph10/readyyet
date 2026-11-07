@@ -104,7 +104,10 @@
     "youAreHere": "You are here",
     "breadcrumbs": "Breadcrumbs",
     "switchBusiness": "{business}, switch Business",
-    "switchBusinessLabel": "Businesses"
+    "switchBusinessLabel": "Businesses",
+    "openCount": "{count, plural, one {open Ticket} other {open Tickets}}",
+    "tileReady": "{count} ready",
+    "tileLate": "{count} late"
   },
   "tickets": {
     "title": "Tickets",
@@ -937,19 +940,24 @@
     },
     "newLocation": {
       "subtitle": "A new shop under {business}",
-      "nameHint": "The shop your customers bring their items to, shown on their tracking page.",
+      "nameHint": "Customers see it on their tracking page.",
       "planNotice": "Each shop has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
       "cancel": "Cancel",
-      "submit": "Create and choose a plan"
+      "submit": "Create and choose a plan",
+      "stepName": "Name",
+      "stepType": "Trade",
+      "stepContact": "Contact",
+      "nameTitle": "What is this shop called?",
+      "typeTitle": "What does it do?",
+      "typeHint": "This sets the steps its Tickets follow. You can change them later.",
+      "contactTitle": "How do Customers reach it?",
+      "contactHint": "Shown on tracking pages and in emails."
     },
     "settings": {
       "name": "Business name",
       "saved": "Business name saved",
       "failed": "The name wasn't saved. Please try again.",
       "logo": "Logo",
-      "logoHint": "Shown on every tracking page. JPG, PNG or WebP.",
-      "logoAdd": "Add a logo",
-      "logoChange": "Change logo",
       "logoRemove": "Remove",
       "logoSaved": "Logo updated",
       "logoFailed": "The logo wasn't saved. Try another image.",
@@ -959,13 +967,22 @@
       "transferConfirmBody": "{business} and its billing move to them, and you can't undo this yourself. You'll stay on as Admin, without access to these pages.",
       "transferConfirm": "Transfer",
       "transferring": "Transferring…",
-      "transferFailed": "The transfer didn't go through. Please try again."
+      "transferFailed": "The transfer didn't go through. Please try again.",
+      "banner": "Banner",
+      "bannerAdd": "Add a banner",
+      "bannerChange": "Change banner",
+      "bannerSaved": "Banner updated",
+      "bannerFailed": "The banner wasn't saved. Try another image.",
+      "imagesTitle": "Logo and banner",
+      "imagesHint": "On every tracking page. Banners work best at 1600 by 480, in JPG, PNG or WebP.",
+      "logoRemoveLong": "Remove logo"
     },
     "home": {
       "stopped": "{count, plural, one {# shop can't take new Tickets, or has a failed payment.} other {# shops can't take new Tickets, or have a failed payment.}}",
       "seeBilling": "See billing",
       "emptyTitle": "Add your first shop",
-      "emptyHint": "Each shop gets its own Tickets, team and plan."
+      "emptyHint": "Each shop gets its own Tickets, team and plan.",
+      "addHint": "Its own Tickets, team and plan."
     },
     "team": {
       "people": "{count, plural, one {# person} other {# people}}",
@@ -983,14 +1000,20 @@
       "byShop": "Each shop's team"
     },
     "invite": {
-      "action": "Invite a business",
+      "action": "Invite a shop",
       "title": "Invite a shop, earn a month",
-      "link": "Your invitation link",
-      "steps": {
-        "share": "Send your link to another shop.",
-        "they": "They get half a month off their first invoice.",
-        "you": "You get a month of their plan as credit."
-      }
+      "actionHint": "Earn a free month",
+      "lead": "Know a shop that still answers \"is it ready yet?\" on the phone? Send them your link.",
+      "youLabel": "You get",
+      "you": "A month of their plan as credit",
+      "theyLabel": "They get",
+      "they": "Half a month off their first invoice",
+      "copy": "Copy my invite link",
+      "copied": "Link copied",
+      "byEmail": "Email",
+      "when": "Your credit arrives 14 days after their first payment.",
+      "subject": "Try ReadyYet for your shop",
+      "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
     }
   }
 }

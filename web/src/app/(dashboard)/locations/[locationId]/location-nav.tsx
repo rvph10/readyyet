@@ -15,6 +15,7 @@ import {
   wide,
   type SidebarUser,
 } from "@/components/sidebar";
+import { AddShopProvider } from "@/components/add-shop";
 import { BusinessPanel, LocationPanel, TopBar } from "@/components/top-bar";
 import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
 import { Avatar } from "@/components/ui/avatar";
@@ -303,7 +304,7 @@ export function LocationNav({
 
   const { location, role } = props.current;
   return (
-    <>
+    <AddShopProvider businessId={location.business.id}>
       <TopBar memberships={props.memberships} business={location.business} owned={role === "OWNER"} location={location}>
         <BarActions locationId={location.id} />
       </TopBar>
@@ -317,6 +318,6 @@ export function LocationNav({
         </div>
       </div>
       <BottomNav props={props} />
-    </>
+    </AddShopProvider>
   );
 }

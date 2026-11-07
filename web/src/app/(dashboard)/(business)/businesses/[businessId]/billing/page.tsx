@@ -150,17 +150,13 @@ export default async function BusinessBillingPage({
             <EmptyState illustration="box" title={t("home.emptyTitle")} description={t("home.emptyHint")} />
           )}
         </Panel>
-        <div className="grid gap-4 sm:grid-cols-2 lg:gap-5 xl:col-span-4 xl:grid-cols-1">
+        <div className="xl:col-span-4">
           <StatTile
             label={t("billing.nextPayment")}
             value={next ? day.format(new Date(next.date)) : t("billing.nothingDue")}
             note={next ? `${money(next.amount)}, ${next.location.name}` : t("billing.nothingDueHint")}
+            action={hasPaid(locations) && <PortalButton businessId={businessId} />}
           />
-          {hasPaid(locations) && (
-            <Panel as="section">
-              <PortalButton businessId={businessId} />
-            </Panel>
-          )}
         </div>
       </div>
     </>

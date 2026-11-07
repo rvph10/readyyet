@@ -13,6 +13,7 @@ import {
   UserRow,
   type SidebarUser,
 } from "@/components/sidebar";
+import { AddShopProvider, useAddShop } from "@/components/add-shop";
 import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
 import { BusinessPanel, TopBar } from "@/components/top-bar";
 import { Avatar } from "@/components/ui/avatar";
@@ -121,6 +122,7 @@ function PhoneBar({ props }: { props: Props }) {
 function BottomNav({ businessId }: { businessId: string }) {
   const t = useTranslations("business");
   const tDashboard = useTranslations("dashboard");
+  const addShop = useAddShop();
   const [locations, team, billing, settings] = useSections(businessId);
   const item = ({ key, icon, href, current }: typeof locations) => (
     <Link
@@ -142,13 +144,14 @@ function BottomNav({ businessId }: { businessId: string }) {
       {item(locations)}
       {item(team)}
       <div className="flex flex-1 items-center justify-center">
-        <Link
-          href={`/businesses/${businessId}/locations/new`}
+        <button
+          type="button"
           aria-label={tDashboard("addLocation")}
-          className="flex size-13 items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
+          onClick={addShop}
+          className="flex size-13 cursor-pointer items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
         >
           <Icon name="add" className="size-5" />
-        </Link>
+        </button>
       </div>
       {item(billing)}
       {item(settings)}
@@ -164,21 +167,23 @@ export function BusinessNav({
   const [collapsed, toggle] = useCollapsed(initial);
   return (
     <BusinessNameContext.Provider value={props.business.name}>
-      <TopBar memberships={props.memberships} business={props.business} owned location={null} />
-      <div className="flex min-w-0 flex-1">
-        <SidebarFrame collapsed={collapsed} onToggle={toggle}>
-          <NavLinks props={props} />
-          <InviteBusiness link={props.inviteLink} />
-          <UserRow me={props.me} role="OWNER" />
-        </SidebarFrame>
-        <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
-          <PhoneBar props={props} />
-          <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
-            {children}
-          </main>
+      <AddShopProvider businessId={props.business.id}>
+        <TopBar memberships={props.memberships} business={props.business} owned location={null} />
+        <div className="flex min-w-0 flex-1">
+          <SidebarFrame collapsed={collapsed} onToggle={toggle}>
+            <NavLinks props={props} />
+            <InviteBusiness link={props.inviteLink} />
+            <UserRow me={props.me} role="OWNER" />
+          </SidebarFrame>
+          <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+            <PhoneBar props={props} />
+            <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-      <BottomNav businessId={props.business.id} />
+        <BottomNav businessId={props.business.id} />
+      </AddShopProvider>
     </BusinessNameContext.Provider>
   );
 }

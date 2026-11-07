@@ -1,34 +1,30 @@
 import type { ReactNode } from "react";
 
-const tones = {
-  plain: { tile: "border border-border bg-surface", note: "bg-subtle" },
-  // Lit when there's something to act on (ADR 0092's rule for the picker).
-  brand: { tile: "bg-brand", note: "bg-ink/8" },
-  danger: { tile: "bg-danger-subtle text-danger", note: "bg-danger/10" },
-};
-
-// A figure, and under it the one thing it can't say by itself, on an inset
-// sharing the tile's corners.
+// A figure, and on an inset sharing the tile's corners, the one thing it can't
+// say by itself and what can be done about it.
 export function StatTile({
   label,
   value,
   note,
-  tone = "plain",
+  action,
 }: {
   label: string;
   value: ReactNode;
   note: string;
-  tone?: keyof typeof tones;
+  action?: ReactNode;
 }) {
   return (
-    <div className={`flex min-w-0 flex-col justify-between gap-3 rounded-sheet p-2 ${tones[tone].tile}`}>
+    <div className="flex min-w-0 flex-col justify-between gap-3 rounded-sheet border border-border bg-surface p-2">
       <div className="min-w-0 px-3 pt-3">
         <p className="text-label-sm">{label}</p>
         <p className="mt-1 text-title-h4 wrap-break-word tabular-nums">{value}</p>
       </div>
-      <p title={note} className={`truncate rounded-card px-3 py-2 text-p-xs ${tones[tone].note}`}>
-        {note}
-      </p>
+      <div className="flex flex-col gap-2.5 rounded-card bg-subtle p-3">
+        <p title={note} className="truncate text-p-sm">
+          {note}
+        </p>
+        {action}
+      </div>
     </div>
   );
 }

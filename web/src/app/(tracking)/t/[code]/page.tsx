@@ -40,9 +40,24 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
   return (
     <TrackingGrid>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <header className="flex items-center gap-3 px-1">
-        <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="lg" />
-        <p className="min-w-0 text-label-md text-balance wrap-anywhere">{location.name}</p>
+      <header>
+        {location.bannerUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={location.bannerUrl} alt="" className="h-28 w-full rounded-sheet object-cover md:h-44" />
+        )}
+        <div className={`flex items-center gap-3 px-1 ${location.bannerUrl ? "-mt-5 pl-4" : ""}`}>
+          <Avatar
+            id={location.name}
+            name={location.name}
+            src={location.logoUrl}
+            shape="square"
+            size="lg"
+            className={location.bannerUrl ? "relative ring-4 ring-canvas" : ""}
+          />
+          <p className={`min-w-0 text-label-md text-balance wrap-anywhere ${location.bannerUrl ? "pt-5" : ""}`}>
+            {location.name}
+          </p>
+        </div>
       </header>
       <TrackingBento photos={photos.length > 0}>
         <StatusHero tracking={tracking} locale={locale} now={now} className="order-1 lg:order-none" />

@@ -73,7 +73,6 @@ export function LocationPicker({ title, subtitle, group, businesses, counts }: P
                 <LocationTile
                   id={membership.location.id}
                   name={membership.location.name}
-                  business={business}
                   badge={<Badge>{t(`roles.${membership.role}`)}</Badge>}
                   counts={counts[membership.location.id]}
                 />

@@ -1,22 +1,40 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Illustration } from "@/components/illustration";
 import { CollapsedContext, wide } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
-import { CopyField } from "@/components/ui/copy-field";
 import { Dialog } from "@/components/ui/dialog";
-import { Icon, type IconName } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 
-const STEPS: { key: "share" | "they" | "you"; icon: IconName }[] = [
-  { key: "share", icon: "link" },
-  { key: "they", icon: "tag" },
-  { key: "you", icon: "receipt" },
-];
+const COPIED_FOR_MS = 2000;
 
+function Reward({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className={`rounded-2xl p-4 ${tone}`}>
+      <p className="text-label-xs font-semibold">{label}</p>
+      <p className="mt-1 text-label-md text-pretty">{value}</p>
+    </div>
+  );
+}
+
+// ADR 0110: what each side gets and three ways to pass it on. The address itself
+// is nothing to read, so it stays out of sight.
 function InviteDialog({ link, open, onClose }: { link: string; open: boolean; onClose: () => void }) {
   const t = useTranslations("business.invite");
+  const [copied, setCopied] = useState(false);
+  const message = t("message", { link });
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), COPIED_FOR_MS);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
+  const share =
+    "flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-subtle text-label-sm transition-colors hover:bg-border";
+
   return (
     <Dialog
       open={open}
@@ -29,17 +47,37 @@ function InviteDialog({ link, open, onClose }: { link: string; open: boolean; on
         </div>
       }
     >
-      <ul className="flex flex-col gap-3">
-        {STEPS.map(({ key, icon }) => (
-          <li key={key} className="flex items-center gap-3 text-p-md">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand">
-              <Icon name={icon} className="size-3.5" />
-            </span>
-            {t(`steps.${key}`)}
-          </li>
-        ))}
-      </ul>
-      <CopyField className="mt-5" label={t("link")} value={link} />
+      <p className="text-p-md text-muted">{t("lead")}</p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Reward label={t("youLabel")} value={t("you")} tone="bg-brand" />
+        <Reward label={t("theyLabel")} value={t("they")} tone="bg-subtle" />
+      </div>
+      <Button
+        className="mt-4 w-full"
+        onClick={() => void navigator.clipboard.writeText(link).then(() => setCopied(true))}
+      >
+        <Icon name={copied ? "check" : "link"} className="size-3.5 text-brand" />
+        {t(copied ? "copied" : "copy")}
+      </Button>
+      <div className="mt-2 flex gap-2">
+        <a
+          href={`mailto:?subject=${encodeURIComponent(t("subject"))}&body=${encodeURIComponent(message)}`}
+          className={share}
+        >
+          <Icon name="message" className="size-3.5" />
+          {t("byEmail")}
+        </a>
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(message)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={share}
+        >
+          <Icon name="comment" className="size-3.5" />
+          WhatsApp
+        </a>
+      </div>
+      <p className="mt-3 text-p-xs text-muted">{t("when")}</p>
     </Dialog>
   );
 }
@@ -57,11 +95,16 @@ export function InviteBusiness({ link }: { link: string }) {
         title={t("action")}
         onClick={() => setOpen(true)}
         className={`mx-auto flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center gap-3 rounded-full bg-brand text-label-md text-ink transition-[background-color,scale] hover:bg-brand-hover active:scale-[0.97] roomy:h-12 ${
-          collapsed ? "roomy:w-12" : "max-xl:roomy:w-12 xl:mx-0 xl:w-full xl:justify-start xl:rounded-2xl xl:px-3"
+          collapsed
+            ? "roomy:w-12"
+            : "max-xl:roomy:w-12 xl:mx-0 xl:h-14 xl:w-full xl:justify-start xl:rounded-2xl xl:px-3 roomy:xl:h-14"
         }`}
       >
         <Icon name="link" className="size-5 shrink-0" />
-        <span className={`min-w-0 flex-1 truncate text-left ${wide(collapsed)}`}>{t("action")}</span>
+        <span className={`min-w-0 flex-1 text-left ${wide(collapsed)}`}>
+          <span className="block truncate">{t("action")}</span>
+          <span className="block truncate text-p-xs">{t("actionHint")}</span>
+        </span>
       </button>
       <InviteDialog link={link} open={open} onClose={() => setOpen(false)} />
     </>

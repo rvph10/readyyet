@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { AddShopProvider, useAddShop } from "@/components/add-shop";
 import {
   NavItem,
   panelRow,
@@ -96,6 +97,7 @@ export function LocationPanel({
   owned: boolean;
 }) {
   const t = useTranslations("dashboard");
+  const addShop = useAddShop();
   const [query, setQuery] = useState("");
   const locations = groupByBusiness(memberships).find((group) => group.business.id === businessId)?.memberships ?? [];
   const shown = locations.filter(({ location }) => matchesName(location.name, query));
@@ -127,12 +129,12 @@ export function LocationPanel({
       {owned && (
         <>
           {locations.length > 0 && <div className="mx-1 my-2 border-t border-border" />}
-          <Link href={`/businesses/${businessId}/locations/new`} className={panelRow}>
+          <button type="button" data-closes-popover onClick={addShop} className={`${panelRow} w-full cursor-pointer`}>
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-subtle">
               <Icon name="add" className="size-3" />
             </span>
             {t("addLocation")}
-          </Link>
+          </button>
         </>
       )}
     </>
@@ -260,7 +262,7 @@ export function PickerFrame({
   const businessId = useSearchParams().get("business");
   const chosen = chooseBusiness(groupByBusiness(memberships), businessId);
   return (
-    <>
+    <AddShopProvider businessId={chosen?.business.id ?? ""}>
       {chosen && (
         <TopBar memberships={memberships} business={chosen.business} owned={chosen.owned} location={null} />
       )}
@@ -275,6 +277,6 @@ export function PickerFrame({
         )}
         {children}
       </div>
-    </>
+    </AddShopProvider>
   );
 }

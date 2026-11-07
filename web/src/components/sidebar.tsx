@@ -110,7 +110,7 @@ export function Popover({
         id={id}
         popover="auto"
         onClick={(event) => {
-          if ((event.target as Element).closest("a")) panel.current!.hidePopover();
+          if ((event.target as Element).closest("a, [data-closes-popover]")) panel.current!.hidePopover();
         }}
         className={`${popoverClass} max-h-[80dvh] overflow-y-auto rounded-card border border-border-strong bg-surface p-2 text-ink`}
       >

@@ -104,7 +104,10 @@
     "youAreHere": "Vous êtes ici",
     "breadcrumbs": "Fil d'Ariane",
     "switchBusiness": "{business}, changer d'entreprise",
-    "switchBusinessLabel": "Entreprises"
+    "switchBusinessLabel": "Entreprises",
+    "openCount": "{count, plural, one {Ticket ouvert} other {Tickets ouverts}}",
+    "tileReady": "{count, plural, one {# prêt} other {# prêts}}",
+    "tileLate": "{count} en retard"
   },
   "tickets": {
     "title": "Tickets",
@@ -937,19 +940,24 @@
     },
     "newLocation": {
       "subtitle": "Un nouveau magasin de {business}",
-      "nameHint": "Le magasin où vos clients déposent leurs objets, affiché sur leur page de suivi.",
+      "nameHint": "Les clients le voient sur leur page de suivi.",
       "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",
-      "submit": "Créer et choisir une formule"
+      "submit": "Créer et choisir une formule",
+      "stepName": "Nom",
+      "stepType": "Métier",
+      "stepContact": "Contact",
+      "nameTitle": "Comment s'appelle ce magasin ?",
+      "typeTitle": "Que fait-il ?",
+      "typeHint": "Cela définit les étapes de ses Tickets. Vous pourrez les changer plus tard.",
+      "contactTitle": "Comment les clients le joignent-ils ?",
+      "contactHint": "Affiché sur les pages de suivi et dans les emails."
     },
     "settings": {
       "name": "Nom de l'entreprise",
       "saved": "Nom de l'entreprise enregistré",
       "failed": "Le nom n'a pas été enregistré. Réessayez.",
       "logo": "Logo",
-      "logoHint": "Affiché sur chaque page de suivi. JPG, PNG ou WebP.",
-      "logoAdd": "Ajouter un logo",
-      "logoChange": "Changer le logo",
       "logoRemove": "Retirer",
       "logoSaved": "Logo mis à jour",
       "logoFailed": "Le logo n'a pas été enregistré. Essayez une autre image.",
@@ -959,13 +967,22 @@
       "transferConfirmBody": "{business} et sa facturation lui sont transférées, et vous ne pourrez pas annuler vous-même. Vous restez admin, sans accès à ces pages.",
       "transferConfirm": "Transférer",
       "transferring": "Transfert…",
-      "transferFailed": "Le transfert n'a pas abouti. Réessayez."
+      "transferFailed": "Le transfert n'a pas abouti. Réessayez.",
+      "banner": "Bannière",
+      "bannerAdd": "Ajouter une bannière",
+      "bannerChange": "Changer la bannière",
+      "bannerSaved": "Bannière mise à jour",
+      "bannerFailed": "La bannière n'a pas été enregistrée. Essayez une autre image.",
+      "imagesTitle": "Logo et bannière",
+      "imagesHint": "Sur chaque page de suivi. Une bannière rend mieux en 1600 sur 480, en JPG, PNG ou WebP.",
+      "logoRemoveLong": "Retirer le logo"
     },
     "home": {
       "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
       "seeBilling": "Voir la facturation",
       "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque magasin a ses propres tickets, son équipe et sa formule."
+      "emptyHint": "Chaque magasin a ses propres tickets, son équipe et sa formule.",
+      "addHint": "Ses propres Tickets, équipe et formule."
     },
     "team": {
       "people": "{count, plural, one {# personne} other {# personnes}}",
@@ -983,14 +1000,20 @@
       "byShop": "L'équipe de chaque magasin"
     },
     "invite": {
-      "action": "Inviter une entreprise",
+      "action": "Inviter un magasin",
       "title": "Invitez un magasin, gagnez un mois",
-      "link": "Votre lien d'invitation",
-      "steps": {
-        "share": "Envoyez votre lien à un autre magasin.",
-        "they": "Il reçoit un demi-mois offert sur sa première facture.",
-        "you": "Vous recevez un mois de sa formule en crédit."
-      }
+      "actionHint": "Gagnez un mois offert",
+      "lead": "Vous connaissez un magasin qui répond encore « c'est prêt ? » au téléphone ? Envoyez-lui votre lien.",
+      "youLabel": "Vous recevez",
+      "you": "Un mois de sa formule en crédit",
+      "theyLabel": "Il reçoit",
+      "they": "Un demi-mois de réduction sur sa première facture",
+      "copy": "Copier mon lien d'invitation",
+      "copied": "Lien copié",
+      "byEmail": "Email",
+      "when": "Votre crédit arrive 14 jours après son premier paiement.",
+      "subject": "Essayez ReadyYet pour votre magasin",
+      "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     }
   }
 }
