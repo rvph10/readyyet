@@ -78,9 +78,10 @@ export function FieldFrame({
             >
               ?
             </span>
-            <Tooltip wide end>
-              <span id={`${id}-hint`}>{hint}</span>
-            </Tooltip>
+            <Tooltip wide>{hint}</Tooltip>
+            <span id={`${id}-hint`} hidden>
+              {hint}
+            </span>
           </button>
         )}
       </div>

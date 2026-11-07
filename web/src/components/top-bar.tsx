@@ -4,7 +4,15 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { panelRow, Popover } from "@/components/sidebar";
+import {
+  NavItem,
+  panelRow,
+  Popover,
+  SidebarFrame,
+  useCollapsed,
+  UserRow,
+  type SidebarUser,
+} from "@/components/sidebar";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { SearchField } from "@/components/ui/search-field";
@@ -136,7 +144,7 @@ const plain = "flex h-11 min-w-0 items-center gap-2.5 px-1 text-label-md";
 // white bar, and held down while its list is open. Its list is exactly as wide
 // (bar-popover), so the width is fixed, not the name's.
 const switcher =
-  "flex h-11 w-52 min-w-0 shrink cursor-pointer items-center gap-2.5 rounded-xl bg-subtle pr-2.5 pl-2 text-label-md transition-colors hover:bg-border has-[+:popover-open]:bg-pine has-[+:popover-open]:text-surface";
+  "flex h-11 min-w-0 shrink cursor-pointer items-center gap-2.5 rounded-xl bg-subtle pr-2.5 pl-2 text-label-md transition-colors hover:bg-border has-[+:popover-open]:bg-pine has-[+:popover-open]:text-surface";
 const chevrons = <Icon name="sort-vertical" className="ml-auto size-3 shrink-0 opacity-70" />;
 
 // The bar itself, also over the picker, which is above any one Business.
@@ -186,7 +194,7 @@ export function TopBar({ memberships, business, owned, location, children }: Pro
             <Popover
               label={t("switchBusiness", { business: business.name })}
               popoverClass="bar-popover"
-              triggerClass={switcher}
+              triggerClass={`${switcher} w-60`}
               trigger={
                 <>
                   {name}
@@ -206,7 +214,7 @@ export function TopBar({ memberships, business, owned, location, children }: Pro
             <Popover
               label={t("switchLocation", { location: locationName })}
               popoverClass="bar-popover"
-              triggerClass={switcher}
+              triggerClass={`${switcher} w-52`}
               trigger={
                 <>
                   <span className="truncate pl-1">{locationName}</span>
@@ -234,14 +242,39 @@ export function TopBar({ memberships, business, owned, location, children }: Pro
   );
 }
 
-// The picker's Business is in its URL, which a layout can't read.
-export function PickerBar({ memberships, children }: { memberships: Membership[]; children: ReactNode }) {
+// The picker's Business is in its URL, which a layout can't read. Same frame as
+// every other page, so a link with ?business= never loses the navigation.
+export function PickerFrame({
+  me,
+  memberships,
+  collapsed: initial,
+  children,
+}: {
+  me: SidebarUser;
+  memberships: Membership[];
+  collapsed: boolean;
+  children: ReactNode;
+}) {
+  const t = useTranslations("business");
+  const [collapsed, toggle] = useCollapsed(initial);
   const businessId = useSearchParams().get("business");
   const chosen = chooseBusiness(groupByBusiness(memberships), businessId);
-  if (!chosen) return null;
   return (
-    <TopBar memberships={memberships} business={chosen.business} owned={chosen.owned} location={null}>
-      {children}
-    </TopBar>
+    <>
+      {chosen && (
+        <TopBar memberships={memberships} business={chosen.business} owned={chosen.owned} location={null} />
+      )}
+      <div className="flex min-w-0 flex-1">
+        {chosen && (
+          <SidebarFrame collapsed={collapsed} onToggle={toggle}>
+            <nav className="flex flex-1 flex-col">
+              <NavItem href={businessHref(chosen)} icon="home" label={t("nav.locations")} current />
+            </nav>
+            <UserRow me={me} role={chosen.memberships[0].role} />
+          </SidebarFrame>
+        )}
+        {children}
+      </div>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar } from "@/components/ui/avatar";
@@ -134,7 +134,14 @@ export const panelRow =
 export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
+  const search = useSearchParams();
   const locale = useLocale();
+  // The page's own query stays, or changing language would leave ?section= behind.
+  const inLanguage = (lang: string) => {
+    const query = new URLSearchParams(search);
+    query.set("lang", lang);
+    return `${pathname}?${query}`;
+  };
   return (
     <>
       <div className="flex items-center gap-3 px-3 pt-2 pb-3">
@@ -163,7 +170,7 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
             // A full load, the proxy keeps the choice in its cookie (ADR 0047).
             <a
               key={code}
-              href={`${pathname}?lang=${code}`}
+              href={inLanguage(code)}
               aria-current={locale === code ? "true" : undefined}
               className={`flex h-10 items-center justify-center rounded-lg text-label-xs font-semibold transition-colors ${
                 locale === code ? "bg-pine text-surface" : "text-muted hover:text-ink"

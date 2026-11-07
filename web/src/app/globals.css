@@ -225,9 +225,31 @@
     }
   }
 
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(127 127 127 / 0.35) transparent;
+  /* One quiet scrollbar everywhere: a thin rounded thumb on nothing. Chrome only
+     honours its own pseudo-elements while the standard properties are unset,
+     so those are kept for the browsers without them. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border-strong) transparent;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 0.1875rem solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+    background-color: var(--color-border-strong);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-muted);
   }
 
   body {

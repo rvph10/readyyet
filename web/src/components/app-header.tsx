@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Logo } from "./logo";
 import { SignOutButton } from "./sign-out-button";
 
-export function SignedInUser({ me }: { me: { name: string | null; email: string } }) {
+function SignedInUser({ me }: { me: { name: string | null; email: string } }) {
   return (
     <div className="flex items-center gap-3">
       <div className="hidden min-w-0 text-right sm:block">
