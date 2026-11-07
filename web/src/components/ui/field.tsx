@@ -70,7 +70,7 @@ export function FieldFrame({
           // end of its first line, the control leaving room for it.
           <button
             type="button"
-            className="group absolute top-0.5 right-0.5 flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
+            className="absolute top-0.5 right-0.5 flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
           >
             <span
               aria-hidden="true"

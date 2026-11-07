@@ -997,7 +997,7 @@
       "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
       "seeBilling": "Voir la facturation",
       "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque magasin a ses propres tickets, son équipe et sa formule.",
+      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et sa formule.",
       "addHint": "Ses propres Tickets, équipe et formule."
     },
     "team": {
