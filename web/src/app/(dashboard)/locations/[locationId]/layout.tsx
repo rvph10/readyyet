@@ -33,11 +33,12 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
     notFound();
   }
   const manager = isManager(current.role);
-  const [location, overview, trialDaysLeft, feedback] = await Promise.all([
+  const [location, overview, trialDaysLeft, feedback, owned] = await Promise.all([
     getLocation(locationId),
     getOverview(locationId),
     getDaysToChoosePlan(locationId, current.role),
     manager ? getLatestFeedback(locationId) : [],
+    current.role === "OWNER" ? getOwnedBusiness(current.location.business.id) : null,
   ]);
   const now = new Date();
   const today = calendarDateIn(now, location.timeZone);
@@ -50,7 +51,6 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   });
   const readySince = ({ statusSince }: (typeof overview.tickets)[number]) =>
     daysBetween(calendarDateIn(new Date(statusSince), location.timeZone), today);
-  const owned = current.role === "OWNER" ? await getOwnedBusiness(current.location.business.id) : null;
 
   return (
     <LocationActions
