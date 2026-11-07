@@ -6,11 +6,11 @@ Date: 2026-09-28
 
 Replaces the avatar palette of ADR 0057. Avatars pick from twelve colours instead of five, still by the FNV-1a hash of the User's id (ADR 0053):
 
-| Kind                          | Colours                                       |
-| ----------------------------- | --------------------------------------------- |
-| 200 tint, 900 text of its hue | blue, indigo, teal, emerald, green, amber     |
-| 300 tint, 900 text            | slate                                         |
-| 700 fill, white text          | blue, indigo, teal, emerald, and slate at 600 |
+| Kind                         | Colours                                                    |
+| ---------------------------- | ---------------------------------------------------------- |
+| 200 tint, 900 text of its hue | blue, indigo, teal, emerald, green, amber                  |
+| 300 tint, 900 text           | slate                                                      |
+| 700 fill, white text          | blue, indigo, teal, emerald, and slate at 600              |
 
 ## Why
 

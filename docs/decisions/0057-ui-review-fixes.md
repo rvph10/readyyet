@@ -12,13 +12,13 @@ Changes ADR 0053's avatar colours and ADR 0056's busy button, and adds the state
 
 **New states and variants.**
 
-| Component   | Adds                                                                                                 |
-| ----------- | ---------------------------------------------------------------------------------------------------- |
-| `Button`    | `sm`, a 32px pill for the rows of a dense list                                                       |
+| Component   | Adds                                                                                                  |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| `Button`    | `sm`, a 32px pill for the rows of a dense list                                                        |
 | `Checkbox`  | `indeterminate`, an ink box with a dash, and `error`, a red outline with the message under the label |
-| `FormAlert` | `tone`: `success` (ink check on `subtle`) and `info` (`muted` on `subtle`) beside the red `error`    |
+| `FormAlert` | `tone`: `success` (ink check on `subtle`) and `info` (`muted` on `subtle`) beside the red `error`     |
 | `InputOtp`  | `error`: red boxes and the message under them, used when the API refuses a code                      |
-| `Tabs`      | A track tinted with ink at 6%, and sideways scrolling when the tabs outgrow the screen               |
+| `Tabs`      | A track tinted with ink at 6%, and sideways scrolling when the tabs outgrow the screen                |
 
 A disabled checkbox is filled `canvas` with a `border-strong` outline at 60%, so it's still seen on white.
 

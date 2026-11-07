@@ -14,22 +14,22 @@ Replaces ADR 0048's type, corners, depth, controls and icon library, and the fon
 
 **Type** is a named scale in `globals.css`, each step setting size, line height, letter spacing and weight together:
 
-| Utility         | Size / line height | Weight | For                                               |
-| --------------- | ------------------ | ------ | ------------------------------------------------- |
-| `text-title-h1` | 64 / 70            | 700    | The headline on the sign-in picture               |
-| `text-title-h3` | 40 / 48            | 500    | The sign-in picture's headline on smaller screens |
-| `text-title-h4` | 32 / 40            | 500    | Sign-in form headings, in `font-display`          |
-| `text-title-h5` | 28 / 42            | 700    | Large figures, the code boxes                     |
-| `text-title-h6` | 20 / 30            | 500    | Subtitles under a large heading                   |
-| `text-label-xl` | 24 / 32            | 500    | Page titles in the dashboard                      |
-| `text-label-lg` | 18 / 27            | 500    | Card and section titles                           |
-| `text-label-md` | 16 / 24            | 500    | Inputs, prominent labels, page subtitles          |
-| `text-label-sm` | 14 / 20            | 500    | Buttons, navigation, table cells                  |
-| `text-label-xs` | 12 / 16            | 500    | Group labels, chips, timestamps                   |
-| `text-p-lg`     | 18 / 24            | 400    | Lead text                                         |
-| `text-p-md`     | 16 / 24            | 400    | Tracking page body                                |
-| `text-p-sm`     | 14 / 21            | 400    | Body text, the default                            |
-| `text-p-xs`     | 12 / 16            | 400    | Fine print                                        |
+| Utility            | Size / line height | Weight | For                                             |
+| ------------------ | ------------------ | ------ | ----------------------------------------------- |
+| `text-title-h1`    | 64 / 70            | 700    | The headline on the sign-in picture             |
+| `text-title-h3`    | 40 / 48            | 500    | The sign-in picture's headline on smaller screens     |
+| `text-title-h4`    | 32 / 40            | 500    | Sign-in form headings, in `font-display`        |
+| `text-title-h5`    | 28 / 42            | 700    | Large figures, the code boxes                   |
+| `text-title-h6`    | 20 / 30            | 500    | Subtitles under a large heading                 |
+| `text-label-xl`    | 24 / 32            | 500    | Page titles in the dashboard                    |
+| `text-label-lg`    | 18 / 27            | 500    | Card and section titles                         |
+| `text-label-md`    | 16 / 24            | 500    | Inputs, prominent labels, page subtitles        |
+| `text-label-sm`    | 14 / 20            | 500    | Buttons, navigation, table cells                |
+| `text-label-xs`    | 12 / 16            | 500    | Group labels, chips, timestamps                 |
+| `text-p-lg`        | 18 / 24            | 400    | Lead text                                       |
+| `text-p-md`        | 16 / 24            | 400    | Tracking page body                              |
+| `text-p-sm`        | 14 / 21            | 400    | Body text, the default                          |
+| `text-p-xs`        | 12 / 16            | 400    | Fine print                                      |
 
 Headings are medium (500) rather than bold, and the larger steps are slightly tightened.
 
@@ -39,13 +39,13 @@ Headings are medium (500) rather than bold, and the larger steps are slightly ti
 
 **Corners**, larger for larger things:
 
-| Radius         | For                                                 |
-| -------------- | --------------------------------------------------- |
-| `rounded-full` | Buttons, icon buttons, Status pills, tabs, switches |
-| `rounded-3xl`  | Panels                                              |
-| `rounded-2xl`  | Dialogs, list rows, cards over a picture            |
-| `rounded-xl`   | Inputs, cards, menus, navigation items              |
-| `rounded-lg`   | Small inputs, small tiles                           |
+| Radius         | For                                                        |
+| -------------- | ---------------------------------------------------------- |
+| `rounded-full` | Buttons, icon buttons, Status pills, tabs, switches        |
+| `rounded-3xl`  | Panels                                                     |
+| `rounded-2xl`  | Dialogs, list rows, cards over a picture                   |
+| `rounded-xl`   | Inputs, cards, menus, navigation items                     |
+| `rounded-lg`   | Small inputs, small tiles                                  |
 
 **Controls:**
 

@@ -8,14 +8,14 @@ Every screen of the web app and the sales site is built from the same small set 
 
 Type, in Geist (ADR 0044), on Tailwind's size scale:
 
-| Utility     | Size / line height | Weight   | For                                       |
-| ----------- | ------------------ | -------- | ----------------------------------------- |
-| `text-3xl`  | 30 / 36            | 600      | The Status headline on the tracking page  |
-| `text-2xl`  | 24 / 32            | 600      | Page titles                               |
-| `text-lg`   | 18 / 28            | 600      | Section titles                            |
-| `text-base` | 16 / 24            | 400      | Tracking page body, every input on phones |
-| `text-sm`   | 14 / 20            | 400, 500 | Dashboard body, table cells, buttons      |
-| `text-xs`   | 12 / 16            | 500      | Labels, table headers, timestamps         |
+| Utility     | Size / line height | Weight | For                                              |
+| ----------- | ------------------ | ------ | ------------------------------------------------ |
+| `text-3xl`  | 30 / 36            | 600    | The Status headline on the tracking page         |
+| `text-2xl`  | 24 / 32            | 600    | Page titles                                      |
+| `text-lg`   | 18 / 28            | 600    | Section titles                                   |
+| `text-base` | 16 / 24            | 400    | Tracking page body, every input on phones        |
+| `text-sm`   | 14 / 20            | 400, 500 | Dashboard body, table cells, buttons           |
+| `text-xs`   | 12 / 16            | 500    | Labels, table headers, timestamps                |
 
 - Headings from `text-2xl` up get a slight negative tracking (`tracking-tight`).
 - Weights are 400, 500 and 600 only.
@@ -24,33 +24,33 @@ Type, in Geist (ADR 0044), on Tailwind's size scale:
 
 Spacing is Tailwind's 4px unit, kept to eight steps: 1, 2, 3, 4, 6, 8, 12, 16 (4 to 64px).
 
-| Where                 | Space                                      |
-| --------------------- | ------------------------------------------ |
-| Inside a control      | 8 to 12                                    |
-| Card padding          | 16 on phones, 24 from `sm` up              |
-| Related items         | 8 to 12                                    |
-| Between groups        | 24                                         |
-| Between page sections | 48                                         |
-| Page side gutter      | 16 on phones, 24 on tablets, 32 on desktop |
+| Where                  | Space                                |
+| ---------------------- | ------------------------------------ |
+| Inside a control       | 8 to 12                              |
+| Card padding           | 16 on phones, 24 from `sm` up        |
+| Related items          | 8 to 12                              |
+| Between groups         | 24                                   |
+| Between page sections  | 48                                   |
+| Page side gutter       | 16 on phones, 24 on tablets, 32 on desktop |
 
 Corners grow with the size of the element:
 
-| Utility        | Radius | For                          |
-| -------------- | ------ | ---------------------------- |
-| `rounded-lg`   | 8px    | Buttons, inputs, small tiles |
-| `rounded-xl`   | 12px   | Cards, tables, menus         |
-| `rounded-2xl`  | 16px   | Dialogs and sheets           |
-| `rounded-full` |        | Status pills, avatars        |
+| Utility        | Radius | For                                  |
+| -------------- | ------ | ------------------------------------ |
+| `rounded-lg`   | 8px    | Buttons, inputs, small tiles         |
+| `rounded-xl`   | 12px   | Cards, tables, menus                 |
+| `rounded-2xl`  | 16px   | Dialogs and sheets                   |
+| `rounded-full` |        | Status pills, avatars                |
 
 A rounded element inside another takes the outer radius minus the padding between them.
 
 Depth has four levels:
 
-| Level  | Look                                           |
-| ------ | ---------------------------------------------- |
-| Page   | `canvas`, no edge                              |
-| Card   | `surface` with a `border`, no shadow           |
-| Menu   | `surface`, `border` and `shadow-float`         |
+| Level  | Look                                         |
+| ------ | -------------------------------------------- |
+| Page   | `canvas`, no edge                            |
+| Card   | `surface` with a `border`, no shadow         |
+| Menu   | `surface`, `border` and `shadow-float`       |
 | Dialog | `surface`, `shadow-overlay`, over `ink` at 40% |
 
 Controls:

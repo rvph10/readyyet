@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { checkReviewLink } from "../src/location/review-link-check";
 
 const redirect = (location: string) => new Response(null, { status: 302, headers: { location } });
-const answers = (...responses: (Response | Error)[]) => {
+const answers = (...responses: unknown[]) => {
   const fetch = vi.fn();
   for (const response of responses) {
     if (response instanceof Error) fetch.mockRejectedValueOnce(response);

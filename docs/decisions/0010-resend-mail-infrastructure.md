@@ -64,7 +64,7 @@ time (`new Resend(process.env.RESEND_API_KEY)` at the top of
 `resend-client.ts`), the exact `process.env`-at-import-time hazard ADR
 0008 already documents for `auth.ts`'s `PrismaClient`, but with a much
 wider blast radius here: `AppModule` imports `EmailModule` transitively,
-so this crashed the _entire_ app (and every e2e test in the suite, not
+so this crashed the *entire* app (and every e2e test in the suite, not
 just email ones) the moment `RESEND_API_KEY` was unset, before anything
 had even tried to send an email. Fixed by making construction lazy
 (`getResendClient()`, memoized on first real use).
