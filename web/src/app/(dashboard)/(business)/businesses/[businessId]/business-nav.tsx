@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   NavItem,
   Popover,
@@ -14,7 +14,7 @@ import {
   type SidebarUser,
 } from "@/components/sidebar";
 import { AddShopProvider, useAddShop } from "@/components/add-shop";
-import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
+import { InviteBusiness, InviteDialog, InviteRow } from "@/components/invite-business";
 import { BusinessPanel, TopBar } from "@/components/top-bar";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
@@ -89,8 +89,9 @@ function NavLinks({ props }: { props: Props }) {
 function PhoneBar({ props }: { props: Props }) {
   const t = useTranslations("dashboard");
   const { me } = props;
+  const [inviting, setInviting] = useState(false);
   return (
-    <div className="relative flex items-center justify-between gap-2 px-4 pt-3 md:hidden">
+    <div className="flex items-center justify-between gap-2 px-4 pt-3 md:hidden">
       <div className="min-w-0 flex-1">
         <Popover
           label={t("switchLocation", { location: props.business.name })}
@@ -106,15 +107,16 @@ function PhoneBar({ props }: { props: Props }) {
           <BusinessPanel business={props.business} memberships={props.memberships} />
         </Popover>
       </div>
-      <InviteBusinessRound link={props.inviteLink} />
       <Popover
         label={me.name}
         popoverClass="menu-popover w-80 max-w-[calc(100vw-2rem)]"
         triggerClass="cursor-pointer rounded-full"
         trigger={<Avatar id={me.id} name={me.name} src={me.avatarUrl} />}
       >
+        <InviteRow onOpen={() => setInviting(true)} />
         <UserPanel me={me} role="OWNER" />
       </Popover>
+      <InviteDialog link={props.inviteLink} open={inviting} onClose={() => setInviting(false)} />
     </div>
   );
 }
@@ -139,22 +141,26 @@ function BottomNav({ businessId }: { businessId: string }) {
   return (
     <nav
       aria-label={tDashboard("navigation")}
-      className="fixed inset-x-0 bottom-0 z-20 flex h-[4.5rem] items-stretch border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      {item(locations)}
-      {item(team)}
-      <div className="flex flex-1 items-center justify-center">
-        <button
-          type="button"
-          aria-label={tDashboard("addLocation")}
-          onClick={addShop}
-          className="flex size-13 cursor-pointer items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
-        >
-          <Icon name="add" className="size-5" />
-        </button>
+      {/* Its own height: the inset changes as Safari's toolbar hides, and taken
+          from a fixed height it would squeeze what's in the bar. */}
+      <div className="flex h-[4.5rem] items-stretch">
+        {item(locations)}
+        {item(team)}
+        <div className="flex flex-1 items-center justify-center">
+          <button
+            type="button"
+            aria-label={tDashboard("addLocation")}
+            onClick={addShop}
+            className="flex size-13 cursor-pointer items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
+          >
+            <Icon name="add" className="size-5" />
+          </button>
+        </div>
+        {item(billing)}
+        {item(settings)}
       </div>
-      {item(billing)}
-      {item(settings)}
     </nav>
   );
 }
@@ -175,7 +181,7 @@ export function BusinessNav({
             <InviteBusiness link={props.inviteLink} />
             <UserRow me={props.me} role="OWNER" />
           </SidebarFrame>
-          <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+          <div className="flex min-w-0 flex-1 flex-col pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
             <PhoneBar props={props} />
             <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
               {children}

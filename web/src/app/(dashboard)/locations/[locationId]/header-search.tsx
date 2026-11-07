@@ -3,8 +3,9 @@
 import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Avatar } from "@/components/ui/avatar";
+import { Dialog } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
 import { SearchField } from "@/components/ui/search-field";
 import type { components } from "@/lib/api/schema";
@@ -18,8 +19,8 @@ type Ticket = components["schemas"]["TicketListItemDto"];
 const DEBOUNCE_MS = 250;
 
 // One search, on every page. It jumps straight to a Ticket, the results page
-// being one Enter away, and / reaches it from anywhere (ADR 0087). A phone
-// shows a button until it's needed.
+// being one Enter away, and / reaches it from anywhere (ADR 0087). On a phone it
+// opens a screen of its own, as the bar has no room for it beside the rest.
 export function HeaderSearch({ locationId, compact }: { locationId: string; compact?: boolean }) {
   const t = useTranslations("tickets");
   const locale = useLocale();
@@ -89,85 +90,102 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   const name = (ticket: Ticket) =>
     ticket.customer.fullName === ERASED_CUSTOMER_NAME ? t("erasedCustomer") : ticket.customer.fullName;
 
-  if (compact && !expanded) {
+  const keys = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowDown") setActive((value) => Math.min(value + 1, results.length - 1));
+    if (event.key === "ArrowUp") setActive((value) => Math.max(value - 1, 0));
+    if (event.key === "Enter" && query) {
+      event.preventDefault();
+      if (results[active]) leave(`/locations/${locationId}/tickets/${results[active].id}`);
+      else seeAll();
+    }
+  };
+
+  const field = (
+    <SearchField
+      className="[&_input]:border-transparent [&_input]:bg-subtle"
+      label={t("search")}
+      placeholder={t("searchPlaceholder")}
+      maxLength={100}
+      autoFocus={compact}
+      value={q}
+      onChange={(value) => {
+        setQ(value);
+        setActive(0);
+        setOpen(true);
+      }}
+    />
+  );
+
+  const list = (
+    <>
+      {found?.query === query && results.length === 0 ? (
+        <div className="px-3 py-4">
+          <p className="text-label-sm wrap-anywhere">{t("noMatch", { query })}</p>
+          <p className="mt-0.5 text-p-sm text-muted">{t("noMatchHint")}</p>
+        </div>
+      ) : (
+        results.map((ticket, index) => (
+          <button
+            key={ticket.id}
+            type="button"
+            onClick={() => leave(`/locations/${locationId}/tickets/${ticket.id}`)}
+            onPointerEnter={() => setActive(index)}
+            className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left ${
+              index === active ? "bg-subtle" : ""
+            }`}
+          >
+            <Avatar id={ticket.customer.fullName} name={name(ticket)} src={null} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-label-sm">{name(ticket)}</span>
+              <span className="block truncate text-p-xs text-muted">{ticket.title}</span>
+            </span>
+            <span className="hidden shrink-0 text-p-xs text-muted sm:block">
+              {statusLabel(ticket.currentStatus, locale)}
+            </span>
+          </button>
+        ))
+      )}
+      {results.length > 0 && (
+        <button
+          type="button"
+          onClick={seeAll}
+          className="mt-1 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl text-label-sm hover:bg-subtle"
+        >
+          {t("seeAll")}
+        </button>
+      )}
+    </>
+  );
+
+  if (compact) {
     return (
-      <button
-        type="button"
-        aria-label={t("search")}
-        onClick={() => setExpanded(true)}
-        className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface"
-      >
-        <Icon name="search" className="size-4" />
-      </button>
+      <>
+        <button
+          type="button"
+          aria-label={t("search")}
+          onClick={() => setExpanded(true)}
+          className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-subtle"
+        >
+          <Icon name="search" className="size-4" />
+        </button>
+        <Dialog open={expanded} onClose={() => setExpanded(false)} title={t("search")} variant="panel">
+          {expanded && (
+            <div className="flex min-h-0 flex-1 flex-col gap-2 px-4 pb-4" onKeyDown={keys}>
+              {field}
+              <div className="min-h-0 flex-1 overflow-y-auto">{query && list}</div>
+            </div>
+          )}
+        </Dialog>
+      </>
     );
   }
 
   return (
-    <div
-      ref={box}
-      className={compact ? "absolute inset-x-4 top-3 z-30" : "relative w-full min-w-0"}
-      onFocus={() => setOpen(true)}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowDown") setActive((value) => Math.min(value + 1, results.length - 1));
-        if (event.key === "ArrowUp") setActive((value) => Math.max(value - 1, 0));
-        if (event.key === "Enter" && query) {
-          event.preventDefault();
-          if (results[active]) leave(`/locations/${locationId}/tickets/${results[active].id}`);
-          else seeAll();
-        }
-      }}
-    >
-      <SearchField
-        className="[&_input]:border-transparent [&_input]:bg-subtle"
-        label={t("search")}
-        placeholder={t("searchPlaceholder")}
-        maxLength={100}
-        autoFocus={compact}
-        value={q}
-        onChange={(value) => {
-          setQ(value);
-          setActive(0);
-          setOpen(true);
-        }}
-      />
+    <div ref={box} className="relative w-full min-w-0" onFocus={() => setOpen(true)} onKeyDown={keys}>
+      {field}
       {open && query && (
         <div className="absolute inset-x-0 top-full z-30 mt-2 rounded-card border border-border-strong bg-surface p-2">
-          {found?.query === query && results.length === 0 ? (
-            <div className="px-3 py-4">
-              <p className="text-label-sm wrap-anywhere">{t("noMatch", { query })}</p>
-              <p className="mt-0.5 text-p-sm text-muted">{t("noMatchHint")}</p>
-            </div>
-          ) : (
-            results.map((ticket, index) => (
-              <button
-                key={ticket.id}
-                type="button"
-                onClick={() => leave(`/locations/${locationId}/tickets/${ticket.id}`)}
-                onPointerEnter={() => setActive(index)}
-                className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left ${
-                  index === active ? "bg-subtle" : ""
-                }`}
-              >
-                <Avatar id={ticket.customer.fullName} name={name(ticket)} src={null} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-label-sm">{name(ticket)}</span>
-                  <span className="block truncate text-p-xs text-muted">{ticket.title}</span>
-                </span>
-                <span className="hidden shrink-0 text-p-xs text-muted sm:block">
-                  {statusLabel(ticket.currentStatus, locale)}
-                </span>
-              </button>
-            ))
-          )}
-          {results.length > 0 && (
-            <button
-              type="button"
-              onClick={seeAll}
-              className="mt-1 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl text-label-sm hover:bg-subtle"
-            >
-              {t("seeAll")}
-            </button>
-          )}
+          {list}
         </div>
       )}
     </div>

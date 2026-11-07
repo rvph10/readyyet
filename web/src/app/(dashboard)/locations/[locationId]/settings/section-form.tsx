@@ -64,7 +64,7 @@ export function SectionForm({ title, hint, onSubmit, onDiscard, dirty, pending, 
         </div>
       )}
       <div className="flex-1">{children}</div>
-      <div className="sticky bottom-0 -mx-5 mt-6 flex justify-end gap-2 border-t border-border bg-surface px-5 py-4 max-md:bottom-16 lg:-mx-10 lg:px-10">
+      <div className="sticky bottom-0 -mx-5 mt-6 flex justify-end gap-2 border-t border-border bg-surface px-5 py-4 max-md:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:-mx-10 lg:px-10">
         <Button variant="secondary" disabled={!dirty || pending} onClick={onDiscard}>
           {t("discard")}
         </Button>

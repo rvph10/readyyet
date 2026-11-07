@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { Icon } from "./icon";
 
-type Variant = "default" | "destructive" | "announcement" | "image" | "panel";
+type Variant = "default" | "destructive" | "announcement" | "image" | "panel" | "pricing";
 
 interface Props {
   open: boolean;
@@ -22,10 +22,22 @@ interface Props {
 const frames: Record<Variant, string> = {
   default: "max-w-md rounded-sheet bg-surface backdrop:bg-ink/40",
   destructive: "max-w-md rounded-sheet bg-surface backdrop:bg-ink/40",
-  announcement: "max-w-lg overflow-hidden rounded-sheet bg-surface backdrop:bg-ink/40",
+  announcement: "max-w-lg rounded-sheet bg-surface backdrop:bg-ink/40",
   image: "max-w-4xl bg-transparent backdrop:bg-ink/85",
   // From the right edge, for a form that keeps the page behind it (ADR 0087).
   panel: "bg-surface backdrop:bg-ink/40 md:rounded-l-sheet",
+  pricing: "bg-surface backdrop:bg-ink/40 md:rounded-sheet",
+};
+
+const shapes: Record<Variant, string> = {
+  default: "m-auto w-[calc(100%-2rem)]",
+  destructive: "m-auto w-[calc(100%-2rem)]",
+  announcement: "m-auto w-[calc(100%-2rem)]",
+  image: "m-auto w-[calc(100%-2rem)]",
+  panel: "my-0 mr-0 ml-auto h-dvh max-h-dvh w-full max-w-none md:max-w-xl",
+  // The whole screen on a phone, as it's the most important thing on it.
+  pricing:
+    "m-0 h-dvh max-h-dvh w-full max-w-none md:m-auto md:h-fit md:max-h-[calc(100dvh-2rem)] md:w-[calc(100%-2rem)] md:max-w-4xl",
 };
 
 // The browser's own modal <dialog>, which traps focus, closes on Escape and
@@ -57,7 +69,7 @@ export function Dialog({ open, onClose, title, variant = "default", locked, medi
         if (locked) event.preventDefault();
       }}
       onClick={(event) => event.target === ref.current && dismiss()}
-      className={`${variant === "panel" ? "my-0 mr-0 ml-auto h-dvh max-h-dvh w-full max-w-none md:max-w-xl" : "m-auto w-[calc(100%-2rem)]"} text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
+      className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${shapes[variant]} ${frames[variant]}`}
     >
       {variant === "panel" && (
         <div className="flex h-full flex-col">
@@ -68,6 +80,18 @@ export function Dialog({ open, onClose, title, variant = "default", locked, medi
             <CloseButton onClose={dismiss} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        </div>
+      )}
+
+      {variant === "pricing" && (
+        <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <h2 id={titleId} className="text-title-h4 text-balance md:text-title-h3">
+              {title}
+            </h2>
+            <CloseButton onClose={dismiss} />
+          </div>
+          {children}
         </div>
       )}
 
