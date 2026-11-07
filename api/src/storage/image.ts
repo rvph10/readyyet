@@ -12,18 +12,19 @@ const MAX_INPUT_PIXELS = 50_000_000;
 
 const ACCEPTED_FORMATS = new Set(["jpeg", "png", "webp"]);
 
-export type ImageKind = "ticketPhoto" | "avatar" | "logo";
+export type ImageKind = "ticketPhoto" | "avatar" | "logo" | "banner";
 
 // Logos are PNG because some email clients don't display WebP.
 const OUTPUT = {
   ticketPhoto: { prefix: "tickets", extension: "webp", contentType: "image/webp" },
   avatar: { prefix: "avatars", extension: "webp", contentType: "image/webp" },
   logo: { prefix: "logos", extension: "png", contentType: "image/png" },
+  banner: { prefix: "banners", extension: "webp", contentType: "image/webp" },
 } as const;
 
-// Only logos and avatars are served publicly (GET /images/...), photos
-// only ever through presigned URLs.
-export const PUBLIC_PREFIXES: readonly string[] = [OUTPUT.avatar.prefix, OUTPUT.logo.prefix];
+// Only logos, banners and avatars are served publicly (GET /images/...),
+// photos only ever through presigned URLs.
+export const PUBLIC_PREFIXES: readonly string[] = [OUTPUT.avatar.prefix, OUTPUT.logo.prefix, OUTPUT.banner.prefix];
 
 export interface ProcessedImage {
   key: string;
@@ -55,7 +56,9 @@ export async function processImage(input: Buffer, kind: ImageKind): Promise<Proc
       ? oriented.resize(1600, 1600, { fit: "inside", withoutEnlargement: true }).webp()
       : kind === "avatar"
         ? oriented.resize(256, 256, { fit: "cover" }).webp()
-        : oriented.resize(512, 512, { fit: "inside", withoutEnlargement: true }).png();
+        : kind === "banner"
+          ? oriented.resize(1600, 480, { fit: "cover" }).webp()
+          : oriented.resize(512, 512, { fit: "inside", withoutEnlargement: true }).png();
   const body = await resized.toBuffer().catch(() => {
     throw new ValidationError("This image is damaged and can't be read");
   });

@@ -120,6 +120,34 @@ describe("Business logo", () => {
     expect(tracking.body.location.logoUrl).toBe(business.logoUrl);
   });
 
+  it("keeps a banner like a logo: Owner only, on the tracking page, gone from the bucket once removed", async () => {
+    const put = (cookie: string, ip: string) =>
+      request(app.getHttpServer())
+        .put(`/businesses/${businessId}/banner`)
+        .set("Cookie", cookie)
+        .set("X-Real-IP", ip)
+        .attach("file", banner, "banner.jpg");
+    const banner = await imageFile("jpeg", 2000, 1000);
+
+    expect((await put(adminCookie, "198.51.100.240")).status).toBe(403);
+    const { body: business } = await put(ownerCookie, "198.51.100.241");
+    expect(business.bannerUrl).toMatch(/\/images\/banners\/[0-9a-f-]{36}\.webp$/);
+    expect((await request(app.getHttpServer()).get(imagePath(business.bannerUrl))).status).toBe(200);
+
+    const ticket = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Mocassins", customer: { fullName: "Chloé Dubois" } });
+    const tracking = await request(app.getHttpServer()).get(`/tracking/${ticket.body.trackingCode}`);
+    expect(tracking.body.location.bannerUrl).toBe(business.bannerUrl);
+
+    const removed = await request(app.getHttpServer())
+      .delete(`/businesses/${businessId}/banner`)
+      .set("Cookie", ownerCookie);
+    expect(removed.body.bannerUrl).toBeNull();
+    expect((await request(app.getHttpServer()).get(imagePath(business.bannerUrl))).status).toBe(404);
+  });
+
   it("gives a new logo a new URL and deletes the previous one from the bucket", async () => {
     const first = await upload(ownerCookie, await imageFile("png"));
     const second = await upload(ownerCookie, await imageFile("webp"));

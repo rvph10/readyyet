@@ -76,6 +76,25 @@ export class BusinessController {
     return this.business.removeLogo(businessId, user.id);
   }
 
+  @Put(":businessId/banner")
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the business's banner (owner only, ADR 0109)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  setBanner(
+    @Param("businessId") businessId: string,
+    @CurrentUser() user: User,
+    @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
+  ): Promise<BusinessDto> {
+    return this.business.setBanner(businessId, user.id, file.buffer);
+  }
+
+  @Delete(":businessId/banner")
+  @ApiOperation({ summary: "Remove the business's banner (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  removeBanner(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<BusinessDto> {
+    return this.business.removeBanner(businessId, user.id);
+  }
+
   @Post(":businessId/locations")
   @ApiOperation({ summary: "Add another location to an existing business (owner only)" })
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)

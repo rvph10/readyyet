@@ -162,6 +162,8 @@ model Business {
   // The logo's key in the bucket, never a URL (ADR 0026), shown for every
   // Location of the Business (ADR 0051).
   logoKey                  String?   @map("logo_key")
+  // A wide picture behind the Business's name, kept like the logo (ADR 0109).
+  bannerKey                String?   @map("banner_key")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 

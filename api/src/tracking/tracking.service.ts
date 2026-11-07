@@ -37,7 +37,7 @@ export class TrackingService {
             contactPhone: true,
             contactEmail: true,
             // The Business's, the same for all its Locations (ADR 0051).
-            business: { select: { logoKey: true } },
+            business: { select: { logoKey: true, bannerKey: true } },
             locale: true,
             timeZone: true,
             streetAddress: true,
@@ -91,6 +91,7 @@ export class TrackingService {
         contactPhone,
         contactEmail,
         logoUrl: publicImageUrl(business.logoKey),
+        bannerUrl: publicImageUrl(business.bannerKey),
         address,
         mapsUrl: address && mapsUrl(address),
         openingHours: ticket.location.openingHours as OpeningHoursSpecification[],

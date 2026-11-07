@@ -8,6 +8,7 @@ export class TrackingLocationDto {
   contactPhone!: string;
   contactEmail!: string;
   logoUrl!: string | null;
+  bannerUrl!: string | null;
   address!: PostalAddressDto | null;
   // A Google Maps search for the address, null without one.
   mapsUrl!: string | null;

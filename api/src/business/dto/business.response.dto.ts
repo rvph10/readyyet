@@ -8,6 +8,8 @@ export class BusinessDto {
   referralCode!: string;
   // Shown for every Location of the Business (ADR 0051).
   logoUrl!: string | null;
+  // ADR 0109: on the Business's pages and every tracking page.
+  bannerUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
 }
