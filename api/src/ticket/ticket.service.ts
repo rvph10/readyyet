@@ -5,6 +5,7 @@ import {
   ENDED_STATUS_CODES,
   isEndedStatus,
   isNotifyingStatus,
+  LONG_WAIT_DAYS,
   turnaroundReadyDate,
 } from "@readyyet/shared";
 import { customerIdsNamed, phoneDigits } from "../customer/customer-search";
@@ -323,6 +324,20 @@ export class TicketService {
       .filter(([day]) => day >= handedOverFrom && day < weekStart)
       .reduce((sum, [, count]) => sum + count, 0);
 
+    const rows = dated
+      .map(({ ticket, date }) => ({
+        ticket,
+        date,
+        rank: isReady(ticket.currentStatus.code) ? 1 : date !== null && date < today ? 0 : 2,
+      }))
+      .sort(byUrgency)
+      .map(({ ticket }) => ({
+        ...listItem(ticket),
+        nextStatus: nextStatus(ticket.workflow.steps, ticket.currentStatus.code),
+        emailFails:
+          emailGaveUp.has(ticket.id) || Boolean(ticket.customer.emailBouncedAt || ticket.customer.emailComplainedAt),
+      }));
+
     return {
       counts: {
         open: open.length,
@@ -338,20 +353,18 @@ export class TicketService {
         .sort((a, b) => a.position - b.position)
         .map(({ status, count }) => ({ status, count })),
       handedOver: { days, previousWeek },
-      tickets: dated
-        .map(({ ticket, date }) => ({
-          ticket,
-          date,
-          rank: isReady(ticket.currentStatus.code) ? 1 : date !== null && date < today ? 0 : 2,
-        }))
-        .sort(byUrgency)
-        .slice(0, OVERVIEW_TICKETS)
-        .map(({ ticket }) => ({
-          ...listItem(ticket),
-          nextStatus: nextStatus(ticket.workflow.steps, ticket.currentStatus.code),
-          emailFails:
-            emailGaveUp.has(ticket.id) || Boolean(ticket.customer.emailBouncedAt || ticket.customer.emailComplainedAt),
-        })),
+      tickets: rows.slice(0, OVERVIEW_TICKETS),
+      // From every open Ticket: the least urgent can be the one that needs a person.
+      needsYou: {
+        collected: rows.filter((row) => row.customerCollectedAt),
+        failing: rows.filter((row) => row.emailFails),
+        longWaits: rows.filter(
+          (row) =>
+            isReady(row.currentStatus.code) &&
+            !row.customerCollectedAt &&
+            addDays(calendarDateIn(row.statusSince, timeZone), LONG_WAIT_DAYS) <= today,
+        ),
+      },
     };
   }
 

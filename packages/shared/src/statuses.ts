@@ -25,6 +25,10 @@ export function isNotifyingStatus(statusCode: string): statusCode is NotifyingSt
   return (NOTIFYING_STATUS_CODES as readonly string[]).includes(statusCode);
 }
 
+// Waiting to be collected this long needs a person: the last reminder goes at
+// this point (ADR 0028).
+export const LONG_WAIT_DAYS = 10;
+
 // A ticket's estimated ready date is shown until it reaches READY or ends
 // (ADR 0030), after that it says nothing the Status doesn't.
 export function showsEstimatedReadyDate(statusCode: string): boolean {

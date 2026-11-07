@@ -9825,6 +9825,34 @@
           "emailFails"
         ]
       },
+      "OverviewNeedsYouDto": {
+        "type": "object",
+        "properties": {
+          "collected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          },
+          "failing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          },
+          "longWaits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewTicketDto"
+            }
+          }
+        },
+        "required": [
+          "collected",
+          "failing",
+          "longWaits"
+        ]
+      },
       "TicketOverviewDto": {
         "type": "object",
         "properties": {
@@ -9845,13 +9873,17 @@
             "items": {
               "$ref": "#/components/schemas/OverviewTicketDto"
             }
+          },
+          "needsYou": {
+            "$ref": "#/components/schemas/OverviewNeedsYouDto"
           }
         },
         "required": [
           "counts",
           "steps",
           "handedOver",
-          "tickets"
+          "tickets",
+          "needsYou"
         ]
       },
       "TicketStatusEventDto": {

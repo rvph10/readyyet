@@ -114,6 +114,14 @@ export class OverviewHandedOverDto {
   previousWeek!: number;
 }
 
+export class OverviewNeedsYouDto {
+  // The Customer says they collected it (ADR 0028).
+  collected!: OverviewTicketDto[];
+  failing!: OverviewTicketDto[];
+  // READY and waiting to be collected for LONG_WAIT_DAYS or more.
+  longWaits!: OverviewTicketDto[];
+}
+
 export class TicketOverviewDto {
   counts!: OverviewCountsDto;
   // Open Tickets at each step, in Workflow order.
@@ -121,6 +129,8 @@ export class TicketOverviewDto {
   handedOver!: OverviewHandedOverDto;
   // Open Tickets, most urgent first, the first 100 (ADR 0088).
   tickets!: OverviewTicketDto[];
+  // What a person has to settle, among every open Ticket (ADR 0113).
+  needsYou!: OverviewNeedsYouDto;
 }
 
 export class TicketPageDto {
