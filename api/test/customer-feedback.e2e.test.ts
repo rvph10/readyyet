@@ -174,6 +174,15 @@ describe("Customer feedback", () => {
       expect(response.body.error.details[0].property).toBe("url");
     });
 
+    it("won't check a link for an Employee", async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/review-link/check`)
+        .set("Cookie", employeeCookie)
+        .send({ url: REVIEW_URL });
+
+      expect(response.status).toBe(403);
+    });
+
     it("needs Pro to be set, but can be removed on any plan", async () => {
       await setSubscription({ status: SubscriptionStatus.ACTIVE, plan: Plan.ESSENTIEL, trialEndsAt: null });
 
