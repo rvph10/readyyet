@@ -126,6 +126,7 @@ describe("Public tracking", () => {
       contactPhone: "+12125550199",
       contactEmail: "shop@trackingtest.test",
       logoUrl: null,
+      bannerUrl: null,
       address: ADDRESS,
       mapsUrl: "https://www.google.com/maps/search/?api=1&query=Rue%20Neuve%2012%2C%201000%20Bruxelles%2C%20BE",
       openingHours: OPENING_HOURS,

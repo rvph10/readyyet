@@ -154,11 +154,33 @@ describe("Customer feedback", () => {
       "https://g.page/somewhere-else",
       "https://search.google.com/search?q=evil",
       "https://user@g.page/r/abc/review",
+      // Names every object has, which a plain lookup by host would find.
+      "https://constructor/",
+      "https://__proto__/",
     ])("refuses %s", async (url) => {
       const response = await patchLocation({ googleReviewUrl: url });
 
       expect(response.status).toBe(400);
       expect(response.body.error.details[0].property).toBe("googleReviewUrl");
+    });
+
+    it.each(["https://evil.example/review", "https://constructor/"])("won't check %s", async (url) => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/review-link/check`)
+        .set("Cookie", ownerCookie)
+        .send({ url });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.details[0].property).toBe("url");
+    });
+
+    it("won't check a link for an Employee", async () => {
+      const response = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/review-link/check`)
+        .set("Cookie", employeeCookie)
+        .send({ url: REVIEW_URL });
+
+      expect(response.status).toBe(403);
     });
 
     it("needs Pro to be set, but can be removed on any plan", async () => {

@@ -1,4 +1,5 @@
 import type { components } from "@/lib/api/schema";
+import { addDays, weekdayIndex } from "../../../../../lib/calendar-grid";
 
 export type OpeningHours = components["schemas"]["OpeningHoursSpecificationDto"];
 export type Day = OpeningHours["dayOfWeek"];
@@ -61,4 +62,35 @@ export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export function parseSection(value: unknown, sections: readonly SettingsSection[]): SettingsSection {
   return sections.find((section) => section === value) ?? "shop";
+}
+
+const LONGEST_PREVIEW_WEEKS = 6;
+
+export type TurnaroundDay = { date: string; kind: "outside" | "today" | "counted" | "closed" | "ready" };
+
+// The weeks from today to the ready date, Mondays first, as the calendar on the
+// Tickets section draws them. A long turnaround keeps the weeks nearest its end.
+export function turnaroundWeeks(
+  today: string,
+  ready: string,
+  hours: readonly { dayOfWeek: string }[],
+): TurnaroundDay[][] {
+  const open = new Set(hours.map(({ dayOfWeek }) => dayOfWeek));
+  const isOpen = (date: string) => open.size === 0 || open.has(DAYS[weekdayIndex(date)]);
+  const kind = (date: string): TurnaroundDay["kind"] => {
+    if (date === today) return "today";
+    if (date === ready) return "ready";
+    if (date < today || date > ready) return "outside";
+    return isOpen(date) ? "counted" : "closed";
+  };
+  const weeks: TurnaroundDay[][] = [];
+  for (let monday = addDays(today, -weekdayIndex(today)); monday <= ready; monday = addDays(monday, 7)) {
+    weeks.push(
+      Array.from({ length: 7 }, (_, offset) => {
+        const date = addDays(monday, offset);
+        return { date, kind: kind(date) };
+      }),
+    );
+  }
+  return weeks.slice(-LONGEST_PREVIEW_WEEKS);
 }

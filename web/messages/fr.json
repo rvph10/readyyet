@@ -102,8 +102,12 @@
     "collapseSidebar": "Réduire le menu",
     "expandSidebar": "Développer le menu",
     "youAreHere": "Vous êtes ici",
+    "breadcrumbs": "Fil d'Ariane",
     "switchBusiness": "{business}, changer d'entreprise",
-    "switchBusinessLabel": "Entreprises"
+    "switchBusinessLabel": "Entreprises",
+    "openCount": "{count, plural, one {Ticket ouvert} other {Tickets ouverts}}",
+    "tileReady": "{count, plural, one {# prêt} other {# prêts}}",
+    "tileLate": "{count} en retard"
   },
   "tickets": {
     "title": "Tickets",
@@ -288,6 +292,7 @@
   "common": {
     "home": "Vos magasins",
     "close": "Fermer",
+    "sortBy": "Trier par {column}",
     "stepDone": "terminé",
     "clearSearch": "Effacer la recherche",
     "notifications": "Notifications",
@@ -383,7 +388,6 @@
     "collectedNotYet": "Pas encore"
   },
   "ticketDetail": {
-    "back": "Retour",
     "status": "Statut",
     "history": "Historique",
     "moveTo": "Passer à {status}",
@@ -451,7 +455,6 @@
     "endedNote": "Ce ticket est terminé. Rouvrez-le s'il a été clôturé par erreur.",
     "emailGaveUpEnded": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer.",
     "emailRetryingEnded": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée.",
-    "subtitle": "#{id}, {name}, reçu le {date}",
     "since": "Depuis le {date}, par {name}",
     "workflow": "Workflow",
     "handOver": "Remis",
@@ -498,9 +501,6 @@
     "needsYou": "À traiter",
     "caughtUp": "Tout est à jour",
     "caughtUpHint": "Aucun retour ni problème ne vous attend.",
-    "privateFeedback": "Retour privé",
-    "read": "Lire",
-    "markHandled": "Marquer traité",
     "saysCollected": "Dit avoir retiré",
     "notYet": "Pas encore",
     "confirm": "Confirmer",
@@ -537,10 +537,15 @@
         "body": "Il voit chaque étape sans appeler."
       }
     },
-    "comingUp": "À venir",
-    "nothingDue": "Rien de prévu",
     "vsLastWeek": "vs la semaine passée",
-    "nothingComing": "Rien de prévu ces prochains jours"
+    "needsYouCount": "{count, plural, =0 {À traiter, rien pour le moment} one {À traiter, # élément} other {À traiter, # éléments}}",
+    "seeAll": "Tout voir ({count})",
+    "groups": {
+      "failing": "Emails en échec",
+      "collected": "À confirmer",
+      "feedback": "Retours",
+      "waiting": "En attente de retrait"
+    }
   },
   "plans": {
     "title": "Gardez ReadyYet actif",
@@ -655,11 +660,6 @@
       "handled": "Traités"
     },
     "messagesTitle": "Messages des clients",
-    "waitingSummary": "{count, plural, =0 {Aucun message à traiter} one {# message à traiter} other {# messages à traiter}}",
-    "handledSummary": "Ces messages ont déjà été traités.",
-    "messageTitle": "Message du client",
-    "ticketFollowUp": "Contactez le client depuis son ticket.",
-    "openTicket": "Ouvrir le ticket",
     "markHandled": "Marquer comme traité",
     "marking": "Enregistrement…",
     "moved": "Déplacé dans Traités",
@@ -689,7 +689,12 @@
         "notice": "Les clients ne sont pas invités à donner leur avis : ce magasin n'a pas de lien d'avis Google.",
         "action": "Aller aux réglages"
       }
-    }
+    },
+    "waitingFor": "{days, plural, =0 {Nouveau aujourd'hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
+    "replyEmail": "Répondre par email",
+    "replyCall": "Appeler",
+    "replySubject": "{shop} : à propos de {ticket}",
+    "noContact": "Pas d'email ni de téléphone pour ce client."
   },
   "customers": {
     "title": "Clients",
@@ -781,8 +786,7 @@
       "frozen": "Ce magasin n'a pas de plan actif : vous ne pouvez inviter personne.",
       "tooMany": "Trop d'invitations pour le moment. Attendez une minute, puis réessayez.",
       "failed": "Cela n'a pas fonctionné. Veuillez réessayer."
-    },
-    "waitingToJoin": "{count, plural, one {# invité, pas encore arrivé} other {# invités, pas encore arrivés}}"
+    }
   },
   "settings": {
     "saveFailed": "Vos modifications n'ont pas été enregistrées. Veuillez réessayer.",
@@ -794,8 +798,6 @@
     "postalCode": "Code postal",
     "city": "Ville",
     "country": "Pays",
-    "language": "Langue par défaut des clients",
-    "languageHint": "Leurs e-mails et leur page de suivi sont dans cette langue, sauf si vous en choisissez une autre pour un client.",
     "timeZone": "Fuseau horaire",
     "timeZoneHint": "Choisissez celui de votre magasin. Les dates, les horaires et les e-mails de rappel suivent cette heure.",
     "nameMissing": "Indiquez le nom du magasin.",
@@ -810,28 +812,21 @@
     "opensOn": "{day}, ouvre à",
     "closesOn": "{day}, ferme à",
     "hoursInvalid": "Chaque ouverture doit précéder sa fermeture, et les deux plages ne peuvent pas se chevaucher.",
-    "reviewTitle": "Avis Google",
-    "reviewMissing": "Vos clients ne sont pas invités à donner leur avis. Ajoutez votre lien d'avis Google pour l'activer.",
-    "reviewOn": "Vos clients sont sollicités",
+    "reviewMissing": "Les clients ne sont pas encore sollicités. Ajoutez votre lien d'avis Google.",
+    "reviewOn": "Les clients sont sollicités après le retrait.",
     "reviewPaused": "Votre lien est enregistré, mais les clients ne sont sollicités qu'avec Pro.",
     "reviewNeedsPro": "Demander leur avis aux clients est inclus dans Pro.",
     "reviewLabel": "Lien d'avis Google",
     "reviewInvalid": "Ce n'est pas un lien d'avis Google. Il ressemble à https://g.page/r/.../review.",
-    "turnaroundTitle": "Durée habituelle d'un travail",
-    "turnaroundLabel": "Jours",
-    "turnaroundUnit": "jours d'ouverture",
-    "turnaroundRange": "Choisissez de 1 à 60 jours d'ouverture.",
-    "turnaroundPreviewTitle": "Aperçu d'un nouveau ticket",
-    "turnaroundPreviewBody": "Avec ce délai, un ticket créé aujourd'hui reçoit cette date de fin suggérée :",
-    "turnaroundUnsetTitle": "Aucune date de fin par défaut",
-    "turnaroundUnsetHint": "Choisissez une date lors de la création de chaque ticket.",
-    "turnaroundInvalid": "Indiquez un nombre entier de 1 à 60, ou laissez vide.",
+    "turnaroundTitle": "Délai habituel",
+    "turnaroundUnit": "{count, plural, one {jour d'ouverture} other {jours d'ouverture}}",
+    "turnaroundPreviewBody": "Un Ticket créé aujourd'hui est prêt pour le",
     "deleteTitle": "Supprimer ce magasin",
-    "deleteAction": "Supprimer le magasin",
+    "deleteAction": "Supprimer ce magasin",
     "deleteConfirmTitle": "Supprimer {name} ?",
-    "deleteConfirmBody": "Ses liens de suivi cessent de fonctionner, ses photos sont supprimées, son plan est annulé immédiatement et toute son équipe perd l'accès. C'est irréversible.",
-    "deleteType": "Tapez {name} pour confirmer",
-    "deleteConfirm": "Supprimer définitivement",
+    "deleteConfirmBody": "Cette action est irréversible. Les clients ne sont pas prévenus et leurs liens de suivi cessent de fonctionner tout de suite.",
+    "deleteType": "Pour confirmer, tapez <shop>{name}</shop> ci-dessous.",
+    "deleteConfirm": "Supprimer {name} définitivement",
     "deleting": "Suppression…",
     "deleteFailed": "Le magasin n'a pas été supprimé. Veuillez réessayer.",
     "navLabel": "Sections des réglages",
@@ -846,29 +841,54 @@
     "saved": "Modifications enregistrées.",
     "discard": "Annuler",
     "shopHint": "Vos clients voient ces informations sur leur page de suivi et dans leurs e-mails.",
-    "nameHint": "Vos clients voient ce nom sur leur page de suivi et dans leurs e-mails.",
-    "contactHint": "Le numéro que vos clients appellent pour vous joindre. Il apparaît sur leur page de suivi et dans leurs e-mails.",
+    "nameHint": "Le nom et la langue que les clients voient sur leur page de suivi et dans leurs emails.",
+    "contactHint": "Comment les clients vous joignent, sur leur page de suivi et dans leurs emails.",
     "addressLabel": "Adresse",
-    "addressRowHint": "Vos clients la voient avec un lien pour l'itinéraire. Laissez tout vide si vous préférez ne pas l'afficher.",
+    "addressRowHint": "Affichée avec un lien vers l'itinéraire. Laissez-la vide si vous préférez ne pas la montrer.",
     "hoursHint": "Vos clients les voient sur leur page de suivi. Les dates prévues ne comptent que vos jours d'ouverture.",
     "to": "à",
-    "ticketsHint": "Définissez un délai habituel pour les nouveaux tickets.",
-    "turnaroundRowHint": "Les nouveaux tickets reçoivent une date de fin suggérée. Vous pouvez la changer pour chaque ticket.",
-    "turnaroundPlaceholder": "Non défini",
-    "reviewHint": "Après avoir récupéré son article, chaque client reçoit un e-mail lui demandant comment ça s'est passé. Ses retours privés arrivent dans Retours.",
-    "deleteHint": "Ses liens de suivi cessent de fonctionner, son plan est annulé immédiatement et tout le monde perd l'accès. C'est irréversible.",
+    "ticketsHint": "Le temps que prend habituellement votre travail.",
+    "turnaroundRowHint": "Vous pouvez toujours la changer sur un Ticket.",
+    "reviewHint": "Demandez à chaque client comment ça s'est passé une fois son article récupéré.",
+    "deleteHint": "Définitif, pour ce magasin seulement. Vos autres magasins ne changent pas.",
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
-    "reviewGuideTitle": "Où trouver mon lien ?",
-    "reviewPasteTitle": "Collez votre lien d'avis Google",
-    "reviewPasteHint": "Collez le lien copié depuis votre fiche d'établissement Google, puis sélectionnez Enregistrer ci-dessous. Vos clients l'utiliseront pour laisser un avis.",
-    "reviewStep1": "Ouvrez votre fiche d'établissement Google, avec le compte qui la gère.",
-    "reviewStep2": "Sélectionnez « Voir les avis », puis « Recevoir plus d'avis ».",
-    "reviewStep3": "Sélectionnez « Copier », puis collez le lien ci-dessous.",
-    "reviewComputer": "C'est plus simple sur un ordinateur.",
+    "reviewStep1": "Ouvrez votre fiche Google Business.",
+    "reviewStep2": "Choisissez Lire les avis, puis Obtenir plus d'avis.",
+    "reviewStep3": "Copiez le lien et collez-le ci-dessus.",
     "reviewOpenProfile": "Ouvrir ma fiche d'établissement",
-    "reviewGoogleGuide": "Voir le guide de Google",
-    "reviewTest": "Tester le lien",
-    "reviewTestHint": "Il doit ouvrir la page d'avis de votre propre magasin."
+    "identityTitle": "Votre magasin",
+    "languageShort": "Langue",
+    "contactTitle": "Contact",
+    "turnaroundSwitch": "Proposer une date sur les nouveaux Tickets",
+    "turnaroundLess": "Un jour de moins",
+    "turnaroundMore": "Un jour de plus",
+    "turnaroundSkips": "Seuls les jours d'ouverture comptent, les jours fermés décalent la date.",
+    "turnaroundKeyToday": "Aujourd'hui",
+    "turnaroundKeyCounted": "Compté",
+    "turnaroundKeyReady": "Prêt",
+    "reviewCheck": "Vérifier le lien",
+    "reviewChecking": "Vérification…",
+    "reviewCheckResult": {
+      "works": "Ce lien fonctionne et ouvre Google.",
+      "dead": "Google ne connaît pas ce lien. Copiez-le à nouveau.",
+      "unknown": "Impossible de joindre Google. Réessayez dans un instant."
+    },
+    "reviewOpen": "Vérifier que c'est votre magasin",
+    "reviewFindTitle": "Trouver votre lien",
+    "reviewPreviewTitle": "Ce que reçoivent vos clients",
+    "reviewPreviewAsk": "Comment ça s'est passé ?",
+    "reviewPreviewHappy": "Les clients satisfaits sont envoyés vers votre page Google.",
+    "reviewPreviewUnhappy": "Les autres vous écrivent en privé, dans Retours.",
+    "deleteLosesTitle": "Ce qui arrive à {name}",
+    "deleteLoses": {
+      "tracking": "Les liens de suivi cessent de fonctionner",
+      "photos": "Les photos des Tickets sont supprimées",
+      "plan": "Sa formule est annulée immédiatement",
+      "team": "Plus personne n'y a accès"
+    },
+    "deleteFinal": "Cette action est irréversible.",
+    "deleteOpenTickets": "{count, plural, one {# Ticket est encore ouvert ici.} other {# Tickets sont encore ouverts ici.}}",
+    "deleteTypeLabel": "Nom du magasin"
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",
@@ -936,20 +956,24 @@
       "nothingDueHint": "Aucun renouvellement prévu"
     },
     "newLocation": {
-      "subtitle": "Un nouveau magasin de {business}",
-      "nameHint": "Le magasin où vos clients déposent leurs objets, affiché sur leur page de suivi.",
+      "nameHint": "Les clients le voient sur leur page de suivi.",
       "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",
-      "submit": "Créer et choisir une formule"
+      "submit": "Créer et choisir une formule",
+      "stepName": "Nom",
+      "stepType": "Métier",
+      "stepContact": "Contact",
+      "nameTitle": "Comment s'appelle ce magasin ?",
+      "typeTitle": "Que fait-il ?",
+      "typeHint": "Cela définit les étapes de ses Tickets. Vous pourrez les changer plus tard.",
+      "contactTitle": "Comment les clients le joignent-ils ?",
+      "contactHint": "Affiché sur les pages de suivi et dans les emails."
     },
     "settings": {
       "name": "Nom de l'entreprise",
       "saved": "Nom de l'entreprise enregistré",
       "failed": "Le nom n'a pas été enregistré. Réessayez.",
       "logo": "Logo",
-      "logoHint": "Affiché sur chaque page de suivi. JPG, PNG ou WebP.",
-      "logoAdd": "Ajouter un logo",
-      "logoChange": "Changer le logo",
       "logoRemove": "Retirer",
       "logoSaved": "Logo mis à jour",
       "logoFailed": "Le logo n'a pas été enregistré. Essayez une autre image.",
@@ -959,13 +983,22 @@
       "transferConfirmBody": "{business} et sa facturation lui sont transférées, et vous ne pourrez pas annuler vous-même. Vous restez admin, sans accès à ces pages.",
       "transferConfirm": "Transférer",
       "transferring": "Transfert…",
-      "transferFailed": "Le transfert n'a pas abouti. Réessayez."
+      "transferFailed": "Le transfert n'a pas abouti. Réessayez.",
+      "banner": "Bannière",
+      "bannerAdd": "Ajouter une bannière",
+      "bannerChange": "Changer la bannière",
+      "bannerSaved": "Bannière mise à jour",
+      "bannerFailed": "La bannière n'a pas été enregistrée. Essayez une autre image.",
+      "imagesTitle": "Logo et bannière",
+      "imagesHint": "Sur chaque page de suivi. La bannière est affichée en 3:1, idéalement en 1500 sur 500, en JPG, PNG ou WebP.",
+      "logoRemoveLong": "Retirer le logo"
     },
     "home": {
       "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
       "seeBilling": "Voir la facturation",
       "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque magasin a ses propres tickets, son équipe et sa formule."
+      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et sa formule.",
+      "addHint": "Ses propres Tickets, équipe et formule."
     },
     "team": {
       "people": "{count, plural, one {# personne} other {# personnes}}",
@@ -983,14 +1016,20 @@
       "byShop": "L'équipe de chaque magasin"
     },
     "invite": {
-      "action": "Inviter une entreprise",
+      "action": "Inviter un magasin",
       "title": "Invitez un magasin, gagnez un mois",
-      "link": "Votre lien d'invitation",
-      "steps": {
-        "share": "Envoyez votre lien à un autre magasin.",
-        "they": "Il reçoit un demi-mois offert sur sa première facture.",
-        "you": "Vous recevez un mois de sa formule en crédit."
-      }
+      "actionHint": "Gagnez un mois offert",
+      "lead": "Vous connaissez un magasin qui répond encore « c'est prêt ? » au téléphone ? Envoyez-lui votre lien.",
+      "youLabel": "Vous recevez",
+      "you": "Un mois de sa formule en crédit",
+      "theyLabel": "Il reçoit",
+      "they": "Un demi-mois de réduction sur sa première facture",
+      "copy": "Copier mon lien d'invitation",
+      "copied": "Lien copié",
+      "byEmail": "Email",
+      "when": "Votre crédit arrive 14 jours après son premier paiement.",
+      "subject": "Essayez ReadyYet pour votre magasin",
+      "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     }
   }
 }

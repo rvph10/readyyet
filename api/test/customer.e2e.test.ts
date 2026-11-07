@@ -58,6 +58,21 @@ describe("Customers", () => {
     await app.close();
   });
 
+  it("lists A to Z unless asked otherwise", async () => {
+    const names = async (query: Record<string, string>) => {
+      const response = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/customers`)
+        .query({ ...query, take: "100" })
+        .set("Cookie", ownerCookie);
+      return (response.body.items as { fullName: string }[]).map(({ fullName }) => fullName);
+    };
+    const az = await names({});
+    expect(az.indexOf("Alice Wonder")).toBeLessThan(az.indexOf("Bob Builder"));
+    expect(await names({ sort: "name", dir: "desc" })).toEqual([...az].reverse());
+    const newest = await names({ sort: "since", dir: "desc" });
+    expect(newest.indexOf("Bob Builder")).toBeLessThan(newest.indexOf("Alice Wonder"));
+  });
+
   it("finds a customer by partial name match", async () => {
     const response = await request(app.getHttpServer())
       .get(`/locations/${locationId}/customers`)

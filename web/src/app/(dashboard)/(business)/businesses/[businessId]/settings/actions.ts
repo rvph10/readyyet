@@ -18,21 +18,28 @@ export async function renameBusiness(businessId: string, name: string) {
   return actionResult(result);
 }
 
-export async function setLogo(businessId: string, logo: FormData) {
-  const result = await (
-    await api()
-  ).PUT("/businesses/{businessId}/logo", {
+export async function setImage(businessId: string, kind: "logo" | "banner", image: FormData) {
+  const client = await api();
+  const options = {
     ...path(businessId),
-    body: logo as never,
+    body: image as never,
     // Left to fetch, which sets the multipart boundary.
-    bodySerializer: (body) => body as unknown as FormData,
-  });
+    bodySerializer: (body: unknown) => body as FormData,
+  };
+  const result =
+    kind === "logo"
+      ? await client.PUT("/businesses/{businessId}/logo", options)
+      : await client.PUT("/businesses/{businessId}/banner", options);
   refreshed();
   return actionResult(result);
 }
 
-export async function removeLogo(businessId: string) {
-  const result = await (await api()).DELETE("/businesses/{businessId}/logo", path(businessId));
+export async function removeImage(businessId: string, kind: "logo" | "banner") {
+  const client = await api();
+  const result =
+    kind === "logo"
+      ? await client.DELETE("/businesses/{businessId}/logo", path(businessId))
+      : await client.DELETE("/businesses/{businessId}/banner", path(businessId));
   refreshed();
   return actionResult(result);
 }

@@ -57,6 +57,16 @@ export function statusDotClass(code: string) {
   return dots[statusTone(code)];
 }
 
+// The same tint and icon as a pill, for a list where its label stands beside it.
+export function StatusMark({ code }: { code: string }) {
+  const tone = statusTone(code);
+  return (
+    <span className={`flex size-8 shrink-0 items-center justify-center rounded-full ${tints[tone]}`}>
+      <Icon name={toneIcons[tone]} className="size-3" />
+    </span>
+  );
+}
+
 // A Ticket's Status, by its code for the colour and its translated label.
 export function StatusPill({ code, label }: { code: string; label: string }) {
   const tone = statusTone(code);

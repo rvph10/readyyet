@@ -59,9 +59,9 @@ export function NextStep({ locationId, ticketId, next }: Props) {
       aria-label={title}
       disabled={pending}
       onClick={move}
-      className="flex min-h-11 max-w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-full py-1 pr-1 pl-3.5 transition-[background-color,scale] hover:bg-pine-subtle active:scale-[0.97] disabled:cursor-progress disabled:opacity-60"
+      className="flex min-h-11 max-w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-full py-1 pr-1 pl-3.5 transition-[background-color,scale] lg:max-@3xl:pl-1 hover:bg-pine-subtle active:scale-[0.97] disabled:cursor-progress disabled:opacity-60"
     >
-      <span className="min-w-0 truncate text-label-sm">{finishes ? t("handOver") : label}</span>
+      <span className="min-w-0 truncate text-label-sm lg:max-@3xl:hidden">{finishes ? t("handOver") : label}</span>
       <span
         className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
           finishes ? "bg-brand text-ink" : "bg-pine text-brand"

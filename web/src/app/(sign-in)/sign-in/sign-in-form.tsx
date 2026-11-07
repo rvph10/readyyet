@@ -329,7 +329,7 @@ function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string
     <button
       type="button"
       onClick={onClick}
-      className="group relative font-medium break-all text-brand-text transition-colors hover:text-ink"
+      className="font-medium break-all text-brand-text transition-colors hover:text-ink"
     >
       {email}
       <Tooltip>

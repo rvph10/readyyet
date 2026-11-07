@@ -84,29 +84,27 @@ export function TicketDetails(props: Props) {
   // In a side panel, so editing never moves the page under it (ADR 0087).
   return (
     <>
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-title-h6">{t("details")}</h2>
         <Button variant="secondary" size="sm" onClick={startEditing}>
           <Icon name="edit" className="size-3" />
           {t("edit")}
         </Button>
       </div>
-      <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
-        <div>
+      <dl className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl bg-subtle px-4 py-3">
           <dt className="text-p-xs text-muted">{t("expected")}</dt>
           <dd className={`mt-0.5 text-label-md ${props.dateLate ? "text-danger" : ""}`}>
             {props.dateShown ?? t("noDate")}
           </dd>
         </div>
-        <div>
+        <div className="rounded-2xl bg-subtle px-4 py-3">
           <dt className="text-p-xs text-muted">{t("received")}</dt>
           <dd className="mt-0.5 text-label-md">{props.receivedShown}</dd>
         </div>
-        <div className="sm:col-span-2">
+        <div className="rounded-2xl bg-subtle px-4 py-3 sm:col-span-2">
           <dt className="text-p-xs text-muted">{t("notes")}</dt>
-          <dd className="mt-0.5 max-w-prose text-p-sm wrap-anywhere whitespace-pre-line">
-            {props.notes || t("noNotes")}
-          </dd>
+          <dd className="mt-0.5 text-p-sm wrap-anywhere whitespace-pre-line">{props.notes || t("noNotes")}</dd>
         </div>
       </dl>
       <Dialog open={editing} onClose={() => setEditing(false)} title={t("editTicket")} variant="panel">

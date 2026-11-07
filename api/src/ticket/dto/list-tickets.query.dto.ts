@@ -5,6 +5,15 @@ import { IsBigIntId } from "../../common/parse-bigint-id";
 import { MAX_PAGE } from "../../common/pagination";
 
 export class ListTicketsQueryDto {
+  // Newest first without it.
+  @IsOptional()
+  @IsIn(["number", "customer", "title", "status", "expected", "received"])
+  sort?: "number" | "customer" | "title" | "status" | "expected" | "received";
+
+  @IsOptional()
+  @IsIn(["asc", "desc"])
+  dir?: "asc" | "desc";
+
   // One search box: matched against title, description, tracking code and
   // the customer's name, email and phone.
   @IsOptional()

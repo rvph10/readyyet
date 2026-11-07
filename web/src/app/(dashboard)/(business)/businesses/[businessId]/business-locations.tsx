@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
+import { AddShopTile } from "@/components/add-shop";
 import { LocationTile, type LocationCounts } from "@/components/location-tile";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SearchField } from "@/components/ui/search-field";
@@ -11,11 +12,10 @@ import { matchesName } from "@/lib/memberships";
 const SEARCH_FROM = 7;
 
 interface Props {
-  business: { id: string; name: string; logoUrl: string | null };
-  locations: { id: string; name: string; badge: ReactNode; counts: LocationCounts | null }[];
+  locations: { id: string; name: string; badge?: ReactNode; counts: LocationCounts | null }[];
 }
 
-export function BusinessLocations({ business, locations }: Props) {
+export function BusinessLocations({ locations }: Props) {
   const t = useTranslations("dashboard");
   const [query, setQuery] = useState("");
   const shown = locations.filter(({ name }) => matchesName(name, query));
@@ -34,9 +34,14 @@ export function BusinessLocations({ business, locations }: Props) {
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5 xl:grid-cols-3">
           {shown.map(({ id, ...location }) => (
             <li key={id}>
-              <LocationTile id={id} business={business} {...location} />
+              <LocationTile id={id} {...location} />
             </li>
           ))}
+          {!query && (
+            <li>
+              <AddShopTile />
+            </li>
+          )}
         </ul>
       ) : (
         <EmptyState illustration="search" title={t("noLocationFound")} description={t("noLocationFoundHint")} />

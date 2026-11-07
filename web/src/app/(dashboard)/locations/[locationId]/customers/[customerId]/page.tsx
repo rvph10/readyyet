@@ -78,7 +78,7 @@ export default async function CustomerPage({
 
   return (
     <>
-      <PageHeader title={customer.fullName} backHref={customersHref(locationId)} />
+      <PageHeader title={customer.fullName} crumb={customer.fullName} />
       {customer.email && emailFails(customer) && (
         <Banner tone="error">{tDetail("emailFails", { email: customer.email, name: customer.fullName })}</Banner>
       )}

@@ -95,20 +95,7 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
 
   return (
     <>
-      <BusinessHeader title={t("nav.team")} subtitle={business.name}>
-        <InvitePanel
-          businessId={businessId}
-          locations={teams.map(({ location: { id, name, billing }, members, open }) => ({
-            id,
-            name,
-            blocked: billing.frozen
-              ? "frozen"
-              : billing.memberLimit !== null && placesTaken(members.length, open) >= billing.memberLimit
-                ? "full"
-                : null,
-          }))}
-        />
-      </BusinessHeader>
+      <BusinessHeader title={t("nav.team")} subtitle={business.name} />
       <div className="grid flex-1 grid-cols-1 items-start gap-4 lg:gap-5 xl:grid-cols-12">
         <Panel as="section" padding="none" className="overflow-clip xl:col-span-8">
           <h2 className="px-5 pt-5 pb-4 text-title-h6 lg:px-7 lg:pt-6">{t("team.people", { count: people.length })}</h2>
@@ -124,7 +111,21 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
         </Panel>
         <div className="flex flex-col gap-4 lg:gap-5 xl:col-span-4">
           <Panel as="section" padding="none" className="flex min-h-64 flex-col">
-            <h2 className="px-5 pt-5 pb-3 text-title-h6 lg:px-6 lg:pt-6">{tTeam("invitations")}</h2>
+            <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3 lg:px-6 lg:pt-6">
+              <h2 className="text-title-h6">{tTeam("invitations")}</h2>
+              <InvitePanel
+                businessId={businessId}
+                locations={teams.map(({ location: { id, name, billing }, members, open }) => ({
+                  id,
+                  name,
+                  blocked: billing.frozen
+                    ? "frozen"
+                    : billing.memberLimit !== null && placesTaken(members.length, open) >= billing.memberLimit
+                      ? "full"
+                      : null,
+                }))}
+              />
+            </div>
             {invitations.length > 0 ? (
               <ul className="flex flex-col gap-3 px-5 pb-5 lg:px-6">
                 {invitations.map(({ email, places }) => (
@@ -155,8 +156,7 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
               />
             )}
           </Panel>
-          {/* The way to one shop's team for an Owner with several, whose sidebar
-            no longer has it, even when nobody works there yet (ADR 0103). */}
+          {/* Straight to a shop's team, even when nobody works there yet. */}
           <Panel as="section" padding="none">
             <h2 className="px-5 pt-5 pb-2 text-title-h6 lg:px-6 lg:pt-6">{t("team.byShop")}</h2>
             <ul className="flex flex-col gap-1 px-2 pb-2 lg:px-3 lg:pb-3">

@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { shopSchema, turnaroundSchema } from "../src/app/(dashboard)/locations/[locationId]/settings/schema";
+import { shopSchema } from "../src/app/(dashboard)/locations/[locationId]/settings/schema";
 import {
   dayIsValid,
   dayName,
+  turnaroundWeeks,
   hoursFrom,
   weekFrom,
   withBreak,
@@ -57,17 +58,37 @@ describe("the week", () => {
   });
 });
 
-describe("turnaroundSchema", () => {
-  const parse = (value: string) => turnaroundSchema(t).safeParse(value);
+describe("turnaroundWeeks", () => {
+  // Monday 2 November 2026 is the first day shown.
+  const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((dayOfWeek) => ({ dayOfWeek }));
+  const kinds = (ready: string) =>
+    turnaroundWeeks("2026-11-06", ready, weekdays)
+      .flat()
+      .map(({ date, kind }) => `${date.slice(8)} ${kind}`);
 
-  it("takes 1 to 60 open days, and empty to stop prefilling", () => {
-    expect(parse("3").data).toBe(3);
-    expect(parse("60").data).toBe(60);
-    expect(parse(" ").data).toBeNull();
+  it("skips the days the shop is closed, up to the ready date", () => {
+    expect(kinds("2026-11-10")).toEqual([
+      "02 outside",
+      "03 outside",
+      "04 outside",
+      "05 outside",
+      "06 today",
+      "07 closed",
+      "08 closed",
+      "09 counted",
+      "10 ready",
+      "11 outside",
+      "12 outside",
+      "13 outside",
+      "14 outside",
+      "15 outside",
+    ]);
   });
 
-  it.each(["0", "61", "1.5", "abc", "-1"])("refuses %s", (value) => {
-    expect(parse(value).success).toBe(false);
+  it("keeps the weeks nearest the ready date of a long turnaround", () => {
+    const weeks = turnaroundWeeks("2026-11-06", "2027-01-29", weekdays);
+    expect(weeks).toHaveLength(6);
+    expect(weeks.at(-1)!.some(({ kind }) => kind === "ready")).toBe(true);
   });
 });
 

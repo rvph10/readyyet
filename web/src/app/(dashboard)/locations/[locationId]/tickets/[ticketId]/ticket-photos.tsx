@@ -73,7 +73,7 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-title-h6">{t("photos")}</h2>
-        {canAdd && photos.length < MAX_PHOTOS && (
+        {canAdd && photos.length > 0 && photos.length < MAX_PHOTOS && (
           <Button
             variant="secondary"
             size="sm"
@@ -129,8 +129,18 @@ export function TicketPhotos({ locationId, ticketId, photos, canAdd, deletableBy
             </li>
           ))}
         </ul>
+      ) : canAdd ? (
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => input.current!.click()}
+          className="flex min-h-28 flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border-strong text-label-sm transition-colors hover:bg-subtle disabled:cursor-default disabled:opacity-60"
+        >
+          <Icon name="camera" className="size-4" />
+          {pending ? t("uploading") : t("addPhoto")}
+        </button>
       ) : (
-        !canAdd && <p className="text-p-sm text-muted">{t("noPhotosExpired")}</p>
+        <p className="text-p-sm text-muted">{t("noPhotosExpired")}</p>
       )}
       <Dialog
         open={viewing !== null}

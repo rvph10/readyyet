@@ -73,7 +73,7 @@ export function Switch({ label, description, className, ...props }: Props) {
           type="checkbox"
           role="switch"
           {...props}
-          className="peer h-6 w-10 cursor-pointer appearance-none rounded-full bg-border-strong transition not-disabled:not-checked:group-hover:bg-muted not-disabled:checked:group-hover:bg-ink/80 checked:bg-ink disabled:cursor-not-allowed disabled:bg-border disabled:checked:bg-muted"
+          className="peer h-6 w-10 cursor-pointer appearance-none rounded-full bg-border-strong transition not-disabled:not-checked:group-hover:bg-muted not-disabled:checked:group-hover:bg-pine-hover checked:bg-pine disabled:cursor-not-allowed disabled:bg-border disabled:checked:bg-muted"
         />
         <span className="pointer-events-none absolute top-1 left-1 size-4 rounded-full bg-surface transition-transform peer-checked:translate-x-4" />
       </span>

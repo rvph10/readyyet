@@ -15,6 +15,18 @@ export async function updateLocation(locationId: string, changes: components["sc
   return actionResult(result);
 }
 
+export async function checkReviewLink(
+  locationId: string,
+  url: string,
+): Promise<components["schemas"]["ReviewLinkCheckDto"]["result"] | "invalid"> {
+  const { data, response } = await (
+    await api()
+  ).POST("/locations/{locationId}/review-link/check", { ...path(locationId), body: { url } });
+  // Refused by the rule Save applies, so Google was never asked.
+  if (response.status === 400) return "invalid";
+  return data?.result ?? "unknown";
+}
+
 // Redirects from here: refreshing the page they're on would be a 404 by then.
 export async function deleteLocation(locationId: string, businessId: string) {
   const outcome = await actionResult(await (await api()).DELETE("/locations/{locationId}", path(locationId)));

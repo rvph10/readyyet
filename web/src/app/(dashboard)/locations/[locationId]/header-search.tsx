@@ -2,15 +2,16 @@
 
 import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { SearchField } from "@/components/ui/search-field";
 import type { components } from "@/lib/api/schema";
+import { parseSort } from "@/lib/sort";
 import { statusLabel } from "@/lib/status-label";
 import { searchTickets } from "./actions";
-import { ticketsHref } from "./tickets/ticket-views";
+import { LIST_SORTS, ticketsHref } from "./tickets/ticket-views";
 
 type Ticket = components["schemas"]["TicketListItemDto"];
 
@@ -23,6 +24,8 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   const t = useTranslations("tickets");
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
+  const search = useSearchParams();
   const box = useRef<HTMLDivElement>(null);
   const [q, setQ] = useState("");
   const [found, setFound] = useState<{ query: string; tickets: Ticket[] } | null>(null);
@@ -77,7 +80,12 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
     router.push(href);
   }
 
-  const seeAll = () => leave(ticketsHref(locationId, { view: "all", q: query }));
+  // Only the Tickets page's own: Today sorts its table with the same parameter.
+  const seeAll = () => {
+    const onTickets = pathname === ticketsHref(locationId, { view: "open" });
+    const sort = onTickets ? parseSort(Object.fromEntries(search), LIST_SORTS) : null;
+    leave(ticketsHref(locationId, { view: "all", q: query, sort }));
+  };
   const name = (ticket: Ticket) =>
     ticket.customer.fullName === ERASED_CUSTOMER_NAME ? t("erasedCustomer") : ticket.customer.fullName;
 
@@ -97,7 +105,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   return (
     <div
       ref={box}
-      className={compact ? "absolute inset-x-4 top-3 z-30" : "relative w-full max-w-[22rem] min-w-0"}
+      className={compact ? "absolute inset-x-4 top-3 z-30" : "relative w-full min-w-0"}
       onFocus={() => setOpen(true)}
       onKeyDown={(event) => {
         if (event.key === "ArrowDown") setActive((value) => Math.min(value + 1, results.length - 1));

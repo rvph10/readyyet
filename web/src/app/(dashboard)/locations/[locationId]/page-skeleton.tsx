@@ -6,27 +6,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 // moves when the data arrives. This is the part they share: PageHeader's shape.
 export function PageSkeleton({
   children,
-  back,
   subtitle,
+  home,
 }: {
   children: ReactNode;
-  back?: boolean;
   subtitle?: boolean;
+  // Today has no breadcrumbs.
+  home?: boolean;
 }) {
   const t = useTranslations("dashboard");
   return (
-    <div aria-busy className="flex flex-1 flex-col gap-4 lg:gap-5">
+    <div aria-busy className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-5">
       <p className="sr-only" role="status">
         {t("loading")}
       </p>
-      <div className="flex items-center justify-between gap-6">
-        <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
-          {back && <Skeleton className="size-11 shrink-0 rounded-full! md:size-12" />}
-          <div className="min-w-0 flex-1">
-            <Skeleton className="h-9 w-72 max-w-full md:h-10" />
-            {subtitle && <Skeleton className="mt-1 h-4 w-96 max-w-full" />}
-          </div>
-        </div>
+      <div className="flex min-w-0 flex-col gap-1">
+        {!home && <Skeleton className="h-8 w-40 max-w-full" />}
+        <Skeleton className="h-9 w-72 max-w-full md:h-10" />
+        {subtitle && <Skeleton className="mt-1 h-4 w-96 max-w-full" />}
       </div>
       {children}
     </div>

@@ -12,15 +12,17 @@ import { Tabs } from "@/components/ui/tabs";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { lastPage, parsePage } from "@/lib/pagination";
+import { parseSort, type Sort } from "@/lib/sort";
 import { NewTicketButton } from "../new-ticket/new-ticket-button";
 import { getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { ListHeader, TicketRow } from "./ticket-row";
-import { parseQuery, parseView, ticketsHref, VIEWS, type View } from "./ticket-views";
+import { LIST_SORTS, parseQuery, parseView, ticketsHref, VIEWS, type ListSort, type View } from "./ticket-views";
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
 const PAGE_SIZE = 50;
+const NEWEST_FIRST: Sort<ListSort> = { column: "received", dir: "desc" };
 
 const EMPTY_ILLUSTRATIONS: Record<View, IllustrationName> = {
   open: "coffee",
@@ -42,11 +44,15 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
   const view = parseView(search.view);
   const q = parseQuery(search.q);
   const page = parsePage(search.page);
+  const sort = parseSort(search, LIST_SORTS);
 
   const [list, location, overview] = await Promise.all([
     client
       .GET("/locations/{locationId}/tickets", {
-        params: { path: { locationId }, query: { ...VIEWS[view], q: q || undefined, page, take: PAGE_SIZE } },
+        params: {
+          path: { locationId },
+          query: { ...VIEWS[view], q: q || undefined, page, take: PAGE_SIZE, sort: sort?.column, dir: sort?.dir },
+        },
       })
       .then(pageData),
     getLocation(locationId),
@@ -55,7 +61,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
 
   // Colleagues moved Tickets on, and this page is now past the last one.
   if (page > 1 && list.items.length === 0) {
-    redirect(ticketsHref(locationId, { view, q, page: lastPage(list.total, PAGE_SIZE) }));
+    redirect(ticketsHref(locationId, { view, q, sort, page: lastPage(list.total, PAGE_SIZE) }));
   }
 
   const today = calendarDateIn(new Date(), location.timeZone);
@@ -78,7 +84,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           <Tabs
             label={t("viewsLabel")}
             tabs={views.map((name) => ({
-              href: ticketsHref(locationId, { view: name, q }),
+              href: ticketsHref(locationId, { view: name, q, sort }),
               label: t(`views.${name}`),
               count: q ? undefined : viewCounts[name],
               current: name === view,
@@ -86,7 +92,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           />
           {q && (
             <Link
-              href={ticketsHref(locationId, { view })}
+              href={ticketsHref(locationId, { view, sort })}
               className={buttonClass({ variant: "secondary", size: "sm" })}
             >
               {t("clearSearch")}
@@ -95,7 +101,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
         </div>
         {list.items.length > 0 ? (
           <>
-            <ListHeader />
+            <ListHeader sort={sort ?? NEWEST_FIRST} href={(next) => ticketsHref(locationId, { view, q, sort: next })} />
             <ul>
               {list.items.map((ticket) => (
                 <TicketRow
@@ -117,7 +123,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
             action={
               view !== "all" && (
                 <Link
-                  href={ticketsHref(locationId, { view: "all", q })}
+                  href={ticketsHref(locationId, { view: "all", q, sort })}
                   className={buttonClass({ variant: "secondary" })}
                 >
                   {t("searchAll")}
@@ -138,7 +144,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
             page={page}
             pageSize={PAGE_SIZE}
             total={list.total}
-            href={(number) => ticketsHref(locationId, { view, q, page: number })}
+            href={(number) => ticketsHref(locationId, { view, q, sort, page: number })}
             className="mt-auto border-t border-border px-5 py-3 lg:px-7"
           />
         )}

@@ -14,7 +14,7 @@ export function PortalButton({ businessId }: { businessId: string }) {
   return (
     <Button
       variant="secondary"
-      className="w-full"
+      className="w-full bg-surface!"
       pending={pending}
       pendingLabel={t("opening")}
       onClick={() =>

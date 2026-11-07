@@ -43,9 +43,9 @@ export function TrackingPanel({ locationId, ticketId, url, code, qr, qrFirst, re
   return (
     <div className="flex flex-1 flex-col gap-2">
       {qrFirst ? (
-        <div className="mb-2 flex flex-col items-center gap-2">
-          <div className="w-full max-w-44">{qr}</div>
-          <p className="text-center text-p-xs text-muted">{t("qrHint")}</p>
+        <div className="mb-2 flex items-center gap-4">
+          <div className="w-28 shrink-0">{qr}</div>
+          <p className="min-w-0 text-p-sm">{t("qrHint")}</p>
         </div>
       ) : (
         <Button onClick={() => setShowQr(true)} className="mb-2 w-full">
@@ -64,7 +64,7 @@ export function TrackingPanel({ locationId, ticketId, url, code, qr, qrFirst, re
           pending={pending}
           pendingLabel={t("resending")}
           onClick={resend}
-          className="mt-auto w-full"
+          className="mt-2 w-full"
         >
           {t("resend")}
         </Button>

@@ -89,8 +89,8 @@ export function InvitePanel({ businessId, locations }: Props) {
 
   return (
     <>
-      <Button disabled={open.length === 0} onClick={start}>
-        <Icon name="add" className="size-3.5 text-brand" />
+      <Button size="sm" disabled={open.length === 0} onClick={start}>
+        <Icon name="add" className="size-3 text-brand" />
         {tTeam("invite")}
       </Button>
       <Dialog open={inviting} onClose={() => setInviting(false)} title={tTeam("inviteTitle")} variant="panel">

@@ -12,6 +12,8 @@ interface Props {
   // Named for screen readers in every variant, shown as the caption of an image.
   title: string;
   variant?: Variant;
+  // Stays open, while a form inside is waiting on an answer it would otherwise lose.
+  locked?: boolean;
   // The picture over an announcement, or the image an image dialog shows.
   media?: ReactNode;
   children?: ReactNode;
@@ -30,9 +32,12 @@ const frames: Record<Variant, string> = {
 // makes the page behind it inert. ADR 0049 and 0056: a panel over the page
 // dimmed and blurred, with a round close button. A click on the backdrop
 // closes it.
-export function Dialog({ open, onClose, title, variant = "default", media, children }: Props) {
+export function Dialog({ open, onClose, title, variant = "default", locked, media, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const dismiss = () => {
+    if (!locked) onClose();
+  };
 
   useEffect(() => {
     const dialog = ref.current!;
@@ -45,7 +50,13 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
       ref={ref}
       aria-labelledby={titleId}
       onClose={onClose}
-      onClick={(event) => event.target === ref.current && onClose()}
+      // Chrome and Firefox only let a page refuse the first Escape, so closedby
+      // turns it off. Safari doesn't know it, but always asks through cancel.
+      closedby={locked ? "none" : undefined}
+      onCancel={(event) => {
+        if (locked) event.preventDefault();
+      }}
+      onClick={(event) => event.target === ref.current && dismiss()}
       className={`${variant === "panel" ? "my-0 mr-0 ml-auto h-dvh max-h-dvh w-full max-w-none md:max-w-xl" : "m-auto w-[calc(100%-2rem)]"} text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
     >
       {variant === "panel" && (
@@ -54,7 +65,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
             <h2 id={titleId} className="text-title-h6">
               {title}
             </h2>
-            <CloseButton onClose={onClose} />
+            <CloseButton onClose={dismiss} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         </div>
@@ -63,7 +74,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
       {variant === "image" && (
         <figure className="relative">
           {media}
-          <CloseButton onClose={onClose} light className="absolute top-3 right-3" />
+          <CloseButton onClose={dismiss} light className="absolute top-3 right-3" />
           <figcaption id={titleId} className="mt-3 text-center text-label-sm text-surface">
             {title}
           </figcaption>
@@ -74,7 +85,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
         <>
           <div className="relative aspect-video overflow-hidden bg-brand">
             {media}
-            <CloseButton onClose={onClose} light className="absolute top-4 right-4" />
+            <CloseButton onClose={dismiss} light className="absolute top-4 right-4" />
           </div>
           <div className="p-6">
             <h2 id={titleId} className="text-label-xl">
@@ -97,7 +108,7 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
                 {title}
               </h2>
             )}
-            <CloseButton onClose={onClose} />
+            <CloseButton onClose={dismiss} />
           </div>
           {variant === "destructive" && (
             <h2 id={titleId} className="mt-4 text-title-h6">

@@ -4,43 +4,65 @@ import Link from "next/link";
 import { PhoneNumber } from "@/components/phone-number";
 import { StatusPill } from "@/components/status-pill";
 import { Avatar } from "@/components/ui/avatar";
+import { SortHeader } from "@/components/ui/sort-header";
 import type { components } from "@/lib/api/schema";
+import type { Sort } from "@/lib/sort";
 import { statusLabel } from "@/lib/status-label";
 import { NextStep } from "../next-step";
-import { daysBetween, expected, formatDay, waitTone } from "./ticket-views";
+import { daysBetween, expected, formatDay, waitTone, type ListSort, type QueueSort } from "./ticket-views";
 
 type ListTicket = components["schemas"]["TicketListItemDto"];
 type OverviewTicket = components["schemas"]["OverviewTicketDto"];
 
-// The Ticket's title gets the extra width. An address and a long title shorten,
-// the whole value on hover.
-const QUEUE_GRID = "lg:grid-cols-[minmax(13rem,1fr)_minmax(0,1.5fr)_11rem_9.5rem_12.5rem] lg:gap-x-5";
+// In a narrow tile, like Today's on a small laptop, the next step drops its word.
+// A long title shortens, the whole value on hover.
+const QUEUE_GRID =
+  "lg:grid-cols-[minmax(0,1fr)_8.5rem_7rem_3rem] lg:gap-x-4 lg:@3xl:grid-cols-[minmax(0,1fr)_9.5rem_7.5rem_10rem]";
 const LIST_GRID =
   "lg:grid-cols-[4.5rem_minmax(12rem,1fr)_minmax(0,1.3fr)_11rem_9.5rem_5.5rem] lg:gap-x-5 2xl:grid-cols-[4.5rem_minmax(13rem,1fr)_minmax(0,1.5fr)_11rem_9.5rem_6rem_7rem]";
 
-export function QueueHeader() {
+export function QueueHeader({ sort, href }: { sort: Sort<QueueSort> | null; href: (sort: Sort<QueueSort>) => string }) {
   const t = useTranslations("tickets.columns");
+  const header = { sort, href };
   return (
     <div className={`hidden px-7 pb-3 text-p-xs text-muted lg:grid ${QUEUE_GRID}`}>
-      <span>{t("customer")}</span>
-      <span>{t("ticket")}</span>
-      <span>{t("status")}</span>
-      <span>{t("expected")}</span>
-      <span className="text-right">{t("next")}</span>
+      <span>
+        <SortHeader {...header} column="customer" label={t("customer")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="status" label={t("status")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="expected" label={t("expected")} />
+      </span>
+      <span className="text-right lg:max-@3xl:hidden">{t("next")}</span>
     </div>
   );
 }
 
-export function ListHeader() {
+export function ListHeader({ sort, href }: { sort: Sort<ListSort>; href: (sort: Sort<ListSort>) => string }) {
   const t = useTranslations("tickets.columns");
+  const header = { sort, href };
   return (
     <div className={`hidden px-7 pb-3 text-p-xs text-muted lg:grid ${LIST_GRID}`}>
-      <span>#</span>
-      <span>{t("customer")}</span>
-      <span>{t("ticket")}</span>
-      <span>{t("status")}</span>
-      <span>{t("expected")}</span>
-      <span>{t("received")}</span>
+      <span>
+        <SortHeader {...header} column="number" label="#" first="desc" />
+      </span>
+      <span>
+        <SortHeader {...header} column="customer" label={t("customer")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="title" label={t("ticket")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="status" label={t("status")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="expected" label={t("expected")} />
+      </span>
+      <span>
+        <SortHeader {...header} column="received" label={t("received")} first="desc" />
+      </span>
       <span className="hidden 2xl:block">{t("lastUpdate")}</span>
     </div>
   );
@@ -97,7 +119,7 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
 
   return (
     <li
-      className={`group relative grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-t border-border px-5 py-4 transition-colors first:border-t-0 hover:bg-subtle has-focus-visible:bg-subtle lg:min-h-20 lg:items-center lg:px-7 lg:py-3 ${list ? LIST_GRID : QUEUE_GRID}`}
+      className={`group relative grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-t border-border px-5 py-4 transition-colors first:border-t-0 hover:bg-subtle has-focus-visible:bg-subtle lg:items-center lg:px-7 lg:py-3 ${list ? `lg:min-h-20 ${LIST_GRID}` : `lg:min-h-18 ${QUEUE_GRID}`}`}
     >
       <Link
         href={`/locations/${locationId}/tickets/${ticket.id}`}
@@ -109,15 +131,21 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
         <Avatar id={customer.fullName} name={name} src={null} className="lg:size-12! lg:text-base!" />
         <span className="min-w-0">
           <span className="block truncate text-label-md">{name}</span>
-          <span className="block truncate text-p-xs text-muted lg:hidden">{ticket.title}</span>
-          <span title={customer.email ?? undefined} className="hidden truncate text-p-xs text-muted lg:block">
-            {customer.phone ? <PhoneNumber value={customer.phone} /> : (customer.email ?? t("form.noContact"))}
+          <span title={ticket.title} className={`block truncate text-p-xs text-muted ${list ? "lg:hidden" : ""}`}>
+            {ticket.title}
           </span>
+          {list && (
+            <span title={customer.email ?? undefined} className="hidden truncate text-p-xs text-muted lg:block">
+              {customer.phone ? <PhoneNumber value={customer.phone} /> : (customer.email ?? t("form.noContact"))}
+            </span>
+          )}
         </span>
       </div>
-      <span title={ticket.title} className="hidden truncate text-p-sm lg:block">
-        {ticket.title}
-      </span>
+      {list && (
+        <span title={ticket.title} className="hidden truncate text-p-sm lg:block">
+          {ticket.title}
+        </span>
+      )}
       <span className="flex min-w-0">
         <StatusPill code={currentStatus.code} label={statusLabel(currentStatus, locale)} />
       </span>

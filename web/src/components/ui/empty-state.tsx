@@ -16,7 +16,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
-      <Illustration name={illustration} className="mb-5 h-36 w-auto max-w-full" />
+      <Illustration name={illustration} className="mb-6 h-48 w-auto max-w-full md:h-56" />
       <p className="max-w-md text-title-h6 wrap-anywhere">{title}</p>
       <p className="mt-1 max-w-sm text-p-md text-muted">{description}</p>
       {action && <div className="mt-6">{action}</div>}

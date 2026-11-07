@@ -10,7 +10,9 @@ import { ListFeedbackQueryDto } from "./dto/list-feedback.query.dto";
 const DEFAULT_LIST_TAKE = 20;
 
 const FEEDBACK_INCLUDE = {
-  ticket: { select: { id: true, title: true, customer: { select: { id: true, fullName: true } } } },
+  ticket: {
+    select: { id: true, title: true, customer: { select: { id: true, fullName: true, email: true, phone: true } } },
+  },
   handler: { select: { id: true, name: true } },
 } as const;
 
@@ -111,7 +113,12 @@ function toResponse({ ticket, handler, ...feedback }: LoadedFeedback) {
     id: feedback.id.toString(),
     message: feedback.message,
     ticket: { id: ticket.id.toString(), title: ticket.title },
-    customer: { id: ticket.customer.id.toString(), fullName: ticket.customer.fullName },
+    customer: {
+      id: ticket.customer.id.toString(),
+      fullName: ticket.customer.fullName,
+      email: ticket.customer.email,
+      phone: ticket.customer.phone,
+    },
     handledAt: feedback.handledAt,
     handledBy: handler,
     createdAt: feedback.createdAt,

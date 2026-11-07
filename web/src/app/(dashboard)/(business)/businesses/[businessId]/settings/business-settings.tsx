@@ -2,32 +2,133 @@
 
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import { useRef, useState, useTransition, type FormEvent } from "react";
-import { SettingRow } from "@/app/(dashboard)/locations/[locationId]/settings/section-form";
+import { useState, useTransition, type FormEvent } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
-import { removeLogo, renameBusiness, setLogo, transferOwnership } from "./actions";
+import { removeImage, renameBusiness, setImage, transferOwnership } from "./actions";
 
 interface Business {
   id: string;
   name: string;
   logoUrl: string | null;
+  bannerUrl: string | null;
+}
+
+type ImageKind = "logo" | "banner";
+
+function useImage(businessId: string) {
+  const t = useTranslations("business.settings");
+  const toast = useToast();
+  const [pending, startTransition] = useTransition();
+
+  function run(kind: ImageKind, action: () => Promise<{ ok: boolean }>) {
+    startTransition(async () => {
+      const result = await orFailure(action());
+      toast(result.ok ? { message: t(`${kind}Saved`) } : { tone: "error", message: t(`${kind}Failed`) });
+    });
+  }
+  return {
+    pending,
+    upload: (kind: ImageKind, chosen: File) => {
+      const body = new FormData();
+      body.set("file", chosen);
+      run(kind, () => setImage(businessId, kind, body));
+    },
+    remove: (kind: ImageKind) => run(kind, () => removeImage(businessId, kind)),
+  };
+}
+
+// A hidden file field and what opens it, either the drawn button or a round one.
+function ImageInput({ label, onChosen }: { label: string; onChosen: (file: File) => void }) {
+  return (
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      aria-label={label}
+      className="absolute inset-0 cursor-pointer opacity-0"
+      onChange={(event) => {
+        const chosen = event.target.files?.[0];
+        event.target.value = "";
+        if (chosen) onChosen(chosen);
+      }}
+    />
+  );
+}
+
+// ADR 0109: the picture and the logo as Customers meet them, each changed where
+// it stands, as on a profile.
+function Identity({ business }: { business: Business }) {
+  const t = useTranslations("business.settings");
+  const { pending, upload, remove } = useImage(business.id);
+  const pill =
+    "relative flex h-10 items-center gap-2 overflow-clip rounded-full bg-surface px-3.5 text-label-xs font-semibold text-ink transition-colors hover:bg-subtle";
+  return (
+    <div aria-busy={pending}>
+      <div className="relative aspect-[3/1] overflow-clip rounded-t-[inherit] bg-pine">
+        {business.bannerUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={business.bannerUrl} alt="" className="absolute inset-0 size-full object-cover" />
+        )}
+        <div className="absolute top-3 right-3 flex gap-2">
+          {business.bannerUrl && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => remove("banner")}
+              className={`${pill} cursor-pointer`}
+            >
+              {t("logoRemove")}
+            </button>
+          )}
+          <label className={`${pill} cursor-pointer`}>
+            <Icon name="camera" className="size-3.5" />
+            {t(business.bannerUrl ? "bannerChange" : "bannerAdd")}
+            <ImageInput label={t("banner")} onChosen={(file) => upload("banner", file)} />
+          </label>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-2 px-6 lg:px-8">
+        <label className="group relative -mt-12 block cursor-pointer rounded-2xl ring-4 ring-surface">
+          <Avatar
+            id={business.id}
+            name={business.name}
+            src={business.logoUrl}
+            shape="square"
+            size="xl"
+            className="size-24! text-3xl!"
+          />
+          <span className="absolute -right-1.5 -bottom-1.5 flex size-9 items-center justify-center rounded-full bg-pine text-brand ring-4 ring-surface transition-colors group-hover:bg-pine-hover">
+            <Icon name="camera" className="size-3.5" />
+          </span>
+          <ImageInput label={t("logo")} onChosen={(file) => upload("logo", file)} />
+        </label>
+        <div className="min-w-0 flex-1 pt-3">
+          <p className="text-label-md">{t("imagesTitle")}</p>
+          <p className="text-p-xs text-muted">{t("imagesHint")}</p>
+        </div>
+        {business.logoUrl && (
+          <Button variant="link" disabled={pending} onClick={() => remove("logo")}>
+            {t("logoRemoveLong")}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function Details({ business }: { business: Business }) {
   const t = useTranslations("business.settings");
   const tDetail = useTranslations("ticketDetail");
   const toast = useToast();
-  const file = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(business.name);
   const [saving, startSaving] = useTransition();
-  const [changingLogo, startChangingLogo] = useTransition();
   const trimmed = name.trim();
 
   function save(event: FormEvent<HTMLFormElement>) {
@@ -38,72 +139,24 @@ function Details({ business }: { business: Business }) {
     });
   }
 
-  function logo(action: () => Promise<{ ok: boolean }>) {
-    startChangingLogo(async () => {
-      const result = await orFailure(action());
-      toast(result.ok ? { message: t("logoSaved") } : { tone: "error", message: t("logoFailed") });
-    });
-  }
-
-  function upload(chosen: File) {
-    const body = new FormData();
-    body.set("file", chosen);
-    logo(() => setLogo(business.id, body));
-  }
-
   return (
-    <>
-      <SettingRow label={t("name")}>
-        <form onSubmit={save} className="flex items-start gap-3">
-          <Field
-            className="min-w-0 flex-1"
-            label={t("name")}
-            hideLabel
-            maxLength={NAME_MAX_LENGTH}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <Button
-            type="submit"
-            disabled={!trimmed || trimmed === business.name}
-            pending={saving}
-            pendingLabel={tDetail("saving")}
-          >
-            {tDetail("save")}
-          </Button>
-        </form>
-      </SettingRow>
-      <SettingRow label={t("logo")} hint={t("logoHint")}>
-        <div className="flex flex-wrap items-center gap-4">
-          <Avatar id={business.id} name={business.name} src={business.logoUrl} shape="square" size="lg" />
-          <input
-            ref={file}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            aria-label={t("logo")}
-            className="sr-only"
-            onChange={(event) => {
-              const chosen = event.target.files?.[0];
-              event.target.value = "";
-              if (chosen) upload(chosen);
-            }}
-          />
-          <Button
-            variant="secondary"
-            pending={changingLogo}
-            pendingLabel={tDetail("saving")}
-            onClick={() => file.current!.click()}
-          >
-            {t(business.logoUrl ? "logoChange" : "logoAdd")}
-          </Button>
-          {business.logoUrl && (
-            <Button variant="link" disabled={changingLogo} onClick={() => logo(() => removeLogo(business.id))}>
-              {t("logoRemove")}
-            </Button>
-          )}
-        </div>
-      </SettingRow>
-    </>
+    <form onSubmit={save} className="flex items-end gap-3">
+      <Field
+        className="min-w-0 flex-1"
+        label={t("name")}
+        maxLength={NAME_MAX_LENGTH}
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+      />
+      <Button
+        type="submit"
+        disabled={!trimmed || trimmed === business.name}
+        pending={saving}
+        pendingLabel={tDetail("saving")}
+      >
+        {tDetail("save")}
+      </Button>
+    </form>
   );
 }
 
@@ -176,11 +229,14 @@ export function BusinessSettings({
   admins: { id: string; name: string; email: string }[];
 }) {
   return (
-    <Panel as="section" padding="lg" className="max-w-3xl lg:p-8">
-      {/* Keyed, so a saved name becomes the field's new starting point. */}
-      <Details key={business.name} business={business} />
-      {/* Nobody can take over without an Admin, so nothing to offer until then. */}
-      {admins.length > 0 && <Ownership business={business} admins={admins} />}
+    <Panel as="section" padding="none" className="max-w-3xl">
+      <Identity business={business} />
+      <div className="p-6 lg:p-8">
+        {/* Keyed, so a saved name becomes the field's new starting point. */}
+        <Details key={business.name} business={business} />
+        {/* Nobody can take over without an Admin, so nothing to offer until then. */}
+        {admins.length > 0 && <Ownership business={business} admins={admins} />}
+      </div>
     </Panel>
   );
 }

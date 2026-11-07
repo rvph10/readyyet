@@ -31,7 +31,7 @@ export function controlClass(error: string | null | undefined) {
   return `w-full rounded-xl border bg-surface text-label-md text-ink transition placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-subtle disabled:text-muted ${
     error
       ? "border-danger focus:ring-3 focus:ring-danger/15"
-      : "border-border hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-border"
+      : "border-input hover:border-muted focus:border-ink focus:ring-3 focus:ring-ink/10 disabled:hover:border-input"
   }`;
 }
 
@@ -70,7 +70,7 @@ export function FieldFrame({
           // end of its first line, the control leaving room for it.
           <button
             type="button"
-            className="group absolute top-0.5 right-0.5 flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
+            className="absolute top-0.5 right-0.5 flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:text-ink focus-visible:text-ink"
           >
             <span
               aria-hidden="true"
@@ -78,9 +78,10 @@ export function FieldFrame({
             >
               ?
             </span>
-            <Tooltip wide end>
-              <span id={`${id}-hint`}>{hint}</span>
-            </Tooltip>
+            <Tooltip wide>{hint}</Tooltip>
+            <span id={`${id}-hint`} hidden>
+              {hint}
+            </span>
           </button>
         )}
       </div>

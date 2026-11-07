@@ -42,7 +42,7 @@ export function SearchField({ label, value, onChange, className, ...props }: Pro
             clear();
           }
         }}
-        className="h-11 w-full rounded-full border border-border bg-surface pr-10 pl-10 text-label-sm text-ink transition placeholder:text-muted hover:border-border-strong focus:border-ink focus:ring-3 focus:ring-ink/10 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+        className="h-11 w-full rounded-full border border-input bg-surface pr-10 pl-10 text-label-sm text-ink transition placeholder:text-muted hover:border-muted focus:border-ink focus:ring-3 focus:ring-ink/10 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
       />
       {value && (
         <button

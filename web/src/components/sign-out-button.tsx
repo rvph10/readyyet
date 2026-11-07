@@ -40,7 +40,7 @@ export function SignOutButton({ labelled = false, row = false }: { labelled?: bo
     );
   }
   return (
-    <Button variant="danger-secondary" size="icon" onClick={() => void signOut()} className="group relative">
+    <Button variant="danger-secondary" size="icon" onClick={() => void signOut()}>
       <Icon name="sign-out" className="size-4 -scale-x-100" />
       <Tooltip>{t("signOut")}</Tooltip>
     </Button>

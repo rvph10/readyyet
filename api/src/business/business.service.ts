@@ -25,15 +25,19 @@ const businessSelect = {
   ownerId: true,
   referralCode: true,
   logoKey: true,
+  bannerKey: true,
   createdAt: true,
   updatedAt: true,
 } as const;
 
+type ImageColumn = "logoKey" | "bannerKey";
+
 function toBusinessResponse<T extends Prisma.BusinessGetPayload<{ select: typeof businessSelect }>>({
   logoKey,
+  bannerKey,
   ...business
 }: T) {
-  return { ...business, logoUrl: publicImageUrl(logoKey) };
+  return { ...business, logoUrl: publicImageUrl(logoKey), bannerUrl: publicImageUrl(bannerKey) };
 }
 
 @Injectable()
@@ -102,30 +106,45 @@ export class BusinessService {
   // (ADR 0051).
   async setLogo(businessId: string, userId: string, file: Buffer) {
     await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
-    const image = await processImage(file, "logo");
+    return this.storeImage(businessId, "logoKey", file, "logo");
+  }
+
+  async removeLogo(businessId: string, userId: string) {
+    await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
+    return this.replaceImage(businessId, "logoKey", null);
+  }
+
+  async setBanner(businessId: string, userId: string, file: Buffer) {
+    await this.loadOwned(businessId, userId, "Only the business owner can change its banner");
+    return this.storeImage(businessId, "bannerKey", file, "banner");
+  }
+
+  async removeBanner(businessId: string, userId: string) {
+    await this.loadOwned(businessId, userId, "Only the business owner can change its banner");
+    return this.replaceImage(businessId, "bannerKey", null);
+  }
+
+  private async storeImage(businessId: string, column: ImageColumn, file: Buffer, kind: "logo" | "banner") {
+    const image = await processImage(file, kind);
     await this.storage.put(image.key, image.body, image.contentType);
     try {
-      return await this.replaceLogo(businessId, image.key);
+      return await this.replaceImage(businessId, column, image.key);
     } catch (error) {
       await this.storage.delete([image.key]);
       throw error;
     }
   }
 
-  async removeLogo(businessId: string, userId: string) {
-    await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
-    return this.replaceLogo(businessId, null);
-  }
-
   // The row first, the previous object after (ADR 0026).
-  private async replaceLogo(businessId: string, logoKey: string | null) {
-    const { logoKey: previous } = await this.prisma.business.findUniqueOrThrow({
+  private async replaceImage(businessId: string, column: ImageColumn, key: string | null) {
+    const images = await this.prisma.business.findUniqueOrThrow({
       where: { id: businessId },
-      select: { logoKey: true },
+      select: { logoKey: true, bannerKey: true },
     });
+    const previous = images[column];
     const business = await this.prisma.business.update({
       where: { id: businessId },
-      data: { logoKey },
+      data: { [column]: key },
       select: businessSelect,
     });
     if (previous) {

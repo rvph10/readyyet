@@ -40,6 +40,11 @@ export default async function TrackingPage({ params }: PageProps<"/t/[code]">) {
   return (
     <TrackingGrid>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
+      {location.bannerUrl && (
+        // Whole, at 3:1 (ADR 0109). On a computer it's in the shop's tile instead.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={location.bannerUrl} alt="" className="aspect-[3/1] w-full rounded-sheet object-cover lg:hidden" />
+      )}
       <header className="flex items-center gap-3 px-1">
         <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="lg" />
         <p className="min-w-0 text-label-md text-balance wrap-anywhere">{location.name}</p>

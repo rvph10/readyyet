@@ -101,9 +101,22 @@ export function StatusPanel({
               </span>
             )}
           </div>
-          <p className="mt-1 text-p-sm text-muted">{since}</p>
+          {/* Two lines kept for the longest of these, so nothing under it moves. */}
+          <p className="mt-1 min-h-11 max-w-md text-p-sm text-muted">
+            {canUndo ? t("undoHint") : ended ? t(others.length > 0 ? "endedNote" : "endedForEmployee") : since}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {canUndo && (
+            <Button
+              variant="secondary"
+              disabled={pending}
+              pending={pending && running === "undo"}
+              onClick={() => run("undo", () => undoStatus(locationId, ticketId))}
+            >
+              {t("undo")}
+            </Button>
+          )}
           {next && (
             <Button
               disabled={pending}
@@ -144,7 +157,7 @@ export function StatusPanel({
         </div>
       )}
 
-      <div className="mt-7 lg:mt-9">{track}</div>
+      <div className="mt-5 lg:mt-6">{track}</div>
 
       {collectedAt && (
         <div className="mt-5 flex flex-wrap items-center gap-3 rounded-2xl bg-warning-subtle p-3">
@@ -160,23 +173,6 @@ export function StatusPanel({
           </Button>
         </div>
       )}
-
-      <div className="mt-4 flex min-h-24 flex-wrap items-start justify-between gap-x-4 gap-y-2 sm:min-h-12 sm:items-center lg:mt-6">
-        <p className="min-w-0 flex-1 text-p-sm text-muted">
-          {canUndo ? t("undoHint") : ended ? t(others.length > 0 ? "endedNote" : "endedForEmployee") : null}
-        </p>
-        {canUndo && (
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={pending}
-            pending={pending && running === "undo"}
-            onClick={() => run("undo", () => undoStatus(locationId, ticketId))}
-          >
-            {t("undo")}
-          </Button>
-        )}
-      </div>
 
       <Dialog
         open={stopping !== null}
