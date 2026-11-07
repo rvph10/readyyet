@@ -879,7 +879,7 @@
     "reviewPreviewTitle": "Ce que reçoivent vos clients",
     "reviewPreviewAsk": "Comment ça s'est passé ?",
     "reviewPreviewHappy": "Les clients satisfaits sont envoyés vers votre page Google.",
-    "reviewPreviewUnhappy": "Les autres vous écrivent en privé, dans Feedback.",
+    "reviewPreviewUnhappy": "Les autres vous écrivent en privé, dans Retours.",
     "deleteLosesTitle": "Ce qui arrive à {name}",
     "deleteLoses": {
       "tracking": "Les liens de suivi cessent de fonctionner",
