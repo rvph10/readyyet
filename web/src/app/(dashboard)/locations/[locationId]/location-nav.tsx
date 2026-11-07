@@ -32,13 +32,14 @@ function useSectionHref(locationId: string) {
   return ({ slug }: Section) => `/locations/${locationId}${slug ? `/${slug}` : ""}`;
 }
 
-// ADR 0103: with several Locations an Owner has these on the Business. With one
-// they stay here, or every single shop would pay a step for what chains need.
+// ADR 0103: with several Locations an Owner pays on the Business. With one it
+// stays here, or every single shop would pay a step for what chains need. Team
+// is always here, as people belong to a shop (ADR 0108).
 function managerSections({ memberships, current }: Pick<Props, "memberships" | "current">) {
   const { business } = current.location;
   const chain =
     current.role === "OWNER" && memberships.filter(({ location }) => location.business.id === business.id).length > 1;
-  return SECTIONS.filter(({ managers, key }) => managers && !(chain && (key === "team" || key === "billing")));
+  return SECTIONS.filter(({ managers, key }) => managers && !(chain && key === "billing"));
 }
 
 function isCurrent(pathname: string, href: string, slug: string) {
