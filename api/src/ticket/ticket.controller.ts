@@ -9,7 +9,13 @@ import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { ListTicketsQueryDto } from "./dto/list-tickets.query.dto";
-import { TicketDetailDto, TicketDto, TicketPageDto, TrackingLinkSentDto } from "./dto/ticket.response.dto";
+import {
+  TicketDetailDto,
+  TicketDto,
+  TicketOverviewDto,
+  TicketPageDto,
+  TrackingLinkSentDto,
+} from "./dto/ticket.response.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
 import { TicketService } from "./ticket.service";
@@ -41,6 +47,14 @@ export class TicketController {
   @ApiErrors(HttpStatus.BAD_REQUEST)
   list(@Param("locationId") locationId: string, @Query() query: ListTicketsQueryDto): Promise<TicketPageDto> {
     return this.ticket.list(locationId, query);
+  }
+
+  @Get("overview")
+  // Read on every page of a Location, for the navigation's counts.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
+  @ApiOperation({ summary: "A Location's counts, open Tickets by urgency and the week's handovers (ADR 0088)" })
+  overview(@Param("locationId") locationId: string): Promise<TicketOverviewDto> {
+    return this.ticket.overview(locationId);
   }
 
   @Get(":ticketId")

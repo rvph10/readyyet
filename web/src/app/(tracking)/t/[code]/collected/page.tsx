@@ -31,7 +31,7 @@ export default async function CollectedPage({ params }: PageProps<"/t/[code]/col
 
   return (
     <LocationCard location={tracking.location}>
-      <h1 className="font-display text-label-xl text-balance md:text-title-h4">{t("collectedTitle")}</h1>
+      <h1 className="text-label-xl text-balance md:text-title-h4">{t("collectedTitle")}</h1>
       <p className="mt-1 text-p-sm wrap-anywhere text-muted">{tracking.title}</p>
       <p className="mt-4 text-p-md">{t("collectedText")}</p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

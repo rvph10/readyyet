@@ -15,6 +15,7 @@ interface Props {
   locationId: string;
   ticketId: string;
   url: string;
+  code: string;
   // Drawn on the server, shown large or behind a button.
   qr: ReactNode;
   // The Customer has no working email, so the code is how they follow along.
@@ -23,7 +24,7 @@ interface Props {
   resendTo: string | null;
 }
 
-export function TrackingPanel({ locationId, ticketId, url, qr, qrFirst, resendTo }: Props) {
+export function TrackingPanel({ locationId, ticketId, url, code, qr, qrFirst, resendTo }: Props) {
   const t = useTranslations("ticketDetail");
   const toast = useToast();
   const [showQr, setShowQr] = useState(false);
@@ -40,35 +41,33 @@ export function TrackingPanel({ locationId, ticketId, url, qr, qrFirst, resendTo
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {qrFirst && (
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-full max-w-64">{qr}</div>
-          <p className="text-center text-p-sm text-muted">{t("qrHint")}</p>
+    <div className="flex flex-1 flex-col gap-2">
+      {qrFirst ? (
+        <div className="mb-2 flex flex-col items-center gap-2">
+          <div className="w-full max-w-44">{qr}</div>
+          <p className="text-center text-p-xs text-muted">{t("qrHint")}</p>
         </div>
+      ) : (
+        <Button onClick={() => setShowQr(true)} className="mb-2 w-full">
+          <Icon name="qrcode" className="size-3.5 text-brand" />
+          {t("showQr")}
+        </Button>
       )}
-      <CopyField label={t("trackingLink")} value={url} />
+      <CopyField label={t("trackingLink")} value={url} shown={url.replace(/^https?:\/\//, "")} />
+      <CopyField label={t("trackingCode")} value={code} mono />
       {failed && <FormAlert>{t(`resendErrors.${failed}`)}</FormAlert>}
-      {(!qrFirst || resendTo) && (
-        <div className="flex flex-col gap-3">
-          {!qrFirst && (
-            <Button variant="secondary" onClick={() => setShowQr(true)}>
-              <Icon name="qrcode" className="size-3.5" />
-              {t("showQr")}
-            </Button>
-          )}
-          {resendTo && (
-            <Button
-              variant="secondary"
-              disabled={pending}
-              pending={pending}
-              pendingLabel={t("resending")}
-              onClick={resend}
-            >
-              {t("resend")}
-            </Button>
-          )}
-        </div>
+      {resendTo && (
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={pending}
+          pending={pending}
+          pendingLabel={t("resending")}
+          onClick={resend}
+          className="mt-auto w-full"
+        >
+          {t("resend")}
+        </Button>
       )}
       <Dialog open={showQr} onClose={() => setShowQr(false)} title={t("qrTitle")}>
         <div className="mx-auto mt-2 max-w-72">{qr}</div>

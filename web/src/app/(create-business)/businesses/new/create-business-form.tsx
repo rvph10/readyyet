@@ -3,7 +3,7 @@
 import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
-import { isSupportedCountry, type Country } from "react-phone-number-input";
+import type { Country } from "react-phone-number-input";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
@@ -13,6 +13,7 @@ import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
+import { browserCountry, browserTimeZone, FALLBACK_COUNTRY } from "@/lib/browser-region";
 import { fieldErrors } from "@/lib/validation";
 import { createBusiness } from "./actions";
 import type { WorkflowStep } from "@/components/workflow-steps";
@@ -20,30 +21,8 @@ import { PhoneField } from "@/components/phone-field";
 import { businessStep, locationStep } from "./schema";
 import { FitToHeight, TicketPreview } from "./ticket-preview";
 
-// The time zone says where the shop is better than the browser's language,
-// which is often English in Belgium. Only the countries ReadyYet sells in.
-const COUNTRY_BY_TIME_ZONE: Record<string, Country> = {
-  "Europe/Brussels": "BE",
-  "Europe/Paris": "FR",
-  "Europe/Luxembourg": "LU",
-  "Europe/Amsterdam": "NL",
-};
-const FALLBACK_COUNTRY = "BE";
-const FALLBACK_TIME_ZONE = "Europe/Brussels";
 const STEP_ONE_FIELDS = ["name", "location.businessTypeCode", "location.businessTypeDetail"];
 const SHOWN_FIELDS = [...STEP_ONE_FIELDS, "location.name", "location.contactPhone", "location.contactEmail"];
-
-function browserCountry(timeZone: string): Country {
-  const region = new Intl.Locale(navigator.language).region;
-  return COUNTRY_BY_TIME_ZONE[timeZone] ?? (region && isSupportedCountry(region) ? region : FALLBACK_COUNTRY);
-}
-
-// The API takes a region's zone only, never UTC, which Linux machines and
-// anti-fingerprinting browsers report.
-function browserTimeZone() {
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return timeZone === "UTC" || timeZone.startsWith("Etc/") ? FALLBACK_TIME_ZONE : timeZone;
-}
 
 interface Props {
   // The logo and who's signed in, over the form.
@@ -276,7 +255,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
           {/* Both steps take the first's height at least, so their buttons
               stay in the same place from one to the other. */}
           <div className="mx-auto flex w-full max-w-md flex-col lg:min-h-152">
-            <h1 className="mb-6 font-display text-title-h4">{t("title")}</h1>
+            <h1 className="mb-6 text-title-h4">{t("title")}</h1>
             {form}
           </div>
         </main>

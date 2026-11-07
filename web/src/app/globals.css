@@ -1,32 +1,43 @@
 @import "tailwindcss";
 
-/* The palette of ADR 0052, by role, built around the grey canvas. */
+/* The palette of ADR 0087, by role. Lime is the one colour that never changes. */
+/* The sidebar stays put only when it fits the window, otherwise it scrolls
+   with the page: a pane of its own would need its own scrollbar. */
+@custom-variant tall (@media (min-height: 740px));
+@custom-variant roomy (@media (min-height: 860px));
+
 @theme {
-  --color-canvas: #ebecea;
+  --color-canvas: #eef0ec;
   --color-surface: #ffffff;
   /* Between surface and canvas, so it reads as a fill on a white panel. */
-  --color-subtle: #f5f6f4;
-  --color-border: #dcdedb;
+  --color-subtle: #f3f5f1;
+  --color-border: rgb(21 33 29 / 0.09);
   /* Outlines of controls on hover (ADR 0049). */
-  --color-border-strong: #a8ada7;
-  --color-ink: #091315;
-  --color-muted: #56605d;
+  --color-border-strong: rgb(21 33 29 / 0.2);
+  --color-ink: #15211d;
+  --color-muted: #4a5852;
   /* 1.15:1 on white: a fill under ink text, never text itself. */
   --color-brand: #d6ff53;
   --color-brand-hover: #bfe632;
   --color-brand-text: #4b6a00;
+  /* Actions and the current page. Lime reads on it (9.7:1), never on white. */
+  --color-pine: #17423a;
+  --color-pine-hover: #0f332c;
+  --color-pine-subtle: #e2eee9;
 
   /* ADR 0063: the only other colours, each a strong one for text, icons and
      outlines and a subtle one to fill behind it. Red for errors and what
      can't be undone, green and blue for a toast's success and info. */
-  --color-danger: #c10007;
-  --color-danger-hover: #9f0712;
-  --color-danger-active: #82181a;
-  --color-danger-subtle: #fef2f2;
+  --color-danger: #b3261e;
+  --color-danger-hover: #8f1d17;
+  --color-danger-active: #761812;
+  --color-danger-subtle: #fdeeec;
   --color-success: #007a55;
   --color-success-subtle: #ecfdf5;
-  --color-info: #1447e6;
-  --color-info-subtle: #eff6ff;
+  --color-info: #2357b5;
+  --color-info-subtle: #eaf0fb;
+  --color-warning: #8a5600;
+  --color-warning-subtle: #fdf3dc;
 
   /* ADR 0061: the Status tones, as the dot on a white pill and the current
      workflow step. Only READY is a fill, in the brand lime. */
@@ -35,12 +46,43 @@
   --color-status-waiting: #f08a00;
   --color-status-stopped: #f0406e;
 
-  /* ADR 0049: panels barely lift off the canvas, menus float. Tinted toward
-     ink, Tailwind's pure black shadows look grey on the green-grey neutrals. */
-  --shadow-panel: 0 0 20px rgb(9 19 21 / 0.03);
-  --shadow-float: 0 1px 2px rgb(9 19 21 / 0.06), 0 4px 12px rgb(9 19 21 / 0.08);
+  /* ADR 0087: no shadows, surfaces separate by a border or a fill. */
+  --radius-card: 1.25rem;
+  --radius-sheet: 1.75rem;
 
-  --default-transition-duration: 200ms;
+  --default-transition-duration: 150ms;
+
+  /* ADR 0087: the current step of a Workflow breathes in a loop, and a pulse
+     leaves it toward the next step. */
+  --animate-now-ring: now-ring 2s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+  --animate-now-flow: now-flow 2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+  --animate-now-flow-y: now-flow-y 2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+  @keyframes now-ring {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(1.85);
+      opacity: 0;
+    }
+  }
+  @keyframes now-flow {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+  @keyframes now-flow-y {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(250%);
+    }
+  }
 
   /* ADR 0064: a toast's icon says its tone in motion. Its badge pops in,
      then success rings outward, an error shakes and info nods. Each runs
@@ -101,58 +143,55 @@
     }
   }
 
-  /* The type scale of ADR 0049. */
+  /* The type scale of ADR 0087: nothing under 14px, and titles that lead. */
   --text-title-h1: 4rem;
   --text-title-h1--line-height: 1.09;
-  --text-title-h1--letter-spacing: -0.01em;
+  --text-title-h1--letter-spacing: -0.025em;
   --text-title-h1--font-weight: 700;
   --text-title-h3: 2.5rem;
   --text-title-h3--line-height: 1.2;
-  --text-title-h3--letter-spacing: -0.01em;
-  --text-title-h3--font-weight: 500;
+  --text-title-h3--letter-spacing: -0.025em;
+  --text-title-h3--font-weight: 700;
   --text-title-h4: 2rem;
   --text-title-h4--line-height: 1.25;
-  --text-title-h4--letter-spacing: -0.01em;
-  --text-title-h4--font-weight: 500;
+  --text-title-h4--letter-spacing: -0.022em;
+  --text-title-h4--font-weight: 700;
   --text-title-h5: 1.75rem;
-  --text-title-h5--line-height: 1.5;
+  --text-title-h5--line-height: 1.28;
+  --text-title-h5--letter-spacing: -0.02em;
   --text-title-h5--font-weight: 700;
   --text-title-h6: 1.25rem;
-  --text-title-h6--line-height: 1.5;
-  --text-title-h6--font-weight: 500;
+  --text-title-h6--line-height: 1.4;
+  --text-title-h6--letter-spacing: -0.012em;
+  --text-title-h6--font-weight: 700;
   --text-label-xl: 1.5rem;
   --text-label-xl--line-height: 1.33;
   --text-label-xl--letter-spacing: -0.015em;
-  --text-label-xl--font-weight: 500;
+  --text-label-xl--font-weight: 700;
   --text-label-lg: 1.125rem;
   --text-label-lg--line-height: 1.5;
-  --text-label-lg--letter-spacing: -0.015em;
-  --text-label-lg--font-weight: 500;
+  --text-label-lg--letter-spacing: -0.012em;
+  --text-label-lg--font-weight: 700;
   --text-label-md: 1rem;
   --text-label-md--line-height: 1.5;
-  --text-label-md--letter-spacing: -0.011em;
-  --text-label-md--font-weight: 500;
-  --text-label-sm: 0.875rem;
-  --text-label-sm--line-height: 1.43;
-  --text-label-sm--letter-spacing: -0.006em;
-  --text-label-sm--font-weight: 500;
-  --text-label-xs: 0.75rem;
-  --text-label-xs--line-height: 1.33;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 0.9375rem;
+  --text-label-sm--line-height: 1.47;
+  --text-label-sm--font-weight: 600;
+  --text-label-xs: 0.875rem;
+  --text-label-xs--line-height: 1.43;
   --text-label-xs--font-weight: 500;
   --text-p-lg: 1.125rem;
-  --text-p-lg--line-height: 1.33;
-  --text-p-lg--letter-spacing: -0.015em;
+  --text-p-lg--line-height: 1.55;
   --text-p-lg--font-weight: 400;
   --text-p-md: 1rem;
   --text-p-md--line-height: 1.5;
-  --text-p-md--letter-spacing: -0.011em;
   --text-p-md--font-weight: 400;
-  --text-p-sm: 0.875rem;
-  --text-p-sm--line-height: 1.5;
-  --text-p-sm--letter-spacing: -0.006em;
+  --text-p-sm: 0.9375rem;
+  --text-p-sm--line-height: 1.47;
   --text-p-sm--font-weight: 400;
-  --text-p-xs: 0.75rem;
-  --text-p-xs--line-height: 1.33;
+  --text-p-xs: 0.875rem;
+  --text-p-xs--line-height: 1.43;
   --text-p-xs--font-weight: 400;
 
   /* Fills a circle drawn with pathLength="100", from empty to full. */
@@ -186,9 +225,40 @@
     }
   }
 
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(127 127 127 / 0.35) transparent;
+  }
+
+  body {
+    font-synthesis: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
+  }
+
+  /* ADR 0087: inside the item, so no container can clip the ring, and lime
+     where the item itself is pine. */
+  aside a:focus-visible,
+  aside button:focus-visible {
+    outline-offset: -2px;
+  }
+  aside [aria-current="page"]:focus-visible,
+  .on-pine :focus-visible {
+    outline-color: var(--color-brand);
   }
 }
 
@@ -213,7 +283,7 @@
        side has more room, so a field in the lower half opened upward even
        with space below. normal tries below first and flips only if it must. */
     .select-field::picker(select) {
-      @apply my-1.5 rounded-xl border border-border bg-surface p-1 shadow-float;
+      @apply my-1.5 rounded-xl border border-border-strong bg-surface p-1;
       position-try-order: normal;
     }
     .select-field option {
@@ -268,13 +338,44 @@
   /* ADR 0059: a Menu under its trigger, right edges lined up since triggers
      sit at the end of a row, flipped above or leftward when it would leave
      the screen. The popover's own centring is undone first. */
-  /* Under the location switcher, as wide as it, whatever a name's length. */
-  .switcher-popover {
+  /* The sidebar's two rows open their panels over the page: the Location's
+     downward, the User's upward. */
+  .switcher-popover,
+  .user-popover {
     inset: auto;
     margin: 0.375rem 0;
-    position-area: bottom span-right;
-    width: anchor-size(width);
+    width: min(20rem, calc(100vw - 2rem));
     position-try-fallbacks: flip-block;
+  }
+  .switcher-popover {
+    position-area: bottom span-right;
+  }
+  .user-popover {
+    position-area: top span-right;
+  }
+
+  /* ADR 0089: a calendar under its field, which fits a phone and flips where
+     there's no room, beside it in a window too short for either. A phone has no
+     room beside it, so there it sits in the middle of the screen. */
+  .date-popover {
+    inset: auto;
+    margin: 0.375rem;
+    width: min(20rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      left span-all;
+  }
+  @media (width < 48rem) {
+    .date-popover {
+      inset: 0;
+      margin: auto;
+      height: fit-content;
+      position-area: none;
+      position-try-fallbacks: none;
+    }
   }
 
   .menu-popover {
@@ -289,8 +390,128 @@
 }
 
 /* inline, so the utilities use next/font's variables, set on <html>. */
+/* ADR 0106: a page whose lists scroll inside their tiles, so it never scrolls
+   itself: the window less the top bar and the page's padding. Not on a phone
+   or a tablet, where tiles stack and the page has to scroll. */
+@utility fit-screen {
+  @media (width >= 64rem) {
+    height: calc(100dvh - 6.5rem);
+    min-height: 30rem;
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-figtree);
-  --font-display: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+}
+
+/* ADR 0094: paper falling once behind the trophy. The pieces differ by
+   position, not inline style, which the Content-Security-Policy refuses. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.confetti span {
+  position: absolute;
+  top: -12%;
+  width: 0.5rem;
+  height: 0.875rem;
+  border-radius: 0.125rem;
+  background: var(--color-brand);
+  animation: confetti-fall 2.4s cubic-bezier(0.3, 0.5, 0.5, 1) both;
+}
+.confetti span:nth-child(3n) {
+  background: var(--color-surface);
+}
+.confetti span:nth-child(4n) {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-pine-subtle);
+}
+.confetti span:nth-child(1) {
+  left: 4%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(2) {
+  left: 10%;
+  animation-delay: 0.35s;
+}
+.confetti span:nth-child(3) {
+  left: 17%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(4) {
+  left: 23%;
+  animation-delay: 0.5s;
+}
+.confetti span:nth-child(5) {
+  left: 29%;
+  animation-delay: 0.2s;
+}
+.confetti span:nth-child(6) {
+  left: 35%;
+  animation-delay: 0.65s;
+}
+.confetti span:nth-child(7) {
+  left: 41%;
+  animation-delay: 0.05s;
+}
+.confetti span:nth-child(8) {
+  left: 47%;
+  animation-delay: 0.4s;
+}
+.confetti span:nth-child(9) {
+  left: 53%;
+  animation-delay: 0.15s;
+}
+.confetti span:nth-child(10) {
+  left: 59%;
+  animation-delay: 0.55s;
+}
+.confetti span:nth-child(11) {
+  left: 65%;
+  animation-delay: 0.25s;
+}
+.confetti span:nth-child(12) {
+  left: 71%;
+  animation-delay: 0.7s;
+}
+.confetti span:nth-child(13) {
+  left: 77%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(14) {
+  left: 83%;
+  animation-delay: 0.45s;
+}
+.confetti span:nth-child(15) {
+  left: 89%;
+  animation-delay: 0.3s;
+}
+.confetti span:nth-child(16) {
+  left: 95%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(17) {
+  left: 14%;
+  animation-delay: 0.8s;
+}
+.confetti span:nth-child(18) {
+  left: 74%;
+  animation-delay: 0.9s;
+}
+@keyframes confetti-fall {
+  from {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(26rem) rotate(540deg);
+    opacity: 0;
+  }
 }

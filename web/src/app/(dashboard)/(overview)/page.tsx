@@ -1,71 +1,61 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { buttonClass } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { getLocation } from "@/app/(dashboard)/locations/[locationId]/location-data";
+import { api } from "@/lib/api/client";
+import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
-import { groupByBusiness } from "@/lib/memberships";
+import { chooseBusiness, groupByBusiness } from "@/lib/memberships";
+import { LocationPicker } from "./location-picker";
 
 // ADR 0077: only someone with a choice to make sees this. It asks every time
 // rather than reopening the last Location, so a Ticket isn't created in the
 // wrong Location by a counter that remembered yesterday.
-export default async function ChooseLocationPage() {
-  const [{ memberships }, t] = await Promise.all([getMe(), getTranslations("dashboard")]);
+export default async function ChooseLocationPage({ searchParams }: PageProps<"/">) {
+  const [search, me, t, tToday, client] = await Promise.all([
+    searchParams,
+    getMe(),
+    getTranslations("dashboard"),
+    getTranslations("today"),
+    api(),
+  ]);
+  const { memberships } = me;
   if (memberships.length === 0) {
-    redirect("/businesses/new");
+    // An Owner who deleted their last Location still has their Business.
+    const [owned] = me.ownedBusinessIds;
+    redirect(owned ? `/businesses/${owned}` : "/businesses/new");
   }
   if (memberships.length === 1) {
     redirect(`/locations/${memberships[0].location.id}`);
   }
 
+  // ADR 0104: one Business at a time, its Locations are all this page asks about.
+  const groups = groupByBusiness(memberships);
+  const chosen = chooseBusiness(groups, typeof search.business === "string" ? search.business : null)!;
+
+  // ADR 0105: for an Owner the Business's home is this page, with its plans.
+  if (chosen.owned) {
+    redirect(`/businesses/${chosen.business.id}`);
+  }
+
+  // ADR 0092: this page is the way in, so a Location whose numbers fail to
+  // load still opens, it only shows without them.
+  const [{ timeZone }, ...counts] = await Promise.all([
+    getLocation(chosen.memberships[0].location.id),
+    ...chosen.memberships.map(async ({ location }) => {
+      const { data } = await client.GET("/locations/{locationId}/tickets/overview", {
+        params: { path: { locationId: location.id } },
+      });
+      return [location.id, data?.counts ?? null] as const;
+    }),
+  ]);
+
   return (
-    <>
-      <h1 className="font-display text-label-xl md:text-title-h4">{t("chooseLocation")}</h1>
-      {groupByBusiness(memberships).map(({ business, memberships: group, owned }) => (
-        <section key={business.id} aria-labelledby={`business-${business.id}`}>
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-            <h2 id={`business-${business.id}`} className="min-w-0 text-label-md wrap-anywhere">
-              {business.name}
-            </h2>
-            {owned && (
-              <Link href={`/businesses/${business.id}`} className={buttonClass({ variant: "link" })}>
-                {t("businessSettings")}
-              </Link>
-            )}
-          </div>
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {group.map(({ role, location }) => (
-              <li key={location.id}>
-                <Link
-                  href={`/locations/${location.id}`}
-                  className="flex h-full items-center gap-3 rounded-2xl bg-surface p-4 shadow-panel transition-colors hover:bg-subtle"
-                >
-                  <Avatar id={business.id} name={business.name} src={business.logoUrl} shape="square" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-label-sm wrap-anywhere">{location.name}</span>
-                    <span className="mt-1 block">
-                      <Badge>{t(`roles.${role}`)}</Badge>
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-            {owned && (
-              <li>
-                <Link
-                  href={`/businesses/${business.id}/locations/new`}
-                  className="flex h-full min-h-20 items-center justify-center gap-2 rounded-2xl border border-dashed border-border-strong p-4 text-label-sm text-muted transition-colors hover:border-ink hover:text-ink"
-                >
-                  <Icon name="add" className="size-3.5" />
-                  {t("addLocation")}
-                </Link>
-              </li>
-            )}
-          </ul>
-        </section>
-      ))}
-    </>
+    <LocationPicker
+      title={tToday(`greeting.${greetingKey(new Date(), timeZone)}`, { name: me.name.split(" ")[0] })}
+      subtitle={t("chooseLocation")}
+      group={chosen}
+      businesses={groups.length > 1 ? groups : []}
+      counts={Object.fromEntries(counts)}
+    />
   );
 }

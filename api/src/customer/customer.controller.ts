@@ -23,7 +23,9 @@ export class CustomerController {
   // All of a Location's screens share one address, and the new Ticket form searches
   // as someone types.
   @Throttle({ default: { limit: 240, ttl: 60_000 } })
-  @ApiOperation({ summary: "Search/list customers at a location, optionally by partial name (?q=)" })
+  @ApiOperation({
+    summary: "Search/list customers at a location, optionally by part of their name, email or phone (?q=)",
+  })
   @ApiErrors(HttpStatus.BAD_REQUEST)
   list(@Param("locationId") locationId: string, @Query() query: ListCustomersQueryDto): Promise<CustomerPageDto> {
     return this.customer.list(locationId, query);

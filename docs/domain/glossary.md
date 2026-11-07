@@ -7,7 +7,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 - **User**: a single login identity in the system. One user can be involved with multiple locations, even across unrelated businesses.
 - **Business**: the top-level account a business owner creates (e.g. "Pizza Hut"). A business groups one or more locations under one owner.
 - **Owner**: the single user who created the business. Implicitly has access to every location in it. Exactly one per business.
-- **Location**: a single physical site under a business (e.g. one branch or workshop). Each location has its own subscription and its own business type.
+- **Location**: a single physical site under a business (e.g. one branch or workshop). On screen it reads "shop" (ADR 0107). Each location has its own subscription and its own business type.
 - **Membership**: the link between a user and a location, carrying a role. This is how access is granted, always scoped to a specific location, never to a whole business.
 - **Role**: `employee` or `admin` (plus the implicit `owner`), set per membership. An employee can view/create/update tickets and see customer info. An admin additionally manages billing, location settings, and team for the location(s) they're a member of.
 - **Customer**: the end user who drops something off. Has no account and no login, identified only in the context of a ticket (name, email, optional phone for the shop's own reference, never used by any automated system behavior).
@@ -15,6 +15,7 @@ ReadyYet lets businesses that take in physical items for work (repairs, cleaning
 ## Work and tracking
 
 - **Job**: the everyday word for what a customer drops off (a repair, a cleaning job, etc.).
+- **Erased Customer**: what a Customer is called once their personal data has been erased. Their Tickets stay under this name. Say "erase", not "delete", for this action (ADR 0097).
 - **Ticket**: the system record of a job. Use "ticket" as the technical term in code and docs, "job" is fine in conversation with the customer.
 - **Status**: one label describing where a ticket currently stands (e.g. RECEIVED, DIAGNOSE, REPAIR, DONE). Statuses are a fixed, developer-seeded, translatable catalogue, never free text.
 - **Workflow**: an ordered sequence of statuses a ticket moves through, start to finish.

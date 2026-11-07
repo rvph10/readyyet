@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, Role } from "@readyyet/db";
-import { isBigIntId, parseBigIntId } from "../common/parse-bigint-id";
-import { NotFoundError, ValidationError } from "../common/errors/app-error";
+import { parseBigIntId } from "../common/parse-bigint-id";
+import { NotFoundError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { buildFeedbackReceivedEmail } from "../notification/staff-email/staff-email";
@@ -68,30 +68,24 @@ export class FeedbackService {
     }
   }
 
-  // Newest first, keyset on (createdAt, id) like Tickets. The cursor is
-  // the last item's id, its date is looked up here.
   async list(locationId: string, query: ListFeedbackQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const after = query.cursor ? await this.cursorPosition(locationId, query.cursor) : undefined;
-    const rows = await this.prisma.ticketFeedback.findMany({
-      where: {
-        ticket: { locationId },
-        ...(query.handled && { handledAt: query.handled === "true" ? { not: null } : null }),
-        ...(after && {
-          OR: [{ createdAt: { lt: after.createdAt } }, { createdAt: after.createdAt, id: { lt: after.id } }],
-        }),
-      },
-      include: FEEDBACK_INCLUDE,
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      // One extra row says whether there's a next page.
-      take: take + 1,
-    });
-
-    const page = rows.slice(0, take);
-    return {
-      items: page.map(toResponse),
-      nextCursor: rows.length > take ? page[page.length - 1].id.toString() : null,
+    const where = {
+      ticket: { locationId },
+      ...(query.handled && { handledAt: query.handled === "true" ? { not: null } : null }),
     };
+    const [rows, total] = await Promise.all([
+      this.prisma.ticketFeedback.findMany({
+        where,
+        include: FEEDBACK_INCLUDE,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+      }),
+      this.prisma.ticketFeedback.count({ where }),
+    ]);
+
+    return { items: rows.map(toResponse), total };
   }
 
   // Repeating it keeps who handled it first.
@@ -109,19 +103,6 @@ export class FeedbackService {
       throw new NotFoundError("Feedback not found");
     }
     return toResponse(feedback);
-  }
-
-  private async cursorPosition(locationId: string, cursor: string) {
-    const feedback = isBigIntId(cursor)
-      ? await this.prisma.ticketFeedback.findFirst({
-          where: { id: BigInt(cursor), ticket: { locationId } },
-          select: { id: true, createdAt: true },
-        })
-      : null;
-    if (!feedback) {
-      throw new ValidationError("Invalid cursor");
-    }
-    return feedback;
   }
 }
 

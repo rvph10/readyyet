@@ -6,7 +6,7 @@ import { Icon } from "./icon";
 type Tone = "info" | "error";
 
 const tones: Record<Tone, string> = {
-  info: "bg-surface text-ink shadow-panel",
+  info: "border border-border bg-surface text-ink",
   error: "bg-danger-subtle text-danger",
 };
 

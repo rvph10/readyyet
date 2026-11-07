@@ -36,7 +36,7 @@ function packIcons() {
 // class whose rule sets evenodd becomes the fillRule it stood for.
 function toJsx(svg) {
   const evenodd = new Set();
-  for (const [, selectors, rules] of svg.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+  for (const [, selectors, rules] of svg.matchAll(/([^{}>]+)\{([^}]*)\}/g)) {
     if (rules.includes("fill-rule:evenodd")) {
       for (const selector of selectors.split(",")) evenodd.add(selector.trim().slice(1));
     }

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { Icon } from "./icon";
 
-type Variant = "default" | "destructive" | "announcement" | "image" | "drawer";
+type Variant = "default" | "destructive" | "announcement" | "image" | "panel";
 
 interface Props {
   open: boolean;
@@ -18,12 +18,12 @@ interface Props {
 }
 
 const frames: Record<Variant, string> = {
-  default: "max-w-md rounded-2xl bg-surface shadow-float backdrop:bg-ink/24",
-  destructive: "max-w-md rounded-2xl bg-surface shadow-float backdrop:bg-ink/24",
-  announcement: "max-w-lg overflow-hidden rounded-3xl bg-surface shadow-float backdrop:bg-ink/24",
+  default: "max-w-md rounded-sheet bg-surface backdrop:bg-ink/40",
+  destructive: "max-w-md rounded-sheet bg-surface backdrop:bg-ink/40",
+  announcement: "max-w-lg overflow-hidden rounded-sheet bg-surface backdrop:bg-ink/40",
   image: "max-w-4xl bg-transparent backdrop:bg-ink/85",
-  // From the left edge, for navigation on a small screen (ADR 0049).
-  drawer: "rounded-r-3xl bg-surface shadow-float backdrop:bg-ink/24",
+  // From the right edge, for a form that keeps the page behind it (ADR 0087).
+  panel: "bg-surface backdrop:bg-ink/40 md:rounded-l-sheet",
 };
 
 // The browser's own modal <dialog>, which traps focus, closes on Escape and
@@ -46,15 +46,17 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(event) => event.target === ref.current && onClose()}
-      className={`${variant === "drawer" ? "m-0 h-dvh max-h-dvh w-80 max-w-[calc(100%-3rem)]" : "m-auto w-[calc(100%-2rem)]"} text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
+      className={`${variant === "panel" ? "my-0 mr-0 ml-auto h-dvh max-h-dvh w-full max-w-none md:max-w-xl" : "m-auto w-[calc(100%-2rem)]"} text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${frames[variant]}`}
     >
-      {variant === "drawer" && (
-        <div className="relative flex h-full flex-col p-4 pt-16">
-          <h2 id={titleId} className="sr-only">
-            {title}
-          </h2>
-          <CloseButton onClose={onClose} className="absolute top-3 right-3" />
-          <div className="min-h-0 flex-1">{children}</div>
+      {variant === "panel" && (
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-2 md:px-7">
+            <h2 id={titleId} className="text-title-h6">
+              {title}
+            </h2>
+            <CloseButton onClose={onClose} />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         </div>
       )}
 
@@ -91,14 +93,14 @@ export function Dialog({ open, onClose, title, variant = "default", media, child
                 <Icon name="info-triangle" className="size-5" />
               </span>
             ) : (
-              <h2 id={titleId} className="pt-2 text-label-lg">
+              <h2 id={titleId} className="pt-2 text-title-h6">
                 {title}
               </h2>
             )}
             <CloseButton onClose={onClose} />
           </div>
           {variant === "destructive" && (
-            <h2 id={titleId} className="mt-4 text-label-lg">
+            <h2 id={titleId} className="mt-4 text-title-h6">
               {title}
             </h2>
           )}
@@ -118,8 +120,8 @@ function CloseButton({ onClose, light, className }: { onClose: () => void; light
       type="button"
       onClick={onClose}
       aria-label={t("close")}
-      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full shadow-float transition-colors ${
-        light ? "bg-surface text-ink hover:bg-canvas" : "bg-ink text-surface hover:bg-ink/80"
+      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${
+        light ? "bg-surface text-ink hover:bg-canvas" : "text-muted hover:bg-subtle hover:text-ink"
       } ${className ?? ""}`}
     >
       <Icon name="close" className="size-3.5" />

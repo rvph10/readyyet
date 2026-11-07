@@ -5,9 +5,9 @@ import { api } from "@/lib/api/client";
 import { actionResult } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
 
-function refreshed(locationId: string, ticketId: string) {
-  revalidatePath(`/locations/${locationId}/tickets/${ticketId}`);
-  revalidatePath(`/locations/${locationId}`);
+// The whole Location: its navigation counts Tickets too.
+function refreshed(locationId: string) {
+  revalidatePath(`/locations/${locationId}`, "layout");
 }
 
 const ticketPath = (locationId: string, ticketId: string) => ({ params: { path: { locationId, ticketId } } });
@@ -19,7 +19,7 @@ export async function changeStatus(locationId: string, ticketId: string, statusC
     ...ticketPath(locationId, ticketId),
     body: { statusCode },
   });
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }
 
@@ -27,7 +27,7 @@ export async function undoStatus(locationId: string, ticketId: string) {
   const result = await (
     await api()
   ).POST("/locations/{locationId}/tickets/{ticketId}/status/undo", ticketPath(locationId, ticketId));
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }
 
@@ -35,7 +35,7 @@ export async function dismissCollected(locationId: string, ticketId: string) {
   const result = await (
     await api()
   ).POST("/locations/{locationId}/tickets/{ticketId}/customer-collected/dismiss", ticketPath(locationId, ticketId));
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }
 
@@ -55,7 +55,7 @@ export async function updateTicket(
   const result = await (
     await api()
   ).PATCH("/locations/{locationId}/tickets/{ticketId}", { ...ticketPath(locationId, ticketId), body: ticket });
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }
 
@@ -68,7 +68,7 @@ export async function addPhoto(locationId: string, ticketId: string, photo: Form
     // Left to fetch, which sets the multipart boundary.
     bodySerializer: (body) => body as unknown as FormData,
   });
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }
 
@@ -78,6 +78,6 @@ export async function deletePhoto(locationId: string, ticketId: string, photoId:
   ).DELETE("/locations/{locationId}/tickets/{ticketId}/photos/{photoId}", {
     params: { path: { locationId, ticketId, photoId } },
   });
-  refreshed(locationId, ticketId);
+  refreshed(locationId);
   return actionResult(result);
 }

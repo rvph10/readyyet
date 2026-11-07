@@ -1,27 +1,25 @@
 import type { ReactNode } from "react";
-import { Icon, type IconName } from "./icon";
+import { Illustration, type IllustrationName } from "../illustration";
 
 // Where a list has nothing yet: what would be here, and the action that
-// fills it.
+// fills it. It centres itself in whatever room its tile has.
 export function EmptyState({
-  icon,
+  illustration,
   title,
   description,
   action,
 }: {
-  icon: IconName;
+  illustration: IllustrationName;
   title: string;
   description: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center px-6 py-12 text-center">
-      <span className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-canvas text-muted">
-        <Icon name={icon} className="size-5" />
-      </span>
-      <p className="max-w-full text-label-md wrap-anywhere">{title}</p>
-      <p className="mt-1 max-w-xs text-p-sm text-muted">{description}</p>
-      {action && <div className="mt-5">{action}</div>}
+    <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
+      <Illustration name={illustration} className="mb-5 h-36 w-auto max-w-full" />
+      <p className="max-w-md text-title-h6 wrap-anywhere">{title}</p>
+      <p className="mt-1 max-w-sm text-p-md text-muted">{description}</p>
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }

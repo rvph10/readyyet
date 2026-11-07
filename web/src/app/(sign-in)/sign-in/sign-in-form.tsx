@@ -316,7 +316,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
 function StepHeader({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mb-7 text-center">
-      <h1 className="font-display text-title-h4">{title}</h1>
+      <h1 className="text-title-h4">{title}</h1>
       <p className="mt-2 text-p-md text-balance text-muted">{children}</p>
     </div>
   );

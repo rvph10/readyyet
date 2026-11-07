@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsIn, IsInt, IsOptional, Max, Min } from "class-validator";
+import { MAX_PAGE } from "../../common/pagination";
 
 export class ListFeedbackQueryDto {
   // "false" lists only what's still to be dealt with, "true" only what's
@@ -15,8 +16,11 @@ export class ListFeedbackQueryDto {
   @Max(100)
   take?: number;
 
-  // Opaque, the nextCursor of the previous page.
+  // 1 for the first, past the last it's an empty page.
   @IsOptional()
-  @IsString()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(MAX_PAGE)
+  page?: number;
 }

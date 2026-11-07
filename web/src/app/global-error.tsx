@@ -17,7 +17,7 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
   return (
     <html lang="en">
       <body className="bg-canvas font-sans text-ink antialiased">
-        <ErrorMessage title="Something went wrong · Une erreur s'est produite">
+        <ErrorMessage illustration="overcoming" title="Something went wrong · Une erreur s'est produite">
           {error.digest && (
             <p className="font-mono text-p-xs text-muted">Reference · Référence&nbsp;: {error.digest}</p>
           )}

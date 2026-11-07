@@ -26,7 +26,7 @@ function Card({ children }: { children: ReactNode }) {
 function Heading({ title, children }: { title: string; children: ReactNode }) {
   return (
     <>
-      <h1 className="font-display text-label-xl text-balance md:text-title-h4">{title}</h1>
+      <h1 className="text-label-xl text-balance md:text-title-h4">{title}</h1>
       <p className="mt-2 text-p-md text-balance text-muted">{children}</p>
     </>
   );

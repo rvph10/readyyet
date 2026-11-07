@@ -7,8 +7,12 @@ interface Props extends HTMLAttributes<HTMLElement> {
   padding?: keyof typeof paddings;
 }
 
-// ADR 0049 and 0059: the white layer that sits on the grey canvas, barely
-// lifted. className is for placing it, like its width or a flex column.
+// ADR 0087: the white layer on the canvas, flat, with a hairline edge. className is for placing it, like its width or a flex column.
 export function Panel({ as: Tag = "div", padding = "md", className, ...props }: Props) {
-  return <Tag {...props} className={`rounded-3xl bg-surface shadow-panel ${paddings[padding]} ${className ?? ""}`} />;
+  return (
+    <Tag
+      {...props}
+      className={`rounded-sheet border border-border bg-surface ${paddings[padding]} ${className ?? ""}`}
+    />
+  );
 }

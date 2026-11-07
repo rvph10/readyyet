@@ -3,6 +3,18 @@ import Link from "next/link";
 import { Logo } from "./logo";
 import { SignOutButton } from "./sign-out-button";
 
+export function SignedInUser({ me }: { me: { name: string | null; email: string } }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="hidden min-w-0 text-right sm:block">
+        <p className="text-label-sm">{me.name}</p>
+        <p className="text-p-xs text-muted">{me.email}</p>
+      </div>
+      <SignOutButton />
+    </div>
+  );
+}
+
 // The logo, and who's signed in with a way out, over the dashboard and the
 // onboarding pages. Without a User, as on an invitation opened signed out,
 // only the logo.
@@ -17,15 +29,7 @@ export function AppHeader({ me }: { me: { name: string | null; email: string } |
       ) : (
         <Logo className="size-10" />
       )}
-      {me && (
-        <div className="flex items-center gap-3">
-          <div className="hidden min-w-0 text-right sm:block">
-            <p className="text-label-sm">{me.name}</p>
-            <p className="text-p-xs text-muted">{me.email}</p>
-          </div>
-          <SignOutButton />
-        </div>
-      )}
+      {me && <SignedInUser me={me} />}
     </header>
   );
 }

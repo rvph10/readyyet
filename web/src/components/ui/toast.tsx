@@ -227,7 +227,7 @@ function ToastItem({ toast, index, offset, frontHeight, expanded, onDismiss, onM
   return (
     <li
       ref={item}
-      className="absolute inset-x-0 top-0 origin-top overflow-hidden rounded-2xl border border-border bg-surface text-ink shadow-float motion-safe:transition-[transform,opacity,height] motion-safe:duration-300 motion-safe:ease-out"
+      className="absolute inset-x-0 top-0 origin-top overflow-hidden rounded-2xl border border-border-strong bg-surface text-ink motion-safe:transition-[transform,opacity,height] motion-safe:duration-300 motion-safe:ease-out"
     >
       <div
         ref={content}

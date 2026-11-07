@@ -5,7 +5,7 @@ import { ErrorMessage } from "@/components/error-message";
 export default async function TrackingNotFound() {
   const t = await getTranslations("tracking");
   return (
-    <ErrorMessage title={t("notFoundTitle")}>
+    <ErrorMessage illustration="lost" title={t("notFoundTitle")}>
       <p className="text-p-md text-muted">{t("notFoundBody")}</p>
     </ErrorMessage>
   );

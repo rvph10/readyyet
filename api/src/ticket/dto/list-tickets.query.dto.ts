@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
 import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 import { IsBigIntId } from "../../common/parse-bigint-id";
+import { MAX_PAGE } from "../../common/pagination";
 
 export class ListTicketsQueryDto {
   // One search box: matched against title, description, tracking code and
@@ -60,8 +61,11 @@ export class ListTicketsQueryDto {
   @Max(100)
   take?: number;
 
-  // Opaque, the nextCursor of the previous page.
+  // 1 for the first, past the last it's an empty page.
   @IsOptional()
-  @IsString()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(MAX_PAGE)
+  page?: number;
 }

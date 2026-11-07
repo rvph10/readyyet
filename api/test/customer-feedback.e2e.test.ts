@@ -409,11 +409,11 @@ describe("Customer feedback", () => {
 
     it("pages through it", async () => {
       const page = await listFeedback(ownerCookie, "?take=1");
-      const next = await listFeedback(ownerCookie, `?take=1&cursor=${page.body.nextCursor}`);
+      const next = await listFeedback(ownerCookie, "?take=1&page=2");
 
       expect(page.body.items[0].id).toBe(second.id);
       expect(next.body.items[0].id).toBe(first.id);
-      expect(next.body.nextCursor).toBeNull();
+      expect(next.body.total).toBe(2);
     });
 
     it("marks it handled, keeping who did it first", async () => {

@@ -4,12 +4,14 @@ import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH, calendarDateIn } from "@ready
 import { useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { DateField } from "@/components/ui/date-field";
+import { Dialog } from "@/components/ui/dialog";
 import { Field, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { orFailure } from "@/lib/api/or-failure";
 import { updateTicket } from "./actions";
-import { ticketSchema } from "../new/schema";
+import { ticketSchema } from "../../new-ticket/schema";
 
 interface Props {
   locationId: string;
@@ -21,8 +23,11 @@ interface Props {
   dateShown: string | null;
   receivedShown: string;
   timeZone: string;
+  // On the Location's clock.
+  today: string;
   // An ended Ticket's date can't change (ADR 0030).
   dateEditable: boolean;
+  dateLate: boolean;
 }
 
 export function TicketDetails(props: Props) {
@@ -57,10 +62,8 @@ export function TicketDetails(props: Props) {
     // A date already passed can stay as it is, only a new one must be ahead.
     const earliest = date === opened.date ? "" : now;
     const parsed = ticketSchema(tForm, earliest).safeParse({ title, description: notes, estimatedReadyDate: date });
-    const dateField = event.currentTarget.elements.namedItem("estimatedReadyDate") as HTMLInputElement | null;
     const found: Record<string, string> = {};
     for (const issue of parsed.error?.issues ?? []) found[String(issue.path[0])] = issue.message;
-    if (dateField?.validity.badInput) found.estimatedReadyDate = tForm("dateUnfinished");
     setErrors(found);
     setFailed(false);
     if (!parsed.success || Object.keys(found).length > 0) return;
@@ -78,76 +81,77 @@ export function TicketDetails(props: Props) {
     });
   }
 
-  if (editing) {
-    return (
-      <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-        <h2 className="text-label-lg">{t("details")}</h2>
-        {failed && <FormAlert>{t("saveFailed")}</FormAlert>}
-        <Field
-          label={tForm("title")}
-          hint={tForm("titleHint")}
-          autoComplete="off"
-          maxLength={TITLE_MAX_LENGTH}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          error={errors.title}
-        />
-        <TextareaField
-          label={tForm("notes")}
-          hint={tForm("notesHint")}
-          maxLength={DESCRIPTION_MAX_LENGTH}
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          error={errors.description}
-        />
-        {props.dateEditable && (
-          <Field
-            label={tForm("date")}
-            hint={tForm("dateHint")}
-            type="date"
-            name="estimatedReadyDate"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            error={errors.estimatedReadyDate}
-          />
-        )}
-        <div className="flex justify-end gap-3">
-          <Button variant="secondary" disabled={pending} onClick={() => setEditing(false)}>
-            {tForm("cancel")}
-          </Button>
-          <Button type="submit" pending={pending} pendingLabel={t("saving")}>
-            {t("save")}
-          </Button>
-        </div>
-      </form>
-    );
-  }
-
+  // In a side panel, so editing never moves the page under it (ADR 0087).
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-label-lg">{t("details")}</h2>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <h2 className="text-title-h6">{t("details")}</h2>
         <Button variant="secondary" size="sm" onClick={startEditing}>
           <Icon name="edit" className="size-3" />
           {t("edit")}
         </Button>
       </div>
-      <dl className="grid gap-4 sm:grid-cols-2">
+      <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
         <div>
-          <dt className="text-label-xs text-muted">{t("expected")}</dt>
-          <dd className="mt-1 text-p-sm">{props.dateShown ?? t("noDate")}</dd>
+          <dt className="text-p-xs text-muted">{t("expected")}</dt>
+          <dd className={`mt-0.5 text-label-md ${props.dateLate ? "text-danger" : ""}`}>
+            {props.dateShown ?? t("noDate")}
+          </dd>
         </div>
         <div>
-          <dt className="text-label-xs text-muted">{t("received")}</dt>
-          <dd className="mt-1 text-p-sm">{props.receivedShown}</dd>
+          <dt className="text-p-xs text-muted">{t("received")}</dt>
+          <dd className="mt-0.5 text-label-md">{props.receivedShown}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-label-xs text-muted">{t("notes")}</dt>
-          <dd className={`mt-1 text-p-sm wrap-anywhere whitespace-pre-line ${props.notes ? "" : "text-muted"}`}>
+          <dt className="text-p-xs text-muted">{t("notes")}</dt>
+          <dd className="mt-0.5 max-w-prose text-p-sm wrap-anywhere whitespace-pre-line">
             {props.notes || t("noNotes")}
           </dd>
         </div>
       </dl>
+      <Dialog open={editing} onClose={() => setEditing(false)} title={t("editTicket")} variant="panel">
+        <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-3 md:px-7">
+            {failed && <FormAlert>{t("saveFailed")}</FormAlert>}
+            <Field
+              label={tForm("title")}
+              hint={tForm("titleHint")}
+              autoComplete="off"
+              maxLength={TITLE_MAX_LENGTH}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              error={errors.title}
+            />
+            <TextareaField
+              label={tForm("notes")}
+              hint={tForm("notesHint")}
+              maxLength={DESCRIPTION_MAX_LENGTH}
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              error={errors.description}
+            />
+            {props.dateEditable && (
+              <DateField
+                label={tForm("date")}
+                hint={tForm("dateHint")}
+                today={props.today}
+                min={props.today}
+                value={date}
+                onChange={setDate}
+                error={errors.estimatedReadyDate}
+              />
+            )}
+          </div>
+          <div className="flex gap-2 border-t border-border px-6 py-4 md:px-7">
+            <Button type="submit" pending={pending} pendingLabel={t("saving")} className="flex-1">
+              {t("save")}
+            </Button>
+            <Button variant="secondary" disabled={pending} onClick={() => setEditing(false)}>
+              {tForm("cancel")}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </>
   );
 }

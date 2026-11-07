@@ -101,21 +101,21 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
     newOwner: {
       subject: ({ business }) => `You're now the owner of ${business} on ReadyYet`,
       body: ({ business, previousOwner }) =>
-        `${previousOwner} transferred ${business} to you, you're now its owner at every one of its locations.`,
+        `${previousOwner} transferred ${business} to you, you're now its owner at every one of its shops.`,
       powers:
-        "As the owner, you alone can add or delete locations, make someone an admin or remove one, and transfer the business.",
+        "As the owner, you alone can add or delete shops, make someone an admin or remove one, and transfer the business.",
       button: "Open ReadyYet",
     },
     previousOwner: {
       subject: ({ business, newOwner }) => `You transferred ${business} to ${newOwner}`,
       body: ({ business, newOwner, newOwnerEmail }) =>
         `${business} now belongs to ${newOwner} (${newOwnerEmail}), as you asked.`,
-      stillAdmin: "You remain an admin at each of its locations, until you choose to leave them.",
+      stillAdmin: "You remain an admin at each of its shops, until you choose to leave them.",
       notYou: "If you didn't make this transfer, reply to this email right away.",
     },
     accountDeleted: {
       subject: "Your ReadyYet account was deleted",
-      body: (email) => `Your ReadyYet account (${email}) was deleted, you no longer have access to any location.`,
+      body: (email) => `Your ReadyYet account (${email}) was deleted, you no longer have access to any shop.`,
       history: "Tickets and changes you made stay in each shop's history, without your name or email address.",
       newAccount: "You can create a new account at any time by signing in with this address.",
       notYou: "If you didn't delete your account, reply to this email right away.",
@@ -155,9 +155,9 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
     newOwner: {
       subject: ({ business }) => `Vous êtes maintenant propriétaire de ${business} sur ReadyYet`,
       body: ({ business, previousOwner }) =>
-        `${previousOwner} vous a transféré ${business}, vous en êtes maintenant propriétaire, dans chacun de ses établissements.`,
+        `${previousOwner} vous a transféré ${business}, vous en êtes maintenant propriétaire, dans chacun de ses magasins.`,
       powers:
-        "En tant que propriétaire, vous seul pouvez ajouter ou supprimer un établissement, nommer ou retirer un administrateur, et transférer l'entreprise.",
+        "En tant que propriétaire, vous seul pouvez ajouter ou supprimer un magasin, nommer ou retirer un administrateur, et transférer l'entreprise.",
       button: "Ouvrir ReadyYet",
     },
     previousOwner: {
@@ -165,12 +165,12 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       body: ({ business, newOwner, newOwnerEmail }) =>
         `${business} appartient désormais à ${newOwner} (${newOwnerEmail}), comme vous l'avez demandé.`,
       stillAdmin:
-        "Vous restez administrateur de chacun de ses établissements, jusqu'à ce que vous choisissiez de les quitter.",
+        "Vous restez administrateur de chacun de ses magasins, jusqu'à ce que vous choisissiez de les quitter.",
       notYou: "Si vous n'êtes pas à l'origine de ce transfert, répondez à cet e-mail sans attendre.",
     },
     accountDeleted: {
       subject: "Votre compte ReadyYet a été supprimé",
-      body: (email) => `Votre compte ReadyYet (${email}) a été supprimé, vous n'avez plus accès à aucun établissement.`,
+      body: (email) => `Votre compte ReadyYet (${email}) a été supprimé, vous n'avez plus accès à aucun magasin.`,
       history:
         "Les tickets et modifications que vous avez faits restent dans l'historique de chaque commerce, sans votre nom ni votre adresse e-mail.",
       newAccount: "Vous pouvez créer un nouveau compte à tout moment en vous connectant avec cette adresse.",

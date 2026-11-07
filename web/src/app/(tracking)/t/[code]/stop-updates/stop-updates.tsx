@@ -32,9 +32,7 @@ export function StopUpdates({ code, title, stillToBeReady, trackingPath }: Props
 
   return (
     <>
-      <h1 className="font-display text-label-xl text-balance md:text-title-h4">
-        {t(stopped ? "stoppedTitle" : "stopTitle")}
-      </h1>
+      <h1 className="text-label-xl text-balance md:text-title-h4">{t(stopped ? "stoppedTitle" : "stopTitle")}</h1>
       <p className="mt-1 text-p-sm wrap-anywhere text-muted">{title}</p>
       {/* Announced when it replaces the question, the focus stays on the page. */}
       <p role={stopped ? "status" : undefined} className="mt-4 text-p-md">

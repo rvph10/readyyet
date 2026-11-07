@@ -31,6 +31,9 @@ export class InvitationController {
     return this.invitation.create(locationId, user.id, dto);
   }
 
+  // A Business's pages read every Location's, so a chain goes through this many
+  // times per page, and each one is the same counter (ADR 0102).
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @Get()
   @ApiOperation({ summary: "List invitations for a location" })
   list(@Param("locationId") locationId: string): Promise<InvitationDto[]> {
