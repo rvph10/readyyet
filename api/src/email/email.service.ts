@@ -184,7 +184,8 @@ export class EmailService {
           break;
         }
       } catch (err) {
-        lastError = err instanceof Error ? err.message : String(err);
+        // Named like Resend's errors above, as report() only sends what's before the colon.
+        lastError = err instanceof Error ? `${err.name}: ${err.message}` : `Error: ${String(err)}`;
       }
     }
 

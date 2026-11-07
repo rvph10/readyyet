@@ -50,11 +50,6 @@ export class NotificationService {
   // Due from the moment the Ticket exists (ADR 0081). Often enough that the
   // Customer has it before leaving the counter.
   @Cron(CronExpression.EVERY_5_SECONDS, { name: "ticket-created-emails" })
-  @CronMonitor("ticket-created-emails", {
-    schedule: { type: "interval", value: 1, unit: "minute" },
-    checkinMargin: 1,
-    maxRuntime: 5,
-  })
   async sendDueTicketCreatedEmails() {
     const due = await this.prisma.ticket.findMany({
       where: { trackingEmailDueAt: { lte: new Date() } },
@@ -86,6 +81,18 @@ export class NotificationService {
         Sentry.captureException(error);
       }
     }
+  }
+
+  // Sentry's monitors can't take a check-in every 5 seconds, so a sweep of its own
+  // reports for the one above. Tickets are claimed, so the two can't send twice.
+  @Cron(CronExpression.EVERY_MINUTE, { name: "ticket-created-emails-monitored" })
+  @CronMonitor("ticket-created-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
+  monitoredTicketCreatedSweep() {
+    return this.sendDueTicketCreatedEmails();
   }
 
   // A Customer without an email address receives nothing, the QR code at
