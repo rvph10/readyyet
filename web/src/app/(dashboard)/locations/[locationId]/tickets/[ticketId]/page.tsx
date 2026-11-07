@@ -1,4 +1,10 @@
-import { calendarDateIn, ERASED_CUSTOMER_NAME, isEndedStatus, STATUS_UNDO_WINDOW_MS } from "@readyyet/shared";
+import {
+  calendarDateIn,
+  ERASED_CUSTOMER_NAME,
+  isEndedStatus,
+  STATUS_UNDO_WINDOW_MS,
+  LONG_WAIT_DAYS,
+} from "@readyyet/shared";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,7 +23,7 @@ import { pageData } from "@/lib/api/errors";
 import { getMe } from "@/lib/me";
 import { statusLabel } from "@/lib/status-label";
 import { PageHeader } from "../../page-header";
-import { daysBetween, expected, formatDay, formatMoment, LONG_WAIT_DAYS } from "../ticket-views";
+import { daysBetween, expected, formatDay, formatMoment } from "../ticket-views";
 import { isStopped, statusChoices } from "./status-choices";
 import { StatusPanel } from "./status-panel";
 import { TicketDetails } from "./ticket-details";

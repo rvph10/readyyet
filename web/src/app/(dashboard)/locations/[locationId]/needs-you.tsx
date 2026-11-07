@@ -36,9 +36,13 @@ export interface NeedsYouItems {
   // The latest few, out of feedbackCount.
   feedback: Item[];
   feedbackCount: number;
+  // Each of these the first few, out of its count.
   collected: Item[];
+  collectedCount: number;
   failing: Item[];
+  failingCount: number;
   longWaits: (Item & { days: number })[];
+  longWaitsCount: number;
 }
 
 // One thing to deal with, like a row of any inbox: who, with a badge for what
@@ -90,6 +94,15 @@ function Row({
   );
 }
 
+function SeeAll({ href, count }: { href: string; count: number }) {
+  const t = useTranslations("today");
+  return (
+    <Link href={href} className="text-label-xs font-semibold underline underline-offset-4">
+      {t("seeAll", { count })}
+    </Link>
+  );
+}
+
 function Group({ title, link, children }: { title: string; link?: ReactNode; children: ReactNode }) {
   return (
     <section className="not-first:mt-2">
@@ -106,13 +119,23 @@ function Group({ title, link, children }: { title: string; link?: ReactNode; chi
 // leaves the list once it's done, so there's no read state and no "mark all as
 // read", and the count is what's left to do. The most urgent kinds come first.
 export function NeedsYou({ locationId, items }: { locationId: string; items: NeedsYouItems }) {
-  const { feedback, feedbackCount, collected, failing, longWaits, trialDaysLeft } = items;
+  const {
+    feedback,
+    feedbackCount,
+    collected,
+    collectedCount,
+    failing,
+    failingCount,
+    longWaits,
+    longWaitsCount,
+    trialDaysLeft,
+  } = items;
   const t = useTranslations("today");
   const tDetail = useTranslations("ticketDetail");
   const { choosePlan } = useLocationActions();
   const toast = useToast();
   const [pending, startTransition] = useTransition();
-  const total = feedbackCount + collected.length + failing.length + longWaits.length + (trialDaysLeft === null ? 0 : 1);
+  const total = feedbackCount + collectedCount + failingCount + longWaitsCount + (trialDaysLeft === null ? 0 : 1);
   const ticket = (id: string) => `/locations/${locationId}/tickets/${id}`;
 
   function run(action: () => Promise<{ ok: boolean }>) {
@@ -180,7 +203,14 @@ export function NeedsYou({ locationId, items }: { locationId: string; items: Nee
               </Group>
             )}
             {collected.length > 0 && (
-              <Group title={t("groups.collected")}>
+              <Group
+                title={t("groups.collected")}
+                link={
+                  collectedCount > collected.length && (
+                    <SeeAll href={`/locations/${locationId}/tickets?view=collected`} count={collectedCount} />
+                  )
+                }
+              >
                 {collected.map(({ id, ...item }) => (
                   <Row
                     key={id}
@@ -217,12 +247,7 @@ export function NeedsYou({ locationId, items }: { locationId: string; items: Nee
                 title={t("groups.feedback")}
                 link={
                   feedbackCount > feedback.length && (
-                    <Link
-                      href={`/locations/${locationId}/feedback`}
-                      className="text-label-xs font-semibold underline underline-offset-4"
-                    >
-                      {t("seeAll", { count: feedbackCount })}
-                    </Link>
+                    <SeeAll href={`/locations/${locationId}/feedback`} count={feedbackCount} />
                   )
                 }
               >
@@ -240,7 +265,14 @@ export function NeedsYou({ locationId, items }: { locationId: string; items: Nee
               </Group>
             )}
             {longWaits.length > 0 && (
-              <Group title={t("groups.waiting")}>
+              <Group
+                title={t("groups.waiting")}
+                link={
+                  longWaitsCount > longWaits.length && (
+                    <SeeAll href={`/locations/${locationId}/tickets?view=ready`} count={longWaitsCount} />
+                  )
+                }
+              >
                 {longWaits.map(({ id, days, ...item }) => (
                   <Row key={id} {...item} href={ticket(id)} icon="time" tone="wait" line={t("waiting", { days })} />
                 ))}
