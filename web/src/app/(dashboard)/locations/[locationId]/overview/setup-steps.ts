@@ -23,5 +23,5 @@ export function setupSteps(setup: Setup, owner: boolean) {
   return STEPS.filter(({ key }) => key !== "logo" || owner).map((step) => ({ ...step, isDone: setup[step.done] }));
 }
 
-// Read by the page too, so a folded guide is folded from the first paint.
+// "1" folded, "0" open, read by the page so the guide is right from the first paint.
 export const foldedCookie = (locationId: string) => `setup-guide-folded-${locationId}`;

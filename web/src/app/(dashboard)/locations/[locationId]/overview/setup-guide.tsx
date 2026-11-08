@@ -55,7 +55,8 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
 
   function fold(next: boolean) {
     setFolded(next);
-    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : ""}; path=/; max-age=${next ? YEAR_S : 0}; samesite=lax`;
+    // Both ways, as a running shop's guide starts folded (ADR 0117).
+    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : "0"}; path=/; max-age=${YEAR_S}; samesite=lax`;
   }
 
   function act(key: StepKey) {

@@ -6,7 +6,7 @@ Replaces ADR 0116's "Finish setting up" list, which only linked away.
 
 ## Decision
 
-**Owners and Admins get a setup guide on Today until every task is done,** then it leaves on its own. It can't be hidden, only folded to a slim bar with its progress, remembered per shop in a cookie so it's folded from the first paint.
+**Owners and Admins get a setup guide on Today until every task is done,** then it leaves on its own. It can't be hidden, only folded to a slim bar with its progress. It starts folded once the shop has Tickets, as its day comes first, and open on an empty shop, where it's all there is. Folding or opening it is remembered per shop in a cookie, read by the page so it's right from the first paint.
 
 **It's a pine card in the hero's language:** a lime ring with the share done, "Get {shop} ready", then the tasks as a numbered track (lime checks for done, the current one white) beside a white card for the task in view: its step number, why it matters, one button and an illustration. The next task left is in view by default, and any task can be picked, a done one offering to change it. On a phone the card comes before the track.
 

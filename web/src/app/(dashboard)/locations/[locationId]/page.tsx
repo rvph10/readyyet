@@ -90,7 +90,9 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
       setup={setup}
       owner={owner}
       hasPro={billing.plan === "PRO" && !billing.frozen}
-      folded={cookieJar.get(foldedCookie(locationId))?.value === "1"}
+      // A shop already taking Tickets has its day to see first, an empty one
+      // has nothing else: until someone folds or opens it themselves.
+      folded={(cookieJar.get(foldedCookie(locationId))?.value ?? (setup.firstTicket ? "1" : "0")) === "1"}
     />
   );
 
