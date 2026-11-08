@@ -65,6 +65,12 @@ export default async function SalesPartnersPage() {
                         <span title={partner.email} className="block truncate text-p-xs text-muted">
                           {partner.email}
                         </span>
+                        {/* The "Since" column that says it is hidden on a phone. */}
+                        {!partner.salesPartnerSince && (
+                          <span className="mt-1 inline-flex h-6 items-center rounded-full bg-warning-subtle px-2.5 text-label-xs font-semibold lg:hidden">
+                            {t("partners.former")}
+                          </span>
+                        )}
                       </span>
                     </span>
                     <span className="hidden text-p-sm lg:block">

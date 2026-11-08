@@ -95,8 +95,17 @@ export default async function SalesPartnerPage({ searchParams }: PageProps<"/par
         </Panel>
 
         {nothingYet ? (
-          <Panel as="section" className="flex flex-col xl:col-span-8">
-            <EmptyState illustration="carrying" title={t("welcome.title")} description={t("welcome.description")} />
+          // A former sales partner has no link to share any more.
+          <Panel as="section" className={`flex flex-col ${overview.salesPartner ? "xl:col-span-8" : "xl:col-span-7"}`}>
+            {overview.salesPartner ? (
+              <EmptyState illustration="carrying" title={t("welcome.title")} description={t("welcome.description")} />
+            ) : (
+              <EmptyState
+                illustration="box"
+                title={t("formerEmpty.title")}
+                description={t("formerEmpty.description")}
+              />
+            )}
           </Panel>
         ) : (
           <>

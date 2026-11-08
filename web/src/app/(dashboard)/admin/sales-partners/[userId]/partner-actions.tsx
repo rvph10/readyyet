@@ -12,7 +12,18 @@ import { orFailure } from "@/lib/api/or-failure";
 import { markCommissionsPaid, removeSalesPartner } from "../../actions";
 
 // After the bank transfer, so the app records what was paid (ADR 0032).
-export function MarkPaid({ ids, amount, name }: { ids: string[]; amount: string; name: string }) {
+export function MarkPaid({
+  ids,
+  amount,
+  name,
+  lastOwed,
+}: {
+  ids: string[];
+  amount: string;
+  name: string;
+  // Paying these takes this page away, so it goes back to the list.
+  lastOwed: boolean;
+}) {
   const t = useTranslations("admin.markPaid");
   const tForm = useTranslations("tickets.form");
   const toast = useToast();
@@ -26,10 +37,11 @@ export function MarkPaid({ ids, amount, name }: { ids: string[]; amount: string;
       setOpen(false);
       if (result.ok) {
         toast({ message: t("done", { amount, name }) });
+        if (lastOwed) router.push("/admin");
       } else if (result.code === ErrorCode.CONFLICT) {
         // One was voided or paid since the page loaded, the total changed.
+        // The action's revalidation already shows the new one.
         toast({ tone: "error", message: t("changed") });
-        router.refresh();
       } else {
         toast({ tone: "error", message: t("failed") });
       }

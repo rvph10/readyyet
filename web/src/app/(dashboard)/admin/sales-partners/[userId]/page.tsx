@@ -145,31 +145,39 @@ export default async function SalesPartnerPage({ params, searchParams }: PagePro
           <section className="flex flex-col gap-5 rounded-sheet bg-pine p-6 text-surface lg:p-7">
             <div>
               <h2 className="text-label-md text-surface/80">{t("partner.owedNow")}</h2>
-              <p className="mt-1 text-title-h3 text-brand">{money(owedAmount)}</p>
+              <p className="mt-1 text-title-h3 text-brand">{money(partner.owedAmount)}</p>
               <p className="mt-1 text-p-sm text-surface/80">
                 {t("partner.pending", { amount: money(partner.pendingAmount) })}
               </p>
             </div>
             {owed.items.length > 0 && (
-              <MarkPaid ids={owed.items.map(({ id }) => id)} amount={money(owedAmount)} name={partner.name} />
+              <MarkPaid
+                ids={owed.items.map(({ id }) => id)}
+                amount={money(owedAmount)}
+                name={partner.name}
+                // A former sales partner leaves the list once nothing is owed or
+                // pending, and this page with it.
+                lastOwed={!partner.salesPartnerSince && partner.pendingAmount === 0 && owed.total === owed.items.length}
+              />
             )}
           </section>
-          <Panel as="section" className="flex flex-col gap-4">
-            <h2 className="text-title-h6">{t("partner.link")}</h2>
-            <CopyButton
-              value={link}
-              label={t("partner.copyLink")}
-              copiedLabel={t("partner.linkCopied")}
-              variant="secondary"
-              className="w-full"
-            />
-            <p className="text-p-sm text-muted">{t("partner.linkHint")}</p>
-            {partner.salesPartnerSince && (
+          {/* A former sales partner's link no longer counts (ADR 0032). */}
+          {partner.salesPartnerSince && (
+            <Panel as="section" className="flex flex-col gap-4">
+              <h2 className="text-title-h6">{t("partner.link")}</h2>
+              <CopyButton
+                value={link}
+                label={t("partner.copyLink")}
+                copiedLabel={t("partner.linkCopied")}
+                variant="secondary"
+                className="w-full"
+              />
+              <p className="text-p-sm text-muted">{t("partner.linkHint")}</p>
               <div className="border-t border-border pt-4">
                 <RemovePartner userId={partner.id} name={partner.name} />
               </div>
-            )}
-          </Panel>
+            </Panel>
+          )}
         </div>
       </div>
     </>

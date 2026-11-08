@@ -1210,6 +1210,10 @@
       "earn": "You earn 35% of each invoice it pays, VAT excluded, for 6 months from its first one.",
       "wait": "A commission is owed 14 days after its invoice is paid. A refund or dispute before then cancels it.",
       "paid": "What's owed is paid to you by bank transfer."
+    },
+    "formerEmpty": {
+      "title": "Nothing to show",
+      "description": "No shop signed up through your link before your sales partner status ended, so nothing is owed to you."
     }
   }
 }

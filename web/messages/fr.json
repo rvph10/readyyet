@@ -1210,6 +1210,10 @@
       "earn": "Vous gagnez 35 % de chaque facture qu'il paie, hors TVA, pendant 6 mois à partir de la première.",
       "wait": "Une commission est due 14 jours après le paiement de sa facture. Un remboursement ou une contestation avant cela l'annule.",
       "paid": "Ce qui vous est dû est payé par virement bancaire."
+    },
+    "formerEmpty": {
+      "title": "Rien à afficher",
+      "description": "Aucun magasin ne s'est inscrit avec votre lien avant la fin de votre statut de partenaire commercial, donc rien ne vous est dû."
     }
   }
 }
