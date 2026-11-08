@@ -81,14 +81,14 @@ export class CommissionService {
   // Only the Business's name, its sales partner sees nothing else of it.
   async listForSalesPartner(userId: string, query: ListCommissionsQueryDto): Promise<CommissionPageDto> {
     await this.loadSalesPartner(userId);
-    const { items, nextCursor } = await this.page({ salesPartnerId: userId }, query);
+    const { items, total } = await this.page({ salesPartnerId: userId }, query);
     const now = new Date();
     return {
       items: items.map((row) => {
         const { id, business, invoicePaidAt, amount, state, paidAt } = toAdminCommission(row, now);
         return { id, business: { name: business.name }, invoicePaidAt, amount, state, paidAt };
       }),
-      nextCursor,
+      total,
     };
   }
 
@@ -97,9 +97,9 @@ export class CommissionService {
       ...(query.salesPartnerId && { salesPartnerId: query.salesPartnerId }),
       ...(query.state && commissionStateWhere(query.state)),
     };
-    const { items, nextCursor } = await this.page(where, query);
+    const { items, total } = await this.page(where, query);
     const now = new Date();
-    return { items: items.map((row) => toAdminCommission(row, now)), nextCursor };
+    return { items: items.map((row) => toAdminCommission(row, now)), total };
   }
 
   // Only commissions owed right now, all or none: one that was voided or
@@ -153,14 +153,16 @@ export class CommissionService {
   // Newest first, by id: commissions are recorded as their invoices are paid.
   private async page(where: Prisma.CommissionWhereInput, query: ListCommissionsQueryDto) {
     const take = query.take ?? DEFAULT_LIST_TAKE;
-    const rows = await this.prisma.commission.findMany({
-      where: { ...where, ...(query.cursor && { id: { lt: BigInt(query.cursor) } }) },
-      orderBy: { id: "desc" },
-      // One extra row says whether there's a next page.
-      take: take + 1,
-      select: adminCommissionSelect,
-    });
-    const items = rows.slice(0, take);
-    return { items, nextCursor: rows.length > take ? items[items.length - 1].id.toString() : null };
+    const [items, total] = await Promise.all([
+      this.prisma.commission.findMany({
+        where,
+        orderBy: { id: "desc" },
+        skip: ((query.page ?? 1) - 1) * take,
+        take,
+        select: adminCommissionSelect,
+      }),
+      this.prisma.commission.count({ where }),
+    ]);
+    return { items, total };
   }
 }

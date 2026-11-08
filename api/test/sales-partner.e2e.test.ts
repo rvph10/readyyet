@@ -234,9 +234,12 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
     });
     expect(first.body.items[1].state).toBe("VOIDED");
 
-    const rest = await get(`/me/sales-partner/commissions?take=10&cursor=${first.body.nextCursor}`, partnerCookie);
-    expect(rest.body.items.map((item: { state: string }) => item.state)).toEqual(["OWED", "OWED", "PAID"]);
-    expect(rest.body.nextCursor).toBeNull();
+    expect(first.body.total).toBe(5);
+
+    const rest = await get("/me/sales-partner/commissions?take=2&page=2", partnerCookie);
+    expect(rest.body.items.map((item: { state: string }) => item.state)).toEqual(["OWED", "OWED"]);
+    const last = await get("/me/sales-partner/commissions?take=2&page=3", partnerCookie);
+    expect(last.body.items.map((item: { state: string }) => item.state)).toEqual(["PAID"]);
   });
 
   it("is refused to someone who was never a sales partner", async () => {
@@ -257,6 +260,7 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
 
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: { id: string }) => item.id)).toEqual([ids.owed, ids.owedToo]);
+    expect(response.body.total).toBe(2);
     expect(response.body.items[0]).toMatchObject({
       salesPartner: { id: partnerId, email: partnerEmail },
       business: { name: "Paying Garage" },

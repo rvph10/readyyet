@@ -1624,7 +1624,7 @@ export interface components {
         };
         AdminCommissionPageDto: {
             items: components["schemas"]["AdminCommissionDto"][];
-            nextCursor: string | null;
+            total: number;
         };
         MarkCommissionsPaidDto: {
             commissionIds: string[];
@@ -1665,7 +1665,7 @@ export interface components {
         };
         CommissionPageDto: {
             items: components["schemas"]["CommissionDto"][];
-            nextCursor: string | null;
+            total: number;
         };
     };
     responses: never;
@@ -7790,7 +7790,7 @@ export interface operations {
                 state?: "PENDING" | "OWED" | "PAID" | "VOIDED";
                 salesPartnerId?: string;
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path?: never;
@@ -8043,7 +8043,7 @@ export interface operations {
         parameters: {
             query?: {
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path?: never;
