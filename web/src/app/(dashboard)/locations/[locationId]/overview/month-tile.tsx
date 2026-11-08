@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/icon";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
 import { intlLocale } from "../tickets/ticket-views";
 
@@ -22,12 +23,14 @@ export function MonthTile({
   customers,
   className,
 }: {
-  received: Received;
-  customers: Customers;
+  // Both null while the month loads: the tile stands, its numbers wait.
+  received: Received | null;
+  customers: Customers | null;
   className: string;
 }) {
   const t = useTranslations("today.month");
   const locale = useLocale();
+  if (!received || !customers) return <MonthLoading title={t("title")} className={className} />;
   const { months, lastMonthSoFar } = received;
   const current = months.at(-1)!.received;
   const change = current - lastMonthSoFar;
@@ -110,6 +113,36 @@ export function MonthTile({
             </>
           )}
         </div>
+      </div>
+    </section>
+  );
+}
+
+const BARS = ["h-1/4", "h-2/5", "h-1/3", "h-3/5", "h-4/5", "h-1/2"];
+
+function MonthLoading({ title, className }: { title: string; className: string }) {
+  return (
+    <section
+      aria-busy="true"
+      className={`flex flex-col gap-6 rounded-sheet border border-border bg-surface p-5 lg:p-6 ${className}`}
+    >
+      <div>
+        <h2 className="text-label-md">{title}</h2>
+        <Skeleton className="mt-1.5 h-11 w-20" />
+      </div>
+      <ul className="flex h-36 gap-2 lg:gap-3">
+        {BARS.map((height, index) => (
+          <li key={index} className="grid min-w-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2">
+            <div className="flex items-end">
+              <Skeleton className={`w-full rounded-t-lg rounded-b-sm ${height}`} />
+            </div>
+            <Skeleton className="mx-auto h-3.5 w-8" />
+          </li>
+        ))}
+      </ul>
+      <div className="mt-auto">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="mt-3 h-3 w-full rounded-full!" />
       </div>
     </section>
   );

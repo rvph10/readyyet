@@ -3,14 +3,16 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationActions } from "../location-actions";
 
 export interface HeroStat {
   href: string;
   icon: IconName;
   label: string;
-  value: number;
-  sub: string;
+  // Null while the day's numbers load: the card stands, its number waits.
+  value: number | null;
+  sub: string | null;
   tone?: "lime" | "late";
 }
 
@@ -24,7 +26,7 @@ export function TodayHero({
 }: {
   greeting: string;
   date: string;
-  summary: string;
+  summary: string | null;
   stats: HeroStat[];
 }) {
   const t = useTranslations("today");
@@ -35,7 +37,11 @@ export function TodayHero({
         <div className="min-w-0">
           <p className="text-label-sm text-brand">{date}</p>
           <h1 className="mt-1 text-title-h4 wrap-anywhere lg:text-title-h3">{greeting}</h1>
-          <p className="mt-1 text-p-lg">{summary}</p>
+          {summary === null ? (
+            <Skeleton className="mt-2.5 h-5 w-64 max-w-full bg-surface/15!" />
+          ) : (
+            <p className="mt-1 text-p-lg">{summary}</p>
+          )}
         </div>
         {/* On a phone the bottom bar already holds New Ticket. */}
         <button
@@ -63,7 +69,8 @@ export function TodayHero({
 
 function Stat({ href, icon, label, value, sub, tone }: HeroStat) {
   const lime = tone === "lime";
-  const late = tone === "late" && value > 0;
+  const late = tone === "late" && value !== null && value > 0;
+  const placeholder = lime ? "bg-pine/15!" : "bg-surface/15!";
   return (
     <Link
       href={href}
@@ -81,12 +88,17 @@ function Stat({ href, icon, label, value, sub, tone }: HeroStat) {
           <Icon name={icon} className="size-3" />
         </span>
       </span>
+      {/* The same heights loaded or not, so nothing moves when the numbers come. */}
       <span
-        className={`mt-2 font-bold tracking-tight ${lime ? "text-[4rem] leading-[4.25rem]" : "text-[2.75rem] leading-[3.5rem]"}`}
+        className={`mt-2 flex items-center font-bold tracking-tight ${lime ? "h-[4.25rem] text-[4rem] leading-[4.25rem]" : "h-14 text-[2.75rem] leading-[3.5rem]"}`}
       >
-        {value}
+        {value ?? <Skeleton className={`h-3/5 w-16 ${placeholder}`} />}
       </span>
-      <span className="text-p-sm">{sub}</span>
+      {sub === null ? (
+        <Skeleton className={`my-1 h-3.5 w-32 max-w-full ${placeholder}`} />
+      ) : (
+        <span className="text-p-sm">{sub}</span>
+      )}
     </Link>
   );
 }

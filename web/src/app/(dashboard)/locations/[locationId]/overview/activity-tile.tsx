@@ -4,10 +4,13 @@ import Link from "next/link";
 import { StatusPill } from "@/components/status-pill";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
 import { statusLabel } from "@/lib/status-label";
 
 type Activity = components["schemas"]["InsightsActivityDto"];
+
+const LOADING_ROWS = 4;
 
 // ADR 0116: who did what lately, for the colleague who comes in after them.
 // No counts per person: it's for handing over, not for watching people.
@@ -18,7 +21,8 @@ export function ActivityTile({
   when,
   className,
 }: {
-  activity: Activity[];
+  // Null while it loads: the tile and its title stand, the rows wait.
+  activity: Activity[] | null;
   locationId: string;
   meId: string;
   when: (instant: string) => string;
@@ -33,7 +37,19 @@ export function ActivityTile({
       className={`flex min-h-0 flex-col overflow-clip rounded-sheet border border-border bg-surface ${className}`}
     >
       <h2 className="px-5 pt-5 pb-2 text-title-h6 lg:px-6">{t("title")}</h2>
-      {activity.length === 0 ? (
+      {activity === null ? (
+        <ul aria-busy="true" className="flex flex-col gap-1 px-5 pb-5 lg:px-6">
+          {Array.from({ length: LOADING_ROWS }, (_, row) => (
+            <li key={row} className="flex gap-3 py-3">
+              <Skeleton className="size-8 shrink-0 rounded-full!" />
+              <div className="flex flex-1 flex-col gap-2">
+                <Skeleton className="h-4 w-4/5" />
+                <Skeleton className="h-7 w-28 rounded-xl!" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : activity.length === 0 ? (
         <EmptyState illustration="coffee" title={t("emptyTitle")} description={t("emptyBody")} />
       ) : (
         <ul className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
