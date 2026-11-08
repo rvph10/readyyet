@@ -11,6 +11,8 @@ export class InsightsSetupDto {
   team!: boolean;
   firstTicket!: boolean;
   firstHandover!: boolean;
+  // The signed-in User hid the guide (ADR 0117).
+  hidden!: boolean;
 }
 
 export class InsightsMonthDto {

@@ -12,7 +12,7 @@ const MEMBER_INCLUDE = { user: { select: { id: true, email: true, name: true, im
 function toMember({
   user: { image, ...user },
   ...membership
-}: Prisma.MembershipGetPayload<{ include: typeof MEMBER_INCLUDE }>) {
+}: Prisma.MembershipGetPayload<{ include: typeof MEMBER_INCLUDE; omit: { setupGuideHiddenAt: true } }>) {
   return { ...membership, id: membership.id.toString(), user: { ...user, avatarUrl: publicImageUrl(image) } };
 }
 
@@ -24,6 +24,8 @@ export class MembershipService {
     const memberships = await this.prisma.membership.findMany({
       where: { locationId },
       include: MEMBER_INCLUDE,
+      // Each User's own, not their colleagues' business.
+      omit: { setupGuideHiddenAt: true },
       orderBy: { createdAt: "asc" },
     });
     return memberships.map(toMember);
@@ -40,6 +42,7 @@ export class MembershipService {
       where: { id: membership.id },
       data: { role: dto.role },
       include: MEMBER_INCLUDE,
+      omit: { setupGuideHiddenAt: true },
     });
     return toMember(updated);
   }
@@ -59,6 +62,13 @@ export class MembershipService {
       throw new ConflictError("The owner can't leave, transfer ownership of the business first");
     }
     await this.prisma.membership.delete({ where: { userId_locationId: { userId, locationId } } });
+  }
+
+  async updateSetupGuide(locationId: string, userId: string, hidden: boolean) {
+    await this.prisma.membership.update({
+      where: { userId_locationId: { userId, locationId } },
+      data: { setupGuideHiddenAt: hidden ? new Date() : null },
+    });
   }
 
   private async loadInLocation(locationId: string, membershipId: string) {

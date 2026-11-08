@@ -85,6 +85,7 @@ describe("Insights", () => {
       team: false,
       firstTicket: false,
       firstHandover: false,
+      hidden: false,
     });
     expect(received.months).toHaveLength(6);
     expect(received.months.at(-1)).toEqual({ month: inDays(0).slice(0, 7), received: 0 });
@@ -116,5 +117,26 @@ describe("Insights", () => {
     expect(activity[0]).toMatchObject({ ticketTitle: "Handed over" });
     expect(activity[0].changedByName).toBeTruthy();
     expect(setup.firstHandover).toBe(true);
+  });
+
+  it("hides the setup guide for the User who asks, and shows it again", async () => {
+    const guide = (hidden: boolean) =>
+      request(app.getHttpServer())
+        .put(`/locations/${locationId}/memberships/me/setup-guide`)
+        .set("Cookie", cookie)
+        .send({ hidden })
+        .expect(204);
+    await guide(true);
+    expect((await insights()).setup.hidden).toBe(true);
+    await guide(false);
+    expect((await insights()).setup.hidden).toBe(false);
+  });
+
+  it("refuses anything but a boolean", async () => {
+    await request(app.getHttpServer())
+      .put(`/locations/${locationId}/memberships/me/setup-guide`)
+      .set("Cookie", cookie)
+      .send({ hidden: "yes" })
+      .expect(400);
   });
 });

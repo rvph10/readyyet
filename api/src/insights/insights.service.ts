@@ -24,7 +24,7 @@ function addMonths(month: string, months: number) {
 export class InsightsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async get(locationId: string) {
+  async get(locationId: string, userId: string) {
     const location = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
       include: { business: { select: { logoKey: true } } },
@@ -40,7 +40,7 @@ export class InsightsService {
     const since = (date: string) => ({ gte: fromCalendarDate(addDays(date, -1)) });
     const monthStart = `${thisMonth}-01`;
 
-    const [received, activity, members, invited, anyTicket, anyHandover] = await Promise.all([
+    const [received, activity, members, invited, anyTicket, anyHandover, mine] = await Promise.all([
       this.prisma.ticket.findMany({
         where: { locationId, createdAt: since(`${firstMonth}-01`) },
         select: { createdAt: true, customerId: true },
@@ -64,6 +64,10 @@ export class InsightsService {
       this.prisma.ticketStatusEvent.findFirst({
         where: { ticket: { locationId }, status: { code: "COMPLETED" } },
         select: { id: true },
+      }),
+      this.prisma.membership.findUniqueOrThrow({
+        where: { userId_locationId: { userId, locationId } },
+        select: { setupGuideHiddenAt: true },
       }),
     ]);
 
@@ -98,6 +102,7 @@ export class InsightsService {
         team: members > 1 || invited > 0,
         firstTicket: anyTicket !== null,
         firstHandover: anyHandover !== null,
+        hidden: mine.setupGuideHiddenAt !== null,
       },
       received: {
         months: Array.from({ length: MONTHS }, (_, index) => {
