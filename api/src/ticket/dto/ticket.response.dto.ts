@@ -96,24 +96,6 @@ export class OverviewCountsDto {
   unhandledFeedback!: number;
 }
 
-export class OverviewStepDto {
-  status!: StatusDto;
-  count!: number;
-}
-
-export class OverviewDayDto {
-  @ApiProperty({ type: String, format: "date" })
-  date!: string;
-  count!: number;
-}
-
-export class OverviewHandedOverDto {
-  // The last 7 days on the Location's clock, today last.
-  days!: OverviewDayDto[];
-  // The 7 days before those.
-  previousWeek!: number;
-}
-
 export class OverviewNeedsYouDto {
   // The Customer says they collected it (ADR 0028).
   collected!: OverviewTicketDto[];
@@ -124,9 +106,6 @@ export class OverviewNeedsYouDto {
 
 export class TicketOverviewDto {
   counts!: OverviewCountsDto;
-  // Open Tickets at each step, in Workflow order.
-  steps!: OverviewStepDto[];
-  handedOver!: OverviewHandedOverDto;
   // Open Tickets, most urgent first, the first 100 (ADR 0088).
   tickets!: OverviewTicketDto[];
   // What a person has to settle, among every open Ticket (ADR 0113).

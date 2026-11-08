@@ -107,7 +107,8 @@
     "switchBusinessLabel": "Businesses",
     "openCount": "{count, plural, one {open Ticket} other {open Tickets}}",
     "tileReady": "{count} ready",
-    "tileLate": "{count} late"
+    "tileLate": "{count} late",
+    "profile": "Your profile"
   },
   "tickets": {
     "title": "Tickets",
@@ -128,7 +129,6 @@
       "status": "Status",
       "expected": "Expected",
       "received": "Received",
-      "next": "Next step",
       "lastUpdate": "Last update"
     },
     "today": "Today",
@@ -494,9 +494,6 @@
     "upToLate": "{days, plural, one {Up to # day late} other {Up to # days late}}",
     "nothingLate": "Everything on time",
     "dueTomorrow": "{count, plural, =0 {Nothing due tomorrow} other {# more due tomorrow}}",
-    "waitingOnSomeone": "{count} waiting on someone",
-    "handedOver": "Handed over this week",
-    "ticketCount": "{count, plural, one {# Ticket} other {# Tickets}}",
     "needsYou": "Needs you",
     "caughtUp": "All clear",
     "caughtUpHint": "No feedback or problems waiting for you.",
@@ -507,18 +504,7 @@
     "waiting": "Waiting {days} days",
     "trialEnds": "{days, plural, one {Your trial ends tomorrow} other {Your trial ends in # days}}",
     "trialEnded": "New Tickets are paused",
-    "openTickets": "Open Tickets",
     "allTickets": "All Tickets",
-    "noneHere": "Nothing here",
-    "noneHereHint": "No open Ticket matches this filter.",
-    "filters": {
-      "all": "All",
-      "late": "Late",
-      "ready": "Ready",
-      "received": "Just in",
-      "working": "Being worked on",
-      "waiting": "Waiting on someone"
-    },
     "first": {
       "title": "Create your first Ticket",
       "body": "Create a Ticket when an item comes in, and your Customer can follow it without calling.",
@@ -536,7 +522,6 @@
         "body": "They see each step, without calling."
       }
     },
-    "vsLastWeek": "vs last week",
     "needsYouCount": "{count, plural, =0 {Needs you, nothing right now} one {Needs you, # thing} other {Needs you, # things}}",
     "seeAll": "See all {count}",
     "groups": {
@@ -544,6 +529,98 @@
       "collected": "To confirm",
       "feedback": "Feedback",
       "waiting": "Waiting to be collected"
+    },
+    "newTicket": "New Ticket",
+    "summary": {
+      "late": "{count, plural, one {# Ticket is running late.} other {# Tickets are running late.}}",
+      "ready": "{count, plural, one {# Customer can come and collect.} other {# Customers can come and collect.}}",
+      "due": "{count, plural, one {# Ticket is due today.} other {# Tickets are due today.}}",
+      "calm": "Nothing urgent. A good day to get ahead."
+    },
+    "openCount": "{count, plural, one {# open Ticket} other {# open Tickets}}",
+    "upNext": "Up next",
+    "upNextHint": "The most urgent first",
+    "allOpen": "All {count}",
+    "caughtUpTitle": "All caught up",
+    "caughtUpBody": "No open Ticket right now. Enjoy the calm.",
+    "month": {
+      "title": "Tickets this month",
+      "vsLastMonth": "vs {month}, same days",
+      "chartLabel": "Tickets received per month",
+      "tickets": "{count, plural, one {# Ticket} other {# Tickets}}",
+      "customers": "Customers this month",
+      "new": "{count} new",
+      "returning": "{count} returning"
+    },
+    "setup": {
+      "title": "Get {shop} ready",
+      "progress": "{done} of {total} tasks done. Finish them so your Customers get everything ReadyYet offers.",
+      "collapse": "Collapse the guide",
+      "expand": "Expand the guide",
+      "firstTicket": {
+        "title": "Create your first Ticket",
+        "body": "Add a Ticket when an item comes in. Your Customer gets a link and a QR code to follow it, and an email at every step, without calling you.",
+        "action": "Create a Ticket",
+        "short": "First Ticket"
+      },
+      "address": {
+        "title": "Add your address",
+        "body": "Shown on the tracking page and in emails, so Customers know where to come and collect.",
+        "action": "Add address",
+        "short": "Address"
+      },
+      "hours": {
+        "title": "Set your opening hours",
+        "body": "Customers see when you're open, and ready dates skip the days you're closed.",
+        "action": "Set hours",
+        "short": "Opening hours"
+      },
+      "turnaround": {
+        "title": "Set your usual turnaround",
+        "body": "Every new Ticket gets a ready date from it, so Customers know when to expect their item.",
+        "action": "Set turnaround",
+        "short": "Turnaround"
+      },
+      "reviewLink": {
+        "title": "Add your Google review link",
+        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "action": "Add review link",
+        "short": "Google reviews"
+      },
+      "team": {
+        "title": "Invite your team",
+        "body": "Everyone moves Tickets from their own account, so you always know who did what.",
+        "action": "Invite someone",
+        "short": "Your team"
+      },
+      "logo": {
+        "title": "Add your logo",
+        "body": "Your logo appears on the tracking page and in every email, so Customers recognise your shop.",
+        "action": "Add logo",
+        "panelHint": "A square image works best. JPG, PNG or WebP.",
+        "choose": "Choose an image",
+        "uploading": "Uploading…",
+        "short": "Logo"
+      },
+      "firstHandover": {
+        "title": "Hand over a first item",
+        "body": "When a Customer collects their item, mark the Ticket as collected. Ready ones are waiting in your Tickets.",
+        "action": "See Ready Tickets",
+        "short": "First handover"
+      },
+      "eyebrow": "Setup guide",
+      "stepOf": "Step {number} of {total}",
+      "done": "Done",
+      "change": "Change it",
+      "percent": "{percent}% set up"
+    },
+    "activity": {
+      "title": "Activity",
+      "you": "You",
+      "created": "created",
+      "moved": "moved",
+      "emptyTitle": "Quiet so far",
+      "emptyBody": "Changes to Tickets show up here."
     }
   },
   "plans": {
@@ -1036,5 +1113,66 @@
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
     }
+  },
+  "profile": {
+    "title": "Your profile",
+    "photoChange": "Change your photo",
+    "photoRemove": "Remove photo",
+    "photoSaved": "Photo updated.",
+    "photoRemoved": "Photo removed.",
+    "photoFailed": "Your photo wasn't saved. Try a JPG, PNG or WebP image.",
+    "detailsHint": "How your colleagues see you on Tickets and in Activity.",
+    "name": "Your name",
+    "nameMissing": "Enter your name.",
+    "nameSaved": "Name saved.",
+    "nameFailed": "Your name wasn't saved. Please try again.",
+    "email": "Email",
+    "emailHint": "You sign in with this address. It can't be changed yet.",
+    "languageHint": "The language ReadyYet speaks to you.",
+    "languageFailed": "Your language wasn't saved. Please try again.",
+    "leave": "Leave",
+    "leaveTitle": "Leave {shop}?",
+    "leaveBody": "You'll lose access to its Tickets and Customers. Someone there can invite you again.",
+    "leaveConfirm": "Leave this shop",
+    "leaving": "Leaving…",
+    "left": "You left {shop}.",
+    "leaveFailed": "You couldn't leave this shop. Please try again.",
+    "deleteTitle": "Delete your account",
+    "deleteHint": "For when you're leaving ReadyYet for good.",
+    "deleteLoses": {
+      "access": "You lose access to every shop at once",
+      "name": "Your name and email are erased",
+      "history": "What you did on Tickets stays, as Former member"
+    },
+    "deleteFinal": "This can't be undone.",
+    "deleteAction": "Delete my account",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmBody": "You'll be signed out everywhere, and signing in again with this address starts a new, empty account.",
+    "deleteWord": "DELETE",
+    "deleteType": "Type <strong>{word}</strong> to confirm.",
+    "deleteTypeLabel": "Confirmation",
+    "deleteConfirm": "Delete my account",
+    "deleting": "Deleting…",
+    "reauthBody": "For your safety, deleting your account needs a fresh sign-in. Sign in again, then come back here.",
+    "reauthAction": "Sign in again",
+    "navLabel": "Profile sections",
+    "nav": {
+      "details": "Your profile",
+      "language": "Language",
+      "shops": "Your shops",
+      "delete": "Delete account"
+    },
+    "photo": "Photo",
+    "photoHint": "Shown beside your name across ReadyYet. JPG, PNG or WebP.",
+    "photoAdd": "Add a photo",
+    "nameTitle": "Name",
+    "nameHint": "Your first name greets you on Today.",
+    "languageTitle": "Your language",
+    "languageWhere": "Used for the app and for every email ReadyYet sends you.",
+    "languageSaved": "Language saved.",
+    "shopsHint": "Every shop you work in, and your Role there.",
+    "deleteLosesTitle": "Deleting your account means",
+    "deleteOwner": "You still own a Business with shops. Transfer it or delete its shops first.",
+    "deleteFailed": "Your account wasn't deleted. Please try again."
   }
 }

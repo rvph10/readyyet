@@ -14,7 +14,9 @@ export function LocationCrumbs({ current }: { current?: string }) {
   const pathname = usePathname();
   const home = `/locations/${locationId}`;
   const section = SECTIONS.find(({ slug }) => slug && pathname.startsWith(`${home}/${slug}`));
-  if (!section) return null;
+  // A page outside the sections, like the User's profile, hangs off the shop.
+  if (!section)
+    return current ? <Breadcrumbs crumbs={[{ label: locationName, href: home }, { label: current }]} /> : null;
   const crumbs: Crumb[] = [
     { label: locationName, href: home },
     { label: t(`sections.${section.key}`), href: current ? `${home}/${section.slug}` : undefined },

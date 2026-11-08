@@ -2,15 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState, useTransition, type FormEvent } from "react";
-import { z } from "zod";
+import { useState, useTransition } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field } from "@/components/ui/field";
-import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { RadioCards } from "@/components/ui/radio-cards";
@@ -18,12 +15,12 @@ import { useToast } from "@/components/ui/toast";
 
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
-import { changeRole, inviteMember, leaveLocation, removeMember, resendInvitation, revokeInvitation } from "./actions";
-import { canManage, type InvitationState, inviteFailure } from "./team-views";
+import { changeRole, leaveLocation, removeMember, resendInvitation, revokeInvitation } from "./actions";
+import { InviteForm, type InvitableRole, useRoleOptions } from "./invite-form";
+import { canManage, type InvitationState } from "./team-views";
 
 type Member = components["schemas"]["MemberDto"] & { joinedShown: string };
 type Invitation = components["schemas"]["InvitationDto"] & { state: InvitationState; expiresInDays: number };
-type InvitableRole = "ADMIN" | "EMPLOYEE";
 
 interface Props {
   locationId: string;
@@ -44,10 +41,7 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
   const tForm = useTranslations("tickets.form");
   const toast = useToast();
   const [inviting, setInviting] = useState(false);
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<InvitableRole>("EMPLOYEE");
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [failure, setFailure] = useState<string | null>(null);
+  const [invited, setInvited] = useState<{ email: string; role: InvitableRole }>();
   const [managedId, setManagedId] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<InvitableRole>("EMPLOYEE");
   const [removing, setRemoving] = useState<Member | null>(null);
@@ -56,40 +50,11 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
   const managed = members.find(({ id }) => id === managedId);
   const ownerActs = myRole === "OWNER";
   const waiting = invitations.filter(({ state }) => state === "pending").length;
-  const roleOptions = (["EMPLOYEE", "ADMIN"] as const).map((value) => ({
-    value,
-    label: tDashboard(`roles.${value}`),
-    description: t(`roleHints.${value}`),
-  }));
+  const roleOptions = useRoleOptions();
 
-  function startInvite(invited?: { email: string; role: InvitableRole }) {
-    setEmail(invited?.email ?? "");
-    setRole(invited?.role ?? "EMPLOYEE");
-    setEmailError(null);
-    setFailure(null);
+  function startInvite(again?: { email: string; role: InvitableRole }) {
+    setInvited(again);
     setInviting(true);
-  }
-
-  function submitInvite(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const address = email.trim();
-    if (!z.email().safeParse(address).success) {
-      setEmailError(tForm("emailInvalid"));
-      return;
-    }
-    setEmailError(null);
-    setFailure(null);
-    startTransition(async () => {
-      const result = await orFailure(inviteMember(locationId, { email: address, role }));
-      if (result.ok) {
-        setInviting(false);
-        toast({ message: t("invited", { email: address }) });
-      } else if (result.fields?.email) {
-        setEmailError(tForm("emailInvalid"));
-      } else {
-        setFailure(t(`errors.${inviteFailure(result.code)}`));
-      }
-    });
   }
 
   function run(action: () => Promise<{ ok: boolean }>, done: string, onDone?: () => void) {
@@ -256,44 +221,16 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
       </Panel>
 
       <Dialog open={inviting} onClose={() => setInviting(false)} title={t("inviteTitle")} variant="panel">
-        <form onSubmit={submitInvite} noValidate className="flex min-h-0 flex-1 flex-col">
-          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 py-3 md:px-7">
-            {failure && <FormAlert>{failure}</FormAlert>}
-            <Field
-              label={tForm("email")}
-              type="email"
-              autoComplete="off"
-              hint={t("emailHint")}
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                setEmailError(null);
-                setFailure(null);
-              }}
-              error={emailError}
-            />
-            {ownerActs ? (
-              <RadioCards
-                legend={t("roleLegend")}
-                name="invite-role"
-                columns={1}
-                options={roleOptions}
-                value={role}
-                onChange={(value) => setRole(value as InvitableRole)}
-              />
-            ) : (
-              <p className="text-p-sm text-muted">{t("adminInvites")}</p>
-            )}
-          </div>
-          <div className="flex gap-2 border-t border-border px-6 py-4 md:px-7">
-            <Button type="submit" pending={pending} pendingLabel={t("sending")} className="flex-1">
-              {t("send")}
-            </Button>
-            <Button variant="secondary" disabled={pending} onClick={() => setInviting(false)}>
-              {tForm("cancel")}
-            </Button>
-          </div>
-        </form>
+        {/* Remounted on each opening, so it starts from what's asked again. */}
+        {inviting && (
+          <InviteForm
+            locationId={locationId}
+            ownerActs={ownerActs}
+            initial={invited}
+            onDone={() => setInviting(false)}
+            onCancel={() => setInviting(false)}
+          />
+        )}
       </Dialog>
 
       {/* In a side panel, so changing someone never moves the page (ADR 0087). */}

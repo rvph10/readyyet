@@ -3,20 +3,22 @@
 import { ErrorCode } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState, useTransition, type FormEvent } from "react";
+import { use, useState, useTransition, type FormEvent } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
 import { checkReviewLink, updateLocation } from "./actions";
-import { SectionForm, SectionHeading } from "./section-form";
+import { InPanel, SectionForm, SectionHeading } from "./section-form";
 
 interface Props {
   locationId: string;
   url: string | null;
   // Whether this Location's plan includes review requests (ADR 0039).
   hasPro: boolean;
+  // Called once saved, when the section opened in a panel (ADR 0117).
+  onSaved?: () => void;
 }
 
 const PROFILE_URL = "https://business.google.com";
@@ -66,7 +68,7 @@ function CustomerPreview() {
 // ADR 0100: bold when it's missing on a plan that includes it, as nothing tells
 // a shop otherwise that its Customers are never being asked. ADR 0109: the app
 // follows the link itself, rather than opening it for the shop to judge.
-export function ReviewLink({ locationId, url, hasPro }: Props) {
+export function ReviewLink({ locationId, url, hasPro, onSaved }: Props) {
   const t = useTranslations("settings");
   const toast = useToast();
   const saved = url ?? "";
@@ -76,12 +78,13 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
   const [check, setCheck] = useState<{ link: string; found: keyof typeof CHECKS | "invalid" } | null>(null);
   const [checking, startChecking] = useTransition();
   const [pending, startTransition] = useTransition();
+  const inPanel = use(InPanel);
 
   if (!hasPro) {
     return (
-      <>
-        <SectionHeading title={t("nav.reviews")} hint={t("reviewHint")} />
-        <div className="grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+      <div className="@container">
+        {!inPanel && <SectionHeading title={t("nav.reviews")} hint={t("reviewHint")} />}
+        <div className="grid max-w-5xl gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
           <div className="flex flex-col items-start gap-4 rounded-3xl bg-subtle p-6">
             <p className="text-title-h6 text-balance">{t(url ? "reviewPaused" : "reviewNeedsPro")}</p>
             <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
@@ -91,7 +94,7 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
           </div>
           <CustomerPreview />
         </div>
-      </>
+      </div>
     );
   }
 
@@ -116,8 +119,10 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
     setFailure(null);
     startTransition(async () => {
       const result = await orFailure(updateLocation(locationId, { googleReviewUrl: next }));
-      if (result.ok) toast({ message: t("saved") });
-      else if (result.fields?.googleReviewUrl) setError(t("reviewInvalid"));
+      if (result.ok) {
+        toast({ message: t("saved") });
+        onSaved?.();
+      } else if (result.fields?.googleReviewUrl) setError(t("reviewInvalid"));
       else setFailure(t(result.code === ErrorCode.PLAN_REQUIRED ? "reviewNeedsPro" : "saveFailed"));
     });
   }
@@ -137,7 +142,7 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
       pending={pending}
       failure={failure}
     >
-      <div className="grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+      <div className="grid max-w-5xl gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
         <div className="flex min-w-0 flex-col gap-5">
           <p
             className={`flex items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}

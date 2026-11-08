@@ -1,297 +1,301 @@
-import { calendarDateIn, ERASED_CUSTOMER_NAME } from "@readyyet/shared";
+import { calendarDateIn } from "@readyyet/shared";
+import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { Suspense, type ReactNode } from "react";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
-import { statusTone } from "@/components/status-pill";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Icon, type IconName } from "@/components/ui/icon";
-import { Panel } from "@/components/ui/panel";
-import { Tabs } from "@/components/ui/tabs";
-import { buttonClass } from "@/components/ui/button";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
-import { parseSort, setSort, type Sort } from "@/lib/sort";
-import { getBilling, getLocation, getOverview } from "./location-data";
+import { getBilling, getInsights, getLocation, getOverview } from "./location-data";
+import { ActivityTile } from "./overview/activity-tile";
 import { FirstTicket } from "./overview/first-ticket";
+import { MonthTile } from "./overview/month-tile";
 import { PlanCelebration } from "./overview/plan-celebration";
-import { WeekChart } from "./overview/week-chart";
+import { SetupGuide } from "./overview/setup-guide";
+import { foldedCookie, setupSteps } from "./overview/setup-steps";
+import { TodayHero, type HeroStat } from "./overview/today-hero";
+import { UpNext } from "./overview/up-next";
 import { PageHeader } from "./page-header";
 import { parsePlan } from "./plan-prices";
 import { isManager } from "./sections";
-import { QueueHeader, TicketRow } from "./tickets/ticket-row";
-import {
-  daysBetween,
-  expected,
-  intlLocale,
-  parseFilter,
-  QUEUE_SORTS,
-  type Filter,
-  type QueueSort,
-} from "./tickets/ticket-views";
+import { daysBetween, expected, formatMoment, intlLocale } from "./tickets/ticket-views";
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
 
-function Stat({
-  href,
-  icon,
-  label,
-  value,
-  sub,
-  tone = "plain",
-}: {
-  href: string;
-  icon: IconName;
-  label: string;
-  value: number;
-  sub: string;
-  tone?: "plain" | "lime" | "late";
-}) {
-  const lime = tone === "lime";
-  const late = tone === "late" && value > 0;
-  return (
-    <Link
-      href={href}
-      className={`flex min-w-0 flex-col items-start rounded-sheet border p-4 transition-colors ${
-        lime ? "border-brand bg-brand hover:bg-brand-hover" : "border-border bg-surface hover:bg-subtle"
-      }`}
-    >
-      <span className="flex w-full items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-label-sm">{label}</span>
-        <span
-          className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
-            lime
-              ? "bg-pine text-brand max-sm:hidden"
-              : `max-sm:hidden xl:max-[110rem]:hidden ${late ? "bg-danger-subtle text-danger" : "bg-subtle text-muted"}`
-          }`}
-        >
-          <Icon name={icon} className="size-3" />
-        </span>
-      </span>
-      <span
-        className={`font-bold tracking-tight ${lime ? "text-[3.25rem] leading-[3.5rem]" : "text-[2.5rem] leading-[3.5rem]"} ${
-          late ? "text-danger" : ""
-        }`}
-      >
-        {value}
-      </span>
-      <span className={`text-p-sm ${lime ? "text-ink" : "text-muted"}`}>{sub}</span>
-    </Link>
-  );
+type Overview = Awaited<ReturnType<typeof getOverview>>;
+
+interface Today {
+  locationId: string;
+  manager: boolean;
+  owner: boolean;
+  businessName: string;
+  meId: string;
+  greeting: string;
+  date: string;
+  timeZone: string;
+  today: string;
+  when: (instant: string) => string;
+  search: Record<string, string | string[] | undefined>;
+  folded: string | undefined;
 }
 
-// ADR 0088: a Location opens on what its day looks like and what needs someone.
+// ADR 0116, replacing ADR 0088's grid: a Location opens on a welcome, the day's
+// numbers, the month in numbers, what to do next and who did what. ADR 0119: the
+// page is drawn at once, each part waiting for its own data in its own tile.
 export default async function TodayPage({ params, searchParams }: PageProps<"/locations/[locationId]">) {
-  const [{ locationId }, search, t, tTickets, locale, me] = await Promise.all([
+  const [{ locationId }, search, t, tDetail, locale, me, cookieJar] = await Promise.all([
     params,
     searchParams,
     getTranslations("today"),
-    getTranslations("tickets"),
+    getTranslations("ticketDetail"),
     getLocale(),
     getMe(),
+    cookies(),
   ]);
   const membership = me.memberships.find(({ location }) => location.id === locationId);
   if (!membership) notFound();
-  const manager = isManager(membership.role);
-
-  const [location, overview] = await Promise.all([getLocation(locationId), getOverview(locationId)]);
-
+  // Read by the layout already: its time zone sets the date and the greeting.
+  const { timeZone } = await getLocation(locationId);
   const now = new Date();
-  const { timeZone } = location;
-  // The webhook can still be on its way, but the trial's end doesn't change
-  // with it. Only Checkout knows if the trial was kept: too near its end, the
-  // card is charged at once.
-  const billing = manager && search.checkout === "success" ? await getBilling(locationId) : null;
-  const trialEnd = billing?.trialEndsAt ? new Date(billing.trialEndsAt) : null;
   const today = calendarDateIn(now, timeZone);
-  const { counts, tickets, steps, handedOver } = overview;
-  const date = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : locale, {
+  const date = new Intl.DateTimeFormat(intlLocale(locale), {
     timeZone,
     weekday: "long",
     day: "numeric",
     month: "long",
   }).format(now);
-  const header = (
-    <PageHeader
-      title={t(`greeting.${greetingKey(now, timeZone)}`, { name: me.name.split(" ")[0] })}
-      subtitle={date.charAt(0).toUpperCase() + date.slice(1)}
+  const page: Today = {
+    locationId,
+    manager: isManager(membership.role),
+    owner: membership.role === "OWNER",
+    businessName: membership.location.business.name,
+    meId: me.id,
+    greeting: t(`greeting.${greetingKey(now, timeZone)}`, { name: me.name.split(" ")[0] }),
+    date: date.charAt(0).toUpperCase() + date.slice(1),
+    timeZone,
+    today,
+    when: (instant) => formatMoment(new Date(instant), timeZone, today, locale, (parts) => tDetail("moment", parts)),
+    search,
+    folded: cookieJar.get(foldedCookie(locationId))?.value,
+  };
+
+  return (
+    <>
+      <RefreshWhileOpen every={REFRESH_EVERY_MS} />
+      <Suspense fallback={<Running page={page} overview={null} />}>
+        <TodayContent page={page} />
+      </Suspense>
+    </>
+  );
+}
+
+// A shop that never had a Ticket has its own page, the rest the day's. Only an
+// empty shop has to ask which it is.
+async function TodayContent({ page }: { page: Today }) {
+  const overview = await getOverview(page.locationId);
+  const firstTicket = overview.counts.open > 0 || (await getInsights(page.locationId)).setup.firstTicket;
+  if (firstTicket) return <Running page={page} overview={overview} />;
+  return (
+    <div className="flex flex-col gap-4 lg:gap-5">
+      <PageHeader title={page.greeting} subtitle={page.date} />
+      <Celebration page={page} />
+      {/* The guide's first task is this one, with the rest after it. */}
+      {page.manager ? <Guide page={page} empty /> : <FirstTicket />}
+    </div>
+  );
+}
+
+// The day's page, drawn whole from the first paint: without the overview its
+// tiles stand empty, and the insights' fill in as they come.
+function Running({ page, overview }: { page: Today; overview: Overview | null }) {
+  const upNext = (className: string) => (
+    <UpNext
+      tickets={overview?.tickets ?? null}
+      open={overview?.counts.open ?? null}
+      locationId={page.locationId}
+      timeZone={page.timeZone}
+      today={page.today}
+      className={className}
     />
   );
-  const celebration = search.checkout === "success" && (
+  const activityClass = `max-lg:max-h-[34rem] lg:contain-size ${page.manager ? "lg:col-span-5" : "lg:col-span-4"}`;
+  return (
+    <div className="flex flex-col gap-4 lg:gap-5">
+      {overview && <Celebration page={page} />}
+      <Hero page={page} overview={overview} />
+      {overview && page.manager && (
+        <Suspense>
+          <Guide page={page} />
+        </Suspense>
+      )}
+      {/* An Employee acts on Tickets, so their page is the work and who did what.
+          Activity is sized by its neighbour and scrolls, so neither tile
+          stretches into empty space. */}
+      <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
+        {page.manager && (
+          <Waiting
+            ready={overview !== null}
+            fallback={<MonthTile received={null} customers={null} className="lg:col-span-7" />}
+          >
+            <Month page={page} />
+          </Waiting>
+        )}
+        {!page.manager && upNext("lg:col-span-8")}
+        <Waiting
+          ready={overview !== null}
+          fallback={
+            <ActivityTile
+              activity={null}
+              locationId={page.locationId}
+              meId={page.meId}
+              when={page.when}
+              className={activityClass}
+            />
+          }
+        >
+          <Activity page={page} className={activityClass} />
+        </Waiting>
+        {page.manager && upNext("lg:col-span-12")}
+      </div>
+    </div>
+  );
+}
+
+// Inside the page's own fallback nothing is asked for yet: the tile only shows
+// its empty frame. Once the page is in, it streams on its own.
+function Waiting({ ready, fallback, children }: { ready: boolean; fallback: ReactNode; children: ReactNode }) {
+  return ready ? <Suspense fallback={fallback}>{children}</Suspense> : fallback;
+}
+
+// Not async, so it can stand in the page's fallback without waiting itself.
+function Hero({ page, overview }: { page: Today; overview: Overview | null }) {
+  const t = useTranslations("today");
+  const base = `/locations/${page.locationId}`;
+  const counts = overview?.counts;
+  const tickets = overview?.tickets ?? [];
+  const waitDays = (since: string) => daysBetween(calendarDateIn(new Date(since), page.timeZone), page.today);
+  const longest = Math.max(
+    0,
+    ...tickets
+      .filter(({ currentStatus }) => currentStatus.code === "READY")
+      .map(({ statusSince }) => waitDays(statusSince)),
+  );
+  const latest = Math.max(
+    0,
+    ...tickets
+      .filter(
+        ({ estimatedReadyDate, currentStatus }) =>
+          expected(estimatedReadyDate, currentStatus.code, page.today)?.key === "late",
+      )
+      .map(({ estimatedReadyDate }) => daysBetween(estimatedReadyDate!, page.today)),
+  );
+  const summary = !counts
+    ? null
+    : counts.late > 0
+      ? t("summary.late", { count: counts.late })
+      : counts.ready > 0
+        ? t("summary.ready", { count: counts.ready })
+        : counts.dueToday > 0
+          ? t("summary.due", { count: counts.dueToday })
+          : t("summary.calm");
+  const stats: HeroStat[] = [
+    {
+      href: `${base}/tickets?view=ready`,
+      icon: "check",
+      label: t("ready"),
+      value: counts?.ready ?? null,
+      sub: !counts ? null : counts.ready ? t("longestWait", { days: longest }) : t("nothingReady"),
+      tone: "lime",
+    },
+    {
+      href: `${base}/tickets?view=late`,
+      icon: "time",
+      label: t("late"),
+      value: counts?.late ?? null,
+      sub: !counts ? null : counts.late ? t("upToLate", { days: latest }) : t("nothingLate"),
+      tone: "late",
+    },
+    {
+      href: `${base}/tickets?view=open&sort=expected&dir=asc`,
+      icon: "date",
+      label: t("dueToday"),
+      value: counts?.dueToday ?? null,
+      sub: counts ? t("dueTomorrow", { count: counts.dueTomorrow }) : null,
+    },
+    {
+      href: `${base}/tickets?view=open`,
+      icon: "settings",
+      label: t("inShop"),
+      value: counts?.inShop ?? null,
+      sub: counts ? t("openCount", { count: counts.open }) : null,
+    },
+  ];
+  return <TodayHero greeting={page.greeting} date={page.date} summary={summary} stats={stats} />;
+}
+
+async function Month({ page }: { page: Today }) {
+  const { received, customers } = await getInsights(page.locationId);
+  return <MonthTile received={received} customers={customers} className="lg:col-span-7" />;
+}
+
+async function Activity({ page, className }: { page: Today; className: string }) {
+  const { activity } = await getInsights(page.locationId);
+  return (
+    <ActivityTile
+      activity={activity}
+      locationId={page.locationId}
+      meId={page.meId}
+      when={page.when}
+      className={className}
+    />
+  );
+}
+
+// ADR 0117: a manager's, until the shop is fully set up.
+async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) {
+  const [location, { setup }, billing] = await Promise.all([
+    getLocation(page.locationId),
+    getInsights(page.locationId),
+    getBilling(page.locationId),
+  ]);
+  if (!setupSteps(setup, page.owner).some(({ isDone }) => !isDone)) return empty ? <FirstTicket /> : null;
+  return (
+    <SetupGuide
+      location={location}
+      businessName={page.businessName}
+      setup={setup}
+      owner={page.owner}
+      hasPro={billing.plan === "PRO" && !billing.frozen}
+      // A shop already taking Tickets has its day to see first, an empty one
+      // has nothing else: until someone folds or opens it themselves.
+      folded={(page.folded ?? (setup.firstTicket ? "1" : "0")) === "1"}
+    />
+  );
+}
+
+// After Checkout. The webhook can still be on its way, but the trial's end
+// doesn't change with it. Only Checkout knows if the trial was kept: too near
+// its end, the card is charged at once.
+async function Celebration({ page }: { page: Today }) {
+  if (!page.manager || page.search.checkout !== "success") return null;
+  const [location, billing, locale] = await Promise.all([
+    getLocation(page.locationId),
+    getBilling(page.locationId),
+    getLocale(),
+  ]);
+  const trialEnd = billing.trialEndsAt ? new Date(billing.trialEndsAt) : null;
+  return (
     <PlanCelebration
-      locationId={locationId}
+      locationId={page.locationId}
       locationName={location.name}
-      plan={parsePlan(search.plan)}
+      plan={parsePlan(page.search.plan)}
       firstPayment={
-        search.trial === "kept" && trialEnd && trialEnd > now
-          ? new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone }).format(trialEnd)
+        page.search.trial === "kept" && trialEnd && trialEnd > new Date()
+          ? new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone: page.timeZone }).format(trialEnd)
           : null
       }
     />
-  );
-
-  const handedThisWeek = handedOver.days.some(({ count }) => count > 0) || handedOver.previousWeek > 0;
-  if (counts.open === 0 && !handedThisWeek) {
-    return (
-      <>
-        {header}
-        {celebration}
-        <FirstTicket />
-      </>
-    );
-  }
-
-  const filter = parseFilter(search.filter);
-  const isLate = (ticket: (typeof tickets)[number]) =>
-    expected(ticket.estimatedReadyDate, ticket.currentStatus.code, today)?.key === "late";
-  const name = (ticket: (typeof tickets)[number]) =>
-    ticket.customer.fullName === ERASED_CUSTOMER_NAME ? tTickets("erasedCustomer") : ticket.customer.fullName;
-  const readySince = (ticket: (typeof tickets)[number]) =>
-    daysBetween(calendarDateIn(new Date(ticket.statusSince), timeZone), today);
-
-  const ready = tickets.filter(({ currentStatus }) => currentStatus.code === "READY");
-  const late = tickets.filter(isLate);
-  const stages = { received: 0, working: 0, waiting: 0 };
-  for (const { status, count } of steps) {
-    const tone = statusTone(status.code);
-    if (tone in stages) stages[tone as keyof typeof stages] += count;
-  }
-  const filtered =
-    filter === "all"
-      ? tickets
-      : filter === "late"
-        ? late
-        : tickets.filter(({ currentStatus }) => statusTone(currentStatus.code) === filter);
-  const sort = parseSort(search, QUEUE_SORTS);
-  const collator = new Intl.Collator(intlLocale(locale));
-  const position = new Map(steps.map(({ status }, index) => [status.code, index]));
-  const compare: Record<QueueSort, (a: (typeof tickets)[number], b: (typeof tickets)[number]) => number> = {
-    customer: (a, b) => collator.compare(name(a), name(b)),
-    status: (a, b) => position.get(a.currentStatus.code)! - position.get(b.currentStatus.code)!,
-    expected: (a, b) => (a.estimatedReadyDate ?? "").localeCompare(b.estimatedReadyDate ?? ""),
-  };
-  // Without a sort, the API's order: most urgent first (ADR 0088).
-  const rows = sort
-    ? [...filtered].sort((a, b) => {
-        // Whichever way a date sorts, a Ticket without one has nothing to compare.
-        if (sort.column === "expected" && !a.estimatedReadyDate !== !b.estimatedReadyDate) {
-          return a.estimatedReadyDate ? -1 : 1;
-        }
-        return compare[sort.column](a, b) * (sort.dir === "asc" ? 1 : -1);
-      })
-    : filtered;
-  const filterHref = (next: Filter, order: Sort<QueueSort> | null = sort) => {
-    const params = new URLSearchParams();
-    if (next !== "all") params.set("filter", next);
-    setSort(params, order);
-    const query = params.toString();
-    return `/locations/${locationId}${query ? `?${query}` : ""}`;
-  };
-  const longest = Math.max(0, ...ready.map(readySince));
-  const latest = Math.max(0, ...late.map(({ estimatedReadyDate }) => daysBetween(estimatedReadyDate!, today)));
-
-  return (
-    // ADR 0108: from 1280px the page fits the window and the table scrolls in
-    // its tile, as a shop can have 50 open Tickets. ADR 0111: nothing sits beside
-    // the table any more, so it has the page's whole width.
-    <div className="flex flex-1 flex-col gap-4 lg:gap-5 xl:h-[calc(100dvh-6.5rem)] xl:min-h-[40rem] xl:flex-none">
-      <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      {header}
-      {celebration}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-5 xl:grid-cols-[1.3fr_1fr_1fr_1fr_1.7fr]">
-        <Stat
-          href={`${filterHref("ready")}#open-tickets`}
-          icon="check"
-          label={t("ready")}
-          value={counts.ready}
-          sub={counts.ready ? t("longestWait", { days: longest }) : t("nothingReady")}
-          tone="lime"
-        />
-        <Stat
-          href={`${filterHref("late")}#open-tickets`}
-          icon="time"
-          label={t("late")}
-          value={counts.late}
-          sub={counts.late ? t("upToLate", { days: latest }) : t("nothingLate")}
-          tone="late"
-        />
-        <Stat
-          href={`${filterHref("all")}#open-tickets`}
-          icon="date"
-          label={t("dueToday")}
-          value={counts.dueToday}
-          sub={t("dueTomorrow", { count: counts.dueTomorrow })}
-        />
-        <Stat
-          href={`${filterHref("all")}#open-tickets`}
-          icon="settings"
-          label={t("inShop")}
-          value={counts.inShop}
-          sub={t("waitingOnSomeone", { count: stages.waiting })}
-        />
-        <WeekChart
-          days={handedOver.days}
-          previousWeek={handedOver.previousWeek}
-          className="col-span-2 md:col-span-4 xl:col-span-1"
-        />
-      </div>
-
-      <Panel
-        as="section"
-        id="open-tickets"
-        aria-labelledby="open-tickets-title"
-        padding="none"
-        className="@container flex scroll-mt-4 flex-col overflow-clip xl:min-h-0 xl:flex-1"
-      >
-        <div className="flex flex-col gap-3 px-5 pt-5 pb-3 lg:px-7">
-          <div className="flex items-center justify-between gap-4">
-            <h2 id="open-tickets-title" className="text-title-h6">
-              {t("openTickets")}
-            </h2>
-            <Link
-              href={`/locations/${locationId}/tickets?view=all`}
-              className={buttonClass({ variant: "secondary", size: "sm" })}
-            >
-              {t("allTickets")}
-              <Icon name="arrow-right" className="size-2.5" />
-            </Link>
-          </div>
-          <Tabs
-            label={tTickets("viewsLabel")}
-            scroll={false}
-            tabs={(
-              [
-                ["all", counts.open],
-                ["late", counts.late],
-                ["ready", counts.ready],
-                ["received", stages.received],
-                ["working", stages.working],
-                ["waiting", stages.waiting],
-              ] as const
-            )
-              .filter(([id, count]) => count > 0 || id === "all" || id === filter)
-              .map(([id, count]) => ({
-                href: filterHref(id),
-                label: t(`filters.${id}`),
-                count,
-                current: filter === id,
-              }))}
-          />
-        </div>
-        {rows.length > 0 ? (
-          <>
-            <QueueHeader sort={sort} href={(next) => filterHref(filter, next)} />
-            <ul className="min-h-0 flex-1 overflow-y-auto max-xl:max-h-[32rem]">
-              {rows.map((ticket) => (
-                <TicketRow key={ticket.id} ticket={ticket} locationId={locationId} timeZone={timeZone} today={today} />
-              ))}
-            </ul>
-          </>
-        ) : (
-          <EmptyState illustration="chill" title={t("noneHere")} description={t("noneHereHint")} />
-        )}
-      </Panel>
-    </div>
   );
 }

@@ -20,6 +20,7 @@ import { CustomerModule } from "./customer/customer.module";
 import { EmailModule } from "./email/email.module";
 import { FeedbackModule } from "./feedback/feedback.module";
 import { HealthModule } from "./health/health.module";
+import { InsightsModule } from "./insights/insights.module";
 import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
@@ -57,6 +58,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     MeModule,
     WorkflowModule,
     TicketModule,
+    InsightsModule,
     CustomerModule,
     EmailModule,
     InvitationModule,
