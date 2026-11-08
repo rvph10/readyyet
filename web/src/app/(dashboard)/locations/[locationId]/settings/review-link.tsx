@@ -17,6 +17,8 @@ interface Props {
   url: string | null;
   // Whether this Location's plan includes review requests (ADR 0039).
   hasPro: boolean;
+  // Called once saved, when the section opened in a panel (ADR 0117).
+  onSaved?: () => void;
 }
 
 const PROFILE_URL = "https://business.google.com";
@@ -66,7 +68,7 @@ function CustomerPreview() {
 // ADR 0100: bold when it's missing on a plan that includes it, as nothing tells
 // a shop otherwise that its Customers are never being asked. ADR 0109: the app
 // follows the link itself, rather than opening it for the shop to judge.
-export function ReviewLink({ locationId, url, hasPro }: Props) {
+export function ReviewLink({ locationId, url, hasPro, onSaved }: Props) {
   const t = useTranslations("settings");
   const toast = useToast();
   const saved = url ?? "";
@@ -116,8 +118,10 @@ export function ReviewLink({ locationId, url, hasPro }: Props) {
     setFailure(null);
     startTransition(async () => {
       const result = await orFailure(updateLocation(locationId, { googleReviewUrl: next }));
-      if (result.ok) toast({ message: t("saved") });
-      else if (result.fields?.googleReviewUrl) setError(t("reviewInvalid"));
+      if (result.ok) {
+        toast({ message: t("saved") });
+        onSaved?.();
+      } else if (result.fields?.googleReviewUrl) setError(t("reviewInvalid"));
       else setFailure(t(result.code === ErrorCode.PLAN_REQUIRED ? "reviewNeedsPro" : "saveFailed"));
     });
   }

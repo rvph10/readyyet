@@ -44,11 +44,14 @@ export function Turnaround({
   days,
   openingHours,
   timeZone,
+  onSaved,
 }: {
   locationId: string;
   days: number | null;
   openingHours: OpeningHours;
   timeZone: string;
+  // Called once saved, when the section opened in a panel (ADR 0117).
+  onSaved?: () => void;
 }) {
   const t = useTranslations("settings");
   const locale = useLocale();
@@ -77,8 +80,10 @@ export function Turnaround({
     setFailure(null);
     startTransition(async () => {
       const result = await orFailure(updateLocation(locationId, { turnaroundDays: chosen }));
-      if (result.ok) toast({ message: t("saved") });
-      else setFailure(t("saveFailed"));
+      if (result.ok) {
+        toast({ message: t("saved") });
+        onSaved?.();
+      } else setFailure(t("saveFailed"));
     });
   }
 

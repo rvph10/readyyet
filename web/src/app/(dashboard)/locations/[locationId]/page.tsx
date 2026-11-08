@@ -13,7 +13,7 @@ import { ActivityTile } from "./overview/activity-tile";
 import { FirstTicket } from "./overview/first-ticket";
 import { MonthTile } from "./overview/month-tile";
 import { PlanCelebration } from "./overview/plan-celebration";
-import { SetupTile, type SetupStep } from "./overview/setup-tile";
+import { SetupGuide } from "./overview/setup-guide";
 import { TodayHero } from "./overview/today-hero";
 import { PageHeader } from "./page-header";
 import { parsePlan } from "./plan-prices";
@@ -51,8 +51,9 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   // The webhook can still be on its way, but the trial's end doesn't change
   // with it. Only Checkout knows if the trial was kept: too near its end, the
   // card is charged at once.
-  const billing = manager && search.checkout === "success" ? await getBilling(locationId) : null;
-  const trialEnd = billing?.trialEndsAt ? new Date(billing.trialEndsAt) : null;
+  // The layout already reads it for a manager, for the trial.
+  const billing = manager ? await getBilling(locationId) : null;
+  const trialEnd = search.checkout === "success" && billing?.trialEndsAt ? new Date(billing.trialEndsAt) : null;
   const today = calendarDateIn(now, timeZone);
   const { counts, tickets } = overview;
   const { setup } = insights;
@@ -77,31 +78,24 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   );
 
   const base = `/locations/${locationId}`;
-  const settings = (section: string) => `${base}/settings?section=${section}`;
-  const steps: SetupStep[] = [
-    { key: "address", done: setup.address, href: settings("shop") },
-    { key: "hours", done: setup.openingHours, href: settings("hours") },
-    { key: "turnaround", done: setup.turnaround, href: settings("tickets") },
-    { key: "reviewLink", done: setup.reviewLink, href: settings("reviews") },
-    // The logo is the Business's, which only its Owner edits.
-    ...(membership.role === "OWNER"
-      ? [{ key: "logo", done: setup.logo, href: `/businesses/${location.businessId}/settings` }]
-      : []),
-    { key: "team", done: setup.team, href: `${base}/team` },
-    { key: "firstTicket", done: setup.firstTicket, href: null },
-    { key: "firstHandover", done: setup.firstHandover, href: null },
-  ];
-  const setupLeft = manager && steps.some((step) => !step.done);
+  // ADR 0117: a manager's, until they hide it.
+  const guide = manager && !setup.hidden && billing && (
+    <SetupGuide
+      location={location}
+      businessName={membership.location.business.name}
+      setup={setup}
+      owner={membership.role === "OWNER"}
+      hasPro={billing.plan === "PRO" && !billing.frozen}
+    />
+  );
 
   if (!setup.firstTicket) {
     return (
       <div className="flex flex-col gap-4 lg:gap-5">
         <PageHeader title={greeting} subtitle={date.charAt(0).toUpperCase() + date.slice(1)} />
         {celebration}
-        <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
-          <FirstTicket className={manager ? "lg:col-span-8" : "lg:col-span-12"} />
-          {manager && <SetupTile steps={steps} className="lg:col-span-4" />}
-        </div>
+        {/* The guide's first task is this one, with the rest after it. */}
+        {guide || <FirstTicket />}
       </div>
     );
   }
@@ -202,7 +196,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
         ]}
       />
 
-      {setupLeft && <SetupTile steps={steps} />}
+      {guide}
 
       {/* An Employee acts on Tickets, so their page is the work and who did what.
           Activity is sized by its neighbour and scrolls, so neither tile

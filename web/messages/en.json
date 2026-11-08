@@ -554,38 +554,58 @@
       "returning": "{count} returning"
     },
     "setup": {
-      "title": "Finish setting up",
+      "title": "Setup guide",
+      "hint": "Use this guide to get {shop} ready for its Customers.",
+      "progress": "{done} of {total} tasks completed",
+      "hide": "Hide guide",
+      "hidden": "Setup guide hidden. Bring it back from Settings.",
+      "hideFailed": "Couldn't hide the guide. Try again.",
+      "collapse": "Collapse the guide",
+      "expand": "Expand the guide",
+      "allSetTitle": "Your shop is all set",
+      "allSetBody": "Every task is done. Your Customers get the full ReadyYet experience.",
+      "firstTicket": {
+        "title": "Create your first Ticket",
+        "body": "Add a Ticket when an item comes in. Your Customer gets a link and a QR code to follow it, and an email at every step, without calling you.",
+        "action": "Create a Ticket"
+      },
       "address": {
         "title": "Add your address",
-        "body": "So Customers know where to collect."
+        "body": "Shown on the tracking page and in emails, so Customers know where to come and collect.",
+        "action": "Add address"
       },
       "hours": {
         "title": "Set your opening hours",
-        "body": "Shown to Customers, and used for ready dates."
+        "body": "Customers see when you're open, and ready dates skip the days you're closed.",
+        "action": "Set hours"
       },
       "turnaround": {
         "title": "Set your usual turnaround",
-        "body": "Every new Ticket gets a ready date."
+        "body": "Every new Ticket gets a ready date from it, so Customers know when to expect their item.",
+        "action": "Set turnaround"
       },
       "reviewLink": {
         "title": "Add your Google review link",
-        "body": "Without it, nobody is asked for a review."
-      },
-      "logo": {
-        "title": "Add your logo",
-        "body": "On the emails and the tracking page."
+        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "action": "Add review link"
       },
       "team": {
         "title": "Invite your team",
-        "body": "Everyone moves Tickets from their own account."
+        "body": "Everyone moves Tickets from their own account, so you always know who did what.",
+        "action": "Invite someone"
       },
-      "firstTicket": {
-        "title": "Create your first Ticket",
-        "body": "When the next item comes in."
+      "logo": {
+        "title": "Add your logo",
+        "body": "Your logo appears on the tracking page and in every email, so Customers recognise your shop.",
+        "action": "Add logo",
+        "panelHint": "A square image works best. JPG, PNG or WebP.",
+        "choose": "Choose an image",
+        "uploading": "Uploading…"
       },
       "firstHandover": {
         "title": "Hand over a first item",
-        "body": "Mark a Ready Ticket as collected."
+        "body": "When a Customer collects their item, mark the Ticket as collected. Ready ones are waiting in your Tickets.",
+        "action": "See Ready Tickets"
       }
     },
     "activity": {
@@ -944,7 +964,8 @@
     },
     "deleteFinal": "This can't be undone.",
     "deleteOpenTickets": "{count, plural, one {# Ticket is still open here.} other {# Tickets are still open here.}}",
-    "deleteTypeLabel": "Shop name"
+    "deleteTypeLabel": "Shop name",
+    "showGuide": "Show the setup guide"
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",

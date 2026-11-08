@@ -41,7 +41,14 @@ function countryCodes(locale: string) {
   return [...FIRST_COUNTRIES, ...rest];
 }
 
-export function ShopDetails({ location }: { location: Location }) {
+export function ShopDetails({
+  location,
+  onSaved,
+}: {
+  location: Location;
+  // Called once saved, when the section opened in a panel (ADR 0117).
+  onSaved?: () => void;
+}) {
   const t = useTranslations("settings");
   const pageLocale = useLocale();
   const toast = useToast();
@@ -92,6 +99,7 @@ export function ShopDetails({ location }: { location: Location }) {
         // What the fields hold now is what's saved, as the schema trims them.
         setForm((current) => ({ ...current, name, contactEmail, streetAddress, postalCode, addressLocality }));
         toast({ message: t("saved") });
+        onSaved?.();
       } else if (result.fields?.contactEmail) {
         setErrors({ contactEmail: t("emailInvalid") });
       } else if (result.fields?.contactPhone) {

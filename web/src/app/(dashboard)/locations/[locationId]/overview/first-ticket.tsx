@@ -12,11 +12,11 @@ const STEPS: [IconName, "create" | "show" | "move"][] = [
 ];
 
 // A Location with no Tickets has nothing to overview, so it says how it starts.
-export function FirstTicket({ className }: { className: string }) {
+export function FirstTicket() {
   const t = useTranslations("today.first");
   const { newTicket } = useLocationActions();
   return (
-    <section className={`on-pine flex flex-col rounded-sheet bg-pine p-6 text-surface lg:p-10 ${className}`}>
+    <section className="on-pine flex flex-col rounded-sheet bg-pine p-6 text-surface lg:p-10">
       <div className="flex items-center justify-between gap-8">
         <div>
           <h2 className="text-title-h4 lg:text-title-h3">{t("title")}</h2>
