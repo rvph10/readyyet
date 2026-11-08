@@ -10901,7 +10901,8 @@
           },
           "salesPartnerSince": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "referralCode": {
             "type": "string"

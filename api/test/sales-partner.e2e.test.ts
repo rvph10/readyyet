@@ -289,4 +289,16 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ salesPartner: false, paidAmount: 1715 + 2715 });
   });
+
+  it("keeps a removed sales partner in the platform admin's list while they're still owed", async () => {
+    const listed = async () => {
+      const partners: { id: string }[] = (await get("/admin/sales-partners", adminCookie)).body;
+      return partners.find((partner) => partner.id === partnerId);
+    };
+
+    expect(await listed()).toMatchObject({ salesPartnerSince: null, pendingAmount: 1715, owedAmount: 0 });
+
+    await prisma.commission.update({ where: { id: BigInt(ids.pending) }, data: { voidedAt: new Date() } });
+    expect(await listed()).toBeUndefined();
+  });
 });

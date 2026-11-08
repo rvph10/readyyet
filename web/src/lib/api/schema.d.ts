@@ -1591,7 +1591,7 @@ export interface components {
             name: string;
             email: string;
             /** Format: date-time */
-            salesPartnerSince: string;
+            salesPartnerSince: string | null;
             referralCode: string;
             pendingAmount: number;
             owedAmount: number;
