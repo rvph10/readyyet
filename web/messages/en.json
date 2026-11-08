@@ -495,8 +495,6 @@
     "nothingLate": "Everything on time",
     "dueTomorrow": "{count, plural, =0 {Nothing due tomorrow} other {# more due tomorrow}}",
     "waitingOnSomeone": "{count} waiting on someone",
-    "handedOver": "Handed over this week",
-    "ticketCount": "{count, plural, one {# Ticket} other {# Tickets}}",
     "needsYou": "Needs you",
     "caughtUp": "All clear",
     "caughtUpHint": "No feedback or problems waiting for you.",
@@ -507,18 +505,7 @@
     "waiting": "Waiting {days} days",
     "trialEnds": "{days, plural, one {Your trial ends tomorrow} other {Your trial ends in # days}}",
     "trialEnded": "New Tickets are paused",
-    "openTickets": "Open Tickets",
     "allTickets": "All Tickets",
-    "noneHere": "Nothing here",
-    "noneHereHint": "No open Ticket matches this filter.",
-    "filters": {
-      "all": "All",
-      "late": "Late",
-      "ready": "Ready",
-      "received": "Just in",
-      "working": "Being worked on",
-      "waiting": "Waiting on someone"
-    },
     "first": {
       "title": "Create your first Ticket",
       "body": "Create a Ticket when an item comes in, and your Customer can follow it without calling.",
@@ -536,7 +523,6 @@
         "body": "They see each step, without calling."
       }
     },
-    "vsLastWeek": "vs last week",
     "needsYouCount": "{count, plural, =0 {Needs you, nothing right now} one {Needs you, # thing} other {Needs you, # things}}",
     "seeAll": "See all {count}",
     "groups": {
@@ -544,6 +530,95 @@
       "collected": "To confirm",
       "feedback": "Feedback",
       "waiting": "Waiting to be collected"
+    },
+    "newTicket": "New Ticket",
+    "summary": {
+      "late": "{count, plural, one {# Ticket is running late.} other {# Tickets are running late.}}",
+      "ready": "{count, plural, one {# Customer can come and collect.} other {# Customers can come and collect.}}",
+      "due": "{count, plural, one {# Ticket is due today.} other {# Tickets are due today.}}",
+      "calm": "Nothing urgent. A good day to get ahead."
+    },
+    "openCount": "{count, plural, one {# open Ticket} other {# open Tickets}}",
+    "upNext": "Up next",
+    "upNextHint": "The most urgent first",
+    "allOpen": "All {count}",
+    "caughtUpTitle": "All caught up",
+    "caughtUpBody": "No open Ticket right now. Enjoy the calm.",
+    "month": {
+      "title": "Tickets this month",
+      "vsLastMonth": "vs {month}, same days",
+      "chartLabel": "Tickets received per month",
+      "tickets": "{count, plural, one {# Ticket} other {# Tickets}}",
+      "customers": "Customers this month",
+      "new": "{count} new",
+      "returning": "{count} returning"
+    },
+    "promise": {
+      "title": "Promises kept",
+      "onTime": "{onTime} of {dated} ready on the date given",
+      "noDates": "Give Tickets a ready date to see how often you keep it.",
+      "averageDays": "{days, plural, one {# day} other {# days}} to get ready",
+      "noAverage": "Nothing readied yet this month",
+      "promised": "{days, plural, one {You promise # day} other {You promise # days}}",
+      "setTurnaround": "Set your usual turnaround",
+      "sameDay": "Ready the same day"
+    },
+    "updates": {
+      "title": "ReadyYet kept them posted",
+      "delivered": "{count, plural, one {email to your Customers this month} other {emails to your Customers this month}}",
+      "reminders": "Pickup reminders",
+      "reviewRequests": "Review requests",
+      "notes": "Private notes received"
+    },
+    "setup": {
+      "title": "Finish setting up",
+      "address": {
+        "title": "Add your address",
+        "body": "So Customers know where to collect."
+      },
+      "hours": {
+        "title": "Set your opening hours",
+        "body": "Shown to Customers, and used for ready dates."
+      },
+      "turnaround": {
+        "title": "Set your usual turnaround",
+        "body": "Every new Ticket gets a ready date."
+      },
+      "reviewLink": {
+        "title": "Add your Google review link",
+        "body": "Without it, nobody is asked for a review."
+      },
+      "logo": {
+        "title": "Add your logo",
+        "body": "On the emails and the tracking page."
+      },
+      "team": {
+        "title": "Invite your team",
+        "body": "Everyone moves Tickets from their own account."
+      },
+      "firstTicket": {
+        "title": "Create your first Ticket",
+        "body": "When the next item comes in."
+      },
+      "firstHandover": {
+        "title": "Hand over a first item",
+        "body": "Mark a Ready Ticket as collected."
+      }
+    },
+    "activity": {
+      "title": "Activity",
+      "you": "You",
+      "created": "created",
+      "moved": "moved",
+      "emptyTitle": "Quiet so far",
+      "emptyBody": "Changes to Tickets show up here."
+    },
+    "yourDay": {
+      "title": "Your day",
+      "created": "Tickets created",
+      "moved": "Tickets moved",
+      "thanks": "Every move is one less call for your Customers.",
+      "start": "Nothing yet today. Your first move will show here."
     }
   },
   "plans": {

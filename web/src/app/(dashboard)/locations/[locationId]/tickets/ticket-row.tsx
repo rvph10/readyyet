@@ -9,7 +9,7 @@ import type { components } from "@/lib/api/schema";
 import type { Sort } from "@/lib/sort";
 import { statusLabel } from "@/lib/status-label";
 import { NextStep } from "../next-step";
-import { daysBetween, expected, formatDay, waitTone, type ListSort, type QueueSort } from "./ticket-views";
+import { daysBetween, expected, formatDay, waitTone, type ListSort } from "./ticket-views";
 
 type ListTicket = components["schemas"]["TicketListItemDto"];
 type OverviewTicket = components["schemas"]["OverviewTicketDto"];
@@ -20,25 +20,6 @@ const QUEUE_GRID =
   "lg:grid-cols-[minmax(0,1fr)_8.5rem_7rem_3rem] lg:gap-x-4 lg:@3xl:grid-cols-[minmax(0,1fr)_9.5rem_7.5rem_10rem]";
 const LIST_GRID =
   "lg:grid-cols-[4.5rem_minmax(12rem,1fr)_minmax(0,1.3fr)_11rem_9.5rem_5.5rem] lg:gap-x-5 2xl:grid-cols-[4.5rem_minmax(13rem,1fr)_minmax(0,1.5fr)_11rem_9.5rem_6rem_7rem]";
-
-export function QueueHeader({ sort, href }: { sort: Sort<QueueSort> | null; href: (sort: Sort<QueueSort>) => string }) {
-  const t = useTranslations("tickets.columns");
-  const header = { sort, href };
-  return (
-    <div className={`hidden px-7 pb-3 text-p-xs text-muted lg:grid ${QUEUE_GRID}`}>
-      <span>
-        <SortHeader {...header} column="customer" label={t("customer")} />
-      </span>
-      <span>
-        <SortHeader {...header} column="status" label={t("status")} />
-      </span>
-      <span>
-        <SortHeader {...header} column="expected" label={t("expected")} />
-      </span>
-      <span className="text-right lg:max-@3xl:hidden">{t("next")}</span>
-    </div>
-  );
-}
 
 export function ListHeader({ sort, href }: { sort: Sort<ListSort>; href: (sort: Sort<ListSort>) => string }) {
   const t = useTranslations("tickets.columns");

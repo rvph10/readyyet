@@ -495,8 +495,6 @@
     "nothingLate": "Tout est dans les temps",
     "dueTomorrow": "{count, plural, =0 {Rien pour demain} other {# de plus pour demain}}",
     "waitingOnSomeone": "{count} en attente",
-    "handedOver": "Remis cette semaine",
-    "ticketCount": "{count, plural, one {# ticket} other {# tickets}}",
     "needsYou": "À traiter",
     "caughtUp": "Tout est à jour",
     "caughtUpHint": "Aucun retour ni problème ne vous attend.",
@@ -507,18 +505,7 @@
     "waiting": "Attend {days} jours",
     "trialEnds": "{days, plural, one {Votre essai se termine demain} other {Votre essai se termine dans # jours}}",
     "trialEnded": "Nouveaux tickets en pause",
-    "openTickets": "Tickets en cours",
     "allTickets": "Tous les tickets",
-    "noneHere": "Rien ici",
-    "noneHereHint": "Aucun ticket en cours ne correspond à ce filtre.",
-    "filters": {
-      "all": "Tous",
-      "late": "En retard",
-      "ready": "Prêts",
-      "received": "Juste arrivés",
-      "working": "En cours",
-      "waiting": "En attente"
-    },
     "first": {
       "title": "Créez votre premier ticket",
       "body": "Créez un ticket à l'arrivée d'un article, et votre client peut le suivre sans appeler.",
@@ -536,7 +523,6 @@
         "body": "Il voit chaque étape sans appeler."
       }
     },
-    "vsLastWeek": "vs la semaine passée",
     "needsYouCount": "{count, plural, =0 {À traiter, rien pour le moment} one {À traiter, # élément} other {À traiter, # éléments}}",
     "seeAll": "Tout voir ({count})",
     "groups": {
@@ -544,6 +530,95 @@
       "collected": "À confirmer",
       "feedback": "Retours",
       "waiting": "En attente de retrait"
+    },
+    "newTicket": "Nouveau Ticket",
+    "summary": {
+      "late": "{count, plural, one {# Ticket est en retard.} other {# Tickets sont en retard.}}",
+      "ready": "{count, plural, one {# client peut venir récupérer son article.} other {# clients peuvent venir récupérer leur article.}}",
+      "due": "{count, plural, one {# Ticket est prévu aujourd'hui.} other {# Tickets sont prévus aujourd'hui.}}",
+      "calm": "Rien d'urgent. Une bonne journée pour prendre de l'avance."
+    },
+    "openCount": "{count, plural, one {# Ticket ouvert} other {# Tickets ouverts}}",
+    "upNext": "À faire ensuite",
+    "upNextHint": "Les plus urgents d'abord",
+    "allOpen": "Les {count}",
+    "caughtUpTitle": "Tout est à jour",
+    "caughtUpBody": "Aucun Ticket ouvert pour l'instant. Profitez du calme.",
+    "month": {
+      "title": "Tickets ce mois-ci",
+      "vsLastMonth": "vs {month}, mêmes jours",
+      "chartLabel": "Tickets reçus par mois",
+      "tickets": "{count, plural, one {# Ticket} other {# Tickets}}",
+      "customers": "Clients ce mois-ci",
+      "new": "{count, plural, one {# nouveau} other {# nouveaux}}",
+      "returning": "{count, plural, one {# fidèle} other {# fidèles}}"
+    },
+    "promise": {
+      "title": "Promesses tenues",
+      "onTime": "{onTime} sur {dated} prêts à la date annoncée",
+      "noDates": "Donnez une date aux Tickets pour voir combien de fois vous la tenez.",
+      "averageDays": "{days, plural, one {# jour} other {# jours}} pour être prêt",
+      "noAverage": "Rien de prêt ce mois-ci pour l'instant",
+      "promised": "{days, plural, one {Vous promettez # jour} other {Vous promettez # jours}}",
+      "setTurnaround": "Définir votre délai habituel",
+      "sameDay": "Prêt le jour même"
+    },
+    "updates": {
+      "title": "ReadyYet les a tenus informés",
+      "delivered": "{count, plural, one {e-mail à vos clients ce mois-ci} other {e-mails à vos clients ce mois-ci}}",
+      "reminders": "Rappels de retrait",
+      "reviewRequests": "Demandes d'avis",
+      "notes": "Messages privés reçus"
+    },
+    "setup": {
+      "title": "Terminez la configuration",
+      "address": {
+        "title": "Ajoutez votre adresse",
+        "body": "Pour que les clients sachent où venir."
+      },
+      "hours": {
+        "title": "Indiquez vos horaires",
+        "body": "Affichés aux clients, et utilisés pour les dates."
+      },
+      "turnaround": {
+        "title": "Définissez votre délai habituel",
+        "body": "Chaque nouveau Ticket reçoit une date."
+      },
+      "reviewLink": {
+        "title": "Ajoutez votre lien d'avis Google",
+        "body": "Sans lui, personne n'est invité à laisser un avis."
+      },
+      "logo": {
+        "title": "Ajoutez votre logo",
+        "body": "Sur les e-mails et la page de suivi."
+      },
+      "team": {
+        "title": "Invitez votre équipe",
+        "body": "Chacun fait avancer les Tickets depuis son compte."
+      },
+      "firstTicket": {
+        "title": "Créez votre premier Ticket",
+        "body": "Dès que le prochain article arrive."
+      },
+      "firstHandover": {
+        "title": "Remettez un premier article",
+        "body": "Marquez un Ticket prêt comme récupéré."
+      }
+    },
+    "activity": {
+      "title": "Activité",
+      "you": "Vous",
+      "created": "a créé",
+      "moved": "a fait avancer",
+      "emptyTitle": "Calme pour l'instant",
+      "emptyBody": "Les changements sur les Tickets apparaîtront ici."
+    },
+    "yourDay": {
+      "title": "Votre journée",
+      "created": "Tickets créés",
+      "moved": "Tickets avancés",
+      "thanks": "Chaque étape, c'est un appel en moins pour vos clients.",
+      "start": "Rien pour l'instant. Votre première étape apparaîtra ici."
     }
   },
   "plans": {
