@@ -1,8 +1,8 @@
-# 0120: Sales partner page
+# 0121: Sales partner page
 
 Date: 2026-11-08
 
-Builds the sales partner's page ADR 0032 describes, on the API of ADR 0040, in the frame of the back office (ADR 0119).
+Builds the sales partner's page ADR 0032 describes, on the API of ADR 0040, in the frame of the back office (ADR 0120).
 
 ## Decision
 

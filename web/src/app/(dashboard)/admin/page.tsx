@@ -13,7 +13,7 @@ import { partnerHref } from "./admin-views";
 
 const GRID = "lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.9fr)] lg:gap-x-5";
 
-// ADR 0119: who brings shops in, and what's owed to whom. A former sales
+// ADR 0120: who brings shops in, and what's owed to whom. A former sales
 // partner is listed while still owed (ADR 0040).
 export default async function SalesPartnersPage() {
   const [client, t, locale] = await Promise.all([api(), getTranslations("admin"), getLocale()]);

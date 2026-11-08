@@ -42,7 +42,7 @@ function Title({ title, icon }: { title: string; icon: IconName }) {
   );
 }
 
-// ADR 0120: the frame of pages above any Business, the back office (ADR 0119)
+// ADR 0121: the frame of pages above any Business, the back office (ADR 0120)
 // and a sales partner's page, with the dashboard's bar, sidebar and User menu.
 export function StandaloneFrame({ me, collapsed: initial, title, icon, detail, nav, exit, children }: Props) {
   const t = useTranslations("dashboard");

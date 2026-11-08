@@ -19,7 +19,7 @@ const GRID = "lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax
 
 const pageHref = (page: number) => (page > 1 ? `/partner?page=${page}` : "/partner");
 
-// ADR 0120: what a sales partner needs, their link first, then what they've
+// ADR 0121: what a sales partner needs, their link first, then what they've
 // earned and from which shops (ADR 0032).
 export default async function SalesPartnerPage({ searchParams }: PageProps<"/partner">) {
   const [search, me, client, t, locale] = await Promise.all([

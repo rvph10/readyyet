@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("salesPartner"))("title") };
 }
 
-// ADR 0120: the sales partner's page of ADR 0032, kept once the status is
+// ADR 0121: the sales partner's page of ADR 0032, kept once the status is
 // removed for what they're still owed (ADR 0040).
 export default async function PartnerLayout({ children }: LayoutProps<"/partner">) {
   const [me, cookieStore, t] = await Promise.all([getMe(), cookies(), getTranslations("salesPartner")]);

@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("admin"))("title") };
 }
 
-// ADR 0119: the back office of ADR 0032, for the platform admin alone.
+// ADR 0120: the back office of ADR 0032, for the platform admin alone.
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const [me, cookieStore, t] = await Promise.all([getMe(), cookies(), getTranslations("admin")]);
   // Not found rather than refused, so nobody else learns there's a page here.

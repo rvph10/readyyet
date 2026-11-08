@@ -28,7 +28,7 @@ const EMPTY: Record<CommissionView, IllustrationName> = {
   VOIDED: "balancing",
 };
 
-// ADR 0119: one sales partner's commissions, and paying what's owed.
+// ADR 0120: one sales partner's commissions, and paying what's owed.
 export default async function SalesPartnerPage({ params, searchParams }: PageProps<"/admin/sales-partners/[userId]">) {
   const [{ userId }, search, client, t, locale] = await Promise.all([
     params,
