@@ -9266,6 +9266,9 @@
           "salesPartner": {
             "type": "boolean"
           },
+          "salesPartnerPage": {
+            "type": "boolean"
+          },
           "platformAdmin": {
             "type": "boolean"
           }
@@ -9279,6 +9282,7 @@
           "name",
           "avatarUrl",
           "salesPartner",
+          "salesPartnerPage",
           "platformAdmin"
         ]
       },
@@ -9323,6 +9327,9 @@
           "salesPartner": {
             "type": "boolean"
           },
+          "salesPartnerPage": {
+            "type": "boolean"
+          },
           "platformAdmin": {
             "type": "boolean"
           }
@@ -9334,6 +9341,7 @@
           "name",
           "avatarUrl",
           "salesPartner",
+          "salesPartnerPage",
           "platformAdmin"
         ]
       },

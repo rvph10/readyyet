@@ -56,7 +56,7 @@ describe("Sales partners, managed by the platform admin", () => {
 
   it("tells the web app who is the platform admin and who is a sales partner", async () => {
     const admin = await request(app.getHttpServer()).get("/me").set("Cookie", adminCookie);
-    expect(admin.body).toMatchObject({ platformAdmin: true, salesPartner: false });
+    expect(admin.body).toMatchObject({ platformAdmin: true, salesPartner: false, salesPartnerPage: false });
     const user = await request(app.getHttpServer()).get("/me").set("Cookie", userCookie);
     expect(user.body).toMatchObject({ platformAdmin: false, salesPartner: false });
   });
@@ -292,6 +292,8 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ salesPartner: false, paidAmount: 1715 + 2715 });
+    const me = await get("/me", partnerCookie);
+    expect(me.body).toMatchObject({ salesPartner: false, salesPartnerPage: true });
   });
 
   it("keeps a removed sales partner in the platform admin's list while they're still owed", async () => {

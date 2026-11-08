@@ -11,6 +11,8 @@ export class MeDto {
   // gets a new URL.
   avatarUrl!: string | null;
   salesPartner!: boolean;
+  // Anyone ever made a sales partner, whose page stays for what they earned.
+  salesPartnerPage!: boolean;
   platformAdmin!: boolean;
 }
 

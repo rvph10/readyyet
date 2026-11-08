@@ -1167,6 +1167,7 @@ export interface components {
             name: string;
             avatarUrl: string | null;
             salesPartner: boolean;
+            salesPartnerPage: boolean;
             platformAdmin: boolean;
         };
         UpdateMeDto: {
@@ -1181,6 +1182,7 @@ export interface components {
             name: string;
             avatarUrl: string | null;
             salesPartner: boolean;
+            salesPartnerPage: boolean;
             platformAdmin: boolean;
         };
         TranslationDto: {
