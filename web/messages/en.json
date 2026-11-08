@@ -1149,12 +1149,15 @@
     "link": {
       "title": "Your referral link",
       "pitch": "Bring a shop to ReadyYet and earn 35% of what it pays for 6 months.",
-      "label": "Your link",
       "hint": "Their first invoice is half a month off.",
-      "share": "Share",
-      "shareText": "Track repairs without phone calls: try ReadyYet with half a month off.",
       "qr": "QR code of your referral link",
-      "qrHint": "Scan to sign up"
+      "qrHint": "Scan to sign up",
+      "copy": "Copy your link",
+      "copied": "Link copied",
+      "byEmail": "Email",
+      "subject": "Try ReadyYet for your shop",
+      "message": "ReadyYet lets your customers follow their repair without calling you. Sign up with my link for half a month off: {link}",
+      "zoom": "Show the QR code full size"
     },
     "amounts": {
       "owed": "Coming to you",

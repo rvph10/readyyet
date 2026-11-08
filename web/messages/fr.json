@@ -1149,12 +1149,15 @@
     "link": {
       "title": "Votre lien de parrainage",
       "pitch": "Amenez un magasin à ReadyYet et gagnez 35 % de ce qu'il paie pendant 6 mois.",
-      "label": "Votre lien",
       "hint": "Sa première facture a un demi-mois de réduction.",
-      "share": "Partager",
-      "shareText": "Suivez vos réparations sans coups de fil : essayez ReadyYet avec un demi-mois offert.",
       "qr": "QR code de votre lien de parrainage",
-      "qrHint": "À scanner pour s'inscrire"
+      "qrHint": "À scanner pour s'inscrire",
+      "copy": "Copier votre lien",
+      "copied": "Lien copié",
+      "byEmail": "E-mail",
+      "subject": "Essayez ReadyYet pour votre magasin",
+      "message": "Avec ReadyYet, vos clients suivent leur réparation sans vous appeler. Inscrivez-vous avec mon lien pour un demi-mois offert : {link}",
+      "zoom": "Afficher le QR code en grand"
     },
     "amounts": {
       "owed": "À vous verser",

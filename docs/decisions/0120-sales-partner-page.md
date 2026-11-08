@@ -12,7 +12,7 @@ Builds the sales partner's page ADR 0032 describes, on the API of ADR 0040, in t
 
 **A sales partner doesn't need a shop.** `/` sends a User with no Membership and no Business of their own to `/partner` when they have the page, instead of to creating a Business. The top bar offers "Open your own shop" to them, and "Back to your shops" to anyone who has one.
 
-**The page leads with the link**, on a pine card with copy, the phone's share sheet where there is one, and a QR code to scan at a shop's counter. Then:
+**The page leads with the link**, on a pine card, without showing the address: like an Owner's invite (ADR 0110), it offers Copy, Email and WhatsApp, and a QR code that opens full screen on a click, to scan across a shop's counter. Then:
 
 - what's coming to them, with pending and paid so far beside it,
 - their shops by name only (ADR 0032), each "Not paying yet", "Earning until" the end of its 6 months, or "Ended",

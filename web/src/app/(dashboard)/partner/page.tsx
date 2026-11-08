@@ -1,9 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { QrCode } from "@/components/qr-code";
 import { SheetTitle } from "@/components/sheet-title";
 import { Banner } from "@/components/ui/banner";
-import { CopyField } from "@/components/ui/copy-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import { Panel } from "@/components/ui/panel";
@@ -14,7 +12,7 @@ import { COMMISSION_PILLS, formatCents, formatDate } from "@/lib/commissions";
 import { getMe } from "@/lib/me";
 import { lastPage, parsePage } from "@/lib/pagination";
 import { EarningsChart } from "./earnings-chart";
-import { ShareLink } from "./share-link";
+import { LinkActions, ZoomableQr } from "./link-actions";
 
 const PAGE_SIZE = 10;
 const GRID = "lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)] lg:gap-x-5";
@@ -62,19 +60,11 @@ export default async function SalesPartnerPage({ searchParams }: PageProps<"/par
                 <h2 className="text-label-md text-surface/80">{t("link.title")}</h2>
                 <p className="mt-1 text-title-h5 md:text-title-h4">{t("link.pitch")}</p>
               </div>
-              <CopyField
-                label={t("link.label")}
-                value={link}
-                shown={link.replace(/^https?:\/\//, "")}
-                className="text-ink"
-              />
-              <div className="flex flex-wrap items-center gap-3">
-                <ShareLink link={link} />
-                <p className="text-p-sm text-surface/80">{t("link.hint")}</p>
-              </div>
+              <LinkActions link={link} />
+              <p className="text-p-sm text-surface/80">{t("link.hint")}</p>
             </div>
             <div className="flex shrink-0 flex-col items-center gap-2">
-              <QrCode value={link} label={t("link.qr")} className="size-40 border-0" />
+              <ZoomableQr link={link} />
               <p className="text-p-xs text-surface/80">{t("link.qrHint")}</p>
             </div>
           </section>
