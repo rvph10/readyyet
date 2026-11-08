@@ -59,7 +59,10 @@ export class InsightsService {
         },
       }),
       this.prisma.membership.count({ where: { locationId } }),
-      this.prisma.invitation.count({ where: { locationId, status: InvitationStatus.PENDING } }),
+      // Still PENDING past its date until someone opens it, so the date decides.
+      this.prisma.invitation.count({
+        where: { locationId, status: InvitationStatus.PENDING, expiresAt: { gt: now } },
+      }),
       this.prisma.ticket.findFirst({ where: { locationId }, select: { id: true } }),
       this.prisma.ticketStatusEvent.findFirst({
         where: { ticket: { locationId }, status: { code: "COMPLETED" } },

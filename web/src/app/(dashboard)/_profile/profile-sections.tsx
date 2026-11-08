@@ -186,22 +186,17 @@ export function ShopsSection({ memberships }: { memberships: Membership[] }) {
   const tDashboard = useTranslations("dashboard");
   const tForm = useTranslations("tickets.form");
   const toast = useToast();
-  const router = useRouter();
   const [leaving, setLeaving] = useState<Membership | null>(null);
   const [pending, startTransition] = useTransition();
 
   function leave(membership: Membership) {
     startTransition(async () => {
-      const result = await orFailure(leaveShop(membership.location.id));
+      const inItsFrame = window.location.pathname.startsWith(`/locations/${membership.location.id}/`);
+      // When in its frame, a success redirects and never comes back here.
+      const result = await orFailure(leaveShop(membership.location.id, inItsFrame));
       setLeaving(null);
-      if (!result.ok) {
-        toast({ tone: "error", message: t("leaveFailed") });
-        return;
-      }
-      toast({ message: t("left", { shop: membership.location.name }) });
-      // Its pages are no longer this User's, including the one around this.
-      if (window.location.pathname.startsWith(`/locations/${membership.location.id}`)) router.replace("/");
-      else router.refresh();
+      if (result.ok) toast({ message: t("left", { shop: membership.location.name }) });
+      else toast({ tone: "error", message: t("leaveFailed") });
     });
   }
 

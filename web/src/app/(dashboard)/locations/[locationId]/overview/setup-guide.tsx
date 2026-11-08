@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Illustration } from "@/components/illustration";
 import { Avatar } from "@/components/ui/avatar";
@@ -41,7 +40,6 @@ interface Props {
 // the shop's own data once saved.
 export function SetupGuide({ location, businessName, setup, owner, hasPro, folded: foldedAtFirst }: Props) {
   const t = useTranslations("today.setup");
-  const router = useRouter();
   const { newTicket } = useLocationActions();
   const steps = setupSteps(setup, owner);
   const done = steps.filter(({ isDone }) => isDone).length;
@@ -86,18 +84,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
     ),
     reviewLink: <ReviewLink locationId={location.id} url={location.googleReviewUrl} hasPro={hasPro} onSaved={close} />,
     team: <InviteForm locationId={location.id} ownerActs={owner} onDone={close} onCancel={close} />,
-    logo: (
-      <LogoPicker
-        businessId={location.businessId}
-        name={businessName}
-        logoUrl={location.logoUrl}
-        onDone={() => {
-          close();
-          // The upload refreshes the Business's pages, Today needs asking.
-          router.refresh();
-        }}
-      />
-    ),
+    logo: <LogoPicker businessId={location.businessId} name={businessName} logoUrl={location.logoUrl} onDone={close} />,
   };
 
   return (
@@ -118,7 +105,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         <button
           type="button"
           aria-expanded={!folded}
-          aria-controls="setup-guide-body"
+          aria-controls={folded ? undefined : "setup-guide-body"}
           onClick={() => fold(!folded)}
           className="flex h-10 shrink-0 cursor-pointer items-center gap-2 justify-self-end rounded-full bg-surface/10 px-4 text-label-sm transition-colors hover:bg-surface/16 max-sm:col-start-3"
         >

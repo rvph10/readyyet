@@ -27,7 +27,7 @@ export default async function BusinessPage({ params }: PageProps<"/businesses/[b
     getTranslations("business"),
     getTranslations("today"),
   ]);
-  const first = business.locations[0];
+  const first = [...business.locations].sort((a, b) => a.name.localeCompare(b.name))[0];
   // The greeting follows the clock of the first shop, by name.
   const timeZone = first ? (await getLocation(first.id)).timeZone : "Europe/Brussels";
 

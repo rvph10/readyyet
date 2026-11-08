@@ -129,7 +129,6 @@
       "status": "Status",
       "expected": "Expected",
       "received": "Received",
-      "next": "Next step",
       "lastUpdate": "Last update"
     },
     "today": "Today",
@@ -495,7 +494,6 @@
     "upToLate": "{days, plural, one {Up to # day late} other {Up to # days late}}",
     "nothingLate": "Everything on time",
     "dueTomorrow": "{count, plural, =0 {Nothing due tomorrow} other {# more due tomorrow}}",
-    "waitingOnSomeone": "{count} waiting on someone",
     "needsYou": "Needs you",
     "caughtUp": "All clear",
     "caughtUpHint": "No feedback or problems waiting for you.",

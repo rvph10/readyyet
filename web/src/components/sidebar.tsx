@@ -8,6 +8,8 @@ import { setLanguage } from "@/app/(dashboard)/_profile/actions";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { useToast } from "@/components/ui/toast";
+import { orFailure } from "@/lib/api/or-failure";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 
 const YEAR_SECONDS = 365 * 24 * 60 * 60;
@@ -138,6 +140,8 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
   const router = useRouter();
   const locale = useLocale();
   const [switching, startSwitching] = useTransition();
+  const tProfile = useTranslations("profile");
+  const toast = useToast();
   // The shop or Business around this page, whose frame the profile opens in.
   const frame = /^\/(locations|businesses)\/[^/]+/.exec(pathname)?.[0];
   return (
@@ -182,8 +186,9 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
               onClick={() =>
                 locale !== code &&
                 startSwitching(async () => {
-                  await setLanguage(code === "en" ? "EN" : "FR");
-                  router.refresh();
+                  const result = await orFailure(setLanguage(code === "en" ? "EN" : "FR"));
+                  if (result.ok) router.refresh();
+                  else toast({ tone: "error", message: tProfile("languageFailed") });
                 })
               }
               className={`flex h-10 cursor-pointer items-center justify-center rounded-lg text-label-xs font-semibold transition-colors ${

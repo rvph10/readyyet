@@ -3,6 +3,7 @@
 import type { SupportedLocale } from "@readyyet/shared";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { actionResult } from "@/lib/api/errors";
 import { LOCALE_COOKIE } from "@/lib/locale";
@@ -41,13 +42,16 @@ export async function removeAvatar() {
   return actionResult(result);
 }
 
-// Unlike the Team page's, stays where it is: the profile lists every shop.
-export async function leaveShop(locationId: string) {
-  const result = await (
-    await api()
-  ).DELETE("/locations/{locationId}/memberships/me", { params: { path: { locationId } } });
+// The profile lists every shop, so it stays where it is, unless it's in the
+// frame of the shop just left: refreshing that would be a 404 by then.
+export async function leaveShop(locationId: string, inItsFrame: boolean) {
+  const outcome = await actionResult(
+    await (await api()).DELETE("/locations/{locationId}/memberships/me", { params: { path: { locationId } } }),
+  );
+  if (!outcome.ok) return outcome;
   revalidatePath("/", "layout");
-  return actionResult(result);
+  if (inItsFrame) redirect("/");
+  return outcome;
 }
 
 export async function deleteAccount() {

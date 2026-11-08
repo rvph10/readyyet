@@ -178,8 +178,12 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
     if (data.user.name) {
       // ADR 0118: the app speaks the User's own language, on this device too.
       const saved = parseLocale((data.user as { locale?: string }).locale);
-      if (saved) {
+      if (saved && saved.toLowerCase() !== locale) {
         document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${YEAR_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
+        // A full load, as the root layout holds the page's language and its
+        // messages, which a soft navigation keeps.
+        window.location.assign(next);
+        return;
       }
       router.replace(next);
     } else {

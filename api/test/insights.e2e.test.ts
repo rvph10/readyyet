@@ -117,4 +117,23 @@ describe("Insights", () => {
     expect(activity[0].changedByName).toBeTruthy();
     expect(setup.firstHandover).toBe(true);
   });
+
+  it("doesn't count an invitation past its date as a team", async () => {
+    await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", cookie)
+      .send({ email: `delivered+insights-invitee-${stamp}@resend.dev`, role: "EMPLOYEE" })
+      .expect(201);
+    expect((await insights()).setup.team).toBe(true);
+    await prisma.invitation.updateMany({ where: { locationId }, data: { expiresAt: new Date(Date.now() - DAY_MS) } });
+    expect((await insights()).setup.team).toBe(false);
+  });
+
+  it("is refused to someone outside the Location", async () => {
+    const stranger = await signInViaOtp(app, prisma, `delivered+insights-stranger-${stamp}@resend.dev`);
+    const { status } = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/insights`)
+      .set("Cookie", stranger);
+    expect([403, 404]).toContain(status);
+  });
 });
