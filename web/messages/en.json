@@ -108,7 +108,8 @@
     "openCount": "{count, plural, one {open Ticket} other {open Tickets}}",
     "tileReady": "{count} ready",
     "tileLate": "{count} late",
-    "backOffice": "Back office"
+    "backOffice": "Back office",
+    "salesPartnerPage": "Your sales partner page"
   },
   "tickets": {
     "title": "Tickets",
@@ -1132,6 +1133,79 @@
           "description": "A commission is voided when its invoice is refunded or disputed within 14 days."
         }
       }
+    }
+  },
+  "salesPartner": {
+    "title": "Sales partner",
+    "nav": "Overview",
+    "role": "Sales partner",
+    "formerRole": "Former sales partner",
+    "backToShops": "Back to your shops",
+    "openShop": "Open your own shop",
+    "greeting": "Hi {name}",
+    "subtitle": "Your link, your shops and what you've earned.",
+    "formerSubtitle": "What you've earned, and when it's paid.",
+    "former": "You're no longer a sales partner, so shops paying from now on earn you nothing. Everything you've already earned is still paid to you.",
+    "link": {
+      "title": "Your referral link",
+      "pitch": "Bring a shop to ReadyYet and earn 35% of what it pays for 6 months.",
+      "label": "Your link",
+      "hint": "Their first invoice is half a month off.",
+      "share": "Share",
+      "shareText": "Track repairs without phone calls: try ReadyYet with half a month off.",
+      "qr": "QR code of your referral link",
+      "qrHint": "Scan to sign up"
+    },
+    "amounts": {
+      "owed": "Coming to you",
+      "owedHint": "Paid to you by bank transfer.",
+      "pending": "Pending",
+      "pendingHint": "Owed 14 days after each invoice",
+      "paid": "Paid so far"
+    },
+    "welcome": {
+      "title": "Share your link to bring in your first shop",
+      "description": "Send it to a shop owner or let them scan the QR code. Once they sign up, their shop and what you earn from it show here."
+    },
+    "shops": {
+      "title": "{count, plural, =0 {Your shops} one {Your shop} other {Your # shops}}",
+      "notPaying": "Not paying yet",
+      "earningUntil": "Earning until {date}",
+      "ended": "Ended {date}",
+      "stopped": "No longer earning",
+      "empty": {
+        "title": "Your first shop shows here",
+        "description": "Once a shop signs up with your link, you'll see it here and when its 6 months end."
+      }
+    },
+    "earnings": {
+      "title": "Earned by month",
+      "empty": "Your earnings show here once a shop you brought in pays its first invoice."
+    },
+    "commissions": {
+      "title": "Your commissions",
+      "shop": "Business",
+      "invoicePaid": "Invoice paid",
+      "amount": "Commission",
+      "state": "State",
+      "paidOn": "Paid {date}",
+      "states": {
+        "OWED": "Owed",
+        "PENDING": "Pending",
+        "PAID": "Paid",
+        "VOIDED": "Voided"
+      },
+      "empty": {
+        "title": "No commissions yet",
+        "description": "Each invoice a shop you brought in pays earns you a commission, listed here."
+      }
+    },
+    "rules": {
+      "title": "How it works",
+      "share": "A shop signs up within 60 days of opening your link. It counts for you for good.",
+      "earn": "You earn 35% of each invoice it pays, VAT excluded, for 6 months from its first one.",
+      "wait": "A commission is owed 14 days after its invoice is paid. A refund or dispute before then cancels it.",
+      "paid": "What's owed is paid to you by bank transfer."
     }
   }
 }

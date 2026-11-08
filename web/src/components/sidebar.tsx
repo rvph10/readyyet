@@ -17,6 +17,7 @@ export interface SidebarUser {
   id: string;
   avatarUrl: string | null;
   platformAdmin: boolean;
+  salesPartnerPage: boolean;
 }
 
 // Whether the sidebar shows its words. Under 1280px it's always the rail.
@@ -157,13 +158,21 @@ export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
         </div>
       </div>
       <div className="mx-3 border-t border-border" />
-      {me.platformAdmin && (
+      {(me.platformAdmin || me.salesPartnerPage) && (
         <>
           <div className="p-1">
-            <Link href="/admin" className={panelRow}>
-              <Icon name="layers" className="size-4 text-muted" />
-              {t("backOffice")}
-            </Link>
+            {me.salesPartnerPage && (
+              <Link href="/partner" className={panelRow}>
+                <Icon name="link" className="size-4 text-muted" />
+                {t("salesPartnerPage")}
+              </Link>
+            )}
+            {me.platformAdmin && (
+              <Link href="/admin" className={panelRow}>
+                <Icon name="layers" className="size-4 text-muted" />
+                {t("backOffice")}
+              </Link>
+            )}
           </div>
           <div className="mx-3 border-t border-border" />
         </>
