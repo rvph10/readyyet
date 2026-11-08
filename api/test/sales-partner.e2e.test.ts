@@ -56,7 +56,7 @@ describe("Sales partners, managed by the platform admin", () => {
 
   it("tells the web app who is the platform admin and who is a sales partner", async () => {
     const admin = await request(app.getHttpServer()).get("/me").set("Cookie", adminCookie);
-    expect(admin.body).toMatchObject({ platformAdmin: true, salesPartner: false });
+    expect(admin.body).toMatchObject({ platformAdmin: true, salesPartner: false, salesPartnerPage: false });
     const user = await request(app.getHttpServer()).get("/me").set("Cookie", userCookie);
     expect(user.body).toMatchObject({ platformAdmin: false, salesPartner: false });
   });
@@ -234,9 +234,12 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
     });
     expect(first.body.items[1].state).toBe("VOIDED");
 
-    const rest = await get(`/me/sales-partner/commissions?take=10&cursor=${first.body.nextCursor}`, partnerCookie);
-    expect(rest.body.items.map((item: { state: string }) => item.state)).toEqual(["OWED", "OWED", "PAID"]);
-    expect(rest.body.nextCursor).toBeNull();
+    expect(first.body.total).toBe(5);
+
+    const rest = await get("/me/sales-partner/commissions?take=2&page=2", partnerCookie);
+    expect(rest.body.items.map((item: { state: string }) => item.state)).toEqual(["OWED", "OWED"]);
+    const last = await get("/me/sales-partner/commissions?take=2&page=3", partnerCookie);
+    expect(last.body.items.map((item: { state: string }) => item.state)).toEqual(["PAID"]);
   });
 
   it("is refused to someone who was never a sales partner", async () => {
@@ -257,6 +260,7 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
 
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: { id: string }) => item.id)).toEqual([ids.owed, ids.owedToo]);
+    expect(response.body.total).toBe(2);
     expect(response.body.items[0]).toMatchObject({
       salesPartner: { id: partnerId, email: partnerEmail },
       business: { name: "Paying Garage" },
@@ -288,5 +292,19 @@ describe("Commissions, seen by the sales partner and the platform admin", () => 
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ salesPartner: false, paidAmount: 1715 + 2715 });
+    const me = await get("/me", partnerCookie);
+    expect(me.body).toMatchObject({ salesPartner: false, salesPartnerPage: true });
+  });
+
+  it("keeps a removed sales partner in the platform admin's list while they're still owed", async () => {
+    const listed = async () => {
+      const partners: { id: string }[] = (await get("/admin/sales-partners", adminCookie)).body;
+      return partners.find((partner) => partner.id === partnerId);
+    };
+
+    expect(await listed()).toMatchObject({ salesPartnerSince: null, pendingAmount: 1715, owedAmount: 0 });
+
+    await prisma.commission.update({ where: { id: BigInt(ids.pending) }, data: { voidedAt: new Date() } });
+    expect(await listed()).toBeUndefined();
   });
 });

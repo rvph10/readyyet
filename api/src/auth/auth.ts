@@ -54,6 +54,8 @@ export const auth: Auth<any> = betterAuth({
       // Only the platform admin sets it (ADR 0032). Declared so the session's
       // user carries it, /me reads it from there.
       salesPartnerSince: { type: "date", required: false, input: false },
+      // Given with the status and kept after it, for the sales partner's page.
+      referralCode: { type: "string", required: false, input: false },
     },
   },
   databaseHooks: {

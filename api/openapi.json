@@ -8111,11 +8111,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -8434,11 +8436,13 @@
             }
           },
           {
-            "name": "cursor",
+            "name": "page",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "minimum": 1,
+              "maximum": 100000,
+              "type": "number"
             }
           }
         ],
@@ -9368,6 +9372,9 @@
           "salesPartner": {
             "type": "boolean"
           },
+          "salesPartnerPage": {
+            "type": "boolean"
+          },
           "platformAdmin": {
             "type": "boolean"
           }
@@ -9381,6 +9388,7 @@
           "name",
           "avatarUrl",
           "salesPartner",
+          "salesPartnerPage",
           "platformAdmin"
         ]
       },
@@ -9425,6 +9433,9 @@
           "salesPartner": {
             "type": "boolean"
           },
+          "salesPartnerPage": {
+            "type": "boolean"
+          },
           "platformAdmin": {
             "type": "boolean"
           }
@@ -9436,6 +9447,7 @@
           "name",
           "avatarUrl",
           "salesPartner",
+          "salesPartnerPage",
           "platformAdmin"
         ]
       },
@@ -11100,7 +11112,8 @@
           },
           "salesPartnerSince": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "referralCode": {
             "type": "string"
@@ -11225,14 +11238,13 @@
               "$ref": "#/components/schemas/AdminCommissionDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       },
       "MarkCommissionsPaidDto": {
@@ -11390,14 +11402,13 @@
               "$ref": "#/components/schemas/CommissionDto"
             }
           },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
+          "total": {
+            "type": "number"
           }
         },
         "required": [
           "items",
-          "nextCursor"
+          "total"
         ]
       }
     }

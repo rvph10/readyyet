@@ -108,7 +108,9 @@
     "openCount": "{count, plural, one {Ticket ouvert} other {Tickets ouverts}}",
     "tileReady": "{count, plural, one {# prêt} other {# prêts}}",
     "tileLate": "{count} en retard",
-    "profile": "Votre profil"
+    "profile": "Votre profil",
+    "backOffice": "Back-office",
+    "salesPartnerPage": "Votre page de partenaire commercial"
   },
   "tickets": {
     "title": "Tickets",
@@ -1174,5 +1176,182 @@
     "deleteLosesTitle": "Supprimer votre compte signifie",
     "deleteOwner": "Vous possédez encore une entreprise avec des magasins. Transférez-la ou supprimez ses magasins d'abord.",
     "deleteFailed": "Votre compte n'a pas été supprimé. Réessayez."
+  },
+  "admin": {
+    "title": "Back-office",
+    "backToShops": "Retour à vos magasins",
+    "platformAdmin": "Administrateur de la plateforme",
+    "nav": {
+      "salesPartners": "Partenaires commerciaux"
+    },
+    "states": {
+      "OWED": "Dues",
+      "PENDING": "En attente",
+      "PAID": "Payées",
+      "VOIDED": "Annulées"
+    },
+    "partners": {
+      "subtitle": "Qui amène des magasins à ReadyYet, et ce que vous leur devez.",
+      "count": "{count, plural, one {# partenaire commercial} other {# partenaires commerciaux}}",
+      "partner": "Partenaire commercial",
+      "since": "Depuis",
+      "former": "Ancien",
+      "nothingOwed": "Rien à payer",
+      "empty": {
+        "title": "Aucun partenaire commercial",
+        "description": "Ajoutez quelqu'un qui a déjà un compte ReadyYet. Il reçoit un lien de parrainage et gagne 35 % de ce que paient les magasins qu'il amène, pendant 6 mois."
+      }
+    },
+    "toPay": {
+      "title": "À payer maintenant",
+      "across": "{count, plural, one {À # partenaire commercial} other {À # partenaires commerciaux}}",
+      "nothing": "Rien à payer pour l'instant. {pending} est encore en attente.",
+      "rule": "Une commission est due 14 jours après le paiement de sa facture, quand un remboursement ou une contestation ne peut plus l'annuler."
+    },
+    "add": {
+      "open": "Ajouter un partenaire commercial",
+      "title": "Ajouter un partenaire commercial",
+      "intro": "Il lui faut d'abord un compte ReadyYet. Une fois ajouté, il reçoit son lien de parrainage et sa propre page dans l'app.",
+      "submit": "Ajouter",
+      "saving": "Ajout",
+      "done": "{email} est maintenant partenaire commercial",
+      "errors": {
+        "noAccount": "Aucun compte n'utilise cet e-mail. Demandez-lui de s'inscrire d'abord.",
+        "already": "Cette personne est déjà partenaire commercial.",
+        "failed": "Ça n'a pas marché. Réessayez."
+      }
+    },
+    "markPaid": {
+      "open": "{count, plural, one {Marquer # commission payée, {amount}} other {Marquer # commissions payées, {amount}}}",
+      "title": "Marquer {amount} payés à {name} ?",
+      "body": "{count, plural, one {À faire une fois votre virement envoyé. Cette commission passe en Payées, sans retour possible.} other {À faire une fois votre virement envoyé. Ces # commissions passent en Payées, sans retour possible.}}",
+      "confirm": "Marquer payé",
+      "saving": "Enregistrement",
+      "done": "{amount} marqués payés à {name}",
+      "changed": "Une commission a changé depuis le chargement de la page. Vérifiez le nouveau total et réessayez.",
+      "failed": "Ça n'a pas marché. Réessayez."
+    },
+    "remove": {
+      "open": "Retirer comme partenaire commercial",
+      "title": "Retirer {name} comme partenaire commercial ?",
+      "body": "{name} ne gagne plus rien sur les factures payées à partir de maintenant. Ce qui est déjà gagné reste dû, et sa page reste ouverte pour le suivre.",
+      "confirm": "Retirer",
+      "done": "{name} n'est plus partenaire commercial",
+      "failed": "Ça n'a pas marché. Réessayez."
+    },
+    "partner": {
+      "since": "{email}, partenaire commercial depuis le {date}",
+      "former": "{email}, ancien partenaire commercial",
+      "commissions": "Commissions",
+      "shop": "Entreprise",
+      "invoicePaid": "Facture payée",
+      "amount": "Commission",
+      "state": "État",
+      "paidOn": "Payée le {date}",
+      "owedNow": "Dû maintenant",
+      "pending": "{amount} encore en attente",
+      "link": "Lien de parrainage",
+      "copyLink": "Copier son lien",
+      "linkCopied": "Lien copié",
+      "linkHint": "Les magasins qui s'inscrivent par ce lien dans les 60 jours comptent pour ce partenaire commercial.",
+      "empty": {
+        "OWED": {
+          "title": "Rien à payer pour l'instant",
+          "description": "Les commissions arrivent ici 14 jours après le paiement de leur facture."
+        },
+        "PENDING": {
+          "title": "Rien en attente",
+          "description": "Une commission attend ici 14 jours après le paiement de sa facture."
+        },
+        "PAID": {
+          "title": "Rien de payé pour l'instant",
+          "description": "Les commissions marquées payées sont gardées ici."
+        },
+        "VOIDED": {
+          "title": "Rien d'annulé",
+          "description": "Une commission est annulée quand sa facture est remboursée ou contestée dans les 14 jours."
+        }
+      }
+    }
+  },
+  "salesPartner": {
+    "title": "Partenaire commercial",
+    "nav": "Vue d'ensemble",
+    "role": "Partenaire commercial",
+    "formerRole": "Ancien partenaire commercial",
+    "backToShops": "Retour à vos magasins",
+    "openShop": "Ouvrir votre propre magasin",
+    "greeting": "Bonjour {name}",
+    "subtitle": "Votre lien, vos magasins et ce que vous avez gagné.",
+    "formerSubtitle": "Ce que vous avez gagné, et quand c'est payé.",
+    "former": "Vous n'êtes plus partenaire commercial : les magasins qui paient à partir de maintenant ne vous rapportent plus rien. Tout ce que vous avez déjà gagné vous est toujours payé.",
+    "link": {
+      "title": "Votre lien de parrainage",
+      "pitch": "Amenez un magasin à ReadyYet et gagnez 35 % de ce qu'il paie pendant 6 mois.",
+      "hint": "Sa première facture a un demi-mois de réduction.",
+      "qr": "QR code de votre lien de parrainage",
+      "qrHint": "À scanner pour s'inscrire",
+      "copy": "Copier votre lien",
+      "copied": "Lien copié",
+      "byEmail": "E-mail",
+      "subject": "Essayez ReadyYet pour votre magasin",
+      "message": "Avec ReadyYet, vos clients suivent leur réparation sans vous appeler. Inscrivez-vous avec mon lien pour un demi-mois offert : {link}",
+      "zoom": "Afficher le QR code en grand"
+    },
+    "amounts": {
+      "owed": "À vous verser",
+      "owedHint": "Payé par virement bancaire.",
+      "pending": "En attente",
+      "pendingHint": "Dû 14 jours après chaque facture",
+      "paid": "Payé jusqu'ici"
+    },
+    "welcome": {
+      "title": "Partagez votre lien pour amener votre premier magasin",
+      "description": "Envoyez-le à un commerçant ou faites-lui scanner le QR code. Dès qu'il s'inscrit, son magasin et ce qu'il vous rapporte apparaissent ici."
+    },
+    "shops": {
+      "title": "{count, plural, =0 {Vos magasins} one {Votre magasin} other {Vos # magasins}}",
+      "notPaying": "Ne paie pas encore",
+      "earningUntil": "Rapporte jusqu'au {date}",
+      "ended": "Terminé le {date}",
+      "stopped": "Ne rapporte plus",
+      "empty": {
+        "title": "Votre premier magasin apparaîtra ici",
+        "description": "Dès qu'un magasin s'inscrit avec votre lien, il apparaît ici avec la fin de ses 6 mois."
+      }
+    },
+    "earnings": {
+      "title": "Gains par mois",
+      "empty": "Vos gains apparaîtront ici quand un magasin que vous avez amené paiera sa première facture."
+    },
+    "commissions": {
+      "title": "Vos commissions",
+      "shop": "Entreprise",
+      "invoicePaid": "Facture payée",
+      "amount": "Commission",
+      "state": "État",
+      "paidOn": "Payée le {date}",
+      "states": {
+        "OWED": "Due",
+        "PENDING": "En attente",
+        "PAID": "Payée",
+        "VOIDED": "Annulée"
+      },
+      "empty": {
+        "title": "Aucune commission pour l'instant",
+        "description": "Chaque facture payée par un magasin que vous avez amené vous rapporte une commission, listée ici."
+      }
+    },
+    "rules": {
+      "title": "Comment ça marche",
+      "share": "Un magasin s'inscrit dans les 60 jours après avoir ouvert votre lien. Il compte pour vous définitivement.",
+      "earn": "Vous gagnez 35 % de chaque facture qu'il paie, hors TVA, pendant 6 mois à partir de la première.",
+      "wait": "Une commission est due 14 jours après le paiement de sa facture. Un remboursement ou une contestation avant cela l'annule.",
+      "paid": "Ce qui vous est dû est payé par virement bancaire."
+    },
+    "formerEmpty": {
+      "title": "Rien à afficher",
+      "description": "Aucun magasin ne s'est inscrit avec votre lien avant la fin de votre statut de partenaire commercial, donc rien ne vous est dû."
+    }
   }
 }

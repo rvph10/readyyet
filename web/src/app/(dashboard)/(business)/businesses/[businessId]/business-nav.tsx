@@ -114,7 +114,7 @@ function PhoneBar({ props }: { props: Props }) {
         trigger={<Avatar id={me.id} name={me.name} src={me.avatarUrl} />}
       >
         <InviteRow onOpen={() => setInviting(true)} />
-        <UserPanel me={me} role="OWNER" />
+        <UserPanel me={me} detail={t("roles.OWNER")} />
       </Popover>
       <InviteDialog link={props.inviteLink} open={inviting} onClose={() => setInviting(false)} />
     </div>
@@ -170,6 +170,7 @@ export function BusinessNav({
   children,
   ...props
 }: Props & { collapsed: boolean; children: ReactNode }) {
+  const t = useTranslations("dashboard");
   const [collapsed, toggle] = useCollapsed(initial);
   return (
     <BusinessNameContext.Provider value={props.business.name}>
@@ -179,7 +180,7 @@ export function BusinessNav({
           <SidebarFrame collapsed={collapsed} onToggle={toggle}>
             <NavLinks props={props} />
             <InviteBusiness link={props.inviteLink} />
-            <UserRow me={props.me} role="OWNER" />
+            <UserRow me={props.me} detail={t("roles.OWNER")} />
           </SidebarFrame>
           <div className="flex min-w-0 flex-1 flex-col pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
             <PhoneBar props={props} />

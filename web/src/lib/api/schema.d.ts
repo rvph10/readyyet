@@ -1184,6 +1184,7 @@ export interface components {
             name: string;
             avatarUrl: string | null;
             salesPartner: boolean;
+            salesPartnerPage: boolean;
             platformAdmin: boolean;
         };
         UpdateMeDto: {
@@ -1198,6 +1199,7 @@ export interface components {
             name: string;
             avatarUrl: string | null;
             salesPartner: boolean;
+            salesPartnerPage: boolean;
             platformAdmin: boolean;
         };
         TranslationDto: {
@@ -1632,7 +1634,7 @@ export interface components {
             name: string;
             email: string;
             /** Format: date-time */
-            salesPartnerSince: string;
+            salesPartnerSince: string | null;
             referralCode: string;
             pendingAmount: number;
             owedAmount: number;
@@ -1665,7 +1667,7 @@ export interface components {
         };
         AdminCommissionPageDto: {
             items: components["schemas"]["AdminCommissionDto"][];
-            nextCursor: string | null;
+            total: number;
         };
         MarkCommissionsPaidDto: {
             commissionIds: string[];
@@ -1706,7 +1708,7 @@ export interface components {
         };
         CommissionPageDto: {
             items: components["schemas"]["CommissionDto"][];
-            nextCursor: string | null;
+            total: number;
         };
     };
     responses: never;
@@ -7915,7 +7917,7 @@ export interface operations {
                 state?: "PENDING" | "OWED" | "PAID" | "VOIDED";
                 salesPartnerId?: string;
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path?: never;
@@ -8168,7 +8170,7 @@ export interface operations {
         parameters: {
             query?: {
                 take?: number;
-                cursor?: string;
+                page?: number;
             };
             header?: never;
             path?: never;

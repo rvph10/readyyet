@@ -14,11 +14,15 @@ export class SalesPartnerService {
     private readonly commissions: CommissionService,
   ) {}
 
+  // Former sales partners stay listed while they're still owed, so the
+  // platform admin can pay what they earned (ADR 0040).
   async list(): Promise<SalesPartnerDto[]> {
     return this.withTotals(
       await this.prisma.user.findMany({
-        where: { salesPartnerSince: { not: null } },
-        orderBy: { salesPartnerSince: "asc" },
+        where: {
+          OR: [{ salesPartnerSince: { not: null } }, { commissions: { some: { paidAt: null, voidedAt: null } } }],
+        },
+        orderBy: [{ salesPartnerSince: { sort: "asc", nulls: "last" } }, { name: "asc" }],
         select: salesPartnerSelect,
       }),
     );
@@ -60,10 +64,9 @@ export class SalesPartnerService {
     users: { id: string; name: string; email: string; salesPartnerSince: Date | null; referralCode: string | null }[],
   ): Promise<SalesPartnerDto[]> {
     const totals = await this.commissions.totalsBySalesPartner(users.map((user) => user.id));
-    // Both set on every sales partner, the query only returns those.
+    // Anyone with a commission was marked once, which gave them a code.
     return users.map((user) => ({
       ...user,
-      salesPartnerSince: user.salesPartnerSince!,
       referralCode: user.referralCode!,
       ...totals.get(user.id)!,
     }));

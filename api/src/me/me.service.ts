@@ -39,6 +39,8 @@ export class MeService {
       avatarUrl: publicImageUrl(user.image),
       // Which back office sections the web app shows (ADR 0032).
       salesPartner: user.salesPartnerSince !== null,
+      // Kept once the status is removed, for what they're still owed (ADR 0040).
+      salesPartnerPage: user.referralCode !== null,
       platformAdmin: isPlatformAdmin(user.email),
     };
   }

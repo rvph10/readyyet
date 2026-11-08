@@ -19,6 +19,8 @@ export interface SidebarUser {
   email: string;
   id: string;
   avatarUrl: string | null;
+  platformAdmin: boolean;
+  salesPartnerPage: boolean;
 }
 
 // Whether the sidebar shows its words. Under 1280px it's always the rail.
@@ -134,7 +136,8 @@ export function rowClass(collapsed: boolean) {
 export const panelRow =
   "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-label-sm transition-colors hover:bg-subtle";
 
-export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
+// detail is the line under the name: their Role where they are.
+export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const router = useRouter();
@@ -153,7 +156,7 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
           <p className="truncate text-p-xs text-muted" title={me.email}>
             {me.email}
           </p>
-          <p className="text-p-xs text-muted">{t(`roles.${role as "OWNER"}`)}</p>
+          <p className="text-p-xs text-muted">{detail}</p>
         </div>
       </div>
       {frame && (
@@ -165,6 +168,25 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
         </div>
       )}
       <div className="mx-3 border-t border-border" />
+      {(me.platformAdmin || me.salesPartnerPage) && (
+        <>
+          <div className="p-1">
+            {me.salesPartnerPage && (
+              <Link href="/partner" className={panelRow}>
+                <Icon name="link" className="size-4 text-muted" />
+                {t("salesPartnerPage")}
+              </Link>
+            )}
+            {me.platformAdmin && (
+              <Link href="/admin" className={panelRow}>
+                <Icon name="layers" className="size-4 text-muted" />
+                {t("backOffice")}
+              </Link>
+            )}
+          </div>
+          <div className="mx-3 border-t border-border" />
+        </>
+      )}
       <div className="p-3">
         <p className="mb-2 flex items-center gap-2 text-label-sm">
           <Icon name="globe" className="size-4 text-muted" />
@@ -206,8 +228,7 @@ export function UserPanel({ me, role }: { me: SidebarUser; role: string }) {
   );
 }
 
-export function UserRow({ me, role }: { me: SidebarUser; role: string }) {
-  const t = useTranslations("dashboard");
+export function UserRow({ me, detail }: { me: SidebarUser; detail: string }) {
   const collapsed = useContext(CollapsedContext);
   return (
     <Popover
@@ -219,13 +240,13 @@ export function UserRow({ me, role }: { me: SidebarUser; role: string }) {
           <Avatar id={me.id} name={me.name} src={me.avatarUrl} />
           <span className={`min-w-0 flex-1 ${wide(collapsed)}`}>
             <span className="block truncate text-label-sm">{me.name}</span>
-            <span className="block truncate text-p-xs text-muted">{t(`roles.${role as "OWNER"}`)}</span>
+            <span className="block truncate text-p-xs text-muted">{detail}</span>
           </span>
           <Icon name="arrow-down-1" className={`mr-1 size-2.5 shrink-0 rotate-180 text-muted ${wide(collapsed)}`} />
         </>
       }
     >
-      <UserPanel me={me} role={role} />
+      <UserPanel me={me} detail={detail} />
     </Popover>
   );
 }

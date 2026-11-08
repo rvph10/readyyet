@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsIn, IsInt, IsOptional, IsString, Max, Min } from "class-validator";
 import { COMMISSION_STATES, type CommissionState } from "../../billing/commission";
+import { MAX_PAGE } from "../../common/pagination";
 import { IsBigIntId } from "../../common/parse-bigint-id";
 
 export class ListCommissionsQueryDto {
@@ -12,10 +13,13 @@ export class ListCommissionsQueryDto {
   @Max(100)
   take?: number;
 
-  // Opaque, the nextCursor of the previous page.
+  // 1 for the first, past the last it's an empty page.
   @IsOptional()
-  @IsBigIntId()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(MAX_PAGE)
+  page?: number;
 }
 
 export class AdminListCommissionsQueryDto extends ListCommissionsQueryDto {
@@ -55,8 +59,8 @@ export class CommissionDto {
 
 export class CommissionPageDto {
   items!: CommissionDto[];
-  // Pass as ?cursor= for the next page, null on the last one.
-  nextCursor!: string | null;
+  // Across every page, for what the filters match.
+  total!: number;
 }
 
 export class CommissionSalesPartnerDto {
@@ -84,7 +88,7 @@ export class AdminCommissionDto {
 
 export class AdminCommissionPageDto {
   items!: AdminCommissionDto[];
-  nextCursor!: string | null;
+  total!: number;
 }
 
 export class ReferredBusinessDto {
