@@ -1113,7 +1113,8 @@
       "owedNow": "Dû maintenant",
       "pending": "{amount} encore en attente",
       "link": "Lien de parrainage",
-      "linkLabel": "Son lien",
+      "copyLink": "Copier son lien",
+      "linkCopied": "Lien copié",
       "linkHint": "Les magasins qui s'inscrivent par ce lien dans les 60 jours comptent pour ce partenaire commercial.",
       "empty": {
         "OWED": {

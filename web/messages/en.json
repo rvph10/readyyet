@@ -1113,7 +1113,8 @@
       "owedNow": "Owed now",
       "pending": "{amount} still pending",
       "link": "Referral link",
-      "linkLabel": "Their link",
+      "copyLink": "Copy their link",
+      "linkCopied": "Link copied",
       "linkHint": "Shops that sign up through it within 60 days count for this sales partner.",
       "empty": {
         "OWED": {

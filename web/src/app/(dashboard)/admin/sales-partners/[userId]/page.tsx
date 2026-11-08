@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
-import { CopyField } from "@/components/ui/copy-field";
+import { CopyButton } from "@/components/copy-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import { Panel } from "@/components/ui/panel";
@@ -156,7 +156,13 @@ export default async function SalesPartnerPage({ params, searchParams }: PagePro
           </section>
           <Panel as="section" className="flex flex-col gap-4">
             <h2 className="text-title-h6">{t("partner.link")}</h2>
-            <CopyField label={t("partner.linkLabel")} value={link} shown={link.replace(/^https?:\/\//, "")} />
+            <CopyButton
+              value={link}
+              label={t("partner.copyLink")}
+              copiedLabel={t("partner.linkCopied")}
+              variant="secondary"
+              className="w-full"
+            />
             <p className="text-p-sm text-muted">{t("partner.linkHint")}</p>
             {partner.salesPartnerSince && (
               <div className="border-t border-border pt-4">
