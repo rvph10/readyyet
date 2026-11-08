@@ -258,6 +258,7 @@ export function PickerFrame({
   children: ReactNode;
 }) {
   const t = useTranslations("business");
+  const tDashboard = useTranslations("dashboard");
   const [collapsed, toggle] = useCollapsed(initial);
   const businessId = useSearchParams().get("business");
   const chosen = chooseBusiness(groupByBusiness(memberships), businessId);
@@ -270,7 +271,7 @@ export function PickerFrame({
             <nav className="flex flex-1 flex-col">
               <NavItem href={businessHref(chosen)} icon="home" label={t("nav.locations")} current />
             </nav>
-            <UserRow me={me} role={chosen.memberships[0].role} />
+            <UserRow me={me} detail={tDashboard(`roles.${chosen.memberships[0].role}`)} />
           </SidebarFrame>
         )}
         {children}

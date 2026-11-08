@@ -168,13 +168,14 @@ function BarActions({ locationId, needsYou }: { locationId: string; needsYou: Ne
 }
 
 function Sidebar({ props, collapsed, onToggle }: { props: Props; collapsed: boolean; onToggle: () => void }) {
+  const t = useTranslations("dashboard");
   return (
     <SidebarFrame collapsed={collapsed} onToggle={onToggle}>
       <NavLinks props={props} />
       {props.trialDaysLeft !== null && <TrialCard daysLeft={props.trialDaysLeft} />}
       {/* One ask at a time: choosing a plan comes first. */}
       {props.trialDaysLeft === null && props.inviteLink && <InviteBusiness link={props.inviteLink} />}
-      <UserRow me={props.me} role={props.current.role} />
+      <UserRow me={props.me} detail={t(`roles.${props.current.role}`)} />
     </SidebarFrame>
   );
 }
@@ -217,7 +218,7 @@ function PhoneBar({ props }: { props: Props }) {
         trigger={<Avatar id={me.id} name={me.name} src={me.avatarUrl} />}
       >
         {inviteLink && <InviteRow onOpen={() => setInviting(true)} />}
-        <UserPanel me={me} role={current.role} />
+        <UserPanel me={me} detail={t(`roles.${current.role}`)} />
       </Popover>
       {inviteLink && <InviteDialog link={inviteLink} open={inviting} onClose={() => setInviting(false)} />}
     </div>
