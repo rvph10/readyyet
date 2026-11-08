@@ -13,9 +13,11 @@ const SEARCH_FROM = 7;
 
 interface Props {
   locations: { id: string; name: string; badge?: ReactNode; counts: LocationCounts | null }[];
+  // While the shops' numbers load (ADR 0119).
+  loading?: boolean;
 }
 
-export function BusinessLocations({ locations }: Props) {
+export function BusinessLocations({ locations, loading = false }: Props) {
   const t = useTranslations("dashboard");
   const [query, setQuery] = useState("");
   const shown = locations.filter(({ name }) => matchesName(name, query));
@@ -34,7 +36,7 @@ export function BusinessLocations({ locations }: Props) {
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5 xl:grid-cols-3">
           {shown.map(({ id, ...location }) => (
             <li key={id}>
-              <LocationTile id={id} {...location} />
+              <LocationTile id={id} {...location} loading={loading} />
             </li>
           ))}
           {!query && (

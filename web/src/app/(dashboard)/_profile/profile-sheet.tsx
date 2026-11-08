@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { SheetShell } from "@/components/sheet-shell";
+import { MenuBadge, SheetShell } from "@/components/sheet-shell";
 import type { IconName } from "@/components/ui/icon";
 import type { components } from "@/lib/api/schema";
 import { DeleteAccountSection, LanguageSection, ProfileDetails, ShopsSection } from "./profile-sections";
@@ -31,7 +31,7 @@ export async function ProfileSheet({ me, here, section }: { me: Me; here: string
         name,
         icon,
         label: t(`nav.${name}`),
-        badge: name === "shops" ? String(me.memberships.length) : undefined,
+        badge: name === "shops" ? <MenuBadge>{me.memberships.length}</MenuBadge> : undefined,
         danger: name === "delete",
         content: content[name],
       }))}

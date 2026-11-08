@@ -2,7 +2,7 @@
 
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -120,7 +120,8 @@ function Details({ business }: { business: Business }) {
   );
 }
 
-function Ownership({
+// Nobody can take over without an Admin, so nothing to offer until then.
+export function Ownership({
   business,
   admins,
 }: {
@@ -183,10 +184,11 @@ function Ownership({
 
 export function BusinessSettings({
   business,
-  admins,
+  ownership,
 }: {
   business: Business;
-  admins: { id: string; name: string; email: string }[];
+  // Streamed in once the shops' Admins are known (ADR 0119).
+  ownership: ReactNode;
 }) {
   return (
     <Panel as="section" padding="none" className="max-w-3xl">
@@ -194,8 +196,7 @@ export function BusinessSettings({
       <div className="p-6 lg:p-8">
         {/* Keyed, so a saved name becomes the field's new starting point. */}
         <Details key={business.name} business={business} />
-        {/* Nobody can take over without an Admin, so nothing to offer until then. */}
-        {admins.length > 0 && <Ownership business={business} admins={admins} />}
+        {ownership}
       </div>
     </Panel>
   );

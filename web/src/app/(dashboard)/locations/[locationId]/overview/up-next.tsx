@@ -1,9 +1,9 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
 import { TicketRow } from "../tickets/ticket-row";
 
@@ -47,23 +47,7 @@ export function UpNext({
         </Link>
       </div>
       {tickets === null ? (
-        <ul aria-busy="true">
-          {Array.from({ length: UP_NEXT }, (_, row) => (
-            <li
-              key={row}
-              className="flex items-center gap-3 border-t border-border px-5 py-4 first:border-t-0 lg:min-h-18 lg:px-7 lg:py-3"
-            >
-              <Skeleton className="size-10 shrink-0 rounded-full! lg:size-12" />
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <Skeleton className="h-4 w-40 max-w-full" />
-                <Skeleton className="h-3 w-56 max-w-full" />
-              </div>
-              <Skeleton className="hidden h-8 w-28 rounded-xl! lg:block" />
-              <Skeleton className="hidden h-4 w-20 lg:block" />
-              <Skeleton className="hidden size-9 rounded-full! lg:block" />
-            </li>
-          ))}
-        </ul>
+        <RowsPlaceholder rows={UP_NEXT} columns={3} />
       ) : tickets.length > 0 ? (
         <ul>
           {tickets.slice(0, UP_NEXT).map((ticket) => (

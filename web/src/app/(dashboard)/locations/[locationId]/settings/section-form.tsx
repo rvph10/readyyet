@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { createContext, use, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const noSubscription = () => () => undefined;
 
@@ -84,5 +85,36 @@ export function SectionForm({ title, hint, onSubmit, onDiscard, dirty, pending, 
         </Button>
       </div>
     </form>
+  );
+}
+
+// ADR 0119: a section while its data loads, its real heading over rows of
+// fields at the sizes they'll take.
+export function SectionLoading({ title, hint, groups = 2 }: { title: string; hint: string; groups?: number }) {
+  return (
+    <div aria-busy="true" className="@container flex flex-1 flex-col">
+      <SectionHeading title={title} hint={hint} />
+      {Array.from({ length: groups }, (_, group) => (
+        <div
+          key={group}
+          className="grid gap-4 border-t border-border py-6 first:border-t-0 first:pt-0 @3xl:grid-cols-[15rem_minmax(0,1fr)] @3xl:gap-10"
+        >
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-5 w-32 max-w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="grid max-w-2xl grid-cols-6 gap-3">
+            <div className="col-span-6 flex flex-col gap-2 sm:col-span-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-12 w-full rounded-xl!" />
+            </div>
+            <div className="col-span-6 flex flex-col gap-2 sm:col-span-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-12 w-full rounded-xl!" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

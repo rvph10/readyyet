@@ -20,7 +20,8 @@ interface Props {
   group: Group;
   // Only to choose from on a phone, which has no top bar. Empty with just one.
   businesses: Group[];
-  counts: Record<string, LocationCounts | null>;
+  // Null while the numbers load: the tiles and their names stand (ADR 0119).
+  counts: Record<string, LocationCounts | null> | null;
 }
 
 export function LocationPicker({ title, subtitle, group, businesses, counts }: Props) {
@@ -74,7 +75,8 @@ export function LocationPicker({ title, subtitle, group, businesses, counts }: P
                   id={membership.location.id}
                   name={membership.location.name}
                   badge={<Badge>{t(`roles.${membership.role}`)}</Badge>}
-                  counts={counts[membership.location.id]}
+                  counts={counts?.[membership.location.id] ?? null}
+                  loading={counts === null}
                 />
               </li>
             ))}

@@ -9,8 +9,9 @@ export interface SheetSection {
   name: string;
   icon: IconName;
   label: string;
-  // Said beside the label, like "Off" for Google reviews.
-  badge?: string;
+  // Said beside the label, like "Off" for Google reviews: a MenuBadge, or a
+  // Suspense around one while what it says loads.
+  badge?: ReactNode;
   // The last, red, apart from the rest.
   danger?: boolean;
   content: ReactNode;
@@ -47,7 +48,7 @@ export function SheetShell({ label, start, sections }: { label: string; start: s
               >
                 <Icon name={icon} className="size-3.5 shrink-0" />
                 <span className="flex-1">{text}</span>
-                {badge && <span className="rounded-full bg-brand px-2 py-0.5 text-label-xs text-ink">{badge}</span>}
+                {badge}
               </Link>
             </li>
           ))}
@@ -64,4 +65,8 @@ export function SheetShell({ label, start, sections }: { label: string; start: s
       </div>
     </Panel>
   );
+}
+
+export function MenuBadge({ children }: { children: ReactNode }) {
+  return <span className="rounded-full bg-brand px-2 py-0.5 text-label-xs text-ink">{children}</span>;
 }
