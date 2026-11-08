@@ -511,6 +511,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/locations/{locationId}/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A Location's setup, month in numbers and latest activity, for Today (ADR 0116) */
+        get: operations["InsightsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/locations/{locationId}/customers": {
         parameters: {
             query?: never;
@@ -1376,6 +1393,65 @@ export interface components {
         };
         TrackingLinkSentDto: {
             sentTo: string;
+        };
+        InsightsSetupDto: {
+            address: boolean;
+            openingHours: boolean;
+            turnaround: boolean;
+            reviewLink: boolean;
+            logo: boolean;
+            team: boolean;
+            firstTicket: boolean;
+            firstHandover: boolean;
+        };
+        InsightsMonthDto: {
+            month: string;
+            received: number;
+        };
+        InsightsReceivedDto: {
+            months: components["schemas"]["InsightsMonthDto"][];
+            lastMonthSoFar: number;
+        };
+        InsightsCustomersDto: {
+            new: number;
+            returning: number;
+        };
+        InsightsPromiseDto: {
+            readied: number;
+            dated: number;
+            onTime: number;
+            averageDays: number | null;
+            turnaroundDays: number | null;
+        };
+        InsightsUpdatesDto: {
+            delivered: number;
+            reminders: number;
+            reviewRequests: number;
+            notes: number;
+        };
+        InsightsActivityDto: {
+            id: string;
+            ticketId: string;
+            ticketTitle: string;
+            customerName: string;
+            status: components["schemas"]["StatusDto"];
+            changedBy: string;
+            changedByName: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        InsightsYourDayDto: {
+            created: number;
+            moved: number;
+        };
+        InsightsDto: {
+            setup: components["schemas"]["InsightsSetupDto"];
+            received: components["schemas"]["InsightsReceivedDto"];
+            customers: components["schemas"]["InsightsCustomersDto"];
+            promise: components["schemas"]["InsightsPromiseDto"];
+            updates: components["schemas"]["InsightsUpdatesDto"];
+            activity: components["schemas"]["InsightsActivityDto"][];
+            yourDay: components["schemas"]["InsightsYourDayDto"];
         };
         CustomerPageDto: {
             items: components["schemas"]["CustomerDto"][];
@@ -5409,6 +5485,90 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    InsightsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightsDto"];
+                };
             };
             /** @description UNAUTHENTICATED: no valid session */
             401: {
