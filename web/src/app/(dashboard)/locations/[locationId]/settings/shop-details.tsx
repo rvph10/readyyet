@@ -43,9 +43,12 @@ function countryCodes(locale: string) {
 
 export function ShopDetails({
   location,
+  addressOnly,
   onSaved,
 }: {
   location: Location;
+  // The setup guide's address task leaves the rest of the shop out (ADR 0117).
+  addressOnly?: boolean;
   // Called once saved, when the section opened in a panel (ADR 0117).
   onSaved?: () => void;
 }) {
@@ -124,50 +127,54 @@ export function ShopDetails({
       pending={pending}
       failure={failure}
     >
-      <FieldGroup title={t("identityTitle")} hint={t("nameHint")}>
-        <Field
-          className="col-span-6 sm:col-span-4"
-          label={t("name")}
-          autoComplete="off"
-          maxLength={100}
-          value={form.name}
-          onChange={(event) => set("name", event.target.value)}
-          error={errors.name}
-        />
-        <SelectField
-          className="col-span-6 sm:col-span-2"
-          label={t("languageShort")}
-          value={form.locale}
-          onChange={(event) => set("locale", event.target.value)}
-        >
-          {LOCALES.map((option) => (
-            <option key={option} value={option}>
-              {languages.of(option.toLowerCase())}
-            </option>
-          ))}
-        </SelectField>
-      </FieldGroup>
-      <FieldGroup title={t("contactTitle")} hint={t("contactHint")}>
-        <div className="col-span-6 sm:col-span-3">
-          <PhoneField
-            label={t("phone")}
-            value={form.contactPhone}
-            onChange={(value) => set("contactPhone", value)}
-            defaultCountry={isSupportedCountry(form.addressCountry) ? form.addressCountry : FALLBACK_COUNTRY}
-            error={errors.contactPhone}
-          />
-        </div>
-        <Field
-          className="col-span-6 sm:col-span-3"
-          label={t("email")}
-          hint={t("emailHint")}
-          type="email"
-          autoComplete="off"
-          value={form.contactEmail}
-          onChange={(event) => set("contactEmail", event.target.value)}
-          error={errors.contactEmail}
-        />
-      </FieldGroup>
+      {!addressOnly && (
+        <>
+          <FieldGroup title={t("identityTitle")} hint={t("nameHint")}>
+            <Field
+              className="col-span-6 sm:col-span-4"
+              label={t("name")}
+              autoComplete="off"
+              maxLength={100}
+              value={form.name}
+              onChange={(event) => set("name", event.target.value)}
+              error={errors.name}
+            />
+            <SelectField
+              className="col-span-6 sm:col-span-2"
+              label={t("languageShort")}
+              value={form.locale}
+              onChange={(event) => set("locale", event.target.value)}
+            >
+              {LOCALES.map((option) => (
+                <option key={option} value={option}>
+                  {languages.of(option.toLowerCase())}
+                </option>
+              ))}
+            </SelectField>
+          </FieldGroup>
+          <FieldGroup title={t("contactTitle")} hint={t("contactHint")}>
+            <div className="col-span-6 sm:col-span-3">
+              <PhoneField
+                label={t("phone")}
+                value={form.contactPhone}
+                onChange={(value) => set("contactPhone", value)}
+                defaultCountry={isSupportedCountry(form.addressCountry) ? form.addressCountry : FALLBACK_COUNTRY}
+                error={errors.contactPhone}
+              />
+            </div>
+            <Field
+              className="col-span-6 sm:col-span-3"
+              label={t("email")}
+              hint={t("emailHint")}
+              type="email"
+              autoComplete="off"
+              value={form.contactEmail}
+              onChange={(event) => set("contactEmail", event.target.value)}
+              error={errors.contactEmail}
+            />
+          </FieldGroup>
+        </>
+      )}
       <FieldGroup title={t("addressLabel")} hint={t("addressRowHint")}>
         <Field
           className="col-span-6"

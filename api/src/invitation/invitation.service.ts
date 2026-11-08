@@ -202,7 +202,6 @@ export class InvitationService {
         // Ticket/Customer/Workflow ids).
         const membership = await tx.membership.create({
           data: { userId: user.id, locationId: invitation.locationId, role: invitation.role },
-          omit: { setupGuideHiddenAt: true },
         });
         return { ...membership, id: membership.id.toString() };
       } catch (err) {

@@ -44,19 +44,22 @@ export function Turnaround({
   days,
   openingHours,
   timeZone,
+  startOn,
   onSaved,
 }: {
   locationId: string;
   days: number | null;
   openingHours: OpeningHours;
   timeZone: string;
+  // From the setup guide, where turning it on is the task (ADR 0117).
+  startOn?: boolean;
   // Called once saved, when the section opened in a panel (ADR 0117).
   onSaved?: () => void;
 }) {
   const t = useTranslations("settings");
   const locale = useLocale();
   const toast = useToast();
-  const [on, setOn] = useState(days !== null);
+  const [on, setOn] = useState(days !== null || Boolean(startOn));
   const [value, setValue] = useState(days ?? USUAL_DAYS);
   const [failure, setFailure] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -112,7 +115,7 @@ export function Turnaround({
           onChange={(event) => setOn(event.target.checked)}
         />
         {on && (
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+          <div className="grid gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
             <section className="flex flex-col rounded-3xl border border-border-strong p-5 lg:p-6">
               <h3 className="text-label-sm">{t("turnaroundTitle")}</h3>
               <div className="mt-3 flex items-center gap-3">

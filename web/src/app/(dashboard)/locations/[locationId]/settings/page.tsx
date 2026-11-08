@@ -1,14 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getMe } from "@/lib/me";
-import { getBilling, getInsights, getLocation, getOverview } from "../location-data";
+import { getBilling, getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
 import { DeleteLocation } from "./delete-location";
 import { OpeningHours } from "./opening-hours";
 import { ReviewLink } from "./review-link";
 import { SettingsShell } from "./settings-shell";
-import { ShowGuide } from "./show-guide";
 import { parseSection, SETTINGS_SECTIONS } from "./settings-views";
 import { ShopDetails } from "./shop-details";
 import { Turnaround } from "./turnaround";
@@ -25,11 +24,10 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   if (!membership || !isManager(membership.role)) {
     notFound();
   }
-  const [location, billing, overview, insights] = await Promise.all([
+  const [location, billing, overview] = await Promise.all([
     getLocation(locationId),
     getBilling(locationId),
     getOverview(locationId),
-    getInsights(locationId),
   ]);
   const hasPro = billing.plan === "PRO" && !billing.frozen;
   const owner = membership.role === "OWNER";
@@ -37,10 +35,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
 
   return (
     <div className="fit-screen flex flex-col gap-4 lg:gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <PageHeader title={t("sections.settings")} />
-        {insights.setup.hidden && <ShowGuide locationId={locationId} />}
-      </div>
+      <PageHeader title={t("sections.settings")} />
       <SettingsShell
         start={parseSection(search.section, allowed)}
         reviewsOff={hasPro && !location.googleReviewUrl}

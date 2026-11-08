@@ -250,13 +250,11 @@ model Location {
 }
 
 model Membership {
-  id                 BigInt    @id @default(autoincrement())
-  userId             String    @map("user_id")
-  locationId         String    @map("location_id") @db.Uuid
-  role               Role
-  // Set when this User hid the shop's setup guide before finishing it (ADR 0117).
-  setupGuideHiddenAt DateTime? @map("setup_guide_hidden_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
+  id         BigInt   @id @default(autoincrement())
+  userId     String   @map("user_id")
+  locationId String   @map("location_id") @db.Uuid
+  role       Role
+  createdAt  DateTime @default(now()) @map("created_at")
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)

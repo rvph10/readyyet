@@ -40,15 +40,3 @@ export async function startCheckout(
   }
   return actionResult(result);
 }
-
-// ADR 0117: per User, so a colleague still sees the guide they hid.
-export async function setSetupGuideHidden(locationId: string, hidden: boolean) {
-  const result = await (
-    await api()
-  ).PUT("/locations/{locationId}/memberships/me/setup-guide", {
-    params: { path: { locationId } },
-    body: { hidden },
-  });
-  revalidatePath(`/locations/${locationId}`, "layout");
-  return actionResult(result);
-}

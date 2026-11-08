@@ -3,18 +3,14 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type ReactNode } from "react";
-import { Illustration, type IllustrationName } from "@/components/illustration";
+import { useState, type ReactNode } from "react";
+import { Illustration } from "@/components/illustration";
 import { Avatar } from "@/components/ui/avatar";
-import { Button, buttonClass } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { useToast } from "@/components/ui/toast";
-import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { ImageInput, useImage } from "../../../(business)/businesses/[businessId]/settings/images";
-import { setSetupGuideHidden } from "../actions";
 import { useLocationActions } from "../location-actions";
 import { OpeningHours } from "../settings/opening-hours";
 import { ReviewLink } from "../settings/review-link";
@@ -22,26 +18,13 @@ import { InPanel } from "../settings/section-form";
 import { ShopDetails } from "../settings/shop-details";
 import { Turnaround } from "../settings/turnaround";
 import { InviteForm } from "../team/invite-form";
+import { foldedCookie, setupSteps, type StepKey } from "./setup-steps";
 
 type Location = components["schemas"]["LocationDto"];
 type Setup = components["schemas"]["InsightsSetupDto"];
-
-// In the order a new shop should take them: what it's for first, then what
-// Customers see, then the rest.
-const STEPS = [
-  { key: "firstTicket", done: "firstTicket", illustration: "tag" },
-  { key: "address", done: "address", illustration: "search" },
-  { key: "hours", done: "openingHours", illustration: "clock" },
-  { key: "turnaround", done: "turnaround", illustration: "hurry" },
-  { key: "reviewLink", done: "reviewLink", illustration: "star" },
-  { key: "team", done: "team", illustration: "helping" },
-  { key: "logo", done: "logo", illustration: "images" },
-  { key: "firstHandover", done: "firstHandover", illustration: "done" },
-] as const satisfies readonly { key: string; done: keyof Setup; illustration: IllustrationName }[];
-
-type StepKey = (typeof STEPS)[number]["key"];
 // What opens in the side panel rather than somewhere else.
 type PanelKey = Exclude<StepKey, "firstTicket" | "firstHandover">;
+const YEAR_S = 60 * 60 * 24 * 365;
 
 interface Props {
   location: Location;
@@ -50,34 +33,29 @@ interface Props {
   // The logo is the Business's, which only its Owner changes.
   owner: boolean;
   hasPro: boolean;
+  folded: boolean;
 }
 
-// ADR 0117: Shopify's setup guide, a card on the home page with the next task
-// open and the rest one click away. Each task is done here, in a side panel, and
-// ticks itself off once saved, as the shop's own data says it's done.
-export function SetupGuide({ location, businessName, setup, owner, hasPro }: Props) {
+// ADR 0117: on Today until the shop is fully set up. The tasks as a track, the
+// one to do as a card beside it, each done in a side panel and ticked off from
+// the shop's own data once saved.
+export function SetupGuide({ location, businessName, setup, owner, hasPro, folded: foldedAtFirst }: Props) {
   const t = useTranslations("today.setup");
-  const toast = useToast();
   const router = useRouter();
   const { newTicket } = useLocationActions();
-  const steps = STEPS.filter(({ key }) => key !== "logo" || owner).map((step) => ({
-    ...step,
-    isDone: setup[step.done],
-  }));
-  const left = steps.filter(({ isDone }) => !isDone);
+  const steps = setupSteps(setup, owner);
+  const done = steps.filter(({ isDone }) => isDone).length;
   const [chosen, setChosen] = useState<StepKey | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [folded, setFolded] = useState(foldedAtFirst);
   const [panel, setPanel] = useState<PanelKey | null>(null);
-  const [hiding, startHiding] = useTransition();
-  // A saved task closes itself, and the next one left opens, as on Shopify.
-  const open = chosen && left.some(({ key }) => key === chosen) ? chosen : (left[0]?.key ?? null);
+  // A saved task leaves the card for the next one left, unless one was picked.
+  const current = steps.find(({ key }) => key === chosen) ?? steps.find(({ isDone }) => !isDone)!;
+  const index = steps.indexOf(current);
   const close = () => setPanel(null);
 
-  function hide() {
-    startHiding(async () => {
-      const result = await orFailure(setSetupGuideHidden(location.id, true));
-      toast(result.ok ? { message: t("hidden") } : { tone: "error", message: t("hideFailed") });
-    });
+  function fold(next: boolean) {
+    setFolded(next);
+    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : ""}; path=/; max-age=${next ? YEAR_S : 0}; samesite=lax`;
   }
 
   function act(key: StepKey) {
@@ -86,7 +64,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro }: Pro
   }
 
   const panels: Record<PanelKey, ReactNode> = {
-    address: <ShopDetails location={location} onSaved={close} />,
+    address: <ShopDetails location={location} addressOnly onSaved={close} />,
     hours: (
       <OpeningHours
         locationId={location.id}
@@ -101,6 +79,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro }: Pro
         days={location.turnaroundDays}
         openingHours={location.openingHours}
         timeZone={location.timeZone}
+        startOn
         onSaved={close}
       />
     ),
@@ -121,100 +100,110 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro }: Pro
   };
 
   return (
-    <section aria-labelledby="setup-guide-title" className="rounded-sheet border-2 border-pine bg-surface">
-      <div className="flex flex-col gap-4 p-5 lg:p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 id="setup-guide-title" className="text-title-h6">
-              {left.length ? t("title") : t("allSetTitle")}
-            </h2>
-            <p className="mt-0.5 text-p-sm text-muted">
-              {left.length ? t("hint", { shop: location.name }) : t("allSetBody")}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Button variant="secondary" size="sm" pending={hiding} onClick={hide}>
-              {t("hide")}
-            </Button>
-            {left.length > 0 && (
-              <button
-                type="button"
-                aria-expanded={!collapsed}
-                aria-controls="setup-guide-steps"
-                aria-label={collapsed ? t("expand") : t("collapse")}
-                onClick={() => setCollapsed(!collapsed)}
-                className="flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-subtle"
-              >
-                <Icon name={collapsed ? "arrow-down-1" : "arrow-up-1"} className="size-3" />
-              </button>
-            )}
-          </div>
+    <section
+      aria-labelledby="setup-guide-title"
+      className="on-pine flex flex-col gap-6 rounded-sheet bg-pine p-5 text-surface lg:gap-8 lg:p-8"
+    >
+      {/* On a phone the words take their own row under the ring and the button. */}
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-4">
+        <Ring done={done} total={steps.length} />
+        <div className="min-w-0 max-sm:order-last max-sm:col-span-3">
+          <p className="text-label-sm text-brand">{t("eyebrow")}</p>
+          <h2 id="setup-guide-title" className="text-title-h5 wrap-anywhere lg:text-title-h4">
+            {t("title", { shop: location.name })}
+          </h2>
+          <p className="mt-0.5 text-p-sm">{t("progress", { done, total: steps.length })}</p>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="shrink-0 text-label-sm">
-            {t("progress", { done: steps.length - left.length, total: steps.length })}
-          </span>
-          <ProgressBar value={steps.length - left.length} max={steps.length} label={t("title")} />
-        </div>
+        <button
+          type="button"
+          aria-expanded={!folded}
+          aria-controls="setup-guide-body"
+          onClick={() => fold(!folded)}
+          className="flex h-10 shrink-0 cursor-pointer items-center gap-2 justify-self-end rounded-full bg-surface/10 px-4 text-label-sm transition-colors hover:bg-surface/16 max-sm:col-start-3"
+        >
+          <span className="max-sm:sr-only">{folded ? t("expand") : t("collapse")}</span>
+          <Icon name={folded ? "arrow-down-1" : "arrow-up-1"} className="size-3" />
+        </button>
       </div>
 
-      {!collapsed && left.length > 0 && (
-        <ul id="setup-guide-steps" className="flex flex-col gap-1 px-3 pb-3 lg:px-4 lg:pb-4">
-          {steps.map(({ key, isDone, illustration }) => {
-            const expanded = key === open;
-            return (
-              <li key={key} className={`rounded-card ${expanded ? "bg-subtle" : ""}`}>
-                <button
-                  type="button"
-                  disabled={isDone}
-                  aria-expanded={isDone ? undefined : expanded}
-                  onClick={() => setChosen(key)}
-                  className={`flex w-full items-center gap-3 rounded-card px-3 py-3 text-left ${
-                    isDone ? "cursor-default" : expanded ? "cursor-default" : "cursor-pointer hover:bg-subtle"
-                  }`}
-                >
-                  <Check done={isDone} />
-                  <span
-                    className={`min-w-0 flex-1 ${expanded ? "text-label-md" : "text-label-sm"} ${isDone ? "text-muted" : ""}`}
+      {!folded && (
+        <div id="setup-guide-body" className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+          <ol className="flex flex-col max-lg:order-last">
+            {steps.map((step, position) => {
+              const here = step.key === current.key;
+              return (
+                <li key={step.key} className="relative">
+                  {/* The track between two steps, lime once the first is done. */}
+                  {position < steps.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className={`absolute top-10 bottom-0 left-[1.6875rem] w-0.5 -translate-x-1/2 ${
+                        step.isDone ? "bg-brand" : "bg-surface/20"
+                      }`}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    aria-current={here ? "step" : undefined}
+                    onClick={() => setChosen(step.key)}
+                    className={`relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors ${
+                      here ? "bg-surface/12" : "hover:bg-surface/6"
+                    }`}
                   >
-                    {t(`${key}.title`)}
-                  </span>
-                </button>
-                {expanded && (
-                  <div className="-mt-1 flex items-start justify-between gap-6 px-3 pb-4 pl-14">
-                    <div className="max-w-lg">
-                      <p className="text-p-sm">{t(`${key}.body`)}</p>
-                      <div className="mt-4">
-                        {key === "firstHandover" ? (
-                          <Link
-                            href={`/locations/${location.id}/tickets?view=ready`}
-                            className={buttonClass({ size: "sm" })}
-                          >
-                            {t(`${key}.action`)}
-                          </Link>
-                        ) : (
-                          <Button size="sm" onClick={() => act(key)}>
-                            {t(`${key}.action`)}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    <span className="hidden shrink-0 rounded-card bg-surface p-3 md:block">
-                      <Illustration name={illustration} className="h-28 w-auto" />
+                    <Marker done={step.isDone} here={here} number={position + 1} />
+                    <span className={`min-w-0 flex-1 truncate ${here ? "text-label-md" : "text-label-sm"}`}>
+                      {t(`${step.key}.short`)}
                     </span>
-                  </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="flex flex-col overflow-clip rounded-card bg-surface text-ink md:flex-row">
+            <div className="flex flex-1 flex-col p-6 lg:p-8">
+              <p className="flex items-center gap-2 text-label-xs font-semibold tracking-wide text-brand-text uppercase">
+                {t("stepOf", { number: index + 1, total: steps.length })}
+                {current.isDone && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-ink normal-case">
+                    <Icon name="check" className="size-2.5" />
+                    {t("done")}
+                  </span>
                 )}
-              </li>
-            );
-          })}
-        </ul>
+              </p>
+              <h3 className="mt-2 text-title-h5">{t(`${current.key}.title`)}</h3>
+              <p className="mt-2 max-w-md text-p-md text-muted">{t(`${current.key}.body`)}</p>
+              <div className="mt-auto pt-6">
+                {current.key === "firstHandover" ? (
+                  <Link
+                    href={`/locations/${location.id}/tickets?view=ready`}
+                    className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
+                  >
+                    {t(`${current.key}.action`)}
+                    <Icon name="arrow-right" className="size-3" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => act(current.key)}
+                    className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
+                  >
+                    {current.isDone ? t("change") : t(`${current.key}.action`)}
+                    <Icon name="arrow-right" className="size-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-center border-l border-border p-6 max-md:hidden md:w-64 lg:w-72">
+              <Illustration name={current.illustration} className="h-40 w-auto lg:h-48" />
+            </div>
+          </div>
+        </div>
       )}
 
       <Dialog open={panel !== null} onClose={close} title={panel ? t(`${panel}.title`) : ""} variant="panel">
-        {panel === "team" ? (
-          panels.team
-        ) : panel === "logo" ? (
-          panels.logo
+        {panel === "team" || panel === "logo" ? (
+          panels[panel]
         ) : (
           <InPanel value={true}>
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-2 md:px-7">
@@ -227,14 +216,53 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro }: Pro
   );
 }
 
-// Shopify's circle: dashed while to do, filled once done.
-function Check({ done }: { done: boolean }) {
-  return done ? (
-    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-pine text-brand">
-      <Icon name="check" className="size-3" />
+const RADIUS = 30;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+// The share done as a lime arc on pine, the number inside.
+function Ring({ done, total }: { done: number; total: number }) {
+  const t = useTranslations("today.setup");
+  const percent = Math.round((done / total) * 100);
+  return (
+    <span
+      className="relative flex size-20 shrink-0 items-center justify-center"
+      role="img"
+      aria-label={t("percent", { percent })}
+    >
+      <svg viewBox="0 0 72 72" className="absolute inset-0 -rotate-90" aria-hidden="true">
+        <circle cx="36" cy="36" r={RADIUS} fill="none" strokeWidth="7" className="stroke-surface/15" />
+        <circle
+          cx="36"
+          cy="36"
+          r={RADIUS}
+          fill="none"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={`${(CIRCUMFERENCE * done) / total} ${CIRCUMFERENCE}`}
+          className="stroke-brand"
+        />
+      </svg>
+      <span className="text-label-lg">{percent}%</span>
     </span>
-  ) : (
-    <span className="size-7 shrink-0 rounded-full border-2 border-dashed border-border-strong" />
+  );
+}
+
+function Marker({ done, here, number }: { done: boolean; here: boolean; number: number }) {
+  if (done) {
+    return (
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-ink">
+        <Icon name="check" className="size-3" />
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`flex size-8 shrink-0 items-center justify-center rounded-full text-label-sm ${
+        here ? "bg-surface text-pine ring-4 ring-brand/40" : "border-2 border-surface/30 bg-pine"
+      }`}
+    >
+      {number}
+    </span>
   );
 }
 

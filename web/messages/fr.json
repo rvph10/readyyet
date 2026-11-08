@@ -554,45 +554,45 @@
       "returning": "{count, plural, one {# fidèle} other {# fidèles}}"
     },
     "setup": {
-      "title": "Guide de configuration",
-      "hint": "Suivez ce guide pour préparer {shop} à accueillir ses clients.",
-      "progress": "{done} sur {total} tâches terminées",
-      "hide": "Masquer le guide",
-      "hidden": "Guide masqué. Vous pouvez le retrouver dans les Paramètres.",
-      "hideFailed": "Impossible de masquer le guide. Réessayez.",
+      "title": "Préparez {shop}",
+      "progress": "{done} sur {total} tâches terminées. Finissez-les pour que vos clients profitent de tout ReadyYet.",
       "collapse": "Replier le guide",
       "expand": "Déplier le guide",
-      "allSetTitle": "Votre magasin est prêt",
-      "allSetBody": "Toutes les tâches sont terminées. Vos clients profitent de tout ReadyYet.",
       "firstTicket": {
         "title": "Créez votre premier Ticket",
         "body": "Ajoutez un Ticket quand un article arrive. Votre client reçoit un lien et un QR code pour le suivre, et un e-mail à chaque étape, sans vous appeler.",
-        "action": "Créer un Ticket"
+        "action": "Créer un Ticket",
+        "short": "Premier Ticket"
       },
       "address": {
         "title": "Ajoutez votre adresse",
         "body": "Affichée sur la page de suivi et dans les e-mails, pour que les clients sachent où venir.",
-        "action": "Ajouter l'adresse"
+        "action": "Ajouter l'adresse",
+        "short": "Adresse"
       },
       "hours": {
         "title": "Indiquez vos horaires",
         "body": "Les clients voient quand vous êtes ouvert, et les dates prévues sautent vos jours de fermeture.",
-        "action": "Indiquer les horaires"
+        "action": "Indiquer les horaires",
+        "short": "Horaires"
       },
       "turnaround": {
         "title": "Définissez votre délai habituel",
         "body": "Chaque nouveau Ticket reçoit une date prévue, pour que les clients sachent quand revenir.",
-        "action": "Définir le délai"
+        "action": "Définir le délai",
+        "short": "Délai"
       },
       "reviewLink": {
         "title": "Ajoutez votre lien d'avis Google",
         "body": "Une fois l'article récupéré, les clients sont invités à laisser un avis. Sans ce lien, personne n'est invité.",
-        "action": "Ajouter le lien"
+        "action": "Ajouter le lien",
+        "short": "Avis Google"
       },
       "team": {
         "title": "Invitez votre équipe",
         "body": "Chacun fait avancer les Tickets depuis son compte, et vous savez toujours qui a fait quoi.",
-        "action": "Inviter quelqu'un"
+        "action": "Inviter quelqu'un",
+        "short": "Votre équipe"
       },
       "logo": {
         "title": "Ajoutez votre logo",
@@ -600,13 +600,20 @@
         "action": "Ajouter le logo",
         "panelHint": "Une image carrée convient le mieux. JPG, PNG ou WebP.",
         "choose": "Choisir une image",
-        "uploading": "Envoi…"
+        "uploading": "Envoi…",
+        "short": "Logo"
       },
       "firstHandover": {
         "title": "Remettez un premier article",
         "body": "Quand un client récupère son article, marquez le Ticket comme récupéré. Les Tickets prêts vous attendent.",
-        "action": "Voir les Tickets prêts"
-      }
+        "action": "Voir les Tickets prêts",
+        "short": "Première remise"
+      },
+      "eyebrow": "Guide de configuration",
+      "stepOf": "Étape {number} sur {total}",
+      "done": "Fait",
+      "change": "Modifier",
+      "percent": "{percent} % configuré"
     },
     "activity": {
       "title": "Activité",
@@ -964,8 +971,7 @@
     },
     "deleteFinal": "Cette action est irréversible.",
     "deleteOpenTickets": "{count, plural, one {# Ticket est encore ouvert ici.} other {# Tickets sont encore ouverts ici.}}",
-    "deleteTypeLabel": "Nom du magasin",
-    "showGuide": "Afficher le guide de configuration"
+    "deleteTypeLabel": "Nom du magasin"
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",

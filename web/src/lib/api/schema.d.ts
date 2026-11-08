@@ -718,23 +718,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/locations/{locationId}/memberships/me/setup-guide": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Hide or show the shop's setup guide for yourself (ADR 0117) */
-        put: operations["MembershipController_updateSetupGuide"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/locations/{locationId}/memberships/{membershipId}": {
         parameters: {
             query?: never;
@@ -1405,7 +1388,6 @@ export interface components {
             team: boolean;
             firstTicket: boolean;
             firstHandover: boolean;
-            hidden: boolean;
         };
         InsightsMonthDto: {
             month: string;
@@ -1542,9 +1524,6 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             user: components["schemas"]["MemberUserDto"];
-        };
-        UpdateSetupGuideDto: {
-            hidden: boolean;
         };
         UpdateMembershipRoleDto: {
             /** @enum {string} */
@@ -6846,101 +6825,6 @@ export interface operations {
             };
             /** @description CONFLICT: not possible in the resource's current state */
             409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description VALIDATION_ERROR: the request body is over the size limit */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
-            415: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-        };
-    };
-    MembershipController_updateSetupGuide: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                locationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSetupGuideDto"];
-            };
-        };
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description VALIDATION_ERROR: the request is invalid */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description UNAUTHENTICATED: no valid session */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorResponseDto"];
-                };
-            };
-            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };

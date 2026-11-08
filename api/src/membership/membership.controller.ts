@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
@@ -9,7 +9,6 @@ import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { MemberDto } from "./dto/membership.response.dto";
 import { UpdateMembershipRoleDto } from "./dto/update-membership-role.dto";
-import { UpdateSetupGuideDto } from "./dto/update-setup-guide.dto";
 import { MembershipService } from "./membership.service";
 
 @ApiTags("Memberships")
@@ -39,18 +38,6 @@ export class MembershipController {
   @ApiErrors(HttpStatus.CONFLICT)
   leave(@Param("locationId") locationId: string, @CurrentUser() user: User) {
     return this.membership.leave(locationId, user.id);
-  }
-
-  @Put("me/setup-guide")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Hide or show the shop's setup guide for yourself (ADR 0117)" })
-  @ApiErrors(HttpStatus.BAD_REQUEST)
-  updateSetupGuide(
-    @Param("locationId") locationId: string,
-    @CurrentUser() user: User,
-    @Body() dto: UpdateSetupGuideDto,
-  ): Promise<void> {
-    return this.membership.updateSetupGuide(locationId, user.id, dto.hidden);
   }
 
   @Patch(":membershipId")

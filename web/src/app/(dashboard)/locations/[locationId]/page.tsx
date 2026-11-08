@@ -1,6 +1,7 @@
 import { calendarDateIn } from "@readyyet/shared";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { buttonClass } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { FirstTicket } from "./overview/first-ticket";
 import { MonthTile } from "./overview/month-tile";
 import { PlanCelebration } from "./overview/plan-celebration";
 import { SetupGuide } from "./overview/setup-guide";
+import { foldedCookie, setupSteps } from "./overview/setup-steps";
 import { TodayHero } from "./overview/today-hero";
 import { PageHeader } from "./page-header";
 import { parsePlan } from "./plan-prices";
@@ -28,13 +30,14 @@ const UP_NEXT = 6;
 // ADR 0116, replacing ADR 0088's grid: a Location opens on a welcome, the day's
 // numbers, the month in numbers, what to do next and who did what.
 export default async function TodayPage({ params, searchParams }: PageProps<"/locations/[locationId]">) {
-  const [{ locationId }, search, t, tDetail, locale, me] = await Promise.all([
+  const [{ locationId }, search, t, tDetail, locale, me, cookieJar] = await Promise.all([
     params,
     searchParams,
     getTranslations("today"),
     getTranslations("ticketDetail"),
     getLocale(),
     getMe(),
+    cookies(),
   ]);
   const membership = me.memberships.find(({ location }) => location.id === locationId);
   if (!membership) notFound();
@@ -78,14 +81,16 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   );
 
   const base = `/locations/${locationId}`;
-  // ADR 0117: a manager's, until they hide it.
-  const guide = manager && !setup.hidden && billing && (
+  const owner = membership.role === "OWNER";
+  // ADR 0117: a manager's, until the shop is fully set up.
+  const guide = manager && billing && setupSteps(setup, owner).some(({ isDone }) => !isDone) && (
     <SetupGuide
       location={location}
       businessName={membership.location.business.name}
       setup={setup}
-      owner={membership.role === "OWNER"}
+      owner={owner}
       hasPro={billing.plan === "PRO" && !billing.frozen}
+      folded={cookieJar.get(foldedCookie(locationId))?.value === "1"}
     />
   );
 
