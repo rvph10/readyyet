@@ -104,8 +104,7 @@ export class BusinessService {
 
   // Shown for every Location of the Business, so it's the Owner's to set
   // (ADR 0051).
-  async setLogo(businessId: string, userId: string, file: Buffer) {
-    await this.loadOwned(businessId, userId, "Only the business owner can change its logo");
+  setLogo(businessId: string, file: Buffer) {
     return this.storeImage(businessId, "logoKey", file, "logo");
   }
 
@@ -114,8 +113,7 @@ export class BusinessService {
     return this.replaceImage(businessId, "logoKey", null);
   }
 
-  async setBanner(businessId: string, userId: string, file: Buffer) {
-    await this.loadOwned(businessId, userId, "Only the business owner can change its banner");
+  setBanner(businessId: string, file: Buffer) {
     return this.storeImage(businessId, "bannerKey", file, "banner");
   }
 
@@ -277,7 +275,7 @@ export class BusinessService {
     return {};
   }
 
-  private async loadOwned(businessId: string, userId: string, forbidden: string) {
+  async loadOwned(businessId: string, userId: string, forbidden: string) {
     // Business.id is a Postgres uuid column, a non-UUID value would
     // otherwise surface as a raw DB error, not a clean 404 (same
     // reasoning as LocationMembershipGuard's own isUUID check).

@@ -125,6 +125,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
             collectedAt={status.code === "READY" ? ticket.customerCollectedAt : null}
             track={
               <WorkflowTrack
+                horizontal
                 steps={track}
                 currentCode={status.code}
                 reachedCode={reached?.status.code ?? null}

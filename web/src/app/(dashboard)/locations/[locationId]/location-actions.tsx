@@ -60,7 +60,7 @@ export function LocationActions({ locationName, trialDaysLeft, children, ...newT
       <Dialog open={creating} onClose={() => setCreating(false)} title={tTickets("new")} variant="panel">
         {creating && <NewTicketPanel key={run} {...newTicket} customer={customer} onClose={() => setCreating(false)} />}
       </Dialog>
-      <Dialog open={choosing} onClose={() => setChoosing(false)} title={t("title")}>
+      <Dialog open={choosing} onClose={() => setChoosing(false)} title={t("title")} variant="pricing">
         {choosing && <PlanChooser locationId={newTicket.locationId} trialDaysLeft={trialDaysLeft} />}
       </Dialog>
     </ActionsContext.Provider>

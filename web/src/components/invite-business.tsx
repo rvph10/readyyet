@@ -21,7 +21,7 @@ function Reward({ label, value, tone }: { label: string; value: string; tone: st
 
 // ADR 0110: what each side gets and three ways to pass it on. The address itself
 // is nothing to read, so it stays out of sight.
-function InviteDialog({ link, open, onClose }: { link: string; open: boolean; onClose: () => void }) {
+export function InviteDialog({ link, open, onClose }: { link: string; open: boolean; onClose: () => void }) {
   const t = useTranslations("business.invite");
   const [copied, setCopied] = useState(false);
   const message = t("message", { link });
@@ -111,21 +111,22 @@ export function InviteBusiness({ link }: { link: string }) {
   );
 }
 
-// A phone has no sidebar, so it sits in the bar beside the User.
-export function InviteBusinessRound({ link }: { link: string }) {
+// A phone has no sidebar, so it's a row of the User's sheet. The dialog stays
+// outside that sheet, which closes on the way.
+export function InviteRow({ onOpen }: { onOpen: () => void }) {
   const t = useTranslations("business.invite");
-  const [open, setOpen] = useState(false);
   return (
-    <>
-      <Button
-        size="icon"
-        aria-label={t("action")}
-        className="size-11! bg-brand! text-ink!"
-        onClick={() => setOpen(true)}
-      >
-        <Icon name="link" className="size-4" />
-      </Button>
-      <InviteDialog link={link} open={open} onClose={() => setOpen(false)} />
-    </>
+    <button
+      type="button"
+      data-closes-popover
+      onClick={onOpen}
+      className="mb-1 flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl bg-brand px-3 text-left text-ink"
+    >
+      <Icon name="link" className="size-5 shrink-0" />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-label-sm">{t("action")}</span>
+        <span className="block truncate text-p-xs">{t("actionHint")}</span>
+      </span>
+    </button>
   );
 }

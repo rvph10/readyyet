@@ -72,6 +72,14 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const pending = busy !== null;
   const [resendIn, setResendIn] = useState(sentTo ? RESEND_AFTER_SECONDS : 0);
 
+  // Coming back from Stripe, iOS Safari can leave the session cookie off the first
+  // request, which is what brought a signed-in User here. This call carries it.
+  useEffect(() => {
+    void authClient.getSession().then(({ data }) => {
+      if (data) window.location.replace(next);
+    });
+  }, [next]);
+
   useEffect(() => {
     if (resendIn === 0) {
       return;

@@ -66,9 +66,14 @@ export class StorageService {
     }
   }
 
+  // Signed from a fixed moment, so a page refreshing every few minutes gets the
+  // same address and the browser's copy, instead of a Customer's phone downloading
+  // every photo again. Half the lifetime, so one still has at least that left.
   presignedUrl(key: string): Promise<string> {
+    const window = (PRESIGNED_URL_SECONDS / 2) * 1000;
     return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.bucket, Key: key }), {
       expiresIn: PRESIGNED_URL_SECONDS,
+      signingDate: new Date(Math.floor(Date.now() / window) * window),
     });
   }
 

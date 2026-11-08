@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { LocationCard } from "../location-card";
-import { isLowRating, parseStars, STARS } from "../tracking";
+import { parseStars, STARS } from "../tracking";
 import { getTracking, openInTicketLanguage } from "../tracking-data";
 import { PrivateFeedbackForm } from "./private-feedback-form";
 
@@ -15,9 +15,8 @@ export const metadata: Metadata = {
 };
 
 // ADR 0076: where a star of the feedback email leads. Opening it records
-// nothing, mail scanners open every link. 5 stars goes straight to Google. On a
-// low rating the Google link is quiet, but stays a real, readable one, at the
-// lightest colour that still passes ADR 0042's contrast rule on the canvas.
+// nothing, mail scanners open every link. ADR 0114: every rating gets the same
+// two choices, so nothing about a Customer's answer steers them toward Google.
 export default async function ReviewPage({ params, searchParams }: PageProps<"/t/[code]/review">) {
   const [{ code }, query, t] = await Promise.all([params, searchParams, getTranslations("tracking")]);
   const tracking = await getTracking(code);
@@ -30,29 +29,13 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
   if (!reviewUrl) {
     redirect(trackingPath);
   }
-  if (stars === 5) {
-    redirect(reviewUrl);
-  }
   await openInTicketLanguage(tracking, stars ? `${path}?stars=${stars}` : path);
 
-  const low = stars !== undefined && isLowRating(stars);
-  const high = stars !== undefined && !low;
   const googleLink = { href: reviewUrl, target: "_blank", rel: "noopener noreferrer" };
 
   return (
-    <LocationCard
-      location={location}
-      below={
-        (low || (!high && feedbackSentAt)) && (
-          <a {...googleLink} className="mt-4 p-2 text-center text-p-xs text-muted/91 transition-colors hover:text-ink">
-            {t("subtleGoogle")}
-          </a>
-        )
-      }
-    >
-      <h1 className="text-label-xl md:text-title-h4">
-        {t(low ? "ratingLowTitle" : high ? "ratingHighTitle" : "ratingTitle")}
-      </h1>
+    <LocationCard location={location}>
+      <h1 className="text-label-xl md:text-title-h4">{t(stars ? "ratingThanksTitle" : "ratingTitle")}</h1>
       <p className="mt-1 text-p-sm wrap-anywhere text-muted">{title}</p>
 
       <nav aria-label={t("starsLabel")} className="my-5 -ml-1.5 flex">
@@ -76,29 +59,22 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
 
       {feedbackSentAt && <FormAlert tone="success">{t("feedbackSent")}</FormAlert>}
 
-      {low && !feedbackSentAt && (
-        <>
-          <p className="mb-3 text-p-sm">{t("ratingLowText")}</p>
-          <PrivateFeedbackForm code={code} />
-        </>
-      )}
-
-      {high && (
+      {(stars || feedbackSentAt) && (
         <div className={feedbackSentAt ? "mt-5" : undefined}>
-          <p className="mb-3 text-p-sm">{t("ratingHighText")}</p>
-          <a {...googleLink} className={buttonClass()}>
+          <h2 className="text-label-md">{t("publicReviewTitle")}</h2>
+          <p className="mt-1 mb-3 text-p-sm">{t("publicReviewText")}</p>
+          <a {...googleLink} className={buttonClass({ variant: "secondary" })}>
             {t("reviewOnGoogle")}
           </a>
         </div>
       )}
 
-      {high && !feedbackSentAt && (
-        <details className="mt-5">
-          <summary className="cursor-pointer text-label-sm text-brand-text">{t("orPrivately")}</summary>
-          <div className="mt-3">
-            <PrivateFeedbackForm code={code} />
-          </div>
-        </details>
+      {stars && !feedbackSentAt && (
+        <div className="mt-6 border-t border-border pt-5">
+          <h2 className="text-label-md">{t("privateNoteTitle")}</h2>
+          <p className="mt-1 mb-3 text-p-sm">{t("privateNoteText")}</p>
+          <PrivateFeedbackForm code={code} />
+        </div>
       )}
 
       <p className="mt-6 border-t border-border pt-4 text-p-sm">

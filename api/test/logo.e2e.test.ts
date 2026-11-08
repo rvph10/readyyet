@@ -201,6 +201,18 @@ describe("Business logo", () => {
     expect(await logoKey()).toBe(before);
   });
 
+  it("refuses someone else before reading what they send", async () => {
+    const empty = (path: string) =>
+      request(app.getHttpServer())
+        .put(`/businesses/${businessId}/${path}`)
+        .set("Cookie", adminCookie)
+        .set("X-Real-IP", "198.51.100.230");
+
+    // With the file read first, these would be a 400 for having none.
+    expect((await empty("logo")).status).toBe(403);
+    expect((await empty("banner")).status).toBe(403);
+  });
+
   it("refuses a request without a file", async () => {
     const response = await upload(ownerCookie, null);
 

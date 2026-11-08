@@ -89,7 +89,7 @@ export default async function InvitationPage({ params }: PageProps<"/invitations
         <Notice icon="user" />
         <Heading title={t("otherAccountTitle")}>{t("otherAccount", { email: me.email })}</Heading>
         <div className="mt-7 flex justify-center">
-          <SignOutButton labelled />
+          <SignOutButton labelled next={`/invitations/${invitationId}`} />
         </div>
       </Card>
     );

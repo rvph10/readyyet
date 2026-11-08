@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, type ReactNode } from "react";
+import { useContext, useState, type ReactNode } from "react";
 import {
   CollapsedContext,
   NavItem,
@@ -17,7 +17,7 @@ import {
 } from "@/components/sidebar";
 import { AddShopProvider } from "@/components/add-shop";
 import { BusinessPanel, LocationPanel, TopBar } from "@/components/top-bar";
-import { InviteBusiness, InviteBusinessRound } from "@/components/invite-business";
+import { InviteBusiness, InviteDialog, InviteRow } from "@/components/invite-business";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -183,8 +183,10 @@ function PhoneBar({ props }: { props: Props }) {
   const t = useTranslations("dashboard");
   const { current, memberships, me } = props;
   const single = memberships.length === 1 && current.role !== "OWNER";
+  const [inviting, setInviting] = useState(false);
+  const inviteLink = props.trialDaysLeft === null ? props.inviteLink : null;
   return (
-    <div className="relative flex items-center justify-between gap-2 px-4 pt-3 md:hidden">
+    <div className="flex items-center justify-between gap-2 px-4 pt-3 md:hidden">
       <div className="min-w-0 flex-1">
         {single ? (
           <div className="flex items-center gap-2.5">
@@ -208,15 +210,16 @@ function PhoneBar({ props }: { props: Props }) {
       </div>
       <HeaderSearch locationId={current.location.id} compact />
       <NeedsYou locationId={current.location.id} items={props.needsYou} />
-      {props.trialDaysLeft === null && props.inviteLink && <InviteBusinessRound link={props.inviteLink} />}
       <Popover
         label={me.name}
         popoverClass="menu-popover w-80 max-w-[calc(100vw-2rem)]"
         triggerClass="cursor-pointer rounded-full"
         trigger={<Avatar id={me.id} name={me.name} src={me.avatarUrl} />}
       >
+        {inviteLink && <InviteRow onOpen={() => setInviting(true)} />}
         <UserPanel me={me} role={current.role} />
       </Popover>
+      {inviteLink && <InviteDialog link={inviteLink} open={inviting} onClose={() => setInviting(false)} />}
     </div>
   );
 }
@@ -247,40 +250,44 @@ function BottomNav({ props }: { props: Props }) {
   return (
     <nav
       aria-label={t("navigation")}
-      className="fixed inset-x-0 bottom-0 z-20 flex h-[4.5rem] items-stretch border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      {item(today)}
-      {item(tickets)}
-      <div className="flex flex-1 items-center justify-center">
-        <button
-          type="button"
-          aria-label={tTickets("new")}
-          onClick={newTicket}
-          className="flex size-13 cursor-pointer items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
-        >
-          <Icon name="add" className="size-5" />
-        </button>
+      {/* Its own height: the inset changes as Safari's toolbar hides, and taken
+          from a fixed height it would squeeze what's in the bar. */}
+      <div className="flex h-[4.5rem] items-stretch">
+        {item(today)}
+        {item(tickets)}
+        <div className="flex flex-1 items-center justify-center">
+          <button
+            type="button"
+            aria-label={tTickets("new")}
+            onClick={newTicket}
+            className="flex size-13 cursor-pointer items-center justify-center rounded-full bg-pine text-brand active:scale-[0.97]"
+          >
+            <Icon name="add" className="size-5" />
+          </button>
+        </div>
+        {item(customers)}
+        {isManager(props.current.role) ? (
+          <Menu
+            label={t("more")}
+            triggerClassName="flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-xs leading-4 font-semibold text-muted"
+            trigger={
+              <>
+                <Icon name="more-hor" className="size-5" />
+                {t("more")}
+              </>
+            }
+            items={managerSections(props).map((section) => ({
+              label: t(`sections.${section.key}`),
+              icon: section.icon,
+              onSelect: () => router.push(href(section)),
+            }))}
+          />
+        ) : (
+          <div className="flex-1" />
+        )}
       </div>
-      {item(customers)}
-      {isManager(props.current.role) ? (
-        <Menu
-          label={t("more")}
-          triggerClassName="flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-xs leading-4 font-semibold text-muted"
-          trigger={
-            <>
-              <Icon name="more-hor" className="size-5" />
-              {t("more")}
-            </>
-          }
-          items={managerSections(props).map((section) => ({
-            label: t(`sections.${section.key}`),
-            icon: section.icon,
-            onSelect: () => router.push(href(section)),
-          }))}
-        />
-      ) : (
-        <div className="flex-1" />
-      )}
     </nav>
   );
 }
@@ -314,7 +321,7 @@ export function LocationNav({
       </TopBar>
       <div className="flex min-w-0 flex-1">
         <Sidebar props={props} collapsed={collapsed} onToggle={toggle} />
-        <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+        <div className="flex min-w-0 flex-1 flex-col pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
           <PhoneBar props={props} />
           <main className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-3 md:px-5 md:py-4 lg:gap-5 lg:px-7 lg:py-5">
             {children}

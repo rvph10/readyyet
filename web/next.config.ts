@@ -17,6 +17,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // next dev refuses other hosts, like this machine's address from a phone on the same network.
+  allowedDevOrigins: process.env.DEV_HOST ? [process.env.DEV_HOST] : [],
   // A Ticket photo goes through a server action, and the API takes up to 15 MB.
   experimental: {
     serverActions: { bodySizeLimit: "16mb" },

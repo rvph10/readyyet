@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
   UploadedFile,
 } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -19,6 +20,7 @@ import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { LocationDto } from "../location/dto/location.response.dto";
 import { ImageUpload } from "../storage/image-upload.decorator";
+import { BusinessOwnerGuard } from "./business-owner.guard";
 import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
@@ -58,15 +60,15 @@ export class BusinessController {
   }
 
   @Put(":businessId/logo")
+  @UseGuards(BusinessOwnerGuard)
   @ImageUpload()
   @ApiOperation({ summary: "Upload the business's logo, shown for all its locations (owner only, ADR 0051)" })
   @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
   setLogo(
     @Param("businessId") businessId: string,
-    @CurrentUser() user: User,
     @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
   ): Promise<BusinessDto> {
-    return this.business.setLogo(businessId, user.id, file.buffer);
+    return this.business.setLogo(businessId, file.buffer);
   }
 
   @Delete(":businessId/logo")
@@ -77,15 +79,15 @@ export class BusinessController {
   }
 
   @Put(":businessId/banner")
+  @UseGuards(BusinessOwnerGuard)
   @ImageUpload()
   @ApiOperation({ summary: "Upload the business's banner (owner only, ADR 0109)" })
   @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
   setBanner(
     @Param("businessId") businessId: string,
-    @CurrentUser() user: User,
     @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
   ): Promise<BusinessDto> {
-    return this.business.setBanner(businessId, user.id, file.buffer);
+    return this.business.setBanner(businessId, file.buffer);
   }
 
   @Delete(":businessId/banner")

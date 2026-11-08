@@ -288,6 +288,19 @@
 
 /* ADR 0056: SelectField's list drawn like a menu, where the browser lets a
    <select> be styled. Elsewhere it keeps the browser's own picker. */
+@layer base {
+  /* What's open is what scrolls, not the page behind it. On a touch screen only,
+     where nothing else stops it, and hiding a scrollbar can't shift the page. */
+  @media (width < 48rem), (hover: none) {
+    html:has(dialog[open]),
+    html:has(dialog[open]) body,
+    html:has([popover="auto"]:popover-open),
+    html:has([popover="auto"]:popover-open) body {
+      overflow: hidden;
+    }
+  }
+}
+
 @layer components {
   .select-field {
     appearance: none;
@@ -430,6 +443,31 @@
       flip-block,
       flip-inline,
       flip-block flip-inline;
+  }
+
+  /* On a phone, anything opened from the bar or the bottom navigation rises from
+     the bottom of the screen, so it can't land on top of what opened it. */
+  @media (width < 48rem) {
+    .switcher-popover,
+    .needs-popover,
+    .menu-popover {
+      inset: auto 0 0;
+      margin: 0;
+      width: 100% !important;
+      max-width: none !important;
+      max-height: 85dvh;
+      border-width: 1px 0 0;
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0 !important;
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+      overscroll-behavior: contain;
+      position-area: none;
+      position-try-fallbacks: none;
+    }
+    .switcher-popover::backdrop,
+    .needs-popover::backdrop,
+    .menu-popover::backdrop {
+      background: color-mix(in srgb, var(--color-ink) 40%, transparent);
+    }
   }
 }
 
