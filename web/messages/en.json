@@ -107,7 +107,8 @@
     "switchBusinessLabel": "Businesses",
     "openCount": "{count, plural, one {open Ticket} other {open Tickets}}",
     "tileReady": "{count} ready",
-    "tileLate": "{count} late"
+    "tileLate": "{count} late",
+    "profile": "Your profile"
   },
   "tickets": {
     "title": "Tickets",
@@ -1114,5 +1115,66 @@
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
     }
+  },
+  "profile": {
+    "title": "Your profile",
+    "photoChange": "Change your photo",
+    "photoRemove": "Remove photo",
+    "photoSaved": "Photo updated.",
+    "photoRemoved": "Photo removed.",
+    "photoFailed": "Your photo wasn't saved. Try a JPG, PNG or WebP image.",
+    "detailsHint": "How your colleagues see you on Tickets and in Activity.",
+    "name": "Your name",
+    "nameMissing": "Enter your name.",
+    "nameSaved": "Name saved.",
+    "nameFailed": "Your name wasn't saved. Please try again.",
+    "email": "Email",
+    "emailHint": "You sign in with this address. It can't be changed yet.",
+    "languageHint": "The language ReadyYet speaks to you.",
+    "languageFailed": "Your language wasn't saved. Please try again.",
+    "leave": "Leave",
+    "leaveTitle": "Leave {shop}?",
+    "leaveBody": "You'll lose access to its Tickets and Customers. Someone there can invite you again.",
+    "leaveConfirm": "Leave this shop",
+    "leaving": "Leaving…",
+    "left": "You left {shop}.",
+    "leaveFailed": "You couldn't leave this shop. Please try again.",
+    "deleteTitle": "Delete your account",
+    "deleteHint": "For when you're leaving ReadyYet for good.",
+    "deleteLoses": {
+      "access": "You lose access to every shop at once",
+      "name": "Your name and email are erased",
+      "history": "What you did on Tickets stays, as Former member"
+    },
+    "deleteFinal": "This can't be undone.",
+    "deleteAction": "Delete my account",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmBody": "You'll be signed out everywhere, and signing in again with this address starts a new, empty account.",
+    "deleteWord": "DELETE",
+    "deleteType": "Type <strong>{word}</strong> to confirm.",
+    "deleteTypeLabel": "Confirmation",
+    "deleteConfirm": "Delete my account",
+    "deleting": "Deleting…",
+    "reauthBody": "For your safety, deleting your account needs a fresh sign-in. Sign in again, then come back here.",
+    "reauthAction": "Sign in again",
+    "navLabel": "Profile sections",
+    "nav": {
+      "details": "Your profile",
+      "language": "Language",
+      "shops": "Your shops",
+      "delete": "Delete account"
+    },
+    "photo": "Photo",
+    "photoHint": "Shown beside your name across ReadyYet. JPG, PNG or WebP.",
+    "photoAdd": "Add a photo",
+    "nameTitle": "Name",
+    "nameHint": "Your first name greets you on Today.",
+    "languageTitle": "Your language",
+    "languageWhere": "Used for the app and for every email ReadyYet sends you.",
+    "languageSaved": "Language saved.",
+    "shopsHint": "Every shop you work in, and your Role there.",
+    "deleteLosesTitle": "Deleting your account means",
+    "deleteOwner": "You still own a Business with shops. Transfer it or delete its shops first.",
+    "deleteFailed": "Your account wasn't deleted. Please try again."
   }
 }

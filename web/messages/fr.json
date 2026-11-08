@@ -107,7 +107,8 @@
     "switchBusinessLabel": "Entreprises",
     "openCount": "{count, plural, one {Ticket ouvert} other {Tickets ouverts}}",
     "tileReady": "{count, plural, one {# prêt} other {# prêts}}",
-    "tileLate": "{count} en retard"
+    "tileLate": "{count} en retard",
+    "profile": "Votre profil"
   },
   "tickets": {
     "title": "Tickets",
@@ -1114,5 +1115,66 @@
       "subject": "Essayez ReadyYet pour votre magasin",
       "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     }
+  },
+  "profile": {
+    "title": "Votre profil",
+    "photoChange": "Changer votre photo",
+    "photoRemove": "Retirer la photo",
+    "photoSaved": "Photo mise à jour.",
+    "photoRemoved": "Photo retirée.",
+    "photoFailed": "Votre photo n'a pas été enregistrée. Essayez une image JPG, PNG ou WebP.",
+    "detailsHint": "Ce que vos collègues voient sur les Tickets et dans l'activité.",
+    "name": "Votre nom",
+    "nameMissing": "Indiquez votre nom.",
+    "nameSaved": "Nom enregistré.",
+    "nameFailed": "Votre nom n'a pas été enregistré. Réessayez.",
+    "email": "E-mail",
+    "emailHint": "Vous vous connectez avec cette adresse. Elle ne peut pas encore être modifiée.",
+    "languageHint": "La langue dans laquelle ReadyYet vous parle.",
+    "languageFailed": "Votre langue n'a pas été enregistrée. Réessayez.",
+    "leave": "Quitter",
+    "leaveTitle": "Quitter {shop} ?",
+    "leaveBody": "Vous perdrez l'accès à ses Tickets et ses clients. Quelqu'un sur place pourra vous réinviter.",
+    "leaveConfirm": "Quitter ce magasin",
+    "leaving": "Départ…",
+    "left": "Vous avez quitté {shop}.",
+    "leaveFailed": "Impossible de quitter ce magasin. Réessayez.",
+    "deleteTitle": "Supprimer votre compte",
+    "deleteHint": "Si vous quittez ReadyYet pour de bon.",
+    "deleteLoses": {
+      "access": "Vous perdez l'accès à tous les magasins",
+      "name": "Votre nom et votre e-mail sont effacés",
+      "history": "Ce que vous avez fait sur les Tickets reste, en tant qu'ancien membre"
+    },
+    "deleteFinal": "C'est définitif.",
+    "deleteAction": "Supprimer mon compte",
+    "deleteConfirmTitle": "Supprimer votre compte ?",
+    "deleteConfirmBody": "Vous serez déconnecté partout, et une nouvelle connexion avec cette adresse créera un compte vide.",
+    "deleteWord": "SUPPRIMER",
+    "deleteType": "Tapez <strong>{word}</strong> pour confirmer.",
+    "deleteTypeLabel": "Confirmation",
+    "deleteConfirm": "Supprimer mon compte",
+    "deleting": "Suppression…",
+    "reauthBody": "Par sécurité, supprimer votre compte demande une connexion récente. Reconnectez-vous, puis revenez ici.",
+    "reauthAction": "Se reconnecter",
+    "navLabel": "Sections du profil",
+    "nav": {
+      "details": "Votre profil",
+      "language": "Langue",
+      "shops": "Vos magasins",
+      "delete": "Supprimer le compte"
+    },
+    "photo": "Photo",
+    "photoHint": "Affichée à côté de votre nom dans ReadyYet. JPG, PNG ou WebP.",
+    "photoAdd": "Ajouter une photo",
+    "nameTitle": "Nom",
+    "nameHint": "Votre prénom vous accueille sur Aujourd'hui.",
+    "languageTitle": "Votre langue",
+    "languageWhere": "Utilisée pour l'application et pour chaque e-mail que ReadyYet vous envoie.",
+    "languageSaved": "Langue enregistrée.",
+    "shopsHint": "Chaque magasin où vous travaillez, et votre rôle.",
+    "deleteLosesTitle": "Supprimer votre compte signifie",
+    "deleteOwner": "Vous possédez encore une entreprise avec des magasins. Transférez-la ou supprimez ses magasins d'abord.",
+    "deleteFailed": "Votre compte n'a pas été supprimé. Réessayez."
   }
 }
