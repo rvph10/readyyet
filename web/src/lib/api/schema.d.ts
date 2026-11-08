@@ -1401,19 +1401,6 @@ export interface components {
             new: number;
             returning: number;
         };
-        InsightsPromiseDto: {
-            readied: number;
-            dated: number;
-            onTime: number;
-            averageDays: number | null;
-            turnaroundDays: number | null;
-        };
-        InsightsUpdatesDto: {
-            delivered: number;
-            reminders: number;
-            reviewRequests: number;
-            notes: number;
-        };
         InsightsActivityDto: {
             id: string;
             ticketId: string;
@@ -1425,18 +1412,11 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
-        InsightsYourDayDto: {
-            created: number;
-            moved: number;
-        };
         InsightsDto: {
             setup: components["schemas"]["InsightsSetupDto"];
             received: components["schemas"]["InsightsReceivedDto"];
             customers: components["schemas"]["InsightsCustomersDto"];
-            promise: components["schemas"]["InsightsPromiseDto"];
-            updates: components["schemas"]["InsightsUpdatesDto"];
             activity: components["schemas"]["InsightsActivityDto"][];
-            yourDay: components["schemas"]["InsightsYourDayDto"];
         };
         CustomerPageDto: {
             items: components["schemas"]["CustomerDto"][];

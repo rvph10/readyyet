@@ -10204,58 +10204,6 @@
           "returning"
         ]
       },
-      "InsightsPromiseDto": {
-        "type": "object",
-        "properties": {
-          "readied": {
-            "type": "number"
-          },
-          "dated": {
-            "type": "number"
-          },
-          "onTime": {
-            "type": "number"
-          },
-          "averageDays": {
-            "type": "number",
-            "nullable": true
-          },
-          "turnaroundDays": {
-            "type": "number",
-            "nullable": true
-          }
-        },
-        "required": [
-          "readied",
-          "dated",
-          "onTime",
-          "averageDays",
-          "turnaroundDays"
-        ]
-      },
-      "InsightsUpdatesDto": {
-        "type": "object",
-        "properties": {
-          "delivered": {
-            "type": "number"
-          },
-          "reminders": {
-            "type": "number"
-          },
-          "reviewRequests": {
-            "type": "number"
-          },
-          "notes": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "delivered",
-          "reminders",
-          "reviewRequests",
-          "notes"
-        ]
-      },
       "InsightsActivityDto": {
         "type": "object",
         "properties": {
@@ -10296,21 +10244,6 @@
           "createdAt"
         ]
       },
-      "InsightsYourDayDto": {
-        "type": "object",
-        "properties": {
-          "created": {
-            "type": "number"
-          },
-          "moved": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "created",
-          "moved"
-        ]
-      },
       "InsightsDto": {
         "type": "object",
         "properties": {
@@ -10323,30 +10256,18 @@
           "customers": {
             "$ref": "#/components/schemas/InsightsCustomersDto"
           },
-          "promise": {
-            "$ref": "#/components/schemas/InsightsPromiseDto"
-          },
-          "updates": {
-            "$ref": "#/components/schemas/InsightsUpdatesDto"
-          },
           "activity": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InsightsActivityDto"
             }
-          },
-          "yourDay": {
-            "$ref": "#/components/schemas/InsightsYourDayDto"
           }
         },
         "required": [
           "setup",
           "received",
           "customers",
-          "promise",
-          "updates",
-          "activity",
-          "yourDay"
+          "activity"
         ]
       },
       "CustomerPageDto": {

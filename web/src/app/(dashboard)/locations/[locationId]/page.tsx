@@ -13,11 +13,8 @@ import { ActivityTile } from "./overview/activity-tile";
 import { FirstTicket } from "./overview/first-ticket";
 import { MonthTile } from "./overview/month-tile";
 import { PlanCelebration } from "./overview/plan-celebration";
-import { PromiseTile } from "./overview/promise-tile";
 import { SetupTile, type SetupStep } from "./overview/setup-tile";
 import { TodayHero } from "./overview/today-hero";
-import { UpdatesTile } from "./overview/updates-tile";
-import { YourDayTile } from "./overview/your-day-tile";
 import { PageHeader } from "./page-header";
 import { parsePlan } from "./plan-prices";
 import { isManager } from "./sections";
@@ -134,6 +131,34 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   const when = (instant: string) =>
     formatMoment(new Date(instant), timeZone, today, locale, (parts) => tDetail("moment", parts));
   const upNext = tickets.slice(0, UP_NEXT);
+  const upNextTile = (className: string) => (
+    <section
+      aria-labelledby="up-next-title"
+      className={`@container flex flex-col overflow-clip rounded-sheet border border-border bg-surface ${className}`}
+    >
+      <div className="flex items-center justify-between gap-4 px-5 pt-5 pb-3 lg:px-7">
+        <div>
+          <h2 id="up-next-title" className="text-title-h6">
+            {t("upNext")}
+          </h2>
+          <p className="text-p-sm text-muted">{t("upNextHint")}</p>
+        </div>
+        <Link href={`${base}/tickets`} className={buttonClass({ variant: "secondary", size: "sm" })}>
+          {t("allOpen", { count: counts.open })}
+          <Icon name="arrow-right" className="size-2.5" />
+        </Link>
+      </div>
+      {upNext.length > 0 ? (
+        <ul>
+          {upNext.map((ticket) => (
+            <TicketRow key={ticket.id} ticket={ticket} locationId={locationId} timeZone={timeZone} today={today} />
+          ))}
+        </ul>
+      ) : (
+        <EmptyState illustration="chill" title={t("caughtUpTitle")} description={t("caughtUpBody")} />
+      )}
+    </section>
+  );
 
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
@@ -177,66 +202,22 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
         ]}
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-5">
-        {manager ? (
-          <MonthTile
-            received={insights.received}
-            customers={insights.customers}
-            className="md:col-span-2 lg:col-span-5"
-          />
-        ) : (
-          <YourDayTile yourDay={insights.yourDay} className="md:col-span-2 lg:col-span-5" />
-        )}
-        <PromiseTile
-          promise={insights.promise}
-          settingsHref={manager ? settings("tickets") : null}
-          className="lg:col-span-3"
-        />
-        <UpdatesTile
-          updates={insights.updates}
-          feedbackHref={manager ? `${base}/feedback` : null}
-          className="lg:col-span-4"
-        />
+      {setupLeft && <SetupTile steps={steps} />}
 
-        <section
-          aria-labelledby="up-next-title"
-          className="@container flex flex-col overflow-clip rounded-sheet border border-border bg-surface md:col-span-2 lg:col-span-8"
-        >
-          <div className="flex items-center justify-between gap-4 px-5 pt-5 pb-3 lg:px-7">
-            <div>
-              <h2 id="up-next-title" className="text-title-h6">
-                {t("upNext")}
-              </h2>
-              <p className="text-p-sm text-muted">{t("upNextHint")}</p>
-            </div>
-            <Link href={`${base}/tickets`} className={buttonClass({ variant: "secondary", size: "sm" })}>
-              {t("allOpen", { count: counts.open })}
-              <Icon name="arrow-right" className="size-2.5" />
-            </Link>
-          </div>
-          {upNext.length > 0 ? (
-            <ul>
-              {upNext.map((ticket) => (
-                <TicketRow key={ticket.id} ticket={ticket} locationId={locationId} timeZone={timeZone} today={today} />
-              ))}
-            </ul>
-          ) : (
-            <EmptyState illustration="chill" title={t("caughtUpTitle")} description={t("caughtUpBody")} />
-          )}
-        </section>
-
-        {/* Sized by Up next alone, so neither column stretches into empty space:
-            Activity takes what's left and scrolls. */}
-        <div className="flex min-h-0 flex-col gap-4 md:col-span-2 lg:col-span-4 lg:gap-5 lg:contain-size">
-          {setupLeft && <SetupTile steps={steps} className="shrink-0" />}
-          <ActivityTile
-            activity={insights.activity}
-            locationId={locationId}
-            meId={me.id}
-            when={when}
-            className="max-lg:max-h-[34rem] lg:min-h-64 lg:flex-1"
-          />
-        </div>
+      {/* An Employee acts on Tickets, so their page is the work and who did what.
+          Activity is sized by its neighbour and scrolls, so neither tile
+          stretches into empty space. */}
+      <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
+        {manager && <MonthTile received={insights.received} customers={insights.customers} className="lg:col-span-7" />}
+        {!manager && upNextTile("lg:col-span-8")}
+        <ActivityTile
+          activity={insights.activity}
+          locationId={locationId}
+          meId={me.id}
+          when={when}
+          className={`max-lg:max-h-[34rem] lg:contain-size ${manager ? "lg:col-span-5" : "lg:col-span-4"}`}
+        />
+        {manager && upNextTile("lg:col-span-12")}
       </div>
     </div>
   );

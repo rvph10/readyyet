@@ -553,23 +553,6 @@
       "new": "{count} new",
       "returning": "{count} returning"
     },
-    "promise": {
-      "title": "Promises kept",
-      "onTime": "{onTime} of {dated} ready on the date given",
-      "noDates": "Give Tickets a ready date to see how often you keep it.",
-      "averageDays": "{days, plural, one {# day} other {# days}} to get ready",
-      "noAverage": "Nothing readied yet this month",
-      "promised": "{days, plural, one {You promise # day} other {You promise # days}}",
-      "setTurnaround": "Set your usual turnaround",
-      "sameDay": "Ready the same day"
-    },
-    "updates": {
-      "title": "ReadyYet kept them posted",
-      "delivered": "{count, plural, one {email to your Customers this month} other {emails to your Customers this month}}",
-      "reminders": "Pickup reminders",
-      "reviewRequests": "Review requests",
-      "notes": "Private notes received"
-    },
     "setup": {
       "title": "Finish setting up",
       "address": {
@@ -612,13 +595,6 @@
       "moved": "moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
-    },
-    "yourDay": {
-      "title": "Your day",
-      "created": "Tickets created",
-      "moved": "Tickets moved",
-      "thanks": "Every move is one less call for your Customers.",
-      "start": "Nothing yet today. Your first move will show here."
     }
   },
   "plans": {

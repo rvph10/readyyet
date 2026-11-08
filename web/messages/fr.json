@@ -553,23 +553,6 @@
       "new": "{count, plural, one {# nouveau} other {# nouveaux}}",
       "returning": "{count, plural, one {# fidèle} other {# fidèles}}"
     },
-    "promise": {
-      "title": "Promesses tenues",
-      "onTime": "{onTime} sur {dated} prêts à la date annoncée",
-      "noDates": "Donnez une date aux Tickets pour voir combien de fois vous la tenez.",
-      "averageDays": "{days, plural, one {# jour} other {# jours}} pour être prêt",
-      "noAverage": "Rien de prêt ce mois-ci pour l'instant",
-      "promised": "{days, plural, one {Vous promettez # jour} other {Vous promettez # jours}}",
-      "setTurnaround": "Définir votre délai habituel",
-      "sameDay": "Prêt le jour même"
-    },
-    "updates": {
-      "title": "ReadyYet les a tenus informés",
-      "delivered": "{count, plural, one {e-mail à vos clients ce mois-ci} other {e-mails à vos clients ce mois-ci}}",
-      "reminders": "Rappels de retrait",
-      "reviewRequests": "Demandes d'avis",
-      "notes": "Messages privés reçus"
-    },
     "setup": {
       "title": "Terminez la configuration",
       "address": {
@@ -612,13 +595,6 @@
       "moved": "a fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
-    },
-    "yourDay": {
-      "title": "Votre journée",
-      "created": "Tickets créés",
-      "moved": "Tickets avancés",
-      "thanks": "Chaque étape, c'est un appel en moins pour vos clients.",
-      "start": "Rien pour l'instant. Votre première étape apparaîtra ici."
     }
   },
   "plans": {

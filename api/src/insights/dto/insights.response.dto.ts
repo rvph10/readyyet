@@ -32,27 +32,6 @@ export class InsightsCustomersDto {
   returning!: number;
 }
 
-export class InsightsPromiseDto {
-  // Tickets that reached READY this month, each counted once.
-  readied!: number;
-  // Those of them that had an estimated ready date.
-  dated!: number;
-  // Those that reached READY on or before it.
-  onTime!: number;
-  // From drop-off to READY, null when nothing was readied.
-  averageDays!: number | null;
-  turnaroundDays!: number | null;
-}
-
-export class InsightsUpdatesDto {
-  // Emails that went out to Customers this month.
-  delivered!: number;
-  reminders!: number;
-  reviewRequests!: number;
-  // Private feedback received this month.
-  notes!: number;
-}
-
 export class InsightsActivityDto {
   id!: string;
   ticketId!: string;
@@ -64,19 +43,10 @@ export class InsightsActivityDto {
   createdAt!: Date;
 }
 
-export class InsightsYourDayDto {
-  created!: number;
-  moved!: number;
-}
-
 export class InsightsDto {
   setup!: InsightsSetupDto;
   received!: InsightsReceivedDto;
   customers!: InsightsCustomersDto;
-  promise!: InsightsPromiseDto;
-  updates!: InsightsUpdatesDto;
   // The latest Status changes, newest first.
   activity!: InsightsActivityDto[];
-  // The signed-in User's own today.
-  yourDay!: InsightsYourDayDto;
 }

@@ -12,6 +12,13 @@ import { signInViaOtp } from "./support/sign-in-via-otp";
 const TIME_ZONE = "Europe/Brussels";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+interface Insights {
+  setup: Record<string, boolean>;
+  received: { months: { month: string; received: number }[]; lastMonthSoFar: number };
+  customers: { new: number; returning: number };
+  activity: { ticketTitle: string; changedByName: string; status: { code: string } }[];
+}
+
 // ADR 0116.
 describe("Insights", () => {
   let app: INestApplication;
@@ -39,7 +46,7 @@ describe("Insights", () => {
 
   const insights = async () =>
     (await request(app.getHttpServer()).get(`/locations/${locationId}/insights`).set("Cookie", cookie).expect(200))
-      .body;
+      .body as Insights;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -68,7 +75,7 @@ describe("Insights", () => {
   });
 
   it("shows a new Location what's left to set up", async () => {
-    const { setup, received, promise, activity, yourDay } = await insights();
+    const { setup, received, activity } = await insights();
     expect(setup).toEqual({
       address: false,
       openingHours: false,
@@ -81,9 +88,7 @@ describe("Insights", () => {
     });
     expect(received.months).toHaveLength(6);
     expect(received.months.at(-1)).toEqual({ month: inDays(0).slice(0, 7), received: 0 });
-    expect(promise).toMatchObject({ readied: 0, averageDays: null });
     expect(activity).toEqual([]);
-    expect(yourDay).toEqual({ created: 0, moved: 0 });
   });
 
   it("tells new Customers from returning ones", async () => {
@@ -96,38 +101,20 @@ describe("Insights", () => {
 
     const { customers, received, setup } = await insights();
     expect(customers).toEqual({ new: 1, returning: 1 });
-    expect(received.months.at(-1).received).toBe(2);
-    expect(received.months.reduce((sum: number, { received }: { received: number }) => sum + received, 0)).toBe(3);
+    expect(received.months.at(-1)?.received).toBe(2);
+    expect(received.months.reduce((sum, { received }) => sum + received, 0)).toBe(3);
     expect(setup.firstTicket).toBe(true);
   });
 
-  it("counts the promises kept, and a Ticket readied twice once", async () => {
-    const onTime = await createTicket("On time", { customer: { fullName: "A", phone: "+32471000002" } });
-    const late = await createTicket("Late", { customer: { fullName: "B", phone: "+32471000003" } });
-    await prisma.ticket.update({
-      where: { id: BigInt(onTime.id) },
-      data: { estimatedReadyDate: new Date(`${inDays(1)}T00:00:00Z`) },
-    });
-    await prisma.ticket.update({
-      where: { id: BigInt(late.id) },
-      data: { estimatedReadyDate: new Date(`${inDays(-2)}T00:00:00Z`) },
-    });
-    await move(onTime.id, "READY");
-    await move(late.id, "READY");
-    await move(late.id, "REPAIRING");
-    await move(late.id, "READY");
+  it("lists the latest changes, newest first, and sees the first handover", async () => {
+    const { id } = await createTicket("Handed over", { customer: { fullName: "C", phone: "+32471000002" } });
+    await move(id, "READY");
+    await move(id, "COMPLETED");
 
-    const { promise } = await insights();
-    expect(promise).toMatchObject({ readied: 2, dated: 2, onTime: 1, turnaroundDays: null });
-    expect(promise.averageDays).toBe(0);
-  });
-
-  it("lists the latest changes and the User's own day", async () => {
-    const { activity, yourDay, setup } = await insights();
-    expect(activity).toHaveLength(8);
-    expect(activity[0]).toMatchObject({ ticketTitle: "Late", status: expect.objectContaining({ code: "READY" }) });
+    const { activity, setup } = await insights();
+    expect(activity.map(({ status }) => status.code).slice(0, 3)).toEqual(["COMPLETED", "READY", "RECEIVED"]);
+    expect(activity[0]).toMatchObject({ ticketTitle: "Handed over" });
     expect(activity[0].changedByName).toBeTruthy();
-    expect(yourDay).toEqual({ created: 4, moved: 4 });
-    expect(setup.firstHandover).toBe(false);
+    expect(setup.firstHandover).toBe(true);
   });
 });
