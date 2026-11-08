@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Breadcrumbs, type Crumb } from "@/components/breadcrumbs";
 
-export function AdminHeader({
+export function SheetTitle({
   title,
   subtitle,
   crumbs,

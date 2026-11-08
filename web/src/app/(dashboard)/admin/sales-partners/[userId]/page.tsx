@@ -10,15 +10,9 @@ import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { referralLink } from "@/lib/business";
 import { lastPage, parsePage } from "@/lib/pagination";
-import { AdminHeader } from "../../admin-header";
-import {
-  COMMISSION_VIEWS,
-  formatCents,
-  formatDate,
-  parseCommissionView,
-  partnerHref,
-  type CommissionView,
-} from "../../admin-views";
+import { SheetTitle } from "@/components/sheet-title";
+import { COMMISSION_PILLS, formatCents, formatDate } from "@/lib/commissions";
+import { COMMISSION_VIEWS, parseCommissionView, partnerHref, type CommissionView } from "../../admin-views";
 import { MarkPaid, RemovePartner } from "./partner-actions";
 
 const PAGE_SIZE = 20;
@@ -32,13 +26,6 @@ const EMPTY: Record<CommissionView, IllustrationName> = {
   PENDING: "clock",
   PAID: "done",
   VOIDED: "balancing",
-};
-
-const PILLS: Record<CommissionView, string> = {
-  OWED: "bg-brand text-ink",
-  PENDING: "bg-subtle text-ink",
-  PAID: "bg-pine text-surface",
-  VOIDED: "bg-danger-subtle text-danger",
 };
 
 // ADR 0119: one sales partner's commissions, and paying what's owed.
@@ -77,7 +64,7 @@ export default async function SalesPartnerPage({ params, searchParams }: PagePro
 
   return (
     <>
-      <AdminHeader
+      <SheetTitle
         title={partner.name}
         subtitle={
           partner.salesPartnerSince
@@ -133,7 +120,7 @@ export default async function SalesPartnerPage({ params, searchParams }: PagePro
                     <span className="text-right text-label-md">{money(commission.amount)}</span>
                     <span className="col-span-2 flex justify-end lg:col-span-1">
                       <span
-                        className={`inline-flex h-7 items-center rounded-full px-3 text-label-xs font-semibold ${PILLS[commission.state]}`}
+                        className={`inline-flex h-7 items-center rounded-full px-3 text-label-xs font-semibold ${COMMISSION_PILLS[commission.state]}`}
                       >
                         {commission.paidAt
                           ? t("partner.paidOn", { date: formatDate(commission.paidAt, locale) })

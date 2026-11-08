@@ -7,8 +7,9 @@ import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
 import { AddPartner } from "./add-partner";
-import { AdminHeader } from "./admin-header";
-import { formatCents, formatDate, partnerHref } from "./admin-views";
+import { SheetTitle } from "@/components/sheet-title";
+import { formatCents, formatDate } from "@/lib/commissions";
+import { partnerHref } from "./admin-views";
 
 const GRID = "lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.9fr)] lg:gap-x-5";
 
@@ -24,9 +25,9 @@ export default async function SalesPartnersPage() {
 
   return (
     <>
-      <AdminHeader title={t("nav.salesPartners")} subtitle={t("partners.subtitle")}>
+      <SheetTitle title={t("nav.salesPartners")} subtitle={t("partners.subtitle")}>
         {partners.length > 0 && <AddPartner />}
-      </AdminHeader>
+      </SheetTitle>
       {partners.length === 0 ? (
         <Panel className="flex flex-1 flex-col">
           <EmptyState
