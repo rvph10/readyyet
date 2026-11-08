@@ -14,8 +14,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 interface Overview {
   counts: Record<string, number>;
-  steps: { status: { code: string }; count: number }[];
-  handedOver: { days: { date: string; count: number }[]; previousWeek: number };
   tickets: {
     id: string;
     title: string;
@@ -92,13 +90,10 @@ describe("Ticket overview", () => {
     await app.close();
   });
 
-  it("is empty for a new Location, with a full week of days", async () => {
-    const { counts, steps, handedOver, tickets } = await overview();
+  it("is empty for a new Location", async () => {
+    const { counts, tickets } = await overview();
     expect(counts.open).toBe(0);
-    expect(steps).toEqual([]);
     expect(tickets).toEqual([]);
-    expect(handedOver.days).toHaveLength(7);
-    expect(handedOver.days.at(-1)).toEqual({ date: inDays(0), count: 0 });
   });
 
   it("counts open Tickets and sorts them by urgency", async () => {
@@ -115,13 +110,9 @@ describe("Ticket overview", () => {
     await move(collected, "READY");
     await prisma.ticket.update({ where: { id: BigInt(collected) }, data: { customerCollectedAt: new Date() } });
 
-    const { counts, tickets, steps } = await overview();
+    const { counts, tickets } = await overview();
     expect(counts).toMatchObject({ open: 7, ready: 2, late: 1, dueToday: 1, dueTomorrow: 1, inShop: 5, toConfirm: 1 });
     expect(tickets.map(({ id }) => id)).toEqual([late, ready, collected, today, tomorrow, later, undated]);
-    expect(steps).toEqual([
-      expect.objectContaining({ count: 5, status: expect.objectContaining({ code: "RECEIVED" }) }),
-      expect.objectContaining({ count: 2, status: expect.objectContaining({ code: "READY" }) }),
-    ]);
   });
 
   it("gives each Ticket its next step, COMPLETED only after READY", async () => {
@@ -137,27 +128,13 @@ describe("Ticket overview", () => {
     expect(customer.phone).toBe("+32471000000");
   });
 
-  it("leaves ended Tickets out and counts them as handed over today", async () => {
+  it("leaves ended Tickets out", async () => {
     const id = await createTicket("Handed over");
     await move(id, "READY");
     await move(id, "COMPLETED");
-    const { counts, handedOver, tickets } = await overview();
+    const { counts, tickets } = await overview();
     expect(tickets.some((ticket) => ticket.id === id)).toBe(false);
     expect(counts.open).toBe(7);
-    expect(handedOver.days.at(-1)?.count).toBe(1);
-  });
-
-  it("counts last week's handovers apart from this week's", async () => {
-    const id = await createTicket("Last week");
-    await move(id, "READY");
-    await move(id, "COMPLETED");
-    await prisma.ticketStatusEvent.updateMany({
-      where: { ticketId: BigInt(id), status: { code: "COMPLETED" } },
-      data: { createdAt: new Date(Date.now() - 9 * DAY_MS) },
-    });
-    const { handedOver } = await overview();
-    expect(handedOver.previousWeek).toBe(1);
-    expect(handedOver.days.reduce((sum, { count }) => sum + count, 0)).toBe(1);
   });
 
   it("flags a Customer whose emails bounce", async () => {

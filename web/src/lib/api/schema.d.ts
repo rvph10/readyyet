@@ -1302,19 +1302,6 @@ export interface components {
             toConfirm: number;
             unhandledFeedback: number;
         };
-        OverviewStepDto: {
-            status: components["schemas"]["StatusDto"];
-            count: number;
-        };
-        OverviewDayDto: {
-            /** Format: date */
-            date: string;
-            count: number;
-        };
-        OverviewHandedOverDto: {
-            days: components["schemas"]["OverviewDayDto"][];
-            previousWeek: number;
-        };
         OverviewTicketDto: {
             /** Format: date */
             estimatedReadyDate: string | null;
@@ -1339,8 +1326,6 @@ export interface components {
         };
         TicketOverviewDto: {
             counts: components["schemas"]["OverviewCountsDto"];
-            steps: components["schemas"]["OverviewStepDto"][];
-            handedOver: components["schemas"]["OverviewHandedOverDto"];
             tickets: components["schemas"]["OverviewTicketDto"][];
             needsYou: components["schemas"]["OverviewNeedsYouDto"];
         };

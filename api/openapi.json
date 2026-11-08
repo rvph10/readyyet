@@ -9819,55 +9819,6 @@
           "unhandledFeedback"
         ]
       },
-      "OverviewStepDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/StatusDto"
-          },
-          "count": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "status",
-          "count"
-        ]
-      },
-      "OverviewDayDto": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "count": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "date",
-          "count"
-        ]
-      },
-      "OverviewHandedOverDto": {
-        "type": "object",
-        "properties": {
-          "days": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OverviewDayDto"
-            }
-          },
-          "previousWeek": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "days",
-          "previousWeek"
-        ]
-      },
       "OverviewTicketDto": {
         "type": "object",
         "properties": {
@@ -9965,15 +9916,6 @@
           "counts": {
             "$ref": "#/components/schemas/OverviewCountsDto"
           },
-          "steps": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OverviewStepDto"
-            }
-          },
-          "handedOver": {
-            "$ref": "#/components/schemas/OverviewHandedOverDto"
-          },
           "tickets": {
             "type": "array",
             "items": {
@@ -9986,8 +9928,6 @@
         },
         "required": [
           "counts",
-          "steps",
-          "handedOver",
           "tickets",
           "needsYou"
         ]
