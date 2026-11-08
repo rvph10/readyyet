@@ -2,6 +2,8 @@ import { calendarDateIn } from "@readyyet/shared";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { Banner } from "@/components/ui/banner";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -20,20 +22,56 @@ import { CustomerSearch } from "./customer-search";
 import { CUSTOMER_SORTS, customersHref, type CustomerSort } from "./customer-views";
 
 const PAGE_SIZE = 30;
+const ROWS_WHILE_LOADING = 9;
 const A_TO_Z: Sort<CustomerSort> = { column: "name", dir: "asc" };
 
+interface Query {
+  locationId: string;
+  q: string;
+  page: number;
+  sort: Sort<CustomerSort> | null;
+}
+
 // ADR 0097: for looking someone up, so A to Z. The work itself is on Tickets.
+// ADR 0119: the search stands at once, the list waits for its rows.
 export default async function CustomersPage({ params, searchParams }: PageProps<"/locations/[locationId]/customers">) {
-  const [{ locationId }, search, t, locale, client] = await Promise.all([
-    params,
-    searchParams,
-    getTranslations("customers"),
-    getLocale(),
-    api(),
-  ]);
-  const q = parseQuery(search.q);
-  const page = parsePage(search.page);
-  const sort = parseSort(search, CUSTOMER_SORTS);
+  const [{ locationId }, search, t] = await Promise.all([params, searchParams, getTranslations("customers")]);
+  const query: Query = {
+    locationId,
+    q: parseQuery(search.q),
+    page: parsePage(search.page),
+    sort: parseSort(search, CUSTOMER_SORTS),
+  };
+  const { q, sort } = query;
+
+  return (
+    <>
+      <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
+      {search.erased && <Banner>{t("erased")}</Banner>}
+      <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
+        <div className="px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
+          <CustomerSearch key={q} locationId={locationId} action={customersHref(locationId)} query={q} sort={sort} />
+        </div>
+        {/* Keyed, so another search or page shows its rows loading straight away. */}
+        <Suspense
+          key={`${q}:${query.page}:${sort?.column}:${sort?.dir}`}
+          fallback={
+            <>
+              <CustomerListHeader sort={sort ?? A_TO_Z} href={(next) => customersHref(locationId, { q, sort: next })} />
+              <RowsPlaceholder rows={ROWS_WHILE_LOADING} />
+            </>
+          }
+        >
+          <CustomerList query={query} />
+        </Suspense>
+      </Panel>
+    </>
+  );
+}
+
+async function CustomerList({ query }: { query: Query }) {
+  const { locationId, q, page, sort } = query;
+  const [t, locale, client] = await Promise.all([getTranslations("customers"), getLocale(), api()]);
   const [list, { timeZone }] = await Promise.all([
     client
       .GET("/locations/{locationId}/customers", {
@@ -54,55 +92,48 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
   const today = calendarDateIn(new Date(), timeZone);
   return (
     <>
-      <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
-      {search.erased && <Banner>{t("erased")}</Banner>}
-      <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
-        <div className="px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
-          <CustomerSearch key={q} locationId={locationId} action={customersHref(locationId)} query={q} sort={sort} />
-        </div>
-        {list.items.length > 0 ? (
-          <>
-            <CustomerListHeader sort={sort ?? A_TO_Z} href={(next) => customersHref(locationId, { q, sort: next })} />
-            <ul>
-              {list.items.map((customer) => (
-                <CustomerRow
-                  key={customer.id}
-                  customer={customer}
-                  href={`${customersHref(locationId)}/${customer.id}`}
-                  since={formatDay(calendarDateIn(new Date(customer.createdAt), timeZone), today, locale)}
-                />
-              ))}
-            </ul>
-          </>
-        ) : q ? (
-          <EmptyState
-            illustration="search"
-            title={t("noMatch", { query: q })}
-            description={t("noMatchHint")}
-            action={
-              <Link href={customersHref(locationId, { sort })} className={buttonClass({ variant: "secondary" })}>
-                {t("clearSearch")}
-              </Link>
-            }
-          />
-        ) : (
-          <EmptyState
-            illustration="user"
-            title={t("empty.title")}
-            description={t("empty.description")}
-            action={<NewTicketButton />}
-          />
-        )}
-        {list.total > 0 && (
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            total={list.total}
-            href={(number) => customersHref(locationId, { q, sort, page: number })}
-            className="mt-auto border-t border-border px-5 py-3 lg:px-7"
-          />
-        )}
-      </Panel>
+      {list.items.length > 0 ? (
+        <>
+          <CustomerListHeader sort={sort ?? A_TO_Z} href={(next) => customersHref(locationId, { q, sort: next })} />
+          <ul>
+            {list.items.map((customer) => (
+              <CustomerRow
+                key={customer.id}
+                customer={customer}
+                href={`${customersHref(locationId)}/${customer.id}`}
+                since={formatDay(calendarDateIn(new Date(customer.createdAt), timeZone), today, locale)}
+              />
+            ))}
+          </ul>
+        </>
+      ) : q ? (
+        <EmptyState
+          illustration="search"
+          title={t("noMatch", { query: q })}
+          description={t("noMatchHint")}
+          action={
+            <Link href={customersHref(locationId, { sort })} className={buttonClass({ variant: "secondary" })}>
+              {t("clearSearch")}
+            </Link>
+          }
+        />
+      ) : (
+        <EmptyState
+          illustration="user"
+          title={t("empty.title")}
+          description={t("empty.description")}
+          action={<NewTicketButton />}
+        />
+      )}
+      {list.total > 0 && (
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={list.total}
+          href={(number) => customersHref(locationId, { q, sort, page: number })}
+          className="mt-auto border-t border-border px-5 py-3 lg:px-7"
+        />
+      )}
     </>
   );
 }

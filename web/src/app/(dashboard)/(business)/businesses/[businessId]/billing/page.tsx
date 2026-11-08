@@ -1,7 +1,9 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { Suspense } from "react";
 import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { intlLocale } from "@/app/(dashboard)/locations/[locationId]/tickets/ticket-views";
+import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -87,22 +89,66 @@ async function LocationRow({ location }: { location: BusinessLocation }) {
 
 // ADR 0102: every Location's plan in one place. Paying is per Location (ADR
 // 0003), so changing one stays on that Location's page, and this is where
-// Stripe's portal comes back to.
+// Stripe's portal comes back to. ADR 0119: the tiles and their headings stand
+// at once, the shops' plans wait.
 export default async function BusinessBillingPage({
   params,
   searchParams,
 }: PageProps<"/businesses/[businessId]/billing">) {
-  const [{ businessId }, search] = await Promise.all([params, searchParams]);
-  const [unsorted, t, tDashboard, format, locale] = await Promise.all([
-    getBusinessLocations(businessId),
+  const [{ businessId }, search, t, tDashboard] = await Promise.all([
+    params,
+    searchParams,
     getTranslations("business"),
     getTranslations("dashboard"),
-    getFormatter(),
+  ]);
+  const sort = parseSort(search, SORTS) ?? BY_NAME;
+  const sortHref = (order: Sort<(typeof SORTS)[number]>) => {
+    const query = new URLSearchParams();
+    setSort(query, order);
+    return `/businesses/${businessId}/billing?${query}`;
+  };
+
+  return (
+    <>
+      <BusinessHeader title={tDashboard("sections.billing")} />
+      <div className="grid grid-cols-1 items-start gap-4 lg:gap-5 xl:grid-cols-12">
+        <Panel as="section" padding="none" className="overflow-clip xl:col-span-8">
+          <div className={`mx-3 mt-3 hidden rounded-xl bg-subtle px-4 py-2.5 text-label-xs text-muted lg:grid ${GRID}`}>
+            <span>
+              <SortHeader sort={sort} href={sortHref} column="location" label={t("overview.location")} />
+            </span>
+            <span>
+              <SortHeader sort={sort} href={sortHref} column="plan" label={t("overview.plan")} />
+            </span>
+            <span>
+              <SortHeader sort={sort} href={sortHref} column="price" label={t("billing.price")} first="desc" />
+            </span>
+          </div>
+          <Suspense
+            key={`${sort.column}:${sort.dir}`}
+            fallback={<RowsPlaceholder rows={ROWS_WHILE_LOADING} columns={3} />}
+          >
+            <LocationRows businessId={businessId} sort={sort} />
+          </Suspense>
+        </Panel>
+        <div className="xl:col-span-4">
+          <Suspense fallback={<StatTile label={t("billing.nextPayment")} value={null} note={null} />}>
+            <NextPayment businessId={businessId} />
+          </Suspense>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const ROWS_WHILE_LOADING = 3;
+
+async function LocationRows({ businessId, sort }: { businessId: string; sort: Sort<(typeof SORTS)[number]> }) {
+  const [unsorted, t, locale] = await Promise.all([
+    getBusinessLocations(businessId),
+    getTranslations("business"),
     getLocale(),
   ]);
-  const money = (amount: number) => format.number(amount, moneyOptions(amount));
-  const next = nextPayment(unsorted);
-  const sort = parseSort(search, SORTS) ?? BY_NAME;
   const collator = new Intl.Collator(intlLocale(locale));
   const compare = {
     location: (a: BusinessLocation, b: BusinessLocation) => collator.compare(a.name, b.name),
@@ -110,55 +156,33 @@ export default async function BusinessBillingPage({
     price: (a: BusinessLocation, b: BusinessLocation) => (priceOf(a) ?? 0) - (priceOf(b) ?? 0),
   }[sort.column];
   const locations = [...unsorted].sort((a, b) => compare(a, b) * (sort.dir === "asc" ? 1 : -1));
-  const sortHref = (order: Sort<(typeof SORTS)[number]>) => {
-    const query = new URLSearchParams();
-    setSort(query, order);
-    return `/businesses/${businessId}/billing?${query}`;
-  };
-  const day = new Intl.DateTimeFormat(intlLocale(locale), {
-    dateStyle: "long",
-    timeZone: next?.location.timeZone,
-  });
+  return locations.length > 0 ? (
+    <ul className="flex flex-col gap-1 p-2 lg:p-3">
+      {locations.map((location) => (
+        <LocationRow key={location.id} location={location} />
+      ))}
+    </ul>
+  ) : (
+    <EmptyState illustration="box" title={t("home.emptyTitle")} description={t("home.emptyHint")} />
+  );
+}
 
+async function NextPayment({ businessId }: { businessId: string }) {
+  const [locations, t, format, locale] = await Promise.all([
+    getBusinessLocations(businessId),
+    getTranslations("business"),
+    getFormatter(),
+    getLocale(),
+  ]);
+  const next = nextPayment(locations);
+  const money = (amount: number) => format.number(amount, moneyOptions(amount));
+  const day = new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeZone: next?.location.timeZone });
   return (
-    <>
-      <BusinessHeader title={tDashboard("sections.billing")} />
-      <div className="grid grid-cols-1 items-start gap-4 lg:gap-5 xl:grid-cols-12">
-        <Panel as="section" padding="none" className="overflow-clip xl:col-span-8">
-          {locations.length > 0 ? (
-            <>
-              <div
-                className={`mx-3 mt-3 hidden rounded-xl bg-subtle px-4 py-2.5 text-label-xs text-muted lg:grid ${GRID}`}
-              >
-                <span>
-                  <SortHeader sort={sort} href={sortHref} column="location" label={t("overview.location")} />
-                </span>
-                <span>
-                  <SortHeader sort={sort} href={sortHref} column="plan" label={t("overview.plan")} />
-                </span>
-                <span>
-                  <SortHeader sort={sort} href={sortHref} column="price" label={t("billing.price")} first="desc" />
-                </span>
-              </div>
-              <ul className="flex flex-col gap-1 p-2 lg:p-3">
-                {locations.map((location) => (
-                  <LocationRow key={location.id} location={location} />
-                ))}
-              </ul>
-            </>
-          ) : (
-            <EmptyState illustration="box" title={t("home.emptyTitle")} description={t("home.emptyHint")} />
-          )}
-        </Panel>
-        <div className="xl:col-span-4">
-          <StatTile
-            label={t("billing.nextPayment")}
-            value={next ? day.format(new Date(next.date)) : t("billing.nothingDue")}
-            note={next ? `${money(next.amount)}, ${next.location.name}` : t("billing.nothingDueHint")}
-            action={hasPaid(locations) && <PortalButton businessId={businessId} />}
-          />
-        </div>
-      </div>
-    </>
+    <StatTile
+      label={t("billing.nextPayment")}
+      value={next ? day.format(new Date(next.date)) : t("billing.nothingDue")}
+      note={next ? `${money(next.amount)}, ${next.location.name}` : t("billing.nothingDueHint")}
+      action={hasPaid(locations) && <PortalButton businessId={businessId} />}
+    />
   );
 }

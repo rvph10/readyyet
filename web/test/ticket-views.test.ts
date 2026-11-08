@@ -4,7 +4,6 @@ import {
   formatDay,
   formatMoment,
   daysBetween,
-  parseFilter,
   parseQuery,
   parseView,
   ticketsHref,
@@ -80,14 +79,6 @@ describe("formatDay", () => {
     expect(formatDay("2026-11-03", TODAY, "en")).toBe("3 Nov");
     expect(formatDay("2025-12-31", TODAY, "en")).toBe("31 Dec 2025");
     expect(formatDay("2026-11-03", TODAY, "fr")).toBe("3 nov.");
-  });
-});
-
-describe("parseFilter", () => {
-  it("keeps a known filter and falls back to all on anything else", () => {
-    expect(parseFilter("waiting")).toBe("waiting");
-    expect(parseFilter("nope")).toBe("all");
-    expect(parseFilter(["late"])).toBe("all");
   });
 });
 

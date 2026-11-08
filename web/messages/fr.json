@@ -108,6 +108,7 @@
     "openCount": "{count, plural, one {Ticket ouvert} other {Tickets ouverts}}",
     "tileReady": "{count, plural, one {# prêt} other {# prêts}}",
     "tileLate": "{count} en retard",
+    "profile": "Votre profil",
     "backOffice": "Back-office",
     "salesPartnerPage": "Votre page de partenaire commercial"
   },
@@ -130,7 +131,6 @@
       "status": "Statut",
       "expected": "Prévu",
       "received": "Reçu",
-      "next": "Étape suivante",
       "lastUpdate": "Dernière mise à jour"
     },
     "today": "Aujourd'hui",
@@ -496,9 +496,6 @@
     "upToLate": "{days, plural, one {Jusqu'à # jour de retard} other {Jusqu'à # jours de retard}}",
     "nothingLate": "Tout est dans les temps",
     "dueTomorrow": "{count, plural, =0 {Rien pour demain} other {# de plus pour demain}}",
-    "waitingOnSomeone": "{count} en attente",
-    "handedOver": "Remis cette semaine",
-    "ticketCount": "{count, plural, one {# ticket} other {# tickets}}",
     "needsYou": "À traiter",
     "caughtUp": "Tout est à jour",
     "caughtUpHint": "Aucun retour ni problème ne vous attend.",
@@ -509,18 +506,7 @@
     "waiting": "Attend {days} jours",
     "trialEnds": "{days, plural, one {Votre essai se termine demain} other {Votre essai se termine dans # jours}}",
     "trialEnded": "Nouveaux tickets en pause",
-    "openTickets": "Tickets en cours",
     "allTickets": "Tous les tickets",
-    "noneHere": "Rien ici",
-    "noneHereHint": "Aucun ticket en cours ne correspond à ce filtre.",
-    "filters": {
-      "all": "Tous",
-      "late": "En retard",
-      "ready": "Prêts",
-      "received": "Juste arrivés",
-      "working": "En cours",
-      "waiting": "En attente"
-    },
     "first": {
       "title": "Créez votre premier ticket",
       "body": "Créez un ticket à l'arrivée d'un article, et votre client peut le suivre sans appeler.",
@@ -538,7 +524,6 @@
         "body": "Il voit chaque étape sans appeler."
       }
     },
-    "vsLastWeek": "vs la semaine passée",
     "needsYouCount": "{count, plural, =0 {À traiter, rien pour le moment} one {À traiter, # élément} other {À traiter, # éléments}}",
     "seeAll": "Tout voir ({count})",
     "groups": {
@@ -546,6 +531,98 @@
       "collected": "À confirmer",
       "feedback": "Retours",
       "waiting": "En attente de retrait"
+    },
+    "newTicket": "Nouveau Ticket",
+    "summary": {
+      "late": "{count, plural, one {# Ticket est en retard.} other {# Tickets sont en retard.}}",
+      "ready": "{count, plural, one {# client peut venir récupérer son article.} other {# clients peuvent venir récupérer leur article.}}",
+      "due": "{count, plural, one {# Ticket est prévu aujourd'hui.} other {# Tickets sont prévus aujourd'hui.}}",
+      "calm": "Rien d'urgent. Une bonne journée pour prendre de l'avance."
+    },
+    "openCount": "{count, plural, one {# Ticket ouvert} other {# Tickets ouverts}}",
+    "upNext": "À faire ensuite",
+    "upNextHint": "Les plus urgents d'abord",
+    "allOpen": "Les {count}",
+    "caughtUpTitle": "Tout est à jour",
+    "caughtUpBody": "Aucun Ticket ouvert pour l'instant. Profitez du calme.",
+    "month": {
+      "title": "Tickets ce mois-ci",
+      "vsLastMonth": "vs {month}, mêmes jours",
+      "chartLabel": "Tickets reçus par mois",
+      "tickets": "{count, plural, one {# Ticket} other {# Tickets}}",
+      "customers": "Clients ce mois-ci",
+      "new": "{count, plural, one {# nouveau} other {# nouveaux}}",
+      "returning": "{count, plural, one {# fidèle} other {# fidèles}}"
+    },
+    "setup": {
+      "title": "Préparez {shop}",
+      "progress": "{done} sur {total} tâches terminées. Finissez-les pour que vos clients profitent de tout ReadyYet.",
+      "collapse": "Replier le guide",
+      "expand": "Déplier le guide",
+      "firstTicket": {
+        "title": "Créez votre premier Ticket",
+        "body": "Ajoutez un Ticket quand un article arrive. Votre client reçoit un lien et un QR code pour le suivre, et un e-mail à chaque étape, sans vous appeler.",
+        "action": "Créer un Ticket",
+        "short": "Premier Ticket"
+      },
+      "address": {
+        "title": "Ajoutez votre adresse",
+        "body": "Affichée sur la page de suivi et dans les e-mails, pour que les clients sachent où venir.",
+        "action": "Ajouter l'adresse",
+        "short": "Adresse"
+      },
+      "hours": {
+        "title": "Indiquez vos horaires",
+        "body": "Les clients voient quand vous êtes ouvert, et les dates prévues sautent vos jours de fermeture.",
+        "action": "Indiquer les horaires",
+        "short": "Horaires"
+      },
+      "turnaround": {
+        "title": "Définissez votre délai habituel",
+        "body": "Chaque nouveau Ticket reçoit une date prévue, pour que les clients sachent quand revenir.",
+        "action": "Définir le délai",
+        "short": "Délai"
+      },
+      "reviewLink": {
+        "title": "Ajoutez votre lien d'avis Google",
+        "body": "Une fois l'article récupéré, les clients sont invités à laisser un avis. Sans ce lien, personne n'est invité.",
+        "action": "Ajouter le lien",
+        "short": "Avis Google"
+      },
+      "team": {
+        "title": "Invitez votre équipe",
+        "body": "Chacun fait avancer les Tickets depuis son compte, et vous savez toujours qui a fait quoi.",
+        "action": "Inviter quelqu'un",
+        "short": "Votre équipe"
+      },
+      "logo": {
+        "title": "Ajoutez votre logo",
+        "body": "Votre logo apparaît sur la page de suivi et dans chaque e-mail, pour que les clients reconnaissent votre magasin.",
+        "action": "Ajouter le logo",
+        "panelHint": "Une image carrée convient le mieux. JPG, PNG ou WebP.",
+        "choose": "Choisir une image",
+        "uploading": "Envoi…",
+        "short": "Logo"
+      },
+      "firstHandover": {
+        "title": "Remettez un premier article",
+        "body": "Quand un client récupère son article, marquez le Ticket comme récupéré. Les Tickets prêts vous attendent.",
+        "action": "Voir les Tickets prêts",
+        "short": "Première remise"
+      },
+      "eyebrow": "Guide de configuration",
+      "stepOf": "Étape {number} sur {total}",
+      "done": "Fait",
+      "change": "Modifier",
+      "percent": "{percent} % configuré"
+    },
+    "activity": {
+      "title": "Activité",
+      "you": "Vous",
+      "created": "a créé",
+      "moved": "a fait avancer",
+      "emptyTitle": "Calme pour l'instant",
+      "emptyBody": "Les changements sur les Tickets apparaîtront ici."
     }
   },
   "plans": {
@@ -1038,6 +1115,67 @@
       "subject": "Essayez ReadyYet pour votre magasin",
       "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     }
+  },
+  "profile": {
+    "title": "Votre profil",
+    "photoChange": "Changer votre photo",
+    "photoRemove": "Retirer la photo",
+    "photoSaved": "Photo mise à jour.",
+    "photoRemoved": "Photo retirée.",
+    "photoFailed": "Votre photo n'a pas été enregistrée. Essayez une image JPG, PNG ou WebP.",
+    "detailsHint": "Ce que vos collègues voient sur les Tickets et dans l'activité.",
+    "name": "Votre nom",
+    "nameMissing": "Indiquez votre nom.",
+    "nameSaved": "Nom enregistré.",
+    "nameFailed": "Votre nom n'a pas été enregistré. Réessayez.",
+    "email": "E-mail",
+    "emailHint": "Vous vous connectez avec cette adresse. Elle ne peut pas encore être modifiée.",
+    "languageHint": "La langue dans laquelle ReadyYet vous parle.",
+    "languageFailed": "Votre langue n'a pas été enregistrée. Réessayez.",
+    "leave": "Quitter",
+    "leaveTitle": "Quitter {shop} ?",
+    "leaveBody": "Vous perdrez l'accès à ses Tickets et ses clients. Quelqu'un sur place pourra vous réinviter.",
+    "leaveConfirm": "Quitter ce magasin",
+    "leaving": "Départ…",
+    "left": "Vous avez quitté {shop}.",
+    "leaveFailed": "Impossible de quitter ce magasin. Réessayez.",
+    "deleteTitle": "Supprimer votre compte",
+    "deleteHint": "Si vous quittez ReadyYet pour de bon.",
+    "deleteLoses": {
+      "access": "Vous perdez l'accès à tous les magasins",
+      "name": "Votre nom et votre e-mail sont effacés",
+      "history": "Ce que vous avez fait sur les Tickets reste, en tant qu'ancien membre"
+    },
+    "deleteFinal": "C'est définitif.",
+    "deleteAction": "Supprimer mon compte",
+    "deleteConfirmTitle": "Supprimer votre compte ?",
+    "deleteConfirmBody": "Vous serez déconnecté partout, et une nouvelle connexion avec cette adresse créera un compte vide.",
+    "deleteWord": "SUPPRIMER",
+    "deleteType": "Tapez <strong>{word}</strong> pour confirmer.",
+    "deleteTypeLabel": "Confirmation",
+    "deleteConfirm": "Supprimer mon compte",
+    "deleting": "Suppression…",
+    "reauthBody": "Par sécurité, supprimer votre compte demande une connexion récente. Reconnectez-vous, puis revenez ici.",
+    "reauthAction": "Se reconnecter",
+    "navLabel": "Sections du profil",
+    "nav": {
+      "details": "Votre profil",
+      "language": "Langue",
+      "shops": "Vos magasins",
+      "delete": "Supprimer le compte"
+    },
+    "photo": "Photo",
+    "photoHint": "Affichée à côté de votre nom dans ReadyYet. JPG, PNG ou WebP.",
+    "photoAdd": "Ajouter une photo",
+    "nameTitle": "Nom",
+    "nameHint": "Votre prénom vous accueille sur Aujourd'hui.",
+    "languageTitle": "Votre langue",
+    "languageWhere": "Utilisée pour l'application et pour chaque e-mail que ReadyYet vous envoie.",
+    "languageSaved": "Langue enregistrée.",
+    "shopsHint": "Chaque magasin où vous travaillez, et votre rôle.",
+    "deleteLosesTitle": "Supprimer votre compte signifie",
+    "deleteOwner": "Vous possédez encore une entreprise avec des magasins. Transférez-la ou supprimez ses magasins d'abord.",
+    "deleteFailed": "Votre compte n'a pas été supprimé. Réessayez."
   },
   "admin": {
     "title": "Back-office",

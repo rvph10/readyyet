@@ -29,11 +29,13 @@ interface Props {
   locationId: string;
   hours: Hours[];
   timeZone: string;
+  // Called once saved, when the section opened in a panel (ADR 0117).
+  onSaved?: () => void;
 }
 
 // ADR 0111: a day is on or off. An open one is a white row with its times, a
 // closed one falls back into the sheet, so the week reads before any time does.
-export function OpeningHours({ locationId, hours, timeZone }: Props) {
+export function OpeningHours({ locationId, hours, timeZone, onSaved }: Props) {
   const t = useTranslations("settings");
   const locale = useLocale();
   const toast = useToast();
@@ -80,8 +82,10 @@ export function OpeningHours({ locationId, hours, timeZone }: Props) {
           ...(zone !== timeZone && { timeZone: zone }),
         }),
       );
-      if (result.ok) toast({ message: t("saved") });
-      else setFailure(t("saveFailed"));
+      if (result.ok) {
+        toast({ message: t("saved") });
+        onSaved?.();
+      } else setFailure(t("saveFailed"));
     });
   }
 

@@ -30,7 +30,6 @@ import { generateTrackingCode } from "./tracking-code";
 
 const DEFAULT_LIST_TAKE = 50;
 const OVERVIEW_TICKETS = 100;
-const WEEK_DAYS = 7;
 const STOPPED_STATUS_CODES = ["CANCELLED", "REJECTED"];
 
 const LIST_INCLUDE = {
@@ -265,9 +264,8 @@ export class TicketService {
     const now = new Date();
     const today = calendarDateIn(now, timeZone);
     const tomorrow = addDays(today, 1);
-    const handedOverFrom = addDays(today, -(2 * WEEK_DAYS - 1));
 
-    const [open, handovers, unhandledFeedback] = await Promise.all([
+    const [open, unhandledFeedback] = await Promise.all([
       this.prisma.ticket.findMany({
         where: { locationId, currentStatus: { code: { notIn: [...ENDED_STATUS_CODES] } } },
         include: {
@@ -277,15 +275,6 @@ export class TicketService {
             select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: statusSelect } } },
           },
         },
-      }),
-      this.prisma.ticketStatusEvent.findMany({
-        // A day early, as the Location's clock can be behind UTC.
-        where: {
-          ticket: { locationId },
-          status: { code: "COMPLETED" },
-          createdAt: { gte: fromCalendarDate(addDays(handedOverFrom, -1)) },
-        },
-        select: { createdAt: true },
       }),
       this.prisma.ticketFeedback.count({ where: { ticket: { locationId }, handledAt: null } }),
     ]);
@@ -297,32 +286,6 @@ export class TicketService {
       ({ ticket, date }) => !isReady(ticket.currentStatus.code) && date !== null && date < today,
     );
     const inShop = dated.filter(({ ticket }) => !isReady(ticket.currentStatus.code));
-
-    const steps = new Map<
-      string,
-      { position: number; status: (typeof open)[number]["currentStatus"]; count: number }
-    >();
-    for (const ticket of open) {
-      const { code } = ticket.currentStatus;
-      const position = ticket.workflow.steps.find((step) => step.status.code === code)?.position ?? 0;
-      const step = steps.get(code) ?? { position, status: ticket.currentStatus, count: 0 };
-      step.count += 1;
-      steps.set(code, step);
-    }
-
-    const handedOnDay = new Map<string, number>();
-    for (const { createdAt } of handovers) {
-      const day = calendarDateIn(createdAt, timeZone);
-      handedOnDay.set(day, (handedOnDay.get(day) ?? 0) + 1);
-    }
-    const weekStart = addDays(today, -(WEEK_DAYS - 1));
-    const days = Array.from({ length: WEEK_DAYS }, (_, index) => {
-      const date = addDays(weekStart, index);
-      return { date, count: handedOnDay.get(date) ?? 0 };
-    });
-    const previousWeek = [...handedOnDay]
-      .filter(([day]) => day >= handedOverFrom && day < weekStart)
-      .reduce((sum, [, count]) => sum + count, 0);
 
     const rows = dated
       .map(({ ticket, date }) => ({
@@ -349,10 +312,6 @@ export class TicketService {
         toConfirm: open.filter((ticket) => ticket.customerCollectedAt).length,
         unhandledFeedback,
       },
-      steps: [...steps.values()]
-        .sort((a, b) => a.position - b.position)
-        .map(({ status, count }) => ({ status, count })),
-      handedOver: { days, previousWeek },
       tickets: rows.slice(0, OVERVIEW_TICKETS),
       // From every open Ticket: the least urgent can be the one that needs a person.
       needsYou: {

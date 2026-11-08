@@ -2,11 +2,14 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useId, useRef, useState, useTransition, type ReactNode } from "react";
+import { setLanguage } from "@/app/(dashboard)/_profile/actions";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { useToast } from "@/components/ui/toast";
+import { orFailure } from "@/lib/api/or-failure";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 
 const YEAR_SECONDS = 365 * 24 * 60 * 60;
@@ -137,14 +140,13 @@ export const panelRow =
 export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
-  const search = useSearchParams();
+  const router = useRouter();
   const locale = useLocale();
-  // The page's own query stays, or changing language would leave ?section= behind.
-  const inLanguage = (lang: string) => {
-    const query = new URLSearchParams(search);
-    query.set("lang", lang);
-    return `${pathname}?${query}`;
-  };
+  const [switching, startSwitching] = useTransition();
+  const tProfile = useTranslations("profile");
+  const toast = useToast();
+  // The shop or Business around this page, whose frame the profile opens in.
+  const frame = /^\/(locations|businesses)\/[^/]+/.exec(pathname)?.[0];
   return (
     <>
       <div className="flex items-center gap-3 px-3 pt-2 pb-3">
@@ -157,6 +159,14 @@ export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
           <p className="text-p-xs text-muted">{detail}</p>
         </div>
       </div>
+      {frame && (
+        <div className="px-3 pb-2">
+          <Link href={`${frame}/profile`} className={panelRow}>
+            <Icon name="user" className="size-4 text-muted" />
+            {t("profile")}
+          </Link>
+        </div>
+      )}
       <div className="mx-3 border-t border-border" />
       {(me.platformAdmin || me.salesPartnerPage) && (
         <>
@@ -182,24 +192,33 @@ export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
           <Icon name="globe" className="size-4 text-muted" />
           {t("language")}
         </p>
-        <div className="grid grid-cols-2 gap-1 rounded-xl bg-subtle p-1">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-subtle p-1" aria-busy={switching}>
           {(
             [
               ["en", "English"],
               ["fr", "Français"],
             ] as const
           ).map(([code, label]) => (
-            // A full load, the proxy keeps the choice in its cookie (ADR 0047).
-            <a
+            // ADR 0118: the User's own language, for their emails as well.
+            <button
               key={code}
-              href={inLanguage(code)}
-              aria-current={locale === code ? "true" : undefined}
-              className={`flex h-10 items-center justify-center rounded-lg text-label-xs font-semibold transition-colors ${
+              type="button"
+              aria-pressed={locale === code}
+              disabled={switching}
+              onClick={() =>
+                locale !== code &&
+                startSwitching(async () => {
+                  const result = await orFailure(setLanguage(code === "en" ? "EN" : "FR"));
+                  if (result.ok) router.refresh();
+                  else toast({ tone: "error", message: tProfile("languageFailed") });
+                })
+              }
+              className={`flex h-10 cursor-pointer items-center justify-center rounded-lg text-label-xs font-semibold transition-colors ${
                 locale === code ? "bg-pine text-surface" : "text-muted hover:text-ink"
               }`}
             >
               {label}
-            </a>
+            </button>
           ))}
         </div>
       </div>

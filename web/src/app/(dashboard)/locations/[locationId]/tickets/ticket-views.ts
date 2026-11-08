@@ -13,14 +13,6 @@ export const VIEWS = {
 
 export type View = keyof typeof VIEWS;
 
-// Today's table, filtered on the page among the 100 most urgent Tickets it holds.
-const FILTERS = ["all", "late", "ready", "received", "working", "waiting"] as const;
-export type Filter = (typeof FILTERS)[number];
-
-export function parseFilter(value: unknown): Filter {
-  return FILTERS.find((filter) => filter === value) ?? "all";
-}
-
 const DEFAULT_VIEW: View = "open";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -40,9 +32,7 @@ export function parseQuery(value: unknown) {
 }
 
 export const LIST_SORTS = ["number", "customer", "title", "status", "expected", "received"] as const;
-export const QUEUE_SORTS = ["customer", "status", "expected"] as const;
 export type ListSort = (typeof LIST_SORTS)[number];
-export type QueueSort = (typeof QUEUE_SORTS)[number];
 
 export function ticketsHref(
   locationId: string,

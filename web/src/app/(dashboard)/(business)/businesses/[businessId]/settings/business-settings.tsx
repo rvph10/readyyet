@@ -2,7 +2,7 @@
 
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -12,54 +12,14 @@ import { Panel } from "@/components/ui/panel";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
-import { removeImage, renameBusiness, setImage, transferOwnership } from "./actions";
+import { renameBusiness, transferOwnership } from "./actions";
+import { ImageInput, useImage } from "./images";
 
 interface Business {
   id: string;
   name: string;
   logoUrl: string | null;
   bannerUrl: string | null;
-}
-
-type ImageKind = "logo" | "banner";
-
-function useImage(businessId: string) {
-  const t = useTranslations("business.settings");
-  const toast = useToast();
-  const [pending, startTransition] = useTransition();
-
-  function run(kind: ImageKind, action: () => Promise<{ ok: boolean }>) {
-    startTransition(async () => {
-      const result = await orFailure(action());
-      toast(result.ok ? { message: t(`${kind}Saved`) } : { tone: "error", message: t(`${kind}Failed`) });
-    });
-  }
-  return {
-    pending,
-    upload: (kind: ImageKind, chosen: File) => {
-      const body = new FormData();
-      body.set("file", chosen);
-      run(kind, () => setImage(businessId, kind, body));
-    },
-    remove: (kind: ImageKind) => run(kind, () => removeImage(businessId, kind)),
-  };
-}
-
-// A hidden file field and what opens it, either the drawn button or a round one.
-function ImageInput({ label, onChosen }: { label: string; onChosen: (file: File) => void }) {
-  return (
-    <input
-      type="file"
-      accept="image/jpeg,image/png,image/webp"
-      aria-label={label}
-      className="absolute inset-0 cursor-pointer opacity-0"
-      onChange={(event) => {
-        const chosen = event.target.files?.[0];
-        event.target.value = "";
-        if (chosen) onChosen(chosen);
-      }}
-    />
-  );
 }
 
 // ADR 0109: the picture and the logo as Customers meet them, each changed where
@@ -160,7 +120,8 @@ function Details({ business }: { business: Business }) {
   );
 }
 
-function Ownership({
+// Nobody can take over without an Admin, so nothing to offer until then.
+export function Ownership({
   business,
   admins,
 }: {
@@ -223,10 +184,11 @@ function Ownership({
 
 export function BusinessSettings({
   business,
-  admins,
+  ownership,
 }: {
   business: Business;
-  admins: { id: string; name: string; email: string }[];
+  // Streamed in once the shops' Admins are known (ADR 0119).
+  ownership: ReactNode;
 }) {
   return (
     <Panel as="section" padding="none" className="max-w-3xl">
@@ -234,8 +196,7 @@ export function BusinessSettings({
       <div className="p-6 lg:p-8">
         {/* Keyed, so a saved name becomes the field's new starting point. */}
         <Details key={business.name} business={business} />
-        {/* Nobody can take over without an Admin, so nothing to offer until then. */}
-        {admins.length > 0 && <Ownership business={business} admins={admins} />}
+        {ownership}
       </div>
     </Panel>
   );

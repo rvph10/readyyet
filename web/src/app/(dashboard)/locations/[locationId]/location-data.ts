@@ -14,6 +14,10 @@ export const getOverview = cache(async (locationId: string) =>
   pageData(await (await api()).GET("/locations/{locationId}/tickets/overview", { params: { path: { locationId } } })),
 );
 
+export const getInsights = cache(async (locationId: string) =>
+  pageData(await (await api()).GET("/locations/{locationId}/insights", { params: { path: { locationId } } })),
+);
+
 export const getBilling = cache(async (locationId: string) =>
   pageData(await (await api()).GET("/locations/{locationId}/billing", { params: { path: { locationId } } })),
 );

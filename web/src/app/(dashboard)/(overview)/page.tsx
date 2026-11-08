@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { Suspense, type ComponentProps } from "react";
 import { getLocation } from "@/app/(dashboard)/locations/[locationId]/location-data";
 import { api } from "@/lib/api/client";
 import { greetingKey } from "@/lib/greeting";
@@ -11,12 +12,11 @@ import { LocationPicker } from "./location-picker";
 // rather than reopening the last Location, so a Ticket isn't created in the
 // wrong Location by a counter that remembered yesterday.
 export default async function ChooseLocationPage({ searchParams }: PageProps<"/">) {
-  const [search, me, t, tToday, client] = await Promise.all([
+  const [search, me, t, tToday] = await Promise.all([
     searchParams,
     getMe(),
     getTranslations("dashboard"),
     getTranslations("today"),
-    api(),
   ]);
   const { memberships } = me;
   if (memberships.length === 0) {
@@ -38,25 +38,31 @@ export default async function ChooseLocationPage({ searchParams }: PageProps<"/"
     redirect(`/businesses/${chosen.business.id}`);
   }
 
-  // ADR 0092: this page is the way in, so a Location whose numbers fail to
-  // load still opens, it only shows without them.
-  const [{ timeZone }, ...counts] = await Promise.all([
-    getLocation(chosen.memberships[0].location.id),
-    ...chosen.memberships.map(async ({ location }) => {
+  const timeZone = (await getLocation(chosen.memberships[0].location.id)).timeZone;
+  const picker = {
+    title: tToday(`greeting.${greetingKey(new Date(), timeZone)}`, { name: me.name.split(" ")[0] }),
+    subtitle: t("chooseLocation"),
+    group: chosen,
+    businesses: groups.length > 1 ? groups : [],
+  };
+  return (
+    <Suspense fallback={<LocationPicker {...picker} counts={null} />}>
+      <Counted picker={picker} />
+    </Suspense>
+  );
+}
+
+// ADR 0092: this page is the way in, so a Location whose numbers fail to load
+// still opens, it only shows without them. ADR 0119: they stream into the tiles.
+async function Counted({ picker }: { picker: Omit<ComponentProps<typeof LocationPicker>, "counts"> }) {
+  const client = await api();
+  const counts = await Promise.all(
+    picker.group.memberships.map(async ({ location }) => {
       const { data } = await client.GET("/locations/{locationId}/tickets/overview", {
         params: { path: { locationId: location.id } },
       });
       return [location.id, data?.counts ?? null] as const;
     }),
-  ]);
-
-  return (
-    <LocationPicker
-      title={tToday(`greeting.${greetingKey(new Date(), timeZone)}`, { name: me.name.split(" ")[0] })}
-      subtitle={t("chooseLocation")}
-      group={chosen}
-      businesses={groups.length > 1 ? groups : []}
-      counts={Object.fromEntries(counts)}
-    />
   );
+  return <LocationPicker {...picker} counts={Object.fromEntries(counts)} />;
 }

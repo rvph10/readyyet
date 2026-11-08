@@ -1,9 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSyncExternalStore, type FormEvent, type ReactNode } from "react";
+import { createContext, use, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const noSubscription = () => () => undefined;
 
@@ -17,11 +18,15 @@ export function useInBrowser() {
   );
 }
 
+// A section can also open in a side panel over Today (ADR 0117), whose title
+// already names it and whose edges are closer.
+export const InPanel = createContext(false);
+
 // What a group of fields is about beside them, and the fields on a six-column
 // grid, each as wide as what it holds rather than as wide as the page.
 export function FieldGroup({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
   return (
-    <section className="grid gap-4 border-t border-border py-6 first:border-t-0 first:pt-0 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
+    <section className="grid gap-4 border-t border-border py-6 first:border-t-0 first:pt-0 @3xl:grid-cols-[15rem_minmax(0,1fr)] @3xl:gap-10">
       <div>
         <h3 className="text-label-md">{title}</h3>
         <p className="mt-1 text-p-sm text-pretty text-muted">{hint}</p>
@@ -55,16 +60,23 @@ interface Props {
 export function SectionForm({ title, hint, onSubmit, onDiscard, dirty, pending, failure, children }: Props) {
   const t = useTranslations("settings");
   const tDetail = useTranslations("ticketDetail");
+  const inPanel = use(InPanel);
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-1 flex-col">
-      <SectionHeading title={title} hint={hint} />
+    <form onSubmit={onSubmit} noValidate className="@container flex flex-1 flex-col">
+      {!inPanel && <SectionHeading title={title} hint={hint} />}
       {failure && (
         <div className="mb-5">
           <FormAlert>{failure}</FormAlert>
         </div>
       )}
       <div className="flex-1">{children}</div>
-      <div className="sticky bottom-0 -mx-5 mt-6 flex justify-end gap-2 border-t border-border bg-surface px-5 py-4 max-md:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:-mx-10 lg:px-10">
+      <div
+        className={`sticky bottom-0 mt-6 flex justify-end gap-2 border-t border-border bg-surface py-4 ${
+          inPanel
+            ? "-mx-6 px-6 md:-mx-7 md:px-7"
+            : "-mx-5 px-5 max-md:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:-mx-10 lg:px-10"
+        }`}
+      >
         <Button variant="secondary" disabled={!dirty || pending} onClick={onDiscard}>
           {t("discard")}
         </Button>
@@ -73,5 +85,36 @@ export function SectionForm({ title, hint, onSubmit, onDiscard, dirty, pending, 
         </Button>
       </div>
     </form>
+  );
+}
+
+// ADR 0119: a section while its data loads, its real heading over rows of
+// fields at the sizes they'll take.
+export function SectionLoading({ title, hint, groups = 2 }: { title: string; hint: string; groups?: number }) {
+  return (
+    <div aria-busy="true" className="@container flex flex-1 flex-col">
+      <SectionHeading title={title} hint={hint} />
+      {Array.from({ length: groups }, (_, group) => (
+        <div
+          key={group}
+          className="grid gap-4 border-t border-border py-6 first:border-t-0 first:pt-0 @3xl:grid-cols-[15rem_minmax(0,1fr)] @3xl:gap-10"
+        >
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-5 w-32 max-w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="grid max-w-2xl grid-cols-6 gap-3">
+            <div className="col-span-6 flex flex-col gap-2 sm:col-span-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-12 w-full rounded-xl!" />
+            </div>
+            <div className="col-span-6 flex flex-col gap-2 sm:col-span-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-12 w-full rounded-xl!" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
