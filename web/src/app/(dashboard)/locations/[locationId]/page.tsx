@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { Reveal } from "@/components/reveal";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
@@ -84,9 +85,9 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
   return (
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <Suspense fallback={<Running page={page} overview={null} />}>
+      <Reveal fallback={<Running page={page} overview={null} />}>
         <TodayContent page={page} />
-      </Suspense>
+      </Reveal>
     </>
   );
 }
@@ -166,7 +167,7 @@ function Running({ page, overview }: { page: Today; overview: Overview | null })
 // Inside the page's own fallback nothing is asked for yet: the tile only shows
 // its empty frame. Once the page is in, it streams on its own.
 function Waiting({ ready, fallback, children }: { ready: boolean; fallback: ReactNode; children: ReactNode }) {
-  return ready ? <Suspense fallback={fallback}>{children}</Suspense> : fallback;
+  return ready ? <Reveal fallback={fallback}>{children}</Reveal> : fallback;
 }
 
 // Not async, so it can stand in the page's fallback without waiting itself.

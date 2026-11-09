@@ -114,7 +114,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         </button>
       </div>
 
-      <div id="setup-guide-body" inert={folded} data-open={!folded || undefined} className="reveal">
+      <div id="setup-guide-body" inert={folded} data-open={!folded || undefined} className="fold">
         <div>
           <div className="grid gap-4 pt-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8 lg:pt-8">
             <ol className="flex flex-col max-lg:order-last">

@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { Suspense } from "react";
 import { getLocation } from "@/app/(dashboard)/locations/[locationId]/location-data";
 import { AddShopButton } from "@/components/add-shop";
 import { BusinessHero } from "@/components/business-hero";
@@ -15,6 +14,7 @@ import { BusinessLocations } from "./business-locations";
 import { getBusinessLocations } from "./business-data";
 import { planState, stoppedCount } from "./business-views";
 import { PlanPill } from "./plan-pill";
+import { Reveal } from "@/components/reveal";
 
 // ADR 0105: a Business is its Locations. What happens in a shop is on that
 // shop's Today, so this only says where to go, and what stops one. ADR 0119:
@@ -51,7 +51,7 @@ export default async function BusinessPage({ params }: PageProps<"/businesses/[b
         <AddShopButton />
       </BusinessHero>
       {business.locations.length > 0 ? (
-        <Suspense
+        <Reveal
           fallback={
             <BusinessLocations
               loading
@@ -62,7 +62,7 @@ export default async function BusinessPage({ params }: PageProps<"/businesses/[b
           }
         >
           <Shops businessId={businessId} />
-        </Suspense>
+        </Reveal>
       ) : (
         <Panel padding="none" className="flex flex-1 flex-col">
           <EmptyState

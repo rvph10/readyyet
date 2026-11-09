@@ -1,6 +1,5 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { Suspense } from "react";
 import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { intlLocale } from "@/app/(dashboard)/locations/[locationId]/tickets/ticket-views";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
@@ -16,6 +15,7 @@ import { hasPaid, moneyOptions, nextPayment, planState, type BusinessLocation } 
 import { PlanPill } from "../plan-pill";
 import { StatTile } from "../stat-tile";
 import { PortalButton } from "./portal-button";
+import { Reveal } from "@/components/reveal";
 
 const GRID = "lg:grid-cols-[minmax(0,1fr)_9rem_6rem_9rem] lg:gap-x-5";
 const SORTS = ["location", "plan", "price"] as const;
@@ -124,17 +124,17 @@ export default async function BusinessBillingPage({
               <SortHeader sort={sort} href={sortHref} column="price" label={t("billing.price")} first="desc" />
             </span>
           </div>
-          <Suspense
+          <Reveal
             key={`${sort.column}:${sort.dir}`}
             fallback={<RowsPlaceholder rows={ROWS_WHILE_LOADING} columns={3} />}
           >
             <LocationRows businessId={businessId} sort={sort} />
-          </Suspense>
+          </Reveal>
         </Panel>
         <div className="xl:col-span-4">
-          <Suspense fallback={<StatTile label={t("billing.nextPayment")} value={null} note={null} />}>
+          <Reveal fallback={<StatTile label={t("billing.nextPayment")} value={null} note={null} />}>
             <NextPayment businessId={businessId} />
-          </Suspense>
+          </Reveal>
         </div>
       </div>
     </>

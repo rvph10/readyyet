@@ -2,7 +2,6 @@ import { calendarDateIn } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { Banner } from "@/components/ui/banner";
@@ -17,6 +16,7 @@ import { isManager } from "../sections";
 import { formatDay } from "../tickets/ticket-views";
 import { TeamBoard } from "./team-board";
 import { openInvitations, placesTaken } from "./team-views";
+import { Reveal } from "@/components/reveal";
 
 // Someone accepting shows without a reload.
 const REFRESH_EVERY_MS = 60 * 1000;
@@ -34,9 +34,9 @@ export default async function TeamPage({ params }: PageProps<"/locations/[locati
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader title={tDashboard("sections.team")} />
-      <Suspense fallback={<TeamLoading />}>
+      <Reveal fallback={<TeamLoading />}>
         <TeamContent locationId={locationId} meId={me.id} role={membership.role} />
-      </Suspense>
+      </Reveal>
     </>
   );
 }

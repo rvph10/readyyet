@@ -270,7 +270,10 @@
     *,
     ::before,
     ::after,
-    ::backdrop {
+    ::backdrop,
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
       animation-duration: 1ms !important;
       animation-delay: 0s !important;
       animation-iteration-count: 1 !important;
@@ -555,22 +558,22 @@
 
   /* What folds open grows to its height and fades in, and shrinks back. Its
      child clips, a little outside itself so focus rings still show. */
-  .reveal {
+  .fold {
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows var(--duration-slow) var(--ease-move);
   }
-  .reveal[data-open] {
+  .fold[data-open] {
     grid-template-rows: 1fr;
   }
-  .reveal > * {
+  .fold > * {
     min-height: 0;
     overflow: clip;
     overflow-clip-margin: 0.25rem;
     opacity: 0;
     transition: opacity var(--duration-base) var(--ease-exit);
   }
-  .reveal[data-open] > * {
+  .fold[data-open] > * {
     opacity: 1;
     transition-timing-function: var(--ease-enter);
     transition-delay: 80ms;
@@ -678,6 +681,24 @@
       }
     }
   }
+}
+
+/* ADR 0122: a placeholder crossfading into its content (<Reveal>), in the
+   time of a fade. The page stays clickable under the passing picture. React
+   runs every navigation as a view transition once one is on the page, and the
+   browser would crossfade the whole page: pages change at once instead. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-group(.arrive),
+::view-transition-old(.arrive),
+::view-transition-new(.arrive) {
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-move);
 }
 
 /* A range field: pine up to the thumb, its share in --fill, set by the page. */

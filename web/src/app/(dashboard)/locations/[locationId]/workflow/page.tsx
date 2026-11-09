@@ -1,7 +1,6 @@
 import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
@@ -13,6 +12,7 @@ import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
 import { WorkflowBoard } from "./workflow-board";
 import { chosenCodes } from "./workflow-views";
+import { Reveal } from "@/components/reveal";
 
 // ADR 0101: the path a Ticket follows here, and the steps it could have. ADR
 // 0119: the panels stand at once, the steps wait.
@@ -25,9 +25,9 @@ export default async function WorkflowPage({ params }: PageProps<"/locations/[lo
   return (
     <div className="fit-screen flex flex-col gap-4 lg:gap-5">
       <PageHeader title={tDashboard("sections.workflow")} />
-      <Suspense fallback={<WorkflowLoading />}>
+      <Reveal fallback={<WorkflowLoading />}>
         <WorkflowContent locationId={locationId} />
-      </Suspense>
+      </Reveal>
     </div>
   );
 }

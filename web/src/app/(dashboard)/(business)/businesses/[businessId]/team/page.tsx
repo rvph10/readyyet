@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { cache, Suspense } from "react";
+import { cache } from "react";
 import { openInvitations, placesTaken } from "@/app/(dashboard)/locations/[locationId]/team/team-views";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { Avatar } from "@/components/ui/avatar";
@@ -16,6 +16,7 @@ import { BusinessHeader } from "../business-header";
 import { getBusinessLocations } from "../business-data";
 import { teamInvitations, teamPeople, type TeamPerson } from "../business-views";
 import { InvitePanel } from "./invite-panel";
+import { Reveal } from "@/components/reveal";
 
 const GRID = "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-x-5";
 // More would wrap, and a chain's Admin can be at every Location.
@@ -108,7 +109,7 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
       <BusinessHeader title={t("nav.team")} subtitle={business.name} />
       <div className="grid flex-1 grid-cols-1 items-start gap-4 lg:gap-5 xl:grid-cols-12">
         <Panel as="section" padding="none" className="overflow-clip xl:col-span-8">
-          <Suspense
+          <Reveal
             fallback={
               <>
                 <div className="px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
@@ -120,11 +121,11 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
             }
           >
             <People businessId={businessId} />
-          </Suspense>
+          </Reveal>
         </Panel>
         <div className="flex flex-col gap-4 lg:gap-5 xl:col-span-4">
           <Panel as="section" padding="none" className="flex min-h-64 flex-col">
-            <Suspense
+            <Reveal
               fallback={
                 <div className="flex flex-col gap-3 px-5 pt-5 pb-5 lg:px-6 lg:pt-6">
                   <div className="flex items-center justify-between gap-3">
@@ -137,7 +138,7 @@ export default async function BusinessTeamPage({ params }: PageProps<"/businesse
               }
             >
               <Invitations businessId={businessId} />
-            </Suspense>
+            </Reveal>
           </Panel>
           {/* Straight to a shop's team, even when nobody works there yet. */}
           <Panel as="section" padding="none">

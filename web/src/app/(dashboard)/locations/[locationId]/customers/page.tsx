@@ -2,7 +2,6 @@ import { calendarDateIn } from "@readyyet/shared";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
 import { Banner } from "@/components/ui/banner";
 import { buttonClass } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { formatDay, parseQuery } from "../tickets/ticket-views";
 import { CustomerListHeader, CustomerRow } from "./customer-row";
 import { CustomerSearch } from "./customer-search";
 import { CUSTOMER_SORTS, customersHref, type CustomerSort } from "./customer-views";
+import { Reveal } from "@/components/reveal";
 
 const PAGE_SIZE = 30;
 const ROWS_WHILE_LOADING = 9;
@@ -53,7 +53,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
           <CustomerSearch key={q} locationId={locationId} action={customersHref(locationId)} query={q} sort={sort} />
         </div>
         {/* Keyed, so another search or page shows its rows loading straight away. */}
-        <Suspense
+        <Reveal
           key={`${q}:${query.page}:${sort?.column}:${sort?.dir}`}
           fallback={
             <>
@@ -63,7 +63,7 @@ export default async function CustomersPage({ params, searchParams }: PageProps<
           }
         >
           <CustomerList query={query} />
-        </Suspense>
+        </Reveal>
       </Panel>
     </>
   );
