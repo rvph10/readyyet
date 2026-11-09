@@ -706,9 +706,6 @@
 /* ADR 0123: a number's digits roll like an odometer (<RollingNumber>). Each
    digit shows one line of its 0 to 9 strip, a little taller than the line so
    the strip fades in and out at the edges instead of being cut. */
-.rolling-number {
-  font-variant-numeric: tabular-nums;
-}
 .rolling-digit {
   display: inline-block;
   height: calc(1lh + 0.3em);

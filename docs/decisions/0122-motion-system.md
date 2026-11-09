@@ -6,7 +6,7 @@ Date: 2026-11-09
 
 Motion marks the moments something opens, closes or changes. What is simply on the page stays still: no page transitions, no staggered entrances, no counting numbers, no hover lift.
 
-**Tokens**, in `globals.css`: `--duration-quick` 150ms for hover, press and closing, `--duration-base` 200ms for menus and fades, `--duration-slow` 280ms for panels, sheets and heights. `--ease-enter` for what opens, `--ease-exit` for what closes, faster than it opened, and `--ease-move` for what goes from one place to another. Only opacity, transform and a grid's rows are animated, plus the length of a chart's bars, which are placed on their own, so nothing around them moves.
+**Tokens**, in `globals.css`: `--duration-quick` 150ms for hover, press and closing, `--duration-base` 200ms for menus and fades, `--duration-slow` 280ms for panels, sheets and heights. `--ease-enter` for what opens, `--ease-exit` for what closes, faster than it opened, and `--ease-move` for what goes from one place to another. Only opacity, transform and a grid's rows are animated, plus the length of a chart's bars and of the Workflow line's fill, which are placed on their own, so nothing around them moves. The one exception is the sidebar, whose width and padding ease as it opens or collapses, and the page beside it follows.
 
 **Where it applies:**
 
@@ -14,8 +14,9 @@ Motion marks the moments something opens, closes or changes. What is simply on t
 - Dialogs keep fading and scaling in from 95%, and now close the same way, still showing what they held while they fade. The side panel slides in from the right edge and back out, instead of zooming from the centre.
 - Tooltips fade in after a short wait, so passing over a row of icons doesn't flash them.
 - The sidebar's labels fade as it collapses or opens, instead of snapping. The setup guide folds and unfolds its height.
-- A tile's placeholder crossfades into its content (ADR 0119), through `Reveal`, a Suspense whose fallback and content share one React `<ViewTransition>` name. The browser fades them as one picture, so what they have in common, the tile's frame, stays still. It doesn't play on a refresh, a filter or a form saving inside, only on the reveal. It also plays when the page first streams, the one exception to ADR 0048's "no page-load animation": it smooths a swap that already happens and adds no movement.
+- A tile's placeholder crossfades into its content (ADR 0119), through `Reveal`, a Suspense whose fallback and content share one React `<ViewTransition>` name. The browser fades them as one picture, so what they have in common, the tile's frame, stays still. It doesn't play on a refresh or a form saving inside, only on the reveal. A list whose filter, sort or page changes is a new reveal, as it shows its placeholder again. It also plays when the page first streams, the one exception to ADR 0048's "no page-load animation": it smooths a swap that already happens and adds no movement.
 - The month chart's bars move to their new height when a refresh changes them, but don't grow in on load.
+- When a Ticket moves on, pine sweeps along the Workflow line behind the step it just finished.
 
 **Kept as they are:** the toasts' bounce and icon motion (ADR 0064), the pulsing Workflow step (ADR 0087), and buttons pressing in to 97%, which this records against ADR 0053's "nothing moves or scales".
 

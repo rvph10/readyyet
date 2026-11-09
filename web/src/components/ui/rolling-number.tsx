@@ -9,9 +9,9 @@ export function RollingNumber({ value }: { value: number }) {
   const text = new Intl.NumberFormat(useLocale()).format(value);
   const characters = [...text];
   return (
-    <span className="rolling-number">
+    <span>
       <span className="sr-only">{text}</span>
-      <span aria-hidden="true" className="inline-flex">
+      <span aria-hidden="true" className="inline-flex select-none">
         {characters.map((character, index) => {
           const place = characters.length - index;
           return /\d/.test(character) ? (

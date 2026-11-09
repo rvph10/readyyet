@@ -24,8 +24,8 @@ function showCurrent(track: HTMLOListElement | null) {
 
 // ADR 0087: the current step is the only thing on the page that moves. It
 // breathes in a loop, and a pulse leaves it toward the next step. Moving on
-// fills the line behind it (ADR 0122). A stopped
-// Ticket's track stays still, faded where it got to.
+// fills the line behind it (ADR 0122). A stopped Ticket's track stays still,
+// faded where it got to.
 export function WorkflowTrack({ steps, currentCode, reachedCode, label, horizontal }: Props) {
   const ended = isEndedStatus(currentCode);
   const tone = statusTone(currentCode);
