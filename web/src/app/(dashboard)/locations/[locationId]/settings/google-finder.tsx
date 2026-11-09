@@ -160,7 +160,9 @@ export function GoogleFinder({ locationId, query: initialQuery, needsAddress, ne
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-label-sm">{place.name}</span>
-                      <span className="block truncate text-p-xs text-muted">{place.formattedAddress}</span>
+                      <span className="block truncate text-p-xs text-muted">
+                        {place.formattedAddress ?? t("noPublicAddress")}
+                      </span>
                     </span>
                     {place.rating !== null && (
                       <span className="shrink-0 text-right text-label-sm">
@@ -186,7 +188,7 @@ export function GoogleFinder({ locationId, query: initialQuery, needsAddress, ne
               {offersAddress && (
                 <Checkbox
                   label={t("useAddress")}
-                  description={chosen.formattedAddress}
+                  description={chosen.formattedAddress ?? undefined}
                   checked={useAddress}
                   onChange={(event) => setUseAddress(event.target.checked)}
                 />

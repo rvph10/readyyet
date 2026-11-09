@@ -1021,7 +1021,8 @@
       "hoursDays": "{days}, {ranges}",
       "open": "Ouvrir",
       "change": "Modifier",
-      "keep": "Garder ce lien"
+      "keep": "Garder ce lien",
+      "noPublicAddress": "Se déplace chez ses clients, sans adresse publique"
     }
   },
   "workflow": {

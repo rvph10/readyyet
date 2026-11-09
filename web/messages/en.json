@@ -1021,7 +1021,8 @@
       "hoursDays": "{days}, {ranges}",
       "open": "Open",
       "change": "Change",
-      "keep": "Keep this link"
+      "keep": "Keep this link",
+      "noPublicAddress": "Goes to its customers, no public address"
     }
   },
   "workflow": {

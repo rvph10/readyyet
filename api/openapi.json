@@ -9730,6 +9730,10 @@
       "GooglePlaceDto": {
         "type": "object",
         "properties": {
+          "formattedAddress": {
+            "type": "string",
+            "nullable": true
+          },
           "rating": {
             "type": "number",
             "nullable": true
@@ -9753,9 +9757,6 @@
           "name": {
             "type": "string"
           },
-          "formattedAddress": {
-            "type": "string"
-          },
           "reviewUrl": {
             "type": "string"
           },
@@ -9767,12 +9768,12 @@
           }
         },
         "required": [
+          "formattedAddress",
           "rating",
           "ratingCount",
           "address",
           "placeId",
           "name",
-          "formattedAddress",
           "reviewUrl",
           "openingHours"
         ]

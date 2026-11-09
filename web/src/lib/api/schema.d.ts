@@ -1221,12 +1221,12 @@ export interface components {
             googleReviewUrl?: string | null;
         };
         GooglePlaceDto: {
+            formattedAddress: string | null;
             rating: number | null;
             ratingCount: number | null;
             address: components["schemas"]["PostalAddressDto"] | null;
             placeId: string;
             name: string;
-            formattedAddress: string;
             reviewUrl: string;
             openingHours: components["schemas"]["OpeningHoursSpecificationDto"][];
         };

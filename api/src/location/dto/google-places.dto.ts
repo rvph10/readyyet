@@ -15,7 +15,9 @@ export class SearchGooglePlacesQueryDto {
 export class GooglePlaceDto {
   placeId!: string;
   name!: string;
-  formattedAddress!: string;
+  // Null for a shop with no public address on Google, one that goes to its customers.
+  @ApiProperty({ type: String, nullable: true })
+  formattedAddress!: string | null;
   @ApiProperty({ type: Number, nullable: true })
   rating!: number | null;
   @ApiProperty({ type: Number, nullable: true })

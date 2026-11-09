@@ -34,10 +34,9 @@ const PLACES = {
       },
     },
     {
-      // No street, open around the clock: neither is offered.
+      // No public address, open around the clock: neither is offered.
       id: "ChIJother",
       displayName: { text: "Velo 24/7" },
-      formattedAddress: "Ixelles, Belgium",
       addressComponents: [{ longText: "Belgium", shortText: "BE", types: ["country"] }],
       regularOpeningHours: { periods: [{ open: { day: 0, hour: 0, minute: 0 } }] },
     },
@@ -135,7 +134,7 @@ describe("Finding a shop on Google", () => {
         { dayOfWeek: "Saturday", opens: "10:00", closes: "13:00" },
       ],
     });
-    expect(open247).toMatchObject({ address: null, openingHours: [], rating: null });
+    expect(open247).toMatchObject({ formattedAddress: null, address: null, openingHours: [], rating: null });
 
     const saved = await request(app.getHttpServer())
       .patch(`/locations/${locationId}`)
@@ -155,7 +154,12 @@ describe("Finding a shop on Google", () => {
 
     expect(response.body).toEqual({ places: [] });
     const [, init] = google.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(init.body as string)).toMatchObject({ textQuery: "Velo", languageCode: "fr", regionCode: "BE" });
+    expect(JSON.parse(init.body as string)).toMatchObject({
+      textQuery: "Velo",
+      languageCode: "fr",
+      regionCode: "BE",
+      includePureServiceAreaBusinesses: true,
+    });
     expect((init.headers as Record<string, string>)["x-goog-fieldmask"]).not.toContain("reviews");
   });
 

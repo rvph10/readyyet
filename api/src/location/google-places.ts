@@ -42,7 +42,8 @@ interface GooglePlace {
 export interface FoundPlace {
   placeId: string;
   name: string;
-  formattedAddress: string;
+  // Null for a shop with no public address on Google.
+  formattedAddress: string | null;
   rating: number | null;
   ratingCount: number | null;
   // Opens Google's review form for this place (ADR 0039 accepts its shape).
@@ -64,7 +65,15 @@ export async function searchGooglePlaces(
     method: "POST",
     signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: { "content-type": "application/json", "x-goog-api-key": key, "x-goog-fieldmask": FIELDS.join(",") },
-    body: JSON.stringify({ textQuery: query, languageCode, regionCode, pageSize: MOST_PLACES }),
+    // A shop that serves its customers where they are (pickup, home visits)
+    // hides its address on Google, and is left out unless asked for.
+    body: JSON.stringify({
+      textQuery: query,
+      languageCode,
+      regionCode,
+      pageSize: MOST_PLACES,
+      includePureServiceAreaBusinesses: true,
+    }),
   });
   if (!response.ok) {
     throw new Error(`Google Places answered ${response.status}: ${await response.text()}`);
@@ -73,7 +82,7 @@ export async function searchGooglePlaces(
   return places.map((place) => ({
     placeId: place.id,
     name: place.displayName?.text ?? "",
-    formattedAddress: place.formattedAddress ?? "",
+    formattedAddress: place.formattedAddress ?? null,
     rating: place.rating ?? null,
     ratingCount: place.userRatingCount ?? null,
     reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(place.id)}`,
