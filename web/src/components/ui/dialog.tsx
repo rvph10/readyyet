@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./icon";
 
 type Variant = "default" | "destructive" | "announcement" | "image" | "panel" | "pricing";
@@ -44,8 +44,15 @@ const shapes: Record<Variant, string> = {
 // makes the page behind it inert. ADR 0049 and 0056: a panel over the page
 // dimmed and blurred, with a round close button. A click on the backdrop
 // closes it.
-export function Dialog({ open, onClose, title, variant = "default", locked, media, children }: Props) {
+export function Dialog({ open, onClose, title, variant = "default", locked, media: openMedia, children: openChildren }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Callers empty a dialog as they close it, like a form shown only while
+  // open. What it last showed open stays while it fades out (ADR 0122).
+  const [kept, setKept] = useState({ media: openMedia, children: openChildren });
+  if (open && (kept.media !== openMedia || kept.children !== openChildren)) {
+    setKept({ media: openMedia, children: openChildren });
+  }
+  const { media, children } = open ? { media: openMedia, children: openChildren } : kept;
   const titleId = useId();
   const dismiss = () => {
     if (!locked) onClose();
@@ -69,7 +76,7 @@ export function Dialog({ open, onClose, title, variant = "default", locked, medi
         if (locked) event.preventDefault();
       }}
       onClick={(event) => event.target === ref.current && dismiss()}
-      className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${shapes[variant]} ${frames[variant]}`}
+      className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm ${variant === "panel" ? "dialog-panel" : "dialog"} ${shapes[variant]} ${frames[variant]}`}
     >
       {variant === "panel" && (
         <div className="flex h-full flex-col">

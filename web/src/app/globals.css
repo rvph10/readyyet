@@ -544,6 +544,56 @@
     }
   }
 
+  /* A dialog grows in from 95% and shrinks back as it closes, its backdrop
+     fading with it. The side panel slides from the right edge it sits on. */
+  .dialog,
+  .dialog-panel {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-exit);
+  }
+  .dialog {
+    opacity: 0;
+    scale: 0.95;
+  }
+  .dialog[open] {
+    opacity: 1;
+    scale: 1;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+  .dialog-panel {
+    translate: 100% 0;
+  }
+  .dialog-panel[open] {
+    translate: 0;
+    transition-duration: var(--duration-slow);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      translate: 100% 0;
+    }
+  }
+  .dialog::backdrop,
+  .dialog-panel::backdrop {
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+  }
+  .dialog[open]::backdrop,
+  .dialog-panel[open]::backdrop {
+    opacity: 1;
+    transition-duration: var(--duration-base);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
   /* A phone's sheet rises from the bottom edge instead, under a fading dim. */
   @media (width < 48rem) {
     .switcher-popover,

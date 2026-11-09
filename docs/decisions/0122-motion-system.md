@@ -10,8 +10,8 @@ Motion marks the moments something opens, closes or changes. What is simply on t
 
 **Where it applies:**
 
-- Menus and every popover from the bar or the sidebar fade in and slide a few pixels from their trigger's side, and fade out. On a phone, where they are bottom sheets, they rise from the bottom edge and the backdrop fades.
-- Dialogs keep fading and scaling in from 95%, and now close the same way. The side panel slides in from the right edge and back out, instead of zooming from the centre.
+- Menus, the select list and every popover from the bar or the sidebar fade and grow in from 97%, and leave the same way. A scale, not a slide, so it stays right when a popover flips to the other side of its trigger. On a phone, where they are bottom sheets, they rise from the bottom edge and the backdrop fades.
+- Dialogs keep fading and scaling in from 95%, and now close the same way, still showing what they held while they fade. The side panel slides in from the right edge and back out, instead of zooming from the centre.
 - Tooltips fade in after a short wait, so passing over a row of icons doesn't flash them.
 - The sidebar's labels fade as it collapses or opens, instead of snapping. The setup guide folds and unfolds its height.
 - A tile's content fades in as it replaces its placeholder (ADR 0119). This also plays when the page first streams, which is the one exception to ADR 0048's "no page-load animation": it smooths a swap that already happens, it adds no movement.
