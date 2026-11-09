@@ -274,11 +274,25 @@ export function Layout({
           fontWeight="400 800"
           fontStyle="normal"
         />
+        {/* A phone gets the whole width: no canvas around the card, less
+            padding inside it. react-email puts each padding on the cell
+            inside its table, hence the selectors. */}
+        <style>{`@media (max-width: 600px) {
+  .email-body > table > tbody > tr > td { padding: 0 0 24px !important; }
+  .email-card { border-radius: 0 !important; }
+  .email-card > tbody > tr > td { padding: 28px 20px 24px !important; }
+  .email-foot > tbody > tr > td { padding: 20px 20px 0 !important; }
+}`}</style>
       </Head>
       <Preview>{preview}</Preview>
       {/* Body sets its own lang, English unless told otherwise. */}
-      <Body lang={lang} style={{ backgroundColor: colors.canvas, fontFamily: FONT, margin: 0, padding: "32px 12px" }}>
+      <Body
+        lang={lang}
+        className="email-body"
+        style={{ backgroundColor: colors.canvas, fontFamily: FONT, margin: 0, padding: "32px 0" }}
+      >
         <Container
+          className="email-card"
           style={{
             backgroundColor: colors.surface,
             borderRadius: "28px",
@@ -289,7 +303,7 @@ export function Layout({
           <Header sender={sender} />
           {children}
         </Container>
-        <Container style={{ maxWidth: "560px", padding: "24px 32px 0" }}>
+        <Container className="email-foot" style={{ maxWidth: "560px", padding: "24px 32px 0" }}>
           {footer && (
             <Text style={{ ...text, color: colors.muted, fontSize: "13px", lineHeight: "20px", margin: "0 0 16px" }}>
               {footer}
