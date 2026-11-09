@@ -1,12 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
+import { FEEDBACK_TAGS, type FeedbackTag } from "@readyyet/shared";
 import { PublicStatusDto } from "../../common/dto/status.response.dto";
+import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 
 export class TrackingLocationDto {
   name!: string;
   contactPhone!: string;
   contactEmail!: string;
   logoUrl!: string | null;
+  bannerUrl!: string | null;
+  address!: PostalAddressDto | null;
+  // A Google Maps search for the address, null without one.
+  mapsUrl!: string | null;
+  // Times on the Location's clock, in its timeZone.
+  openingHours!: OpeningHoursSpecificationDto[];
+  timeZone!: string;
 }
 
 export class TrackingStepDto {
@@ -19,9 +28,31 @@ export class TrackingHistoryEntryDto {
   createdAt!: Date;
 }
 
+export class TrackingPhotoDto {
+  // A presigned bucket URL that works for 15 minutes, reload the page for a new one.
+  url!: string;
+  createdAt!: Date;
+}
+
+export class TrackingFeedbackDto {
+  @ApiProperty({ type: Number, nullable: true })
+  stars!: number | null;
+  @ApiProperty({ enum: FEEDBACK_TAGS, isArray: true })
+  tags!: FeedbackTag[];
+  // Sent with a message or replied to by the shop: the page thanks them
+  // instead of asking.
+  closed!: boolean;
+}
+
 export class TrackingDto {
   trackingCode!: string;
   title!: string;
+  // A date on the Location's clock, null once the ticket is READY or ended.
+  @ApiProperty({ type: String, format: "date", nullable: true })
+  estimatedReadyDate!: string | null;
+  // Set once the Customer said they picked the item up, the page then
+  // hides its "I already picked it up" button.
+  customerCollectedAt!: Date | null;
   createdAt!: Date;
   // The Customer's language, or the Location's when they have none.
   @ApiProperty({ enum: Locale })
@@ -30,4 +61,14 @@ export class TrackingDto {
   currentStatus!: PublicStatusDto;
   steps!: TrackingStepDto[];
   statusHistory!: TrackingHistoryEntryDto[];
+  // A COMPLETED ticket of a Location on Pro: the review page is open
+  // (ADR 0039, ADR 0125).
+  asksForFeedback!: boolean;
+  // Google's "write a review" link, only when asksForFeedback and the
+  // Location set one. The review page then offers it.
+  reviewUrl!: string | null;
+  // What the Customer already gave, null before their first answer.
+  feedback!: TrackingFeedbackDto | null;
+  // Oldest first, who took them isn't shown (ADR 0026).
+  photos!: TrackingPhotoDto[];
 }

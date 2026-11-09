@@ -6,7 +6,7 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 
 - Resources are plural nouns: `/businesses`, `/tickets`, `/customers`.
 - Anything that belongs to a Location is nested under it, `/locations/:locationId/tickets/:ticketId`. `LocationMembershipGuard` checks the caller's Membership and Role there, once, for the whole controller.
-- The only unscoped routes are the caller's own (`/me`), what exists before a Membership does (`/businesses`, `/invitations/:id/accept`), and what needs no account (`/tracking/:code`, `/catalogue/*`, `/health`).
+- The only unscoped routes are the caller's own (`/me`, `/me/sales-partner`), what exists before a Membership does (`/businesses`, `/invitations/:id/accept`), what needs no account (`/tracking/:code`, `/catalogue/*`, `/health`), and the platform admin's back office (`/admin/*`, `PlatformAdminGuard`, ADR 0032).
 - An action that isn't a plain edit is a `POST` on a sub-path named with a verb: `.../status/undo`, `.../invitations/:id/revoke`, `.../transfer-ownership`. A `PATCH` only ever changes fields.
 
 ## Methods and status codes
@@ -17,13 +17,14 @@ The rules every endpoint follows, so a new one fits without reading the others. 
 | `POST` that creates something (a Ticket, an Invitation, a Membership on accept) | 201                               |
 | `POST` action that creates nothing                                              | 200, with the resource it changed |
 | `PATCH`                                                                         | 200, with the updated resource    |
+| `PUT`, replacing a resource the Location has one of (its custom Workflow)       | 200, with the new resource        |
 | `DELETE`, and an action with nothing to return                                  | 204, no body                      |
 
 ## Bodies
 
-- JSON, camelCase field names, the same names as the domain vocabulary.
-- Ids are strings: uuids as they are, BigInt ids (Ticket, Customer, Membership, Workflow) as decimal strings, since JSON numbers can't hold them. Status ids are small integers and stay numbers.
-- Dates are ISO 8601 strings in UTC.
+- JSON, camelCase field names, the same names as the domain vocabulary. The exception is a picture upload: `multipart/form-data` with the image as its `file` field (ADR 0026).
+- Ids are strings: uuids as they are, BigInt ids (Ticket, Customer, Membership, Workflow, Ticket photo) as decimal strings, since JSON numbers can't hold them. Status ids are small integers and stay numbers.
+- Dates are ISO 8601 strings in UTC. A calendar date with no time, like a Ticket's `estimatedReadyDate`, is `YYYY-MM-DD` on the Location's clock.
 - In a resource, a field with no value is `null`, never left out. An optional request field may be left out.
 - Something the dashboard identifies by name comes with it, not as a bare id: `invitedBy: { id, name }`. Catalogue entries (business types, statuses) are referred to by their `code`.
 - A response sends the fields its DTO declares and nothing more. Queries `select` those fields rather than `include` whole rows, see the `statusSelect` and `locationSelect` helpers. The e2e suite fails on any undocumented field.
@@ -52,11 +53,12 @@ Every error from our own routes has one shape, written by `AppExceptionFilter`:
 | ------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 400    | `VALIDATION_ERROR`          | Invalid input. `details` lists each rejected property (`customer.email` inside an object) and its failed rules.              |
 | 401    | `UNAUTHENTICATED`           | No valid session.                                                                                                            |
+| 402    | `PLAN_REQUIRED`             | A Pro feature on an Essentiel Location, moving to Pro lifts it.                                                              |
 | 403    | `UNAUTHORIZED`              | Signed in, but not a member of this Location (or not the Business's Owner), or the Role doesn't allow it.                    |
 | 403    | `REAUTHENTICATION_REQUIRED` | The session is too old for this action, sign in again (account deletion).                                                    |
 | 404    | `NOT_FOUND`                 | Doesn't exist: an unknown or deleted Location, or a Ticket, Customer or Invitation id that isn't in the Location of the URL. |
 | 409    | `CONFLICT`                  | Not possible in the resource's current state, or lost a race to a concurrent request.                                        |
-| 413    | `VALIDATION_ERROR`          | The request body is over 100 KB.                                                                                             |
+| 413    | `VALIDATION_ERROR`          | The request body is over 100 KB, or an uploaded image is over 15 MB.                                                         |
 | 429    | `RATE_LIMITED`              | Too many requests, `Retry-After` gives the seconds to wait.                                                                  |
 | 500    | `INTERNAL_ERROR`            | A bug. Reported to Sentry, the message never says more.                                                                      |
 
@@ -70,11 +72,11 @@ A Better Auth session cookie, set by the email OTP sign-in (ADR 0011). There are
 
 ## Rate limits
 
-60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
+60 requests a minute per client by default. Tighter where a request sends an email or is public: resending a tracking link or an invitation 5 a minute, uploading a picture 5 a minute, sending private feedback 5 a minute, the tracking page 30 a minute, and the sign-in code 10 a minute (Better Auth's own limiter). `/health` isn't limited.
 
 ## Caching
 
-Responses set no caching headers by default, and none is meant to be cached. Two set their own: the catalogue is `public, max-age=300`, it only changes with a deploy, and the tracking page is `no-store`, it's one Customer's Ticket.
+Responses set no caching headers by default, and none is meant to be cached. Two set their own: the catalogue is `public, max-age=300`, it only changes with a deploy, and the tracking page is `no-store`, it's one Customer's Ticket. Logos and avatars (`GET /images/...`) are `public, max-age=31536000, immutable`: a new picture always gets a new URL (ADR 0026). That route isn't rate limited.
 
 ## Changing the API
 

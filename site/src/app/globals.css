@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* The palette of ADR 0042, by role. Olive values are Tailwind's own olive
+   scale, brand is the logo's lime, ink the logo's near-black. */
+@theme {
+  --color-canvas: #fbfbf9;
+  --color-surface: #ffffff;
+  --color-subtle: #f4f4f0;
+  --color-border: #e8e8e3;
+  /* Tailwind's olive-300: outlines of controls on hover (ADR 0049). */
+  --color-border-strong: oklch(88% 0.011 106.6);
+  --color-ink: #1e1e1e;
+  --color-muted: #5b5b4b;
+  /* 1.45:1 on white: a fill under ink text, never text itself. */
+  --color-brand: #d6ff53;
+  --color-brand-text: #556e18;
+  --color-highlight: #7f22fe;
+
+  /* ADR 0049: panels barely lift off the canvas, menus float. Tinted toward
+     ink, Tailwind's pure black shadows look grey on the olive neutrals. */
+  --shadow-panel: 0 0 20px rgb(30 30 20 / 0.03);
+  --shadow-float: 0 1px 2px rgb(30 30 20 / 0.06), 0 4px 12px rgb(30 30 20 / 0.08);
+
+  --default-transition-duration: 200ms;
+
+  /* The type scale of ADR 0049. */
+  --text-title-h1: 4rem;
+  --text-title-h1--line-height: 1.09;
+  --text-title-h1--letter-spacing: -0.01em;
+  --text-title-h1--font-weight: 700;
+  --text-title-h3: 2.5rem;
+  --text-title-h3--line-height: 1.2;
+  --text-title-h3--letter-spacing: -0.01em;
+  --text-title-h3--font-weight: 500;
+  --text-title-h4: 2rem;
+  --text-title-h4--line-height: 1.25;
+  --text-title-h4--letter-spacing: -0.01em;
+  --text-title-h4--font-weight: 500;
+  --text-title-h5: 1.75rem;
+  --text-title-h5--line-height: 1.5;
+  --text-title-h5--font-weight: 700;
+  --text-title-h6: 1.25rem;
+  --text-title-h6--line-height: 1.5;
+  --text-title-h6--font-weight: 500;
+  --text-label-xl: 1.5rem;
+  --text-label-xl--line-height: 1.33;
+  --text-label-xl--letter-spacing: -0.015em;
+  --text-label-xl--font-weight: 500;
+  --text-label-lg: 1.125rem;
+  --text-label-lg--line-height: 1.5;
+  --text-label-lg--letter-spacing: -0.015em;
+  --text-label-lg--font-weight: 500;
+  --text-label-md: 1rem;
+  --text-label-md--line-height: 1.5;
+  --text-label-md--letter-spacing: -0.011em;
+  --text-label-md--font-weight: 500;
+  --text-label-sm: 0.875rem;
+  --text-label-sm--line-height: 1.43;
+  --text-label-sm--letter-spacing: -0.006em;
+  --text-label-sm--font-weight: 500;
+  --text-label-xs: 0.75rem;
+  --text-label-xs--line-height: 1.33;
+  --text-label-xs--font-weight: 500;
+  --text-p-lg: 1.125rem;
+  --text-p-lg--line-height: 1.33;
+  --text-p-lg--letter-spacing: -0.015em;
+  --text-p-lg--font-weight: 400;
+  --text-p-md: 1rem;
+  --text-p-md--line-height: 1.5;
+  --text-p-md--letter-spacing: -0.011em;
+  --text-p-md--font-weight: 400;
+  --text-p-sm: 0.875rem;
+  --text-p-sm--line-height: 1.5;
+  --text-p-sm--letter-spacing: -0.006em;
+  --text-p-sm--font-weight: 400;
+  --text-p-xs: 0.75rem;
+  --text-p-xs--line-height: 1.33;
+  --text-p-xs--font-weight: 400;
+}
+
+@layer base {
+  /* ADR 0049: from 1900px wide everything, sized in rem, grows with the
+     window, so a 2K or 4K screen doesn't show a small island. */
+  @media (width >= 1900px) {
+    html {
+      font-size: calc(0.7rem + 0.28vw);
+    }
+  }
+  @media (width >= 2150px) {
+    html {
+      font-size: calc(0.7rem + 0.32vw);
+    }
+  }
+  @media (width >= 2300px) {
+    html {
+      font-size: calc(0.7rem + 0.35vw);
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-highlight);
+    outline-offset: 2px;
+  }
+}
+
+/* inline, so the utilities use next/font's variables, set on <html>. */
+@theme inline {
+  --font-sans: var(--font-figtree);
+  --font-display: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}

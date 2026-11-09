@@ -1,9 +1,26 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseFilePipe,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+  UploadedFile,
+} from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { User } from "@readyyet/db";
+import { RedirectDto } from "../billing/dto/redirect.response.dto";
 import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { LocationDto } from "../location/dto/location.response.dto";
+import { ImageUpload } from "../storage/image-upload.decorator";
+import { BusinessOwnerGuard } from "./business-owner.guard";
 import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
@@ -42,6 +59,44 @@ export class BusinessController {
     return this.business.update(businessId, user.id, dto);
   }
 
+  @Put(":businessId/logo")
+  @UseGuards(BusinessOwnerGuard)
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the business's logo, shown for all its locations (owner only, ADR 0051)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  setLogo(
+    @Param("businessId") businessId: string,
+    @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
+  ): Promise<BusinessDto> {
+    return this.business.setLogo(businessId, file.buffer);
+  }
+
+  @Delete(":businessId/logo")
+  @ApiOperation({ summary: "Remove the business's logo (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  removeLogo(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<BusinessDto> {
+    return this.business.removeLogo(businessId, user.id);
+  }
+
+  @Put(":businessId/banner")
+  @UseGuards(BusinessOwnerGuard)
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the business's banner (owner only, ADR 0109)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  setBanner(
+    @Param("businessId") businessId: string,
+    @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
+  ): Promise<BusinessDto> {
+    return this.business.setBanner(businessId, file.buffer);
+  }
+
+  @Delete(":businessId/banner")
+  @ApiOperation({ summary: "Remove the business's banner (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  removeBanner(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<BusinessDto> {
+    return this.business.removeBanner(businessId, user.id);
+  }
+
   @Post(":businessId/locations")
   @ApiOperation({ summary: "Add another location to an existing business (owner only)" })
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
@@ -63,5 +118,13 @@ export class BusinessController {
     @Body() dto: TransferOwnershipDto,
   ): Promise<BusinessDto> {
     return this.business.transferOwnership(businessId, user.id, dto);
+  }
+
+  @Post(":businessId/billing/portal")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Open Stripe's page for the business's cards, invoices and billing details (owner only)" })
+  @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT)
+  billingPortal(@Param("businessId") businessId: string, @CurrentUser() user: User): Promise<RedirectDto> {
+    return this.business.billingPortal(businessId, user.id);
   }
 }

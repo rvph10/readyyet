@@ -9,7 +9,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
-type ListResponse = { items: { id: string; title: string }[]; nextCursor: string | null };
+type ListResponse = { items: { id: string; title: string }[]; total: number };
 
 describe("Ticket search and filters", () => {
   let app: INestApplication;
@@ -65,6 +65,7 @@ describe("Ticket search and filters", () => {
         location: {
           name: "Search Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550111",
           contactEmail: "shop@searchtest.test",
           locale: "EN",
@@ -123,6 +124,25 @@ describe("Ticket search and filters", () => {
 
     const { trackingCode } = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(ids.tires) } });
     expect(await titles({ q: trackingCode })).toEqual(["Tire rotation 100% free"]);
+    const grouped = trackingCode.match(/.{1,4}/g)!.join(" ");
+    expect(await titles({ q: grouped })).toEqual(["Tire rotation 100% free"]);
+  });
+
+  it("sorts by a column in either direction, and keeps a Ticket without a date last", async () => {
+    const titles = async (query: Record<string, string>) =>
+      ((await list({ ...query, take: "100" })).body as ListResponse).items.map(({ title }) => title);
+    const up = await titles({ sort: "title", dir: "asc" });
+    expect(up).toEqual([...up].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" })));
+    expect(await titles({ sort: "title", dir: "desc" })).toEqual([...up].reverse());
+
+    const dated = { where: { id: BigInt(ids.brakes) } };
+    await prisma.ticket.update({ ...dated, data: { estimatedReadyDate: new Date("2099-01-01") } });
+    for (const dir of ["asc", "desc"]) {
+      const { items } = (await list({ sort: "expected", dir, take: "100" })).body as ListResponse;
+      expect(items[0].id).toBe(ids.brakes);
+    }
+    await prisma.ticket.update({ ...dated, data: { estimatedReadyDate: null } });
+    expect((await list({ sort: "price" })).status).toBe(400);
   });
 
   it("treats % and _ in the search as plain characters", async () => {
@@ -131,6 +151,12 @@ describe("Ticket search and filters", () => {
     // Not a bare "_": tracking codes are base64url and can contain one.
     // Unescaped, the _ here would match the space in "Brake pads".
     expect(await titles({ q: "Brake_pads" })).toEqual([]);
+  });
+
+  it("finds a Customer's phone as staff read it, with or without the country code", async () => {
+    for (const q of ["06 11 11 11 11", "0611111111", "+33 6 11 11 11 11", "611.111111"]) {
+      expect(await titles({ q })).toEqual(["Brake pads", "Oil change"]);
+    }
   });
 
   it("does not match an erased customer's placeholder data", async () => {
@@ -178,30 +204,32 @@ describe("Ticket search and filters", () => {
     expect(await titles({ q: "alice", status: "COMPLETED" })).toEqual([]);
   });
 
-  it("pages through every ticket with the cursor, newest first, without duplicates", async () => {
+  it("pages through every ticket by number, newest first, without duplicates", async () => {
     const seen: string[] = [];
-    let cursor: string | null = null;
+    let total: number;
+    let page = 1;
     do {
-      const response = await list({ take: "1", ...(cursor ? { cursor } : {}) });
+      const response = await list({ take: "1", page: String(page) });
       const body = response.body as ListResponse;
       expect(body.items).toHaveLength(1);
       seen.push(body.items[0].id);
-      cursor = body.nextCursor;
-    } while (cursor);
+      total = body.total;
+      page += 1;
+    } while (seen.length < total);
 
     const all = (await list()).body as ListResponse;
     expect(seen).toEqual(all.items.map((item) => item.id));
     expect(seen).toHaveLength(4);
   });
 
-  it("rejects an invalid cursor or filter value", async () => {
+  it("rejects an invalid page or filter value", async () => {
     const invalidQueries: Record<string, string>[] = [
-      { cursor: "garbage" },
+      { page: "garbage" },
+      { page: "0" },
       { state: "closed" },
       { createdFrom: "yesterday" },
       { customerId: "abc" },
       { customerId: "99999999999999999999" },
-      { cursor: Buffer.from("2026-01-01T00:00:00.000Z_99999999999999999999").toString("base64url") },
     ];
     for (const query of invalidQueries) {
       const response = await list(query);

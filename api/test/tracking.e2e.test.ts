@@ -7,10 +7,32 @@ import request from "supertest";
 import { pinoHttpOptions } from "../src/common/logging/pino-http-options";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
+import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const PRIVATE_KEYS = new Set(["id", "customer", "customerId", "changedBy", "createdBy", "description", "deletedAt"]);
+const ADDRESS = {
+  streetAddress: "Rue Neuve 12",
+  postalCode: "1000",
+  addressLocality: "Bruxelles",
+  addressCountry: "BE",
+};
+const OPENING_HOURS = [
+  { dayOfWeek: "Monday", opens: "09:00", closes: "12:30" },
+  { dayOfWeek: "Monday", opens: "13:30", closes: "18:00" },
+  { dayOfWeek: "Saturday", opens: "10:00", closes: "16:00" },
+];
+const PRIVATE_KEYS = new Set([
+  "id",
+  "customer",
+  "customerId",
+  "changedBy",
+  "createdBy",
+  "description",
+  "deletedAt",
+  "uploadedBy",
+  "objectKey",
+]);
 
 function collectKeys(value: unknown, keys = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
@@ -74,9 +96,12 @@ describe("Public tracking", () => {
         location: {
           name: "Tracking Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550199",
           contactEmail: "shop@trackingtest.test",
           locale: "FR",
+          address: ADDRESS,
+          openingHours: OPENING_HOURS,
         },
       });
     locationId = created.body.locations[0].id;
@@ -101,6 +126,11 @@ describe("Public tracking", () => {
       contactPhone: "+12125550199",
       contactEmail: "shop@trackingtest.test",
       logoUrl: null,
+      bannerUrl: null,
+      address: ADDRESS,
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Rue%20Neuve%2012%2C%201000%20Bruxelles%2C%20BE",
+      openingHours: OPENING_HOURS,
+      timeZone: "Europe/Brussels",
     });
     expect(response.body.currentStatus.code).toBe("DIAGNOSING");
     expect(response.body.currentStatus.translations).toContainEqual({ locale: "EN", label: expect.any(String) });
@@ -116,6 +146,11 @@ describe("Public tracking", () => {
   it("exposes no ids, customer data, staff identity, or description", async () => {
     const ticket = await createTicket("Clutch");
     await setStatus(ticket.id, "DIAGNOSING");
+    await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets/${ticket.id}/photos`)
+      .set("Cookie", ownerCookie)
+      .attach("file", await imageFile("jpeg"), "clutch.jpg")
+      .expect(201);
 
     const response = await request(app.getHttpServer()).get(`/tracking/${ticket.trackingCode}`);
 

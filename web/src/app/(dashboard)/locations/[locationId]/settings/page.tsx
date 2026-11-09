@@ -1,0 +1,138 @@
+import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { Suspense, type ReactNode } from "react";
+import { MenuBadge, SheetShell } from "@/components/sheet-shell";
+import type { IconName } from "@/components/ui/icon";
+import { getMe } from "@/lib/me";
+import { getBilling, getLocation, getOverview } from "../location-data";
+import { PageHeader } from "../page-header";
+import { isManager } from "../sections";
+import { DeleteLocation } from "./delete-location";
+import { OpeningHours } from "./opening-hours";
+import { ReviewLink } from "./review-link";
+import { SectionLoading } from "./section-form";
+import { parseSection, SETTINGS_SECTIONS, type SettingsSection } from "./settings-views";
+import { ShopDetails } from "./shop-details";
+import { Turnaround } from "./turnaround";
+import { Reveal } from "@/components/reveal";
+
+const ICONS: Record<SettingsSection, IconName> = {
+  shop: "home",
+  hours: "time",
+  tickets: "tag",
+  reviews: "comment",
+  delete: "info-triangle",
+};
+
+// The heading each section opens with, shown while its fields load.
+const HEADINGS: Record<SettingsSection, [title: string, hint: string, groups: number]> = {
+  shop: ["nav.shop", "shopHint", 3],
+  hours: ["nav.hours", "hoursHint", 2],
+  tickets: ["nav.tickets", "ticketsHint", 1],
+  reviews: ["nav.reviews", "reviewHint", 1],
+  delete: ["deleteTitle", "deleteHint", 1],
+};
+
+// ADR 0100: what a Customer sees of this Location, and how it runs. ADR 0119:
+// the sheet and its menu stand at once, each section's fields wait.
+export default async function SettingsPage({ params, searchParams }: PageProps<"/locations/[locationId]/settings">) {
+  const [{ locationId }, search, me, t, tSettings] = await Promise.all([
+    params,
+    searchParams,
+    getMe(),
+    getTranslations("dashboard"),
+    getTranslations("settings"),
+  ]);
+  const membership = me.memberships.find(({ location }) => location.id === locationId);
+  if (!membership || !isManager(membership.role)) {
+    notFound();
+  }
+  const owner = membership.role === "OWNER";
+  const allowed = SETTINGS_SECTIONS.filter((section) => section !== "delete" || owner);
+  const sections: Record<SettingsSection, ReactNode> = {
+    shop: <ShopSection locationId={locationId} />,
+    hours: <HoursSection locationId={locationId} />,
+    tickets: <TicketsSection locationId={locationId} />,
+    reviews: <ReviewsSection locationId={locationId} />,
+    delete: <DeleteSection locationId={locationId} businessId={membership.location.business.id} />,
+  };
+
+  return (
+    <div className="fit-screen flex flex-col gap-4 lg:gap-5">
+      <PageHeader title={t("sections.settings")} />
+      <SheetShell
+        label={tSettings("navLabel")}
+        start={parseSection(search.section, allowed)}
+        sections={allowed.map((name) => {
+          const [title, hint, groups] = HEADINGS[name];
+          return {
+            name,
+            icon: ICONS[name],
+            label: tSettings(`nav.${name}`),
+            badge:
+              name === "reviews" ? (
+                <Suspense>
+                  <ReviewsOff locationId={locationId} />
+                </Suspense>
+              ) : undefined,
+            danger: name === "delete",
+            content: (
+              <Reveal fallback={<SectionLoading title={tSettings(title)} hint={tSettings(hint)} groups={groups} />}>
+                {sections[name]}
+              </Reveal>
+            ),
+          };
+        })}
+      />
+    </div>
+  );
+}
+
+// Said in the menu while Customers aren't being asked.
+async function ReviewsOff({ locationId }: { locationId: string }) {
+  const [location, billing, t] = await Promise.all([
+    getLocation(locationId),
+    getBilling(locationId),
+    getTranslations("settings"),
+  ]);
+  const hasPro = billing.plan === "PRO" && !billing.frozen;
+  return hasPro && !location.googleReviewUrl ? <MenuBadge>{t("off")}</MenuBadge> : null;
+}
+
+async function ShopSection({ locationId }: { locationId: string }) {
+  return <ShopDetails location={await getLocation(locationId)} />;
+}
+
+async function HoursSection({ locationId }: { locationId: string }) {
+  const location = await getLocation(locationId);
+  return <OpeningHours locationId={locationId} hours={location.openingHours} timeZone={location.timeZone} />;
+}
+
+async function TicketsSection({ locationId }: { locationId: string }) {
+  const location = await getLocation(locationId);
+  return (
+    <Turnaround
+      locationId={locationId}
+      days={location.turnaroundDays}
+      openingHours={location.openingHours}
+      timeZone={location.timeZone}
+    />
+  );
+}
+
+async function ReviewsSection({ locationId }: { locationId: string }) {
+  const [location, billing] = await Promise.all([getLocation(locationId), getBilling(locationId)]);
+  return <ReviewLink location={location} hasPro={billing.plan === "PRO" && !billing.frozen} />;
+}
+
+async function DeleteSection({ locationId, businessId }: { locationId: string; businessId: string }) {
+  const [location, overview] = await Promise.all([getLocation(locationId), getOverview(locationId)]);
+  return (
+    <DeleteLocation
+      locationId={locationId}
+      businessId={businessId}
+      name={location.name}
+      openTickets={overview.counts.open}
+    />
+  );
+}

@@ -24,3 +24,18 @@ export function isEndedStatus(statusCode: string): boolean {
 export function isNotifyingStatus(statusCode: string): statusCode is NotifyingStatusCode {
   return (NOTIFYING_STATUS_CODES as readonly string[]).includes(statusCode);
 }
+
+// Waiting to be collected this long needs a person: the last reminder goes at
+// this point (ADR 0028).
+export const LONG_WAIT_DAYS = 10;
+
+// A ticket's estimated ready date is shown until it reaches READY or ends
+// (ADR 0030), after that it says nothing the Status doesn't.
+export function showsEstimatedReadyDate(statusCode: string): boolean {
+  return statusCode !== "READY" && !isEndedStatus(statusCode);
+}
+
+// How long the latest status change can be undone (ADR 0016). Customer
+// status emails wait exactly as long before sending (ADR 0015), so an
+// undone change never reaches the customer.
+export const STATUS_UNDO_WINDOW_MS = 2 * 60 * 1000;

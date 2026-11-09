@@ -14,6 +14,7 @@ export class MemberUserDto {
   id!: string;
   email!: string;
   name!: string;
+  avatarUrl!: string | null;
 }
 
 export class MemberDto extends MembershipDto {

@@ -1,13 +1,28 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { isNotifyingStatus } from "@readyyet/shared";
+import * as Sentry from "@sentry/nestjs";
+import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
+import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
+import { GIVE_UP_AFTER_MS } from "../email/email-status";
 import { EmailService } from "../email/email.service";
-import { isTrackingLinkExpired, oneClickStopUrl, stopUpdatesUrl, trackingUrl } from "../tracking/tracking-link";
-import { buildCustomerEmail } from "./customer-email/customer-email";
+import { asksForFeedback } from "../feedback/asks-for-feedback";
+import { toPostalAddress } from "../location/location-info";
+import { publicImageUrl } from "../storage/image";
+import {
+  collectedUrl,
+  ratingUrl,
+  isTrackingLinkExpired,
+  oneClickStopUrl,
+  stopUpdatesUrl,
+  trackingUrl,
+} from "../tracking/tracking-link";
+import { readyDateEvent } from "./customer-email/calendar-event";
+import { buildCustomerEmail, calendarTitle } from "./customer-email/customer-email";
 import type { CustomerEmailKind } from "./customer-email/messages";
+import { isReminderHour, nextReadyReminderAt } from "./ready-reminders";
 
 // How long a sweep holds a due email it's sending before another sweep
 // may retry it, far longer than a send takes, retries included.
@@ -26,17 +41,74 @@ function canEmail<C extends { email: string | null; emailBouncedAt: Date | null;
 // Customer emails, see docs/decisions/0015-customer-emails.md.
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
   ) {}
 
-  // Sent when a ticket is created, a Customer without an email address
-  // gets nothing (they have the QR code instead, ADR 0004).
-  async sendTicketCreated(ticketId: bigint) {
+  // Due from the moment the Ticket exists (ADR 0081). Often enough that the
+  // Customer has it before leaving the counter.
+  @Cron(CronExpression.EVERY_5_SECONDS, { name: "ticket-created-emails" })
+  async sendDueTicketCreatedEmails() {
+    const due = await this.prisma.ticket.findMany({
+      where: { trackingEmailDueAt: { lte: new Date() } },
+      orderBy: { trackingEmailDueAt: "asc" },
+      select: { id: true, trackingEmailDueAt: true, createdAt: true },
+    });
+
+    for (const { id, trackingEmailDueAt, createdAt } of due) {
+      // One Ticket's problem mustn't hold up the others. Its lease expires and
+      // it's tried again, until the email would be out of date.
+      try {
+        // Claimed like the status emails below: a concurrent sweep skips it, and
+        // if this process dies the lease expires and it's tried again.
+        const { count } = await this.prisma.ticket.updateMany({
+          where: { id, trackingEmailDueAt },
+          data: { trackingEmailDueAt: new Date(Date.now() + CLAIM_LEASE_MS) },
+        });
+        if (count === 0) {
+          continue;
+        }
+        if (Date.now() - createdAt.getTime() > GIVE_UP_AFTER_MS) {
+          Sentry.captureMessage(`Gave up on the ticket-created email of Ticket ${id}`, { level: "error" });
+        } else {
+          await this.sendTicketCreated(id);
+        }
+        await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
+      } catch (error) {
+        this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
+        Sentry.captureException(error);
+      }
+    }
+  }
+
+  // Sentry's monitors can't take a check-in every 5 seconds, so a sweep of its own
+  // reports for the one above. Tickets are claimed, so the two can't send twice.
+  @Cron(CronExpression.EVERY_MINUTE, { name: "ticket-created-emails-monitored" })
+  @CronMonitor("ticket-created-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
+  monitoredTicketCreatedSweep() {
+    return this.sendDueTicketCreatedEmails();
+  }
+
+  // A Customer without an email address receives nothing, the QR code at
+  // drop-off covers them (ADR 0015). The key keeps a retry of this sweep, after
+  // a crash at the wrong moment, from being a second email.
+  private async sendTicketCreated(ticketId: bigint) {
     const ticket = await this.loadTicket(ticketId);
-    if (canEmail(ticket.customer)) {
-      await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    if (canEmail(ticket.customer) && !ticket.location.deletedAt) {
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        "TICKET_CREATED",
+        "ticket_tracking_link",
+        `ticket-created:${ticketId}`,
+      );
     }
   }
 
@@ -98,16 +170,147 @@ export class NotificationService {
     // where the ticket stands now (that change queued its own email if
     // it needs one).
     const stillCurrent = ticket.statusEvents[0].id === event.id;
+    if (!stillCurrent || ticket.notificationsStoppedAt || !canEmail(ticket.customer) || ticket.location.deletedAt) {
+      return;
+    }
+    if (event.status.code === "COMPLETED") {
+      await this.sendFeedbackRequest(ticket, ticket.customer.email);
+    } else if (isNotifyingStatus(event.status.code)) {
+      await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+    }
+  }
+
+  // ADR 0039: decided when due, with the Location's plan and link then.
+  // Claimed first, a Ticket completed again never gets a second one.
+  private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
+    if (!asksForFeedback(ticket.location)) {
+      return;
+    }
+    const { count } = await this.prisma.ticket.updateMany({
+      where: { id: ticket.id, feedbackEmailSentAt: null },
+      data: { feedbackEmailSentAt: new Date() },
+    });
+    if (count > 0) {
+      await this.sendCustomerEmail(ticket, to, "FEEDBACK_REQUEST", "ticket_feedback_request");
+    }
+  }
+
+  // Queued by TicketService.update when the estimated ready date moves past
+  // the last one the Customer was told (ADR 0030).
+  @Cron(CronExpression.EVERY_30_SECONDS, { name: "customer-ready-date-emails" })
+  @CronMonitor("customer-ready-date-emails", {
+    schedule: { type: "interval", value: 1, unit: "minute" },
+    checkinMargin: 1,
+    maxRuntime: 5,
+  })
+  async sendDueReadyDateEmails() {
+    const due = await this.prisma.ticket.findMany({
+      where: { readyDateEmailDueAt: { lte: new Date() } },
+      orderBy: { readyDateEmailDueAt: "asc" },
+      select: { id: true, readyDateEmailDueAt: true },
+    });
+
+    for (const { id, readyDateEmailDueAt } of due) {
+      // Claimed the same way as status emails, see sendDueStatusEmails.
+      const lease = new Date(Date.now() + CLAIM_LEASE_MS);
+      const { count } = await this.prisma.ticket.updateMany({
+        where: { id, readyDateEmailDueAt },
+        data: { readyDateEmailDueAt: lease },
+      });
+      if (count === 0) {
+        continue;
+      }
+      await this.sendReadyDateEmail(id);
+      // A date changed during the send queued its own email, left as is.
+      await this.prisma.ticket.updateMany({
+        where: { id, readyDateEmailDueAt: lease },
+        data: { readyDateEmailDueAt: null },
+      });
+    }
+  }
+
+  private async sendReadyDateEmail(ticketId: bigint) {
+    const ticket = await this.loadTicket(ticketId);
+    const date = toCalendarDate(ticket.estimatedReadyDate);
+    const told = toCalendarDate(ticket.customerToldReadyDate);
+    // Moved back within the delay, or overtaken by the ticket reaching READY.
     if (
-      !stillCurrent ||
+      !date ||
+      !told ||
+      date <= told ||
+      !showsEstimatedReadyDate(ticket.currentStatus.code) ||
       ticket.notificationsStoppedAt ||
       !canEmail(ticket.customer) ||
-      ticket.location.deletedAt ||
-      !isNotifyingStatus(event.status.code)
+      ticket.location.deletedAt
     ) {
       return;
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+    await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_DATE_CHANGED", "ticket_ready_date_changed");
+  }
+
+  // Reminders for items still waiting at READY (ADR 0028, ADR 0037).
+  // Every 15 minutes is precise enough for a reminder counted in days.
+  @Cron("0 */15 * * * *", { name: "customer-ready-reminders" })
+  @CronMonitor("customer-ready-reminders", {
+    schedule: { type: "crontab", value: "*/15 * * * *" },
+    checkinMargin: 5,
+    maxRuntime: 10,
+  })
+  async sendDueReadyReminders() {
+    const now = new Date();
+    const due = await this.prisma.ticket.findMany({
+      where: {
+        nextReadyReminderAt: { lte: now },
+        currentStatus: { code: "READY" },
+        customerCollectedAt: null,
+        notificationsStoppedAt: null,
+        location: { deletedAt: null },
+      },
+      orderBy: { nextReadyReminderAt: "asc" },
+      select: { id: true, nextReadyReminderAt: true, location: { select: { timeZone: true } } },
+    });
+
+    for (const { id, nextReadyReminderAt: dueAt, location } of due) {
+      // Due at night, it stays due and leaves with the first sweep after 9:00.
+      if (!isReminderHour(now, location.timeZone)) {
+        continue;
+      }
+      // Claimed the same way as status emails, see sendDueStatusEmails.
+      const lease = new Date(Date.now() + CLAIM_LEASE_MS);
+      const { count } = await this.prisma.ticket.updateMany({
+        where: { id, nextReadyReminderAt: dueAt },
+        data: { nextReadyReminderAt: lease },
+      });
+      if (count === 0) {
+        continue;
+      }
+
+      const ticket = await this.loadTicket(id);
+      // Changed since the query: handed back as it was, a later READY or a
+      // dismissed mark decides what happens next.
+      if (ticket.currentStatus.code !== "READY" || ticket.customerCollectedAt || ticket.notificationsStoppedAt) {
+        await this.prisma.ticket.updateMany({
+          where: { id, nextReadyReminderAt: lease },
+          data: { nextReadyReminderAt: dueAt },
+        });
+        continue;
+      }
+      if (canEmail(ticket.customer)) {
+        await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_REMINDER", "ticket_ready_reminder");
+      }
+      // Counted even when there was no one to email, so the next one is
+      // scheduled rather than retried every sweep. A READY reached during
+      // the send rescheduled it already, and wins.
+      const sent = ticket.readyRemindersSent + 1;
+      await this.prisma.ticket.updateMany({
+        where: { id, nextReadyReminderAt: lease },
+        data: {
+          readyRemindersSent: sent,
+          // The latest event is the one that set READY, the sweep only takes READY tickets.
+          nextReadyReminderAt: nextReadyReminderAt(ticket.statusEvents[0].createdAt, sent),
+        },
+      });
+    }
   }
 
   private loadTicket(ticketId: bigint) {
@@ -116,29 +319,64 @@ export class NotificationService {
       include: {
         customer: true,
         currentStatus: true,
-        location: { include: { businessType: true } },
+        location: { include: { businessType: true, subscription: true, business: { select: { logoKey: true } } } },
         // The latest event only: when the ticket reached its current status.
         statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1 },
       },
     });
   }
 
-  private async sendCustomerEmail(ticket: LoadedTicket, to: string, kind: CustomerEmailKind, type: string) {
+  // ADR 0125: the shop's answer to what the Customer wrote, sent like their
+  // other emails so a reply to it reaches the shop.
+  async sendFeedbackReply(ticketId: bigint, reply: string) {
+    const ticket = await this.loadTicket(ticketId);
+    if (!canEmail(ticket.customer)) {
+      throw new ConflictError("This customer can't be emailed");
+    }
+    await this.sendCustomerEmail(ticket, ticket.customer.email, "FEEDBACK_REPLY", "feedback_reply", undefined, reply);
+  }
+
+  private async sendCustomerEmail(
+    ticket: LoadedTicket,
+    to: string,
+    kind: CustomerEmailKind,
+    type: string,
+    dedupeKey?: string,
+    reply?: string,
+  ) {
+    const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
+      ? toCalendarDate(ticket.estimatedReadyDate)
+      : null;
+    const locale = ticket.customer.locale ?? ticket.location.locale;
+    const address = toPostalAddress(ticket.location);
+    // The emails that state the date carry it as a calendar event too.
+    const statesDate = estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED");
     const { subject, react } = buildCustomerEmail({
       kind,
-      locale: ticket.customer.locale ?? ticket.location.locale,
+      locale,
       businessTypeCode: ticket.location.businessType.code,
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
-      location: ticket.location,
+      estimatedReadyDate,
+      location: {
+        ...ticket.location,
+        address,
+        logoUrl: publicImageUrl(ticket.location.business.logoKey),
+      },
       trackingUrl: trackingUrl(ticket.trackingCode),
+      collectedUrl: collectedUrl(ticket.trackingCode),
+      ratingUrl: ratingUrl(ticket.trackingCode),
+      asksForFeedback: asksForFeedback(ticket.location),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
+      reply,
     });
     await this.email.send({
       to,
       subject,
       react,
       type,
+      ticketId: ticket.id,
+      dedupeKey,
       fromName: `${ticket.location.name} via ReadyYet`,
       replyTo: ticket.location.contactEmail,
       // Lets mail clients show their own unsubscribe button, which then
@@ -147,6 +385,26 @@ export class NotificationService {
         "List-Unsubscribe": `<${oneClickStopUrl(ticket.trackingCode)}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
+      ...(statesDate && {
+        attachments: [
+          readyDateEvent({
+            trackingCode: ticket.trackingCode,
+            date: estimatedReadyDate,
+            title: calendarTitle(locale, ticket.location.businessType.code, ticket.location.name),
+            location: ticket.location.name,
+            address: address && `${address.streetAddress}, ${address.postalCode} ${address.addressLocality}`,
+            trackingUrl: trackingUrl(ticket.trackingCode),
+          }),
+        ],
+      }),
     });
+    // What a later date is compared to. Only the emails that state the date
+    // tell it, a status email doesn't.
+    if (statesDate) {
+      await this.prisma.ticket.update({
+        where: { id: ticket.id },
+        data: { customerToldReadyDate: ticket.estimatedReadyDate },
+      });
+    }
   }
 }

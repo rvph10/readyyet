@@ -1,4 +1,4 @@
-import { buildMessage, ValidateBy } from "class-validator";
+import { buildMessage, ValidateBy, type ValidationOptions } from "class-validator";
 import { NotFoundError } from "./errors/app-error";
 
 // Postgres bigint's maximum: a larger id would reach Prisma and fail there
@@ -19,12 +19,15 @@ export function parseBigIntId(value: string, resourceName: string): bigint {
 }
 
 // The same check for an id sent in a body or query string.
-export function IsBigIntId() {
-  return ValidateBy({
-    name: "isBigIntId",
-    validator: {
-      validate: (value) => typeof value === "string" && isBigIntId(value),
-      defaultMessage: buildMessage((eachPrefix) => `${eachPrefix}$property must be a numeric id`),
+export function IsBigIntId(options?: ValidationOptions) {
+  return ValidateBy(
+    {
+      name: "isBigIntId",
+      validator: {
+        validate: (value) => typeof value === "string" && isBigIntId(value),
+        defaultMessage: buildMessage((eachPrefix) => `${eachPrefix}$property must be a numeric id`),
+      },
     },
-  });
+    options,
+  );
 }

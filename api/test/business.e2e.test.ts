@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
@@ -28,6 +28,7 @@ describe("POST /businesses", () => {
     location: {
       name: "Downtown",
       businessTypeCode: "GARAGE",
+      timeZone: "Europe/Brussels",
       contactPhone: "+12125550123",
       contactEmail: "downtown@joesgarage.test",
       locale: "EN",
@@ -44,6 +45,75 @@ describe("POST /businesses", () => {
     expect(response.body.name).toBe("Joe's Garage");
     expect(response.body.locations).toHaveLength(1);
     expect(response.body.locations[0].name).toBe("Downtown");
+  });
+
+  it("starts an Owner's first Business on a 14-day Pro trial, and a later one unpaid", async () => {
+    const cookie = await signInViaOtp(app, app.get(PrismaService), `delivered+trial-${Date.now()}@resend.dev`);
+    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    const response = await create();
+
+    const subscription = await app
+      .get(PrismaService)
+      .subscription.findUniqueOrThrow({ where: { locationId: response.body.locations[0].id } });
+    expect(subscription).toMatchObject({ status: "TRIAL", plan: "PRO", stripeSubscriptionId: null });
+    const days = (subscription.trialEndsAt!.getTime() - Date.now()) / (24 * 60 * 60 * 1000);
+    expect(days).toBeCloseTo(14, 1);
+
+    const later = await create();
+    expect(later.status).toBe(201);
+    await expect(
+      app.get(PrismaService).subscription.findUniqueOrThrow({ where: { locationId: later.body.locations[0].id } }),
+    ).resolves.toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
+  });
+
+  it("welcomes an Owner by email with their first Business only (ADR 0127)", async () => {
+    const prisma = app.get(PrismaService);
+    const email = `delivered+welcome-${Date.now()}@resend.dev`;
+    const cookie = await signInViaOtp(app, prisma, email);
+    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    await create();
+    await create();
+
+    const welcomes = () => prisma.emailLog.findMany({ where: { to: email, type: "welcome" } });
+    await vi.waitFor(async () => expect(await welcomes()).toHaveLength(1), { timeout: 10_000, interval: 200 });
+    const [welcome] = await welcomes();
+    expect(welcome.subject).toBe("Welcome to ReadyYet, Downtown is ready");
+    expect(welcome.text).toContain("14 days free");
+  });
+
+  it("keeps what an OTHER location does, in the owner's words", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({
+        ...validPayload,
+        location: { ...validPayload.location, businessTypeCode: "OTHER", businessTypeDetail: "Scooter repair" },
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.locations[0]).toMatchObject({
+      businessTypeCode: "OTHER",
+      businessTypeDetail: "Scooter repair",
+    });
+  });
+
+  it("leaves the detail empty when none is given", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send(validPayload);
+
+    expect(response.body.locations[0].businessTypeDetail).toBeNull();
+  });
+
+  it("refuses a detail with any type but OTHER", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: { ...validPayload.location, businessTypeDetail: "Scooter repair" } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("rejects an unknown business type code", async () => {
@@ -64,6 +134,16 @@ describe("POST /businesses", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("rejects a location without a time zone", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", sessionCookie)
+      .send({ ...validPayload, location: { ...validPayload.location, timeZone: undefined } });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.details[0].property).toBe("location.timeZone");
   });
 
   it("rejects the request without a session", async () => {
@@ -127,6 +207,7 @@ describe("POST /businesses/:businessId/locations", () => {
         location: {
           name: "First Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550123",
           contactEmail: "first@multiloc.test",
           locale: "EN",
@@ -153,6 +234,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Second Shop",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550199",
         contactEmail: "second@multiloc.test",
         locale: "EN",
@@ -165,6 +247,23 @@ describe("POST /businesses/:businessId/locations", () => {
     expect(me.body.memberships.filter((m: { role: string }) => m.role === "OWNER")).toHaveLength(2);
   });
 
+  it("starts a later location without a trial, it has to be paid for", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send({
+        name: "Third Shop",
+        businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
+        contactPhone: "+12125550188",
+        contactEmail: "third@multiloc.test",
+        locale: "EN",
+      });
+
+    const subscription = await prisma.subscription.findUniqueOrThrow({ where: { locationId: response.body.id } });
+    expect(subscription).toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
+  });
+
   it("rejects a non-owner, even an admin at an existing location under that business", async () => {
     const response = await request(app.getHttpServer())
       .post(`/businesses/${businessId}/locations`)
@@ -172,6 +271,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Should not work",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550100",
         contactEmail: "no@multiloc.test",
         locale: "EN",
@@ -188,6 +288,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Third Shop",
         businessTypeCode: "NOT_REAL",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550101",
         contactEmail: "third@multiloc.test",
         locale: "EN",
@@ -203,6 +304,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .send({
         name: "Nowhere",
         businessTypeCode: "GARAGE",
+        timeZone: "Europe/Brussels",
         contactPhone: "+12125550102",
         contactEmail: "nowhere@multiloc.test",
         locale: "EN",
@@ -223,6 +325,7 @@ describe("GET and PATCH /businesses/:businessId", () => {
   const location = (name: string) => ({
     name,
     businessTypeCode: "GARAGE",
+    timeZone: "Europe/Brussels",
     contactPhone: "+12125550123",
     contactEmail: "shop@readrename.test",
     locale: "EN",

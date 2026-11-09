@@ -69,6 +69,7 @@ describe("Ticket status change rules", () => {
         location: {
           name: "Rules Shop",
           businessTypeCode: "GARAGE",
+          timeZone: "Europe/Brussels",
           contactPhone: "+12125550133",
           contactEmail: "shop@rulestest.test",
           locale: "EN",

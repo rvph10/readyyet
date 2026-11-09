@@ -1,7 +1,9 @@
-import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from "react-email";
+import { Link, Text } from "react-email";
 import type { Locale } from "@readyyet/db";
+import type { CalendarDate } from "@readyyet/shared";
 import type { ReactElement } from "react";
-import { styles } from "../email-styles";
+import { mapsUrl, type PostalAddress } from "../../location/location-info";
+import { colors, Cta, Details, Headline, KeyCard, KeyValue, Layout, oneLine, Paragraph, text } from "../email-kit";
 import { type CustomerEmailKind, jobNoun, MESSAGES } from "./messages";
 
 export interface CustomerEmailInput {
@@ -11,59 +13,156 @@ export interface CustomerEmailInput {
   businessTypeCode: string;
   customerName: string;
   ticketTitle: string;
-  location: { name: string; contactPhone: string; contactEmail: string };
+  // Shown in the ticket-created email when set, the subject of a
+  // READY_DATE_CHANGED one.
+  estimatedReadyDate: CalendarDate | null;
+  location: {
+    name: string;
+    contactPhone: string;
+    contactEmail: string;
+    address: PostalAddress | null;
+    logoUrl: string | null;
+  };
   trackingUrl: string;
+  // Only shown in a READY_REMINDER, to the page asking the Customer to confirm.
+  collectedUrl: string;
+  // Only in a FEEDBACK_REQUEST: each star links here with ?stars=. Opening it
+  // records nothing, as a mail scanner opens them all, and 5 stars goes
+  // straight on to Google (ADR 0076).
+  ratingUrl: string;
+  // The Location sends a FEEDBACK_REQUEST after COMPLETED (ADR 0039).
+  asksForFeedback: boolean;
+  // Only in a FEEDBACK_REPLY: what the shop wrote back.
+  reply?: string;
   stopUpdatesUrl: string;
+}
+
+const DATE_LOCALES: Record<Locale, string> = { EN: "en-GB", FR: "fr-BE" };
+
+// A date with no time: formatted in UTC, the zone it's parsed in, so no
+// offset can move it to the day before.
+function formatReadyDate(date: CalendarDate | null, locale: Locale) {
+  return date
+    ? new Intl.DateTimeFormat(DATE_LOCALES[locale], {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "UTC",
+      }).format(new Date(date))
+    : "";
+}
+
+function messageParams(input: CustomerEmailInput) {
+  return {
+    location: input.location.name,
+    title: input.ticketTitle,
+    job: jobNoun(input.locale, input.businessTypeCode),
+    readyDate: formatReadyDate(input.estimatedReadyDate, input.locale),
+  };
 }
 
 function CustomerEmail({ input }: { input: CustomerEmailInput }) {
   const messages = MESSAGES[input.locale];
-  const job = jobNoun(input.locale, input.businessTypeCode);
-  const params = { location: input.location.name, title: input.ticketTitle, job };
-  const body = messages.kinds[input.kind].body(params);
+  const params = messageParams(input);
+  const { job } = params;
+  const kind = messages.kinds[input.kind];
+  const body = kind.body(params);
+  const { address } = input.location;
+  const showsDate =
+    (input.kind === "TICKET_CREATED" || input.kind === "READY_DATE_CHANGED") && input.estimatedReadyDate;
 
   return (
-    <Html lang={input.locale.toLowerCase()}>
-      <Head />
-      <Preview>{body}</Preview>
-      {/* Body sets its own lang, English unless told otherwise. */}
-      <Body lang={input.locale.toLowerCase()} style={styles.body}>
-        <Container style={styles.container}>
-          <Heading as="h1" style={styles.heading}>
-            {input.location.name}
-          </Heading>
-          <Text style={styles.text}>{messages.greeting(input.customerName)}</Text>
-          <Text style={styles.text}>{body}</Text>
-          <Section style={{ margin: "24px 0" }}>
-            <Button href={input.trackingUrl} style={styles.button}>
-              {messages.trackButton(job)}
-            </Button>
-          </Section>
-          <Hr />
-          <Text style={styles.contact}>{messages.contact(input.location.name)}</Text>
-          <Text style={styles.contact}>
-            <Link href={`tel:${input.location.contactPhone}`}>{input.location.contactPhone}</Link>
-            {" · "}
-            <Link href={`mailto:${input.location.contactEmail}`}>{input.location.contactEmail}</Link>
-          </Text>
-          <Hr />
-          <Text style={styles.footer}>
-            {messages.footer({ location: input.location.name, job })}{" "}
-            <Link href={input.stopUpdatesUrl}>{messages.stopUpdates(job)}</Link>
-          </Text>
-        </Container>
-      </Body>
-    </Html>
+    <Layout
+      locale={input.locale}
+      preview={body}
+      sender={{ kind: "shop", name: input.location.name, logoUrl: input.location.logoUrl }}
+      footer={
+        <>
+          {messages.footer({ location: input.location.name, job })}{" "}
+          <Link href={input.stopUpdatesUrl} style={{ color: colors.muted, textDecoration: "underline" }}>
+            {messages.stopUpdates(job)}
+          </Link>
+        </>
+      }
+    >
+      <Headline>{kind.subject(params)}</Headline>
+      <Paragraph>{messages.greeting(input.customerName)}</Paragraph>
+      <Paragraph>{body}</Paragraph>
+      <KeyCard label={kind.status(params)}>
+        {input.kind === "FEEDBACK_REQUEST" ? (
+          <>
+            <Text style={{ fontSize: "40px", lineHeight: "48px", margin: "0 0 4px" }}>
+              {[1, 2, 3, 4, 5].map((stars) => (
+                <Link
+                  key={stars}
+                  href={`${input.ratingUrl}?stars=${stars}`}
+                  title={messages.starLabel(stars)}
+                  aria-label={messages.starLabel(stars)}
+                  style={{ color: colors.brand, padding: "0 4px", textDecoration: "none" }}
+                >
+                  ★
+                </Link>
+              ))}
+            </Text>
+            <Text style={{ ...text, color: colors.surface, fontSize: "14px", lineHeight: "20px", margin: 0 }}>
+              {messages.starsHint}
+            </Text>
+          </>
+        ) : input.kind === "FEEDBACK_REPLY" ? (
+          <KeyValue prose>{input.reply}</KeyValue>
+        ) : (
+          <KeyValue detail={showsDate ? messages.readyBy(params) : undefined}>{input.ticketTitle}</KeyValue>
+        )}
+      </KeyCard>
+      {input.kind === "TICKET_CREATED" && input.asksForFeedback && (
+        <Paragraph muted>{messages.feedbackNotice}</Paragraph>
+      )}
+      {input.kind === "FEEDBACK_REPLY" ? (
+        <Paragraph>{messages.replyHint(input.location.name)}</Paragraph>
+      ) : (
+        input.kind !== "FEEDBACK_REQUEST" && <Cta href={input.trackingUrl}>{messages.trackButton(job)}</Cta>
+      )}
+      {input.kind === "READY_REMINDER" && (
+        <Paragraph>
+          <Link href={input.collectedUrl} style={{ color: colors.ink, fontWeight: 700, textDecoration: "underline" }}>
+            {messages.alreadyCollected(job)}
+          </Link>
+        </Paragraph>
+      )}
+      <Details
+        title={messages.contact(input.location.name)}
+        rows={[
+          {
+            label: messages.contactLabels.phone,
+            value: input.location.contactPhone,
+            href: `tel:${input.location.contactPhone}`,
+          },
+          {
+            label: messages.contactLabels.email,
+            value: input.location.contactEmail,
+            href: `mailto:${input.location.contactEmail}`,
+          },
+          ...(address
+            ? [
+                {
+                  label: messages.contactLabels.address,
+                  value: `${address.streetAddress}, ${address.postalCode} ${address.addressLocality}`,
+                  href: mapsUrl(address),
+                },
+              ]
+            : []),
+        ]}
+      />
+    </Layout>
   );
 }
 
+// The calendar event's name, in the Customer's language (ADR 0127).
+export function calendarTitle(locale: Locale, businessTypeCode: string, location: string) {
+  return MESSAGES[locale].calendarTitle({ location, job: jobNoun(locale, businessTypeCode) });
+}
+
 export function buildCustomerEmail(input: CustomerEmailInput): { subject: string; react: ReactElement } {
-  const subject = MESSAGES[input.locale].kinds[input.kind].subject({
-    location: input.location.name,
-    title: input.ticketTitle,
-    job: jobNoun(input.locale, input.businessTypeCode),
-  });
-  // A subject is a single header line, a line break in a Location's name
-  // must not become a second header.
-  return { subject: subject.replace(/\s+/g, " ").trim(), react: <CustomerEmail input={input} /> };
+  const subject = MESSAGES[input.locale].kinds[input.kind].subject(messageParams(input));
+  return { subject: oneLine(subject), react: <CustomerEmail input={input} /> };
 }

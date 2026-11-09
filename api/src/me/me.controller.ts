@@ -1,10 +1,23 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  ParseFilePipe,
+  Patch,
+  Put,
+  UploadedFile,
+} from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import type { User } from "@readyyet/db";
 import { Session } from "@thallesp/nestjs-better-auth";
 import type { UserSession } from "@thallesp/nestjs-better-auth";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { ImageUpload } from "../storage/image-upload.decorator";
 import { MeDto, MeWithMembershipsDto } from "./dto/me.response.dto";
 import { UpdateMeDto } from "./dto/update-me.dto";
 import { MeService } from "./me.service";
@@ -17,10 +30,16 @@ export class MeController {
   constructor(private readonly me: MeService) {}
 
   @Get()
+  // Asked on every load and prefetch of a dashboard page, so the same room as
+  // the Ticket list, which this would otherwise limit.
+  @Throttle({ default: { limit: 240, ttl: 60_000 } })
   @ApiOperation({ summary: "Get the current user and their location memberships (for onboarding routing)" })
   async get(@CurrentUser() user: User): Promise<MeWithMembershipsDto> {
-    const memberships = await this.me.getMemberships(user.id);
-    return { id: user.id, email: user.email, name: user.name, locale: user.locale, memberships };
+    const [memberships, ownedBusinessIds] = await Promise.all([
+      this.me.getMemberships(user.id),
+      this.me.getOwnedBusinessIds(user.id),
+    ]);
+    return { ...this.me.toMe(user), ownedBusinessIds, memberships };
   }
 
   @Patch()
@@ -28,6 +47,19 @@ export class MeController {
   @ApiErrors(HttpStatus.BAD_REQUEST)
   update(@CurrentUser() user: User, @Body() dto: UpdateMeDto): Promise<MeDto> {
     return this.me.update(user.id, dto);
+  }
+
+  @Put("avatar")
+  @ImageUpload()
+  @ApiOperation({ summary: "Upload the current user's avatar, replacing any previous one (ADR 0026)" })
+  setAvatar(@CurrentUser() user: User, @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer }): Promise<MeDto> {
+    return this.me.setAvatar(user.id, file.buffer);
+  }
+
+  @Delete("avatar")
+  @ApiOperation({ summary: "Remove the current user's avatar" })
+  removeAvatar(@CurrentUser() user: User): Promise<MeDto> {
+    return this.me.removeAvatar(user.id);
   }
 
   @Delete()

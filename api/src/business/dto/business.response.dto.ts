@@ -4,6 +4,12 @@ export class BusinessDto {
   id!: string;
   name!: string;
   ownerId!: string;
+  // The Owner's sponsor link is built from it (ADR 0032).
+  referralCode!: string;
+  // Shown for every Location of the Business (ADR 0051).
+  logoUrl!: string | null;
+  // ADR 0109: on the Business's pages and every tracking page.
+  bannerUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
 }

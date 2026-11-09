@@ -4,6 +4,7 @@ import { Test } from "@nestjs/testing";
 import { AppModule } from "../../src/app.module";
 import { applyHttpMiddleware } from "../../src/common/http-middleware";
 import { checkResponsesAgainstSpec } from "./openapi-contract";
+import { PrismaService } from "../../src/database/prisma.service";
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -16,5 +17,10 @@ export async function createTestApp(): Promise<INestApplication> {
   for (const job of app.get(SchedulerRegistry).getCronJobs().values()) {
     await job.stop();
   }
+  // Left by other test files. A file's own sweep shouldn't send them for it.
+  await app.get(PrismaService).ticket.updateMany({
+    where: { trackingEmailDueAt: { not: null } },
+    data: { trackingEmailDueAt: null },
+  });
   return app;
 }

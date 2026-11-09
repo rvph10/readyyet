@@ -7,7 +7,9 @@ import { AuthModule } from "@thallesp/nestjs-better-auth";
 import type { Request } from "express";
 import { LoggerModule } from "nestjs-pino";
 import { pinoHttpOptions } from "./common/logging/pino-http-options";
+import { AdminModule } from "./admin/admin.module";
 import { auth } from "./auth/auth";
+import { BillingModule } from "./billing/billing.module";
 import { BusinessModule } from "./business/business.module";
 import { CatalogueModule } from "./catalogue/catalogue.module";
 import { AppExceptionFilter } from "./common/filters/app-exception.filter";
@@ -16,11 +18,14 @@ import { createAppValidationPipe } from "./common/pipes/app-validation.pipe";
 import { validateEnv } from "./config/env";
 import { CustomerModule } from "./customer/customer.module";
 import { EmailModule } from "./email/email.module";
+import { FeedbackModule } from "./feedback/feedback.module";
 import { HealthModule } from "./health/health.module";
+import { InsightsModule } from "./insights/insights.module";
 import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
 import { MembershipModule } from "./membership/membership.module";
+import { StorageModule } from "./storage/storage.module";
 import { TicketModule } from "./ticket/ticket.module";
 import { TrackingModule } from "./tracking/tracking.module";
 import { WorkflowModule } from "./workflow/workflow.module";
@@ -53,12 +58,17 @@ import { WorkflowModule } from "./workflow/workflow.module";
     MeModule,
     WorkflowModule,
     TicketModule,
+    InsightsModule,
     CustomerModule,
     EmailModule,
     InvitationModule,
     MembershipModule,
     TrackingModule,
     CatalogueModule,
+    BillingModule,
+    StorageModule,
+    FeedbackModule,
+    AdminModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

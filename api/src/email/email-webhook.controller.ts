@@ -53,10 +53,9 @@ export class EmailWebhookController {
           where: { resendId: event.data.email_id },
           data: {
             status,
-            // tsc rejects the bare interface (no index signature, so not an
-            // InputJsonValue), this rule's own assignability check disagrees.
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            lastEvent: event as object,
+            // Not the whole event, it repeats the address and subject, which
+            // could then come back after a Customer's erasure.
+            lastEvent: { type: event.type, created_at: event.created_at },
             ...(status === EmailStatus.DELIVERED && { deliveredAt: new Date() }),
           },
         });

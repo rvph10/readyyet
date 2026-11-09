@@ -1,0 +1,57 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "./ui/button";
+import { Icon } from "./ui/icon";
+import { Tooltip } from "./ui/tooltip";
+
+// An icon in a page's header, a labelled button where it's the page's action.
+// Red, since it ends the session, and the pack's icon mirrored so its arrow
+// leaves the door rather than entering it (ADR 0064).
+export function SignOutButton({
+  labelled = false,
+  row = false,
+  next,
+}: {
+  labelled?: boolean;
+  row?: boolean;
+  // Where signing back in leads.
+  next?: string;
+}) {
+  const t = useTranslations("dashboard");
+
+  async function signOut() {
+    await authClient.signOut();
+    // A full load, as the router keeps pages in memory (ADR 0094), and Back
+    // mustn't show Customer details on a shop's shared computer.
+    window.location.replace(next ? `/sign-in?${new URLSearchParams({ next })}` : "/sign-in");
+  }
+
+  if (row) {
+    return (
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-label-sm text-danger transition-colors hover:bg-danger-subtle"
+      >
+        <Icon name="sign-out" className="size-4 -scale-x-100" />
+        {t("signOut")}
+      </button>
+    );
+  }
+  if (labelled) {
+    return (
+      <Button variant="danger-secondary" onClick={() => void signOut()}>
+        <Icon name="sign-out" className="size-4 -scale-x-100" />
+        {t("signOut")}
+      </Button>
+    );
+  }
+  return (
+    <Button variant="danger-secondary" size="icon" onClick={() => void signOut()}>
+      <Icon name="sign-out" className="size-4 -scale-x-100" />
+      <Tooltip>{t("signOut")}</Tooltip>
+    </Button>
+  );
+}

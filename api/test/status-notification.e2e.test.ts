@@ -78,6 +78,7 @@ describe("Customer status emails", () => {
         location: {
           name: "Maroquinerie Lumière",
           businessTypeCode: "LEATHER_GOODS",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "atelier@lumiere.test",
           locale: "FR",

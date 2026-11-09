@@ -1,4 +1,4 @@
-import { defineRailway, github, postgres, preserve, project, service } from "railway/iac";
+import { bucket, defineRailway, github, postgres, preserve, project, ref, service } from "railway/iac";
 
 // Not applied on deploy: run `railway config plan` then `railway config apply`
 // once per environment after changing it (ADR 0022).
@@ -6,23 +6,30 @@ import { defineRailway, github, postgres, preserve, project, service } from "rai
 // EU West (Amsterdam): customer data stays in the EU, like Sentry's (ADR 0019).
 const REGION = "europe-west4-drams3a";
 
-// Attached to the production service in Railway, not here: Railway's IaC
-// can't register a custom domain. Staging keeps the one Railway generates.
-const PRODUCTION_DOMAIN = "api.readyyet.app";
+// Staging has a domain of its own so production's session cookie never
+// reaches it (ADR 0043). The custom domains are attached in Railway, not here:
+// Railway's IaC can't register them.
+const PRODUCTION_ROOT = "readyyet.app";
+const STAGING_ROOT = "readyyet-staging.app";
 
 export default defineRailway((ctx) => {
   const production = ctx.environment === "production";
+  const root = production ? PRODUCTION_ROOT : STAGING_ROOT;
+  // checkSuites off: Railway would wait for every GitHub app's checks, and
+  // some installed apps never finish theirs. CI passing is enforced by the
+  // branch rulesets instead, nothing reaches either branch without it.
+  const source = github("rvph10/readyyet", {
+    branch: production ? "main" : "staging",
+    checkSuites: false,
+  });
   const db = postgres("postgres", { region: REGION });
+  // Photos, logos and avatars (ADR 0026). Amsterdam too, and a bucket's
+  // region can't be changed once it exists.
+  const images = bucket("images", { region: "ams" });
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
-    // checkSuites off: Railway would wait for every GitHub app's checks, and
-    // some installed apps never finish theirs. CI passing is enforced by the
-    // branch rulesets instead, nothing reaches either branch without it.
-    source: github("rvph10/readyyet", {
-      branch: production ? "main" : "staging",
-      checkSuites: false,
-    }),
+    source,
     build: {
       builder: "RAILPACK",
       buildCommand:
@@ -38,19 +45,76 @@ export default defineRailway((ctx) => {
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
+      // Set rather than left to Railway, so the web app can address the API
+      // on the private network.
+      PORT: "8080",
       DATABASE_URL: db.env.DATABASE_URL,
-      BETTER_AUTH_URL: production ? `https://${PRODUCTION_DOMAIN}` : "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+      S3_ENDPOINT: ref(images, "ENDPOINT"),
+      S3_REGION: ref(images, "REGION"),
+      S3_BUCKET: ref(images, "BUCKET"),
+      S3_ACCESS_KEY_ID: ref(images, "ACCESS_KEY_ID"),
+      S3_SECRET_ACCESS_KEY: ref(images, "SECRET_ACCESS_KEY"),
+      BETTER_AUTH_URL: `https://api.${root}`,
+      WEB_URL: `https://app.${root}`,
+      AUTH_COOKIE_DOMAIN: root,
       // Secrets, or values that differ per environment: set in Railway,
       // never here, the repo is public.
       BETTER_AUTH_SECRET: preserve(),
-      WEB_URL: preserve(),
       RESEND_API_KEY: preserve(),
       RESEND_WEBHOOK_SECRET: preserve(),
       EMAIL_FROM: preserve(),
       SUPPORT_EMAIL: preserve(),
       SENTRY_DSN: preserve(),
+      STRIPE_SECRET_KEY: preserve(),
+      STRIPE_WEBHOOK_SECRET: preserve(),
+      PLATFORM_ADMIN_EMAILS: preserve(),
+      GOOGLE_PLACES_API_KEY: preserve(),
     },
   });
 
-  return project("readyyet", { resources: [api, db] });
+  const web = service("web", {
+    source,
+    build: {
+      builder: "RAILPACK",
+      buildCommand: "pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/web run build",
+    },
+    start: "pnpm --filter @readyyet/web run start",
+    healthcheck: "/health",
+    replicas: { [REGION]: 1 },
+    env: {
+      NODE_ENV: "production",
+      // The private network: no public hop, and no edge to overwrite the
+      // X-Real-IP the web app forwards (ADR 0043).
+      API_URL: "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}",
+      // Better Auth's client in the browser, read at build time (ADR 0046).
+      NEXT_PUBLIC_API_URL: `https://api.${root}`,
+      // Where Ticket photos load from, for the Content-Security-Policy.
+      S3_ENDPOINT: ref(images, "ENDPOINT"),
+      // The sign-in page can't render without them.
+      SITE_URL: `https://${root}`,
+      SUPPORT_EMAIL: "support@readyyet.app",
+      // Set in Railway. The DSN is the API's (ADR 0045), read at build time
+      // too, for the browser. The rest let the build upload source maps.
+      NEXT_PUBLIC_SENTRY_DSN: preserve(),
+      SENTRY_AUTH_TOKEN: preserve(),
+      SENTRY_ORG: preserve(),
+      SENTRY_PROJECT: preserve(),
+    },
+  });
+
+  const site = service("site", {
+    source,
+    build: {
+      builder: "RAILPACK",
+      buildCommand: "pnpm --filter @readyyet/site run build",
+    },
+    start: "pnpm --filter @readyyet/site run start",
+    healthcheck: "/health",
+    replicas: { [REGION]: 1 },
+    env: {
+      NODE_ENV: "production",
+    },
+  });
+
+  return project("readyyet", { resources: [api, web, site, db, images] });
 });

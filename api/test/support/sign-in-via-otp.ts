@@ -13,8 +13,18 @@ import { PrismaService } from "../../src/database/prisma.service";
 // One call covers both signup and sign-in: sign-in/email-otp
 // auto-registers a new user on first successful verification (Better
 // Auth's default, disableSignUp: false).
+// Each sign-in from its own address: signing in is a test's setup, not what
+// it checks, and the 10-a-minute limit per address would otherwise cap how
+// many Users one file can create.
+let signIns = 0;
+
 export async function signInViaOtp(app: INestApplication, prisma: PrismaService, email: string): Promise<string> {
-  await request(app.getHttpServer()).post("/api/auth/email-otp/send-verification-otp").send({ email, type: "sign-in" });
+  const n = ++signIns;
+  const ip = `198.18.${Math.floor(n / 250)}.${n % 250}`;
+  await request(app.getHttpServer())
+    .post("/api/auth/email-otp/send-verification-otp")
+    .set("X-Real-IP", ip)
+    .send({ email, type: "sign-in" });
 
   const verification = await prisma.verification.findFirstOrThrow({
     where: { identifier: `sign-in-otp-${email}` },
@@ -24,6 +34,7 @@ export async function signInViaOtp(app: INestApplication, prisma: PrismaService,
 
   const response = await request(app.getHttpServer())
     .post("/api/auth/sign-in/email-otp")
+    .set("X-Real-IP", ip)
     .send({ email, otp, name: "Test User" });
 
   return response.headers["set-cookie"][0];

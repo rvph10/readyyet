@@ -26,21 +26,29 @@ jobs:
       - name: Staging runs this commit and is healthy
         env:
           SHA: ${{ github.event.pull_request.head.sha }}
-          HEALTH_URL: https://api-staging-327d.up.railway.app/health
+          # The API, the web app and the sales site, each deployed by Railway
+          # on every commit, so each must run this one.
+          HEALTH_URLS: >-
+            https://api.readyyet-staging.app/health
+            https://app.readyyet-staging.app/health
+            https://readyyet-staging.app/health
         # Railway deploys staging a few minutes after the push, so wait for it,
         # up to 15 minutes. Only a 200 counts, a redirect or another 2xx doesn't.
         run: |
           deadline=$(( $(date +%s) + 900 ))
-          while [ "$(date +%s)" -lt "$deadline" ]; do
-            : > headers.txt
-            status=$(curl -sS -m 10 -o /dev/null -D headers.txt -w '%{http_code}' "$HEALTH_URL") || status=""
-            release=$(tr -d '\r' < headers.txt | awk -F': ' 'tolower($1) == "x-release" { print $2 }')
-            if [ "$status" = "200" ] && [ "$release" = "$SHA" ]; then
-              echo "Staging runs $SHA and /health answers 200"
-              exit 0
-            fi
-            echo "Staging answers ${status:-nothing} running ${release:-an unknown commit}, waiting for $SHA"
-            sleep 30
+          for url in $HEALTH_URLS; do
+            until
+              : > headers.txt
+              status=$(curl -sS -m 10 -o /dev/null -D headers.txt -w '%{http_code}' "$url") || status=""
+              release=$(tr -d '\r' < headers.txt | awk -F': ' 'tolower($1) == "x-release" { print $2 }')
+              [ "$status" = "200" ] && [ "$release" = "$SHA" ]
+            do
+              if [ "$(date +%s)" -ge "$deadline" ]; then
+                echo "::error::$url isn't healthy on $SHA after 15 minutes"
+                exit 1
+              fi
+              echo "$url answers ${status:-nothing} running ${release:-an unknown commit}, waiting for $SHA"
+              sleep 30
+            done
+            echo "$url runs $SHA and answers 200"
           done
-          echo "::error::Staging isn't healthy on $SHA after 15 minutes"
-          exit 1

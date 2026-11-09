@@ -2,15 +2,33 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InvitationStatus, Prisma } from "@readyyet/db";
 import type { Invitation, User } from "@readyyet/db";
 import { isUUID } from "class-validator";
+import { BillingService } from "../billing/billing.service";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { assertCanManage, roleAt } from "../membership/team-rules";
-import { buildInvitationEmail } from "../notification/staff-email/staff-email";
+import {
+  buildInvitationEmail,
+  buildJoinedTeamEmail,
+  buildMemberJoinedEmail,
+} from "../notification/staff-email/staff-email";
+import { publicImageUrl } from "../storage/image";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
 // Who sent it, for the dashboard, rather than a bare user id.
 const INVITATION_INCLUDE = { include: { inviter: { select: { id: true, name: true } } } } as const;
+
+// What an invitee is shown of the invitation, before accepting it.
+const DETAILS_INCLUDE = {
+  include: {
+    inviter: { select: { id: true, name: true } },
+    location: {
+      select: { id: true, name: true, deletedAt: true, business: { select: { id: true, name: true, logoKey: true } } },
+    },
+  },
+} as const;
+
+type InvitationDetails = Prisma.InvitationGetPayload<typeof DETAILS_INCLUDE>;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const INVITATION_TTL_MS = 7 * DAY_MS;
@@ -22,10 +40,12 @@ export class InvitationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly billing: BillingService,
   ) {}
 
   async create(locationId: string, inviterId: string, dto: CreateInvitationDto) {
     assertCanManage(await roleAt(this.prisma, inviterId, locationId), dto.role);
+    await this.billing.assertRoomForMember(locationId);
 
     const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existingUser) {
@@ -106,6 +126,8 @@ export class InvitationService {
     if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
       throw new ConflictError("Only a pending invitation can be resent, send a new one instead");
     }
+    // Already counted in the member limit, only the freeze applies.
+    await this.billing.assertNotFrozen(locationId);
 
     const updated = await this.prisma.invitation.update({
       where: { id: invitation.id },
@@ -118,17 +140,47 @@ export class InvitationService {
     return serialize(updated);
   }
 
+  // Public: the page an invitation link opens shows it before sign-in.
+  async preview(invitationId: string) {
+    return toPreview(await this.loadDetails(invitationId));
+  }
+
+  async findForInvitee(invitationId: string, user: User) {
+    const invitation = await this.loadForInvitee(invitationId, user);
+    // Only someone who can still join sees who works there: a revoked invitee
+    // or a removed employee keeps the link, not the team.
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      return { ...toPreview(invitation), team: [] };
+    }
+    const memberships = await this.prisma.membership.findMany({
+      where: { locationId: invitation.locationId },
+      orderBy: { createdAt: "asc" },
+      select: { user: { select: { id: true, name: true, image: true } } },
+    });
+    return {
+      ...toPreview(invitation),
+      team: memberships.map(({ user: { image, ...member } }) => ({ ...member, avatarUrl: publicImageUrl(image) })),
+    };
+  }
+
+  // No one is told (ADR 0051): the Location's list of invitations shows it.
+  async decline(invitationId: string, user: User) {
+    const invitation = await this.loadForInvitee(invitationId, user);
+    if (invitation.status !== InvitationStatus.PENDING || invitation.expiresAt < new Date()) {
+      throw new ConflictError("This invitation is no longer pending");
+    }
+    const declined = await this.prisma.invitation.updateMany({
+      where: { id: invitationId, status: InvitationStatus.PENDING },
+      data: { status: InvitationStatus.DECLINED },
+    });
+    // Lost the race to an accept, a revoke or another decline.
+    if (declined.count === 0) {
+      throw new ConflictError("This invitation is no longer pending");
+    }
+  }
+
   async accept(invitationId: string, user: User) {
-    if (!isUUID(invitationId)) {
-      throw new NotFoundError("Invitation not found");
-    }
-    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
-    if (!invitation) {
-      throw new NotFoundError("Invitation not found");
-    }
-    if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
-      throw new UnauthorizedError("This invitation was not sent to your account's email address");
-    }
+    const invitation = await this.loadForInvitee(invitationId, user);
 
     if (invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date()) {
       await this.prisma.invitation.update({ where: { id: invitationId }, data: { status: InvitationStatus.EXPIRED } });
@@ -138,7 +190,7 @@ export class InvitationService {
       throw new ConflictError("This invitation is no longer pending");
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const membership = await this.prisma.$transaction(async (tx) => {
       const accepted = await tx.invitation.updateMany({
         where: { id: invitationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.ACCEPTED, acceptedAt: new Date() },
@@ -163,6 +215,73 @@ export class InvitationService {
         throw err;
       }
     });
+    // Not awaited: joining shouldn't wait on two sends, which EmailService
+    // records and retries on its own.
+    this.sendJoinedEmails(invitation.id, user).catch((err) => {
+      this.logger.error(
+        `Failed to email about invitation ${invitation.id} being accepted`,
+        err instanceof Error ? err.stack : err,
+      );
+    });
+    return membership;
+  }
+
+  // ADR 0127: a welcome to the new member, and word to whoever invited them,
+  // each in their own language.
+  private async sendJoinedEmails(invitationId: string, member: User) {
+    const { location, inviter, role } = await this.prisma.invitation.findUniqueOrThrow({
+      where: { id: invitationId },
+      include: { location: { include: { business: true } }, inviter: true },
+    });
+    const params = {
+      member: member.name,
+      memberEmail: member.email,
+      location: location.name,
+      business: location.business.name,
+      role,
+    };
+    const locationUrl = `${process.env.WEB_URL}/locations/${location.id}`;
+    // Only to an inviter still on the team: someone who left shouldn't learn
+    // the new member's address.
+    const inviterStays =
+      !inviter.deletedAt &&
+      (await this.prisma.membership.count({ where: { userId: inviter.id, locationId: location.id } })) > 0;
+    // Both tried, whatever happens to the other.
+    await Promise.allSettled([
+      this.email.send({
+        to: member.email,
+        ...buildJoinedTeamEmail({ ...params, locale: member.locale, locationUrl }),
+        type: "joined_team",
+        dedupeKey: `joined_team:${invitationId}`,
+      }),
+      inviterStays &&
+        this.email.send({
+          to: inviter.email,
+          ...buildMemberJoinedEmail({ ...params, locale: inviter.locale, teamUrl: `${locationUrl}/team` }),
+          type: "member_joined",
+          dedupeKey: `member_joined:${invitationId}`,
+        }),
+    ]);
+  }
+
+  private async loadDetails(invitationId: string) {
+    if (!isUUID(invitationId)) {
+      throw new NotFoundError("Invitation not found");
+    }
+    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId }, ...DETAILS_INCLUDE });
+    if (!invitation || invitation.location.deletedAt) {
+      throw new NotFoundError("Invitation not found");
+    }
+    return invitation;
+  }
+
+  // Only the User it was sent to may read it in full, accept or decline it.
+  private async loadForInvitee(invitationId: string, user: User) {
+    const invitation = await this.loadDetails(invitationId);
+    if (invitation.email.toLowerCase() !== user.email.toLowerCase()) {
+      throw new UnauthorizedError("This invitation was not sent to your account's email address");
+    }
+    return invitation;
   }
 
   private async loadInLocation(locationId: string, invitationId: string) {
@@ -204,12 +323,28 @@ export class InvitationService {
       subject,
       react,
       type: "invitation",
+      invitationId: invitation.id,
       fromName: `${location.name} via ReadyYet`,
       // A question about the invitation goes to whoever sent it, or to the
       // shop once they deleted their account (ADR 0018).
       replyTo: inviter.deletedAt ? location.contactEmail : inviter.email,
     });
   }
+}
+
+function toPreview({ inviter, location, ...invitation }: InvitationDetails) {
+  const lapsed = invitation.status === InvitationStatus.PENDING && invitation.expiresAt < new Date();
+  const { logoKey, ...business } = location.business;
+  return {
+    id: invitation.id,
+    email: invitation.email,
+    role: invitation.role,
+    status: lapsed ? InvitationStatus.EXPIRED : invitation.status,
+    invitedBy: inviter,
+    location: { id: location.id, name: location.name, business: { ...business, logoUrl: publicImageUrl(logoKey) } },
+    expiresAt: invitation.expiresAt,
+    createdAt: invitation.createdAt,
+  };
 }
 
 function serialize({ inviter, ...invitation }: Invitation & { inviter: { id: string; name: string } }) {

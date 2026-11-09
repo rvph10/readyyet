@@ -1,0 +1,969 @@
+@import "tailwindcss";
+
+/* The palette of ADR 0087, by role. Lime is the one colour that never changes. */
+/* The sidebar stays put only when it fits the window, otherwise it scrolls
+   with the page: a pane of its own would need its own scrollbar. */
+@custom-variant tall (@media (min-height: 740px));
+@custom-variant roomy (@media (min-height: 860px));
+
+@theme {
+  --color-canvas: #eef0ec;
+  --color-surface: #ffffff;
+  /* Between surface and canvas, so it reads as a fill on a white panel. */
+  --color-subtle: #f3f5f1;
+  --color-border: rgb(21 33 29 / 0.09);
+  /* Outlines of controls on hover (ADR 0049). */
+  --color-border-strong: rgb(21 33 29 / 0.2);
+  /* A field's edge: clearer than a tile's, as a field has to read as one. */
+  --color-input: rgb(21 33 29 / 0.16);
+  --color-ink: #15211d;
+  --color-muted: #4a5852;
+  /* 1.15:1 on white: a fill under ink text, never text itself. */
+  --color-brand: #d6ff53;
+  --color-brand-hover: #bfe632;
+  --color-brand-text: #4b6a00;
+  /* Actions and the current page. Lime reads on it (9.7:1), never on white. */
+  --color-pine: #17423a;
+  --color-pine-hover: #0f332c;
+  --color-pine-subtle: #e2eee9;
+
+  /* ADR 0063: the only other colours, each a strong one for text, icons and
+     outlines and a subtle one to fill behind it. Red for errors and what
+     can't be undone, green and blue for a toast's success and info. */
+  --color-danger: #b3261e;
+  --color-danger-hover: #8f1d17;
+  --color-danger-active: #761812;
+  --color-danger-subtle: #fdeeec;
+  --color-success: #007a55;
+  --color-success-subtle: #ecfdf5;
+  --color-info: #2357b5;
+  --color-info-subtle: #eaf0fb;
+  --color-warning: #8a5600;
+  --color-warning-subtle: #fdf3dc;
+
+  /* ADR 0061: the Status tones, as the dot on a white pill and the current
+     workflow step. Only READY is a fill, in the brand lime. */
+  --color-status-received: #0ab8cc;
+  --color-status-working: #8a5cf6;
+  --color-status-waiting: #f08a00;
+  --color-status-stopped: #f0406e;
+
+  /* ADR 0087: no shadows, surfaces separate by a border or a fill. */
+  --radius-card: 1.25rem;
+  --radius-sheet: 1.75rem;
+
+  /* ADR 0122: three durations and three curves for all motion. What opens
+     takes its time and eases in to rest, what closes leaves faster, and what
+     moves from one place to another eases both ways. */
+  --default-transition-duration: 150ms;
+  --duration-quick: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 280ms;
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+  /* ADR 0123: a number rolling to its value, slow enough to read as motion. */
+  --duration-count: 900ms;
+
+  /* ADR 0087: the current step of a Workflow breathes in a loop, and a pulse
+     leaves it toward the next step. */
+  --animate-now-ring: now-ring 2s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+  --animate-now-flow: now-flow 2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+  --animate-now-flow-y: now-flow-y 2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+  @keyframes now-ring {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(1.85);
+      opacity: 0;
+    }
+  }
+  @keyframes now-flow {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+  @keyframes now-flow-y {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(250%);
+    }
+  }
+
+  /* ADR 0064: a toast's icon says its tone in motion. Its badge pops in,
+     then success rings outward, an error shakes and info nods. Each runs
+     once, filled both ways so nothing shows before it starts. */
+  --animate-toast-pop: toast-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-toast-icon: toast-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms both;
+  --animate-toast-ring: toast-ring 700ms ease-out 200ms both;
+  --animate-toast-shake: toast-shake 420ms ease-in-out 320ms both;
+  --animate-toast-nod: toast-nod 560ms ease-in-out 320ms both;
+
+  @keyframes toast-pop {
+    0% {
+      scale: 0.4;
+      opacity: 0;
+    }
+    60% {
+      scale: 1.15;
+      opacity: 1;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+  @keyframes toast-ring {
+    0% {
+      scale: 1;
+      opacity: 0.5;
+    }
+    100% {
+      scale: 1.9;
+      opacity: 0;
+    }
+  }
+  @keyframes toast-shake {
+    0%,
+    100% {
+      translate: 0;
+    }
+    20%,
+    60% {
+      translate: -3px;
+    }
+    40%,
+    80% {
+      translate: 3px;
+    }
+  }
+  @keyframes toast-nod {
+    0%,
+    100% {
+      translate: 0;
+    }
+    35% {
+      translate: 0 -3px;
+    }
+    70% {
+      translate: 0 1px;
+    }
+  }
+
+  /* The type scale of ADR 0087: nothing under 14px, and titles that lead. */
+  --text-title-h1: 4rem;
+  --text-title-h1--line-height: 1.09;
+  --text-title-h1--letter-spacing: -0.025em;
+  --text-title-h1--font-weight: 700;
+  --text-title-h3: 2.5rem;
+  --text-title-h3--line-height: 1.2;
+  --text-title-h3--letter-spacing: -0.025em;
+  --text-title-h3--font-weight: 700;
+  --text-title-h4: 2rem;
+  --text-title-h4--line-height: 1.25;
+  --text-title-h4--letter-spacing: -0.022em;
+  --text-title-h4--font-weight: 700;
+  --text-title-h5: 1.75rem;
+  --text-title-h5--line-height: 1.28;
+  --text-title-h5--letter-spacing: -0.02em;
+  --text-title-h5--font-weight: 700;
+  --text-title-h6: 1.25rem;
+  --text-title-h6--line-height: 1.4;
+  --text-title-h6--letter-spacing: -0.012em;
+  --text-title-h6--font-weight: 700;
+  --text-label-xl: 1.5rem;
+  --text-label-xl--line-height: 1.33;
+  --text-label-xl--letter-spacing: -0.015em;
+  --text-label-xl--font-weight: 700;
+  --text-label-lg: 1.125rem;
+  --text-label-lg--line-height: 1.5;
+  --text-label-lg--letter-spacing: -0.012em;
+  --text-label-lg--font-weight: 700;
+  --text-label-md: 1rem;
+  --text-label-md--line-height: 1.5;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 0.9375rem;
+  --text-label-sm--line-height: 1.47;
+  --text-label-sm--font-weight: 600;
+  --text-label-xs: 0.875rem;
+  --text-label-xs--line-height: 1.43;
+  --text-label-xs--font-weight: 500;
+  --text-p-lg: 1.125rem;
+  --text-p-lg--line-height: 1.55;
+  --text-p-lg--font-weight: 400;
+  --text-p-md: 1rem;
+  --text-p-md--line-height: 1.5;
+  --text-p-md--font-weight: 400;
+  --text-p-sm: 0.9375rem;
+  --text-p-sm--line-height: 1.47;
+  --text-p-sm--font-weight: 400;
+  --text-p-xs: 0.875rem;
+  --text-p-xs--line-height: 1.43;
+  --text-p-xs--font-weight: 400;
+
+  /* Fills a circle drawn with pathLength="100", from empty to full. */
+  --animate-fill-ring: fill-ring 6s linear forwards;
+  @keyframes fill-ring {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+@layer base {
+  /* ADR 0049: from 1900px wide everything, sized in rem, grows with the
+     window, so a 2K or 4K screen doesn't show a small island. */
+  @media (width >= 1900px) {
+    html {
+      font-size: calc(0.7rem + 0.28vw);
+    }
+  }
+  @media (width >= 2150px) {
+    html {
+      font-size: calc(0.7rem + 0.32vw);
+    }
+  }
+  @media (width >= 2300px) {
+    html {
+      font-size: calc(0.7rem + 0.35vw);
+    }
+  }
+
+  /* One quiet scrollbar everywhere: a thin rounded thumb on nothing. Chrome only
+     honours its own pseudo-elements while the standard properties are unset,
+     so those are kept for the browsers without them. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border-strong) transparent;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 0.1875rem solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+    background-color: var(--color-border-strong);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-muted);
+  }
+
+  /* ADR 0122: whatever a component forgets, nothing moves when the browser
+     asks for reduced motion. Ended at once rather than removed, so what waits
+     for a transition or an animation to end still hears it. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after,
+    ::backdrop,
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation-duration: 1ms !important;
+      animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      transition-delay: 0s !important;
+    }
+  }
+
+  body {
+    font-synthesis: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* ADR 0087: inside the item, so no container can clip the ring, and lime
+     where the item itself is pine. */
+  aside a:focus-visible,
+  aside button:focus-visible {
+    outline-offset: -2px;
+  }
+  aside [aria-current="page"]:focus-visible,
+  .on-pine :focus-visible {
+    outline-color: var(--color-brand);
+  }
+}
+
+/* ADR 0056: SelectField's list drawn like a menu, where the browser lets a
+   <select> be styled. Elsewhere it keeps the browser's own picker. */
+@layer base {
+  /* What's open is what scrolls, not the page behind it. On a touch screen only,
+     where nothing else stops it, and hiding a scrollbar can't shift the page. */
+  @media (width < 48rem), (hover: none) {
+    html:has(dialog[open]),
+    html:has(dialog[open]) body,
+    html:has([popover="auto"]:popover-open),
+    html:has([popover="auto"]:popover-open) body {
+      overflow: hidden;
+    }
+  }
+}
+
+/* A slip printed from an open dialog (the Ticket's QR code): only the sheet
+   goes on paper, at the top left, not the dashboard behind it. Whatever
+   neither holds the sheet nor is in it is left out, so nothing else takes room
+   and no blank pages follow. */
+@media print {
+  body:has(dialog[open] .print-sheet) {
+    background: white;
+    *:not(:has(.print-sheet), .print-sheet, .print-sheet *) {
+      display: none;
+    }
+    *:has(.print-sheet) {
+      border: 0;
+      background: none;
+    }
+  }
+  /* A modal dialog is fixed, and anything fixed is printed on every page. Its
+     open scale would also hold the sheet inside its scrolling box. */
+  dialog[open]:has(.print-sheet) {
+    position: absolute;
+    inset: 0 auto auto 0;
+    margin: 0;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    scale: none;
+    &::backdrop {
+      display: none;
+    }
+  }
+  dialog[open] .print-sheet {
+    width: 8cm;
+  }
+}
+
+@layer components {
+  .select-field {
+    appearance: none;
+  }
+  @supports (appearance: base-select) {
+    .select-field,
+    .select-field::picker(select) {
+      appearance: base-select;
+    }
+    .select-field {
+      @apply flex items-center;
+    }
+    .select-field::picker-icon {
+      display: none;
+    }
+    /* The browser's default, most-block-size, opens the list on whichever
+       side has more room, so a field in the lower half opened upward even
+       with space below. normal tries below first and flips only if it must. */
+    .select-field::picker(select) {
+      @apply my-1.5 rounded-xl border border-border-strong bg-surface p-1;
+      position-try-order: normal;
+      opacity: 0;
+      scale: 0.97;
+      transition-property: opacity, scale, display, overlay;
+      transition-behavior: allow-discrete;
+      transition-duration: var(--duration-quick);
+      transition-timing-function: var(--ease-exit);
+    }
+    /* Opens like a popover (ADR 0122). */
+    .select-field:open::picker(select) {
+      opacity: 1;
+      scale: 1;
+      transition-duration: var(--duration-base);
+      transition-timing-function: var(--ease-enter);
+      @starting-style {
+        opacity: 0;
+        scale: 0.97;
+      }
+    }
+    .select-field option {
+      @apply flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-label-sm text-muted transition-colors;
+    }
+    .select-field option:hover,
+    .select-field option:focus-visible {
+      @apply bg-subtle text-ink outline-none;
+    }
+    .select-field option:checked {
+      @apply text-ink;
+    }
+    /* ::checkmark only takes CSS content, so <Icon>'s check is drawn as a
+       mask of the same path, in the text's colour. */
+    .select-field option::checkmark {
+      @apply order-1 ml-auto size-3 bg-current text-ink;
+      content: "";
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.973,11.774.5,8.3a1.714,1.714,0,0,1,0-2.425h0a1.716,1.716,0,0,1,2.425,0L5.1,8.048a.234.234,0,0,0,.33,0l5.64-5.64a1.716,1.716,0,0,1,2.425,0h0a1.714,1.714,0,0,1,0,2.425l-6.94,6.941A1.826,1.826,0,0,1,3.973,11.774Z'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    }
+    .select-field option:disabled {
+      @apply cursor-not-allowed text-muted/60;
+    }
+    .select-field hr {
+      @apply mx-2 my-1 border-border;
+    }
+    /* The phone's country select is only as wide as its flag, its list as
+       wide as a country's name. */
+    .phone-country::picker(select) {
+      @apply max-h-80 w-72 overflow-x-hidden;
+    }
+    /* Saint-Vincent-et-les-Grenadines wraps rather than scroll the list. */
+    .phone-country option {
+      @apply whitespace-normal;
+    }
+    /* The flag and the calling code, set on each option by PhoneField,
+       since an option can only hold text. */
+    .phone-country option::before {
+      @apply h-3.5 w-5 shrink-0 rounded-[3px] bg-cover shadow-[0_0_0_1px] shadow-ink/10;
+      content: "";
+      background-image: var(--flag);
+    }
+    .phone-country option::after {
+      @apply ml-auto text-muted tabular-nums;
+      content: attr(data-code);
+    }
+    .phone-country option::checkmark {
+      @apply ml-2;
+    }
+  }
+
+  /* ADR 0059: a Menu under its trigger, right edges lined up since triggers
+     sit at the end of a row, flipped above or leftward when it would leave
+     the screen. The popover's own centring is undone first. */
+  /* The sidebar's two rows open their panels over the page: the Location's
+     downward, the User's upward. */
+  .switcher-popover,
+  .user-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: min(20rem, calc(100vw - 2rem));
+    position-try-fallbacks: flip-block;
+  }
+  .switcher-popover {
+    position-area: bottom span-right;
+  }
+  /* The top bar's: exactly its button's width, as one control that opens,
+     unless a tablet's bar squeezes the button too narrow to read a name. */
+  .bar-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: 13rem;
+    width: anchor-size(width);
+    min-width: 13rem;
+    position-area: bottom span-right;
+    position-try-fallbacks: flip-block;
+  }
+  .user-popover {
+    position-area: top span-right;
+  }
+
+  /* ADR 0089: a calendar under its field, which fits a phone and flips where
+     there's no room, beside it in a window too short for either. A phone has no
+     room beside it, so there it sits in the middle of the screen. */
+  .date-popover {
+    inset: auto;
+    margin: 0.375rem;
+    width: min(20rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      left span-all;
+  }
+  @media (width < 48rem) {
+    .date-popover {
+      inset: 0;
+      margin: auto;
+      height: fit-content;
+      position-area: none;
+      position-try-fallbacks: none;
+    }
+  }
+
+  /* Wider than its bell, from the bar's right edge. */
+  .needs-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: min(26rem, calc(100vw - 2rem));
+    position-area: bottom span-left;
+    position-try-fallbacks: flip-inline;
+  }
+
+  .menu-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    position-area: bottom span-left;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+
+  /* On a phone, anything opened from the bar or the bottom navigation rises from
+     the bottom of the screen, so it can't land on top of what opened it. */
+  @media (width < 48rem) {
+    .switcher-popover,
+    .needs-popover,
+    .menu-popover {
+      inset: auto 0 0;
+      margin: 0;
+      width: 100% !important;
+      max-width: none !important;
+      max-height: 85dvh;
+      border-width: 1px 0 0;
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0 !important;
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+      overscroll-behavior: contain;
+      position-area: none;
+      position-try-fallbacks: none;
+    }
+    .switcher-popover::backdrop,
+    .needs-popover::backdrop,
+    .menu-popover::backdrop {
+      background: color-mix(in srgb, var(--color-ink) 40%, transparent);
+    }
+  }
+
+  /* ADR 0122: a popover grows in from 97% and fades, from wherever it was
+     anchored, so a flipped one is still right. display and overlay go along
+     so it stays drawn while it leaves. */
+  .switcher-popover,
+  .user-popover,
+  .bar-popover,
+  .date-popover,
+  .needs-popover,
+  .menu-popover {
+    opacity: 0;
+    scale: 0.97;
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-exit);
+  }
+  .switcher-popover:popover-open,
+  .user-popover:popover-open,
+  .bar-popover:popover-open,
+  .date-popover:popover-open,
+  .needs-popover:popover-open,
+  .menu-popover:popover-open {
+    opacity: 1;
+    scale: 1;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* The sidebar's words fade in once it has mostly opened, rather than
+     squeezing into a rail that's still growing. They leave at once. */
+  aside[data-toggled] .sidebar-word {
+    transition: opacity var(--duration-base) var(--ease-enter) 120ms;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  /* What folds open grows to its height and fades in, and shrinks back. Its
+     child clips, a little outside itself so focus rings still show. */
+  .fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--duration-slow) var(--ease-move);
+  }
+  .fold[data-open] {
+    grid-template-rows: 1fr;
+  }
+  .fold > * {
+    min-height: 0;
+    overflow: clip;
+    overflow-clip-margin: 0.25rem;
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-exit);
+  }
+  .fold[data-open] > * {
+    opacity: 1;
+    transition-timing-function: var(--ease-enter);
+    transition-delay: 80ms;
+  }
+
+  /* A hint fades in after a moment, so passing the pointer over a row of
+     icons doesn't flash each one. */
+  .tooltip {
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+  }
+  .tooltip:popover-open {
+    opacity: 1;
+    transition-delay: 200ms;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  /* A dialog grows in from 95% and shrinks back as it closes, its backdrop
+     fading with it. The side panel slides from the right edge it sits on. */
+  .dialog,
+  .dialog-panel {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-exit);
+  }
+  .dialog {
+    opacity: 0;
+    scale: 0.95;
+  }
+  .dialog[open] {
+    opacity: 1;
+    scale: 1;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+  .dialog-panel {
+    translate: 100% 0;
+  }
+  .dialog-panel[open] {
+    translate: 0;
+    transition-duration: var(--duration-slow);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      translate: 100% 0;
+    }
+  }
+  .dialog::backdrop,
+  .dialog-panel::backdrop {
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+  }
+  .dialog[open]::backdrop,
+  .dialog-panel[open]::backdrop {
+    opacity: 1;
+    transition-duration: var(--duration-base);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  /* A phone's sheet rises from the bottom edge instead, under a fading dim. */
+  @media (width < 48rem) {
+    .switcher-popover,
+    .needs-popover,
+    .menu-popover {
+      opacity: 1;
+      scale: 1;
+      translate: 0 100%;
+    }
+    .switcher-popover:popover-open,
+    .needs-popover:popover-open,
+    .menu-popover:popover-open {
+      translate: 0;
+      transition-duration: var(--duration-slow);
+      @starting-style {
+        translate: 0 100%;
+      }
+    }
+    .switcher-popover::backdrop,
+    .needs-popover::backdrop,
+    .menu-popover::backdrop {
+      opacity: 0;
+      transition-property: opacity, display, overlay;
+      transition-behavior: allow-discrete;
+      transition-duration: var(--duration-quick);
+    }
+    .switcher-popover:popover-open::backdrop,
+    .needs-popover:popover-open::backdrop,
+    .menu-popover:popover-open::backdrop {
+      opacity: 1;
+      transition-duration: var(--duration-slow);
+      @starting-style {
+        opacity: 0;
+      }
+    }
+  }
+}
+
+/* ADR 0122: a placeholder crossfading into its content (<Reveal>), in the
+   time of a fade. The page stays clickable under the passing picture. React
+   runs every navigation as a view transition once one is on the page, and the
+   browser would crossfade the whole page: pages change at once instead. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-group(.arrive),
+::view-transition-old(.arrive),
+::view-transition-new(.arrive) {
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-move);
+}
+
+/* ADR 0123: a number's digits roll like an odometer (<RollingNumber>). Each
+   digit shows one line of its 0 to 9 strip, a little taller than the line so
+   the strip fades in and out at the edges instead of being cut. */
+.rolling-digit {
+  display: inline-block;
+  height: calc(1lh + 0.3em);
+  margin-block: -0.15em;
+  padding-block: 0.15em;
+  overflow: clip;
+  mask-image: linear-gradient(transparent, #000 0.15em, #000 calc(100% - 0.15em), transparent);
+}
+.rolling-strip {
+  display: flex;
+  flex-direction: column;
+  transition: translate var(--duration-count) var(--ease-enter);
+}
+.rolling-strip > span {
+  height: 1lh;
+}
+.rolling-strip[data-d="1"] {
+  translate: 0 -10%;
+}
+.rolling-strip[data-d="2"] {
+  translate: 0 -20%;
+}
+.rolling-strip[data-d="3"] {
+  translate: 0 -30%;
+}
+.rolling-strip[data-d="4"] {
+  translate: 0 -40%;
+}
+.rolling-strip[data-d="5"] {
+  translate: 0 -50%;
+}
+.rolling-strip[data-d="6"] {
+  translate: 0 -60%;
+}
+.rolling-strip[data-d="7"] {
+  translate: 0 -70%;
+}
+.rolling-strip[data-d="8"] {
+  translate: 0 -80%;
+}
+.rolling-strip[data-d="9"] {
+  translate: 0 -90%;
+}
+/* Drawn for the first time, it rolls up from 0. */
+.rolling-strip[data-d] {
+  @starting-style {
+    translate: 0 0;
+  }
+}
+
+/* A range field: pine up to the thumb, its share in --fill, set by the page. */
+@utility range-field {
+  height: 2.75rem;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-slider-runnable-track {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: linear-gradient(to right, var(--color-pine) var(--fill, 0%), var(--color-border) var(--fill, 0%));
+  }
+  &::-moz-range-track {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+  &::-moz-range-progress {
+    height: 0.625rem;
+    border-radius: 999px;
+    background: var(--color-pine);
+  }
+  &::-webkit-slider-thumb {
+    appearance: none;
+    margin-top: -0.6875rem;
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid var(--color-pine);
+    border-radius: 999px;
+    background: var(--color-brand);
+  }
+  &::-moz-range-thumb {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.25rem solid var(--color-pine);
+    border-radius: 999px;
+    background: var(--color-brand);
+  }
+}
+
+/* ADR 0122: a bar moving to its new length when a refresh changes it. Set
+   through the CSSOM, so a bar drawn for the first time starts at its length
+   and doesn't grow in. Its colour still answers the pointer at once. */
+@utility grows {
+  transition:
+    height var(--duration-slow) var(--ease-move),
+    width var(--duration-slow) var(--ease-move),
+    background-color var(--duration-quick);
+}
+
+/* inline, so the utilities use next/font's variables, set on <html>. */
+/* ADR 0106: a page whose lists scroll inside their tiles, so it never scrolls
+   itself: the window less the top bar and the page's padding. Not on a phone
+   or a tablet, where tiles stack and the page has to scroll. */
+@utility fit-screen {
+  @media (width >= 64rem) {
+    height: calc(100dvh - 6.5rem);
+    min-height: 30rem;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-figtree);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ADR 0094: paper falling once behind the trophy. The pieces differ by
+   position, not inline style, which the Content-Security-Policy refuses. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.confetti span {
+  position: absolute;
+  top: -12%;
+  width: 0.5rem;
+  height: 0.875rem;
+  border-radius: 0.125rem;
+  background: var(--color-brand);
+  animation: confetti-fall 2.4s cubic-bezier(0.3, 0.5, 0.5, 1) both;
+}
+.confetti span:nth-child(3n) {
+  background: var(--color-surface);
+}
+.confetti span:nth-child(4n) {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-pine-subtle);
+}
+.confetti span:nth-child(1) {
+  left: 4%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(2) {
+  left: 10%;
+  animation-delay: 0.35s;
+}
+.confetti span:nth-child(3) {
+  left: 17%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(4) {
+  left: 23%;
+  animation-delay: 0.5s;
+}
+.confetti span:nth-child(5) {
+  left: 29%;
+  animation-delay: 0.2s;
+}
+.confetti span:nth-child(6) {
+  left: 35%;
+  animation-delay: 0.65s;
+}
+.confetti span:nth-child(7) {
+  left: 41%;
+  animation-delay: 0.05s;
+}
+.confetti span:nth-child(8) {
+  left: 47%;
+  animation-delay: 0.4s;
+}
+.confetti span:nth-child(9) {
+  left: 53%;
+  animation-delay: 0.15s;
+}
+.confetti span:nth-child(10) {
+  left: 59%;
+  animation-delay: 0.55s;
+}
+.confetti span:nth-child(11) {
+  left: 65%;
+  animation-delay: 0.25s;
+}
+.confetti span:nth-child(12) {
+  left: 71%;
+  animation-delay: 0.7s;
+}
+.confetti span:nth-child(13) {
+  left: 77%;
+  animation-delay: 0.1s;
+}
+.confetti span:nth-child(14) {
+  left: 83%;
+  animation-delay: 0.45s;
+}
+.confetti span:nth-child(15) {
+  left: 89%;
+  animation-delay: 0.3s;
+}
+.confetti span:nth-child(16) {
+  left: 95%;
+  animation-delay: 0s;
+}
+.confetti span:nth-child(17) {
+  left: 14%;
+  animation-delay: 0.8s;
+}
+.confetti span:nth-child(18) {
+  left: 74%;
+  animation-delay: 0.9s;
+}
+@keyframes confetti-fall {
+  from {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(26rem) rotate(540deg);
+    opacity: 0;
+  }
+}

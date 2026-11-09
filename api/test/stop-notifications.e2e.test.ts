@@ -25,6 +25,7 @@ describe("Stopping a ticket's status updates", () => {
       .post(`/locations/${locationId}/tickets`)
       .set("Cookie", ownerCookie)
       .send({ title: "Bottes", customer: { fullName: "Chloé Dubois", email: address(label) } });
+    await app.get(NotificationService).sendDueTicketCreatedEmails();
     return response.body as { id: string; trackingCode: string };
   }
 
@@ -70,6 +71,7 @@ describe("Stopping a ticket's status updates", () => {
         location: {
           name: "Cordonnerie Lumière",
           businessTypeCode: "SHOE_REPAIR",
+          timeZone: "Europe/Brussels",
           contactPhone: "+32470123456",
           contactEmail: "atelier@lumiere.test",
           locale: "FR",
