@@ -34,7 +34,7 @@ const labelClasses: Record<State, string> = {
 function StepLabel({ state, label, className }: { state: State; label: string; className?: string }) {
   const t = useTranslations("common");
   return (
-    <p className={`text-label-sm transition-colors duration-300 ${labelClasses[state]} ${className ?? ""}`}>
+    <p className={`text-label-sm transition-colors duration-(--duration-slow) ${labelClasses[state]} ${className ?? ""}`}>
       {label}
       {state === "done" && <span className="sr-only">, {t("stepDone")}</span>}
     </p>
@@ -53,7 +53,7 @@ const currentMarkers: Record<StatusTone, string> = {
 function Marker({ state, code }: { state: State; code: string }) {
   if (state === "done") {
     return (
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-surface transition duration-300">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-surface transition duration-(--duration-slow)">
         <Icon name="check" className="size-3" />
       </span>
     );
@@ -62,7 +62,7 @@ function Marker({ state, code }: { state: State; code: string }) {
     const tone = statusTone(code);
     return (
       <span
-        className={`flex size-6 shrink-0 items-center justify-center rounded-full ring-4 transition duration-300 ${currentMarkers[tone]}`}
+        className={`flex size-6 shrink-0 items-center justify-center rounded-full ring-4 transition duration-(--duration-slow) ${currentMarkers[tone]}`}
       >
         {tone === "ready" || tone === "completed" ? (
           <Icon name="check" className={`size-3 ${tone === "ready" ? "text-ink" : "text-surface"}`} />
@@ -72,7 +72,7 @@ function Marker({ state, code }: { state: State; code: string }) {
       </span>
     );
   }
-  return <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface transition duration-300" />;
+  return <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface transition duration-(--duration-slow)" />;
 }
 
 // Where a Ticket stands in its Workflow: done steps in ink, the current one
@@ -98,7 +98,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical", fi
                 <Marker state={state} code={step.code} />
                 {index < steps.length - 1 && (
                   <span
-                    className={`mx-2 h-0.5 flex-1 rounded-full transition-colors duration-300 ${state === "done" ? "bg-ink" : "bg-border"}`}
+                    className={`mx-2 h-0.5 flex-1 rounded-full transition-colors duration-(--duration-slow) ${state === "done" ? "bg-ink" : "bg-border"}`}
                   />
                 )}
               </div>
@@ -124,7 +124,7 @@ export function WorkflowSteps({ steps, currentCode, orientation = "vertical", fi
             {index < steps.length - 1 && (
               <span
                 aria-hidden="true"
-                className={`absolute top-6.5 bottom-0.5 left-[0.6875rem] w-0.5 rounded-full transition-colors duration-300 ${state === "done" ? "bg-ink" : "bg-border"}`}
+                className={`absolute top-6.5 bottom-0.5 left-[0.6875rem] w-0.5 rounded-full transition-colors duration-(--duration-slow) ${state === "done" ? "bg-ink" : "bg-border"}`}
               />
             )}
             <Marker state={state} code={step.code} />
