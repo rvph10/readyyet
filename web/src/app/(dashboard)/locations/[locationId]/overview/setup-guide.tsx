@@ -90,7 +90,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
   return (
     <section
       aria-labelledby="setup-guide-title"
-      className="on-pine flex flex-col gap-6 rounded-sheet bg-pine p-5 text-surface lg:gap-8 lg:p-8"
+      className="on-pine flex flex-col rounded-sheet bg-pine p-5 text-surface lg:p-8"
     >
       {/* On a phone the words take their own row under the ring and the button. */}
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-5 gap-y-4">
@@ -105,7 +105,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         <button
           type="button"
           aria-expanded={!folded}
-          aria-controls={folded ? undefined : "setup-guide-body"}
+          aria-controls="setup-guide-body"
           onClick={() => fold(!folded)}
           className="flex h-10 shrink-0 cursor-pointer items-center gap-2 justify-self-end rounded-full bg-surface/10 px-4 text-label-sm transition-colors hover:bg-surface/16 max-sm:col-start-3"
         >
@@ -114,80 +114,82 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         </button>
       </div>
 
-      {!folded && (
-        <div id="setup-guide-body" className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-          <ol className="flex flex-col max-lg:order-last">
-            {steps.map((step, position) => {
-              const here = step.key === current.key;
-              return (
-                <li key={step.key} className="relative">
-                  {/* The track between two steps, lime once the first is done. */}
-                  {position < steps.length - 1 && (
-                    <span
-                      aria-hidden="true"
-                      className={`absolute top-10 bottom-0 left-[1.6875rem] w-0.5 -translate-x-1/2 ${
-                        step.isDone ? "bg-brand" : "bg-surface/20"
+      <div id="setup-guide-body" inert={folded} data-open={!folded || undefined} className="reveal">
+        <div>
+          <div className="grid gap-4 pt-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8 lg:pt-8">
+            <ol className="flex flex-col max-lg:order-last">
+              {steps.map((step, position) => {
+                const here = step.key === current.key;
+                return (
+                  <li key={step.key} className="relative">
+                    {/* The track between two steps, lime once the first is done. */}
+                    {position < steps.length - 1 && (
+                      <span
+                        aria-hidden="true"
+                        className={`absolute top-10 bottom-0 left-[1.6875rem] w-0.5 -translate-x-1/2 ${
+                          step.isDone ? "bg-brand" : "bg-surface/20"
+                        }`}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      aria-current={here ? "step" : undefined}
+                      onClick={() => setChosen(step.key)}
+                      className={`relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors ${
+                        here ? "bg-surface/12" : "hover:bg-surface/6"
                       }`}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    aria-current={here ? "step" : undefined}
-                    onClick={() => setChosen(step.key)}
-                    className={`relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors ${
-                      here ? "bg-surface/12" : "hover:bg-surface/6"
-                    }`}
-                  >
-                    <Marker done={step.isDone} here={here} number={position + 1} />
-                    <span className={`min-w-0 flex-1 truncate ${here ? "text-label-md" : "text-label-sm"}`}>
-                      {t(`${step.key}.short`)}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
+                    >
+                      <Marker done={step.isDone} here={here} number={position + 1} />
+                      <span className={`min-w-0 flex-1 truncate ${here ? "text-label-md" : "text-label-sm"}`}>
+                        {t(`${step.key}.short`)}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
 
-          <div className="flex flex-col overflow-clip rounded-card bg-surface text-ink md:flex-row">
-            <div className="flex flex-1 flex-col p-6 lg:p-8">
-              <p className="flex items-center gap-2 text-label-xs font-semibold tracking-wide text-brand-text uppercase">
-                {t("stepOf", { number: index + 1, total: steps.length })}
-                {current.isDone && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-ink normal-case">
-                    <Icon name="check" className="size-2.5" />
-                    {t("done")}
-                  </span>
-                )}
-              </p>
-              <h3 className="mt-2 text-title-h5">{t(`${current.key}.title`)}</h3>
-              <p className="mt-2 max-w-md text-p-md text-muted">{t(`${current.key}.body`)}</p>
-              <div className="mt-auto pt-6">
-                {current.key === "firstHandover" ? (
-                  <Link
-                    href={`/locations/${location.id}/tickets?view=ready`}
-                    className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
-                  >
-                    {t(`${current.key}.action`)}
-                    <Icon name="arrow-right" className="size-3" />
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => act(current.key)}
-                    className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
-                  >
-                    {current.isDone ? t("change") : t(`${current.key}.action`)}
-                    <Icon name="arrow-right" className="size-3" />
-                  </button>
-                )}
+            <div className="flex flex-col overflow-clip rounded-card bg-surface text-ink md:flex-row">
+              <div className="flex flex-1 flex-col p-6 lg:p-8">
+                <p className="flex items-center gap-2 text-label-xs font-semibold tracking-wide text-brand-text uppercase">
+                  {t("stepOf", { number: index + 1, total: steps.length })}
+                  {current.isDone && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-ink normal-case">
+                      <Icon name="check" className="size-2.5" />
+                      {t("done")}
+                    </span>
+                  )}
+                </p>
+                <h3 className="mt-2 text-title-h5">{t(`${current.key}.title`)}</h3>
+                <p className="mt-2 max-w-md text-p-md text-muted">{t(`${current.key}.body`)}</p>
+                <div className="mt-auto pt-6">
+                  {current.key === "firstHandover" ? (
+                    <Link
+                      href={`/locations/${location.id}/tickets?view=ready`}
+                      className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
+                    >
+                      {t(`${current.key}.action`)}
+                      <Icon name="arrow-right" className="size-3" />
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => act(current.key)}
+                      className={buttonClass({ variant: current.isDone ? "secondary" : "primary" })}
+                    >
+                      {current.isDone ? t("change") : t(`${current.key}.action`)}
+                      <Icon name="arrow-right" className="size-3" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="flex items-center justify-center border-l border-border p-6 max-md:hidden md:w-64 lg:w-72">
-              <Illustration name={current.illustration} className="h-40 w-auto lg:h-48" />
+              <div className="flex items-center justify-center border-l border-border p-6 max-md:hidden md:w-64 lg:w-72">
+                <Illustration name={current.illustration} className="h-40 w-auto lg:h-48" />
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       <Dialog open={panel !== null} onClose={close} title={panel ? t(`${panel}.title`) : ""} variant="panel">
         {panel === "team" || panel === "logo" ? (
