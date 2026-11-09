@@ -998,7 +998,31 @@
     },
     "deleteFinal": "Cette action est irréversible.",
     "deleteOpenTickets": "{count, plural, one {# Ticket est encore ouvert ici.} other {# Tickets sont encore ouverts ici.}}",
-    "deleteTypeLabel": "Nom du magasin"
+    "deleteTypeLabel": "Nom du magasin",
+    "google": {
+      "title": "Retrouvez votre magasin sur Google",
+      "hint": "Choisissez-le sur Google Maps et votre lien d'avis est rempli pour vous.",
+      "searchLabel": "Nom et commune du magasin",
+      "search": "Rechercher",
+      "searching": "Recherche…",
+      "failed": "Google n'a pas répondu. Réessayez dans un instant, ou collez votre lien ci-dessous.",
+      "nothing": "Aucun résultat. Essayez le nom exact affiché sur Google Maps, avec la commune.",
+      "onGoogle": "{count, plural, one {# avis} other {# avis}}",
+      "alsoUse": "Utiliser aussi ce que Google sait",
+      "useAddress": "Adresse",
+      "useHours": "Horaires d'ouverture",
+      "confirm": "Oui, c'est {name}",
+      "saving": "Enregistrement…",
+      "saved": "Relié à {name} sur Google.",
+      "saveFailed": "Ce n'a pas été enregistré. Réessayez.",
+      "hoursRange": "{opens} à {closes}",
+      "pasteInstead": "Pas dans la liste ? Collez plutôt votre lien d'avis",
+      "daysRange": "{from} au {to}",
+      "hoursDays": "{days}, {ranges}",
+      "open": "Ouvrir",
+      "change": "Modifier",
+      "keep": "Garder ce lien"
+    }
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",

@@ -280,6 +280,23 @@ export interface paths {
         patch: operations["LocationController_update"];
         trace?: never;
     };
+    "/locations/{locationId}/google-places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Find this shop on Google Maps, for its review link, address and hours (ADR 0126) */
+        get: operations["LocationController_findOnGoogle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/locations/{locationId}/review-link/check": {
         parameters: {
             query?: never;
@@ -1202,6 +1219,19 @@ export interface components {
             openingHours?: components["schemas"]["OpeningHoursSpecificationDto"][];
             turnaroundDays?: number | null;
             googleReviewUrl?: string | null;
+        };
+        GooglePlaceDto: {
+            rating: number | null;
+            ratingCount: number | null;
+            address: components["schemas"]["PostalAddressDto"] | null;
+            placeId: string;
+            name: string;
+            formattedAddress: string;
+            reviewUrl: string;
+            openingHours: components["schemas"]["OpeningHoursSpecificationDto"][];
+        };
+        GooglePlacesDto: {
+            places: components["schemas"]["GooglePlaceDto"][];
         };
         CheckReviewLinkDto: {
             url: string;
@@ -3729,6 +3759,101 @@ export interface operations {
             };
             /** @description PLAN_REQUIRED: a Google review link needs Pro */
             402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LocationController_findOnGoogle: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path: {
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GooglePlacesDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request is invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

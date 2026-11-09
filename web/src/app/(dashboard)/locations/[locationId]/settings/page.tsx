@@ -122,13 +122,7 @@ async function TicketsSection({ locationId }: { locationId: string }) {
 
 async function ReviewsSection({ locationId }: { locationId: string }) {
   const [location, billing] = await Promise.all([getLocation(locationId), getBilling(locationId)]);
-  return (
-    <ReviewLink
-      locationId={locationId}
-      url={location.googleReviewUrl}
-      hasPro={billing.plan === "PRO" && !billing.frozen}
-    />
-  );
+  return <ReviewLink location={location} hasPro={billing.plan === "PRO" && !billing.frozen} />;
 }
 
 async function DeleteSection({ locationId, businessId }: { locationId: string; businessId: string }) {

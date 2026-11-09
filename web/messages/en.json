@@ -998,7 +998,31 @@
     },
     "deleteFinal": "This can't be undone.",
     "deleteOpenTickets": "{count, plural, one {# Ticket is still open here.} other {# Tickets are still open here.}}",
-    "deleteTypeLabel": "Shop name"
+    "deleteTypeLabel": "Shop name",
+    "google": {
+      "title": "Find your shop on Google",
+      "hint": "Pick it from Google Maps and your review link is filled in for you.",
+      "searchLabel": "Your shop's name and town",
+      "search": "Search",
+      "searching": "Searching…",
+      "failed": "Google didn't answer. Try again in a moment, or paste your link below.",
+      "nothing": "Nothing found. Try the name exactly as it shows on Google Maps, with the town.",
+      "onGoogle": "{count, plural, one {# review} other {# reviews}}",
+      "alsoUse": "Also use what Google knows",
+      "useAddress": "Address",
+      "useHours": "Opening hours",
+      "confirm": "Yes, that's {name}",
+      "saving": "Saving…",
+      "saved": "Linked to {name} on Google.",
+      "saveFailed": "That wasn't saved. Please try again.",
+      "hoursRange": "{opens} to {closes}",
+      "pasteInstead": "Not on the list? Paste your review link instead",
+      "daysRange": "{from} to {to}",
+      "hoursDays": "{days}, {ranges}",
+      "open": "Open",
+      "change": "Change",
+      "keep": "Keep this link"
+    }
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",
