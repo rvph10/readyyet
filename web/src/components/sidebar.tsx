@@ -25,7 +25,7 @@ export interface SidebarUser {
 
 // Whether the sidebar shows its words. Under 1280px it's always the rail.
 export const CollapsedContext = createContext(false);
-export const wide = (collapsed: boolean) => (collapsed ? "hidden" : "hidden xl:block");
+export const wide = (collapsed: boolean) => (collapsed ? "hidden" : "sidebar-word hidden xl:block");
 
 export function NavItem({
   href,
@@ -274,10 +274,13 @@ export function SidebarFrame({
   children: ReactNode;
 }) {
   const t = useTranslations("dashboard");
+  // Its words fade in only when opened by hand, not each time a page draws it.
+  const [toggled, setToggled] = useState(false);
   return (
     <CollapsedContext.Provider value={collapsed}>
       <aside
-        className={`relative z-20 hidden min-h-[calc(100dvh-4rem)] w-20 shrink-0 flex-col gap-3 border-r border-border bg-surface px-3 py-3 transition-[width] md:flex tall:sticky tall:top-16 tall:h-[calc(100dvh-4rem)] tall:self-start roomy:gap-4 roomy:py-4 ${
+        data-toggled={toggled || undefined}
+        className={`relative z-20 hidden min-h-[calc(100dvh-4rem)] w-20 shrink-0 flex-col gap-3 border-r border-border bg-surface px-3 py-3 transition-[width,padding] duration-(--duration-base) ease-move md:flex tall:sticky tall:top-16 tall:h-[calc(100dvh-4rem)] tall:self-start roomy:gap-4 roomy:py-4 ${
           collapsed ? "" : "xl:w-64 xl:px-4"
         }`}
       >
@@ -286,7 +289,10 @@ export function SidebarFrame({
             that edge. Under 1280px the sidebar is always the rail. */}
         <button
           type="button"
-          onClick={onToggle}
+          onClick={() => {
+            setToggled(true);
+            onToggle();
+          }}
           aria-label={t(collapsed ? "expandSidebar" : "collapseSidebar")}
           title={t(collapsed ? "expandSidebar" : "collapseSidebar")}
           aria-expanded={!collapsed}

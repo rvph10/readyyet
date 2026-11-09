@@ -544,6 +544,15 @@
     }
   }
 
+  /* The sidebar's words fade in once it has mostly opened, rather than
+     squeezing into a rail that's still growing. They leave at once. */
+  aside[data-toggled] .sidebar-word {
+    transition: opacity var(--duration-base) var(--ease-enter) 120ms;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
   /* A hint fades in after a moment, so passing the pointer over a row of
      icons doesn't flash each one. */
   .tooltip {
