@@ -1014,6 +1014,8 @@
       "confirm": "Oui, c'est {name}",
       "saving": "Enregistrement…",
       "saved": "Relié à {name} sur Google.",
+      "rateLimited": "Ça fait beaucoup de recherches. Réessayez plus tard, ou collez votre lien ci-dessous.",
+      "results": "Établissements trouvés sur Google Maps",
       "saveFailed": "Ce n'a pas été enregistré. Réessayez.",
       "hoursRange": "{opens} à {closes}",
       "pasteInstead": "Pas dans la liste ? Collez plutôt votre lien d'avis",

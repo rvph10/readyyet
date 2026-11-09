@@ -1014,6 +1014,8 @@
       "confirm": "Yes, that's {name}",
       "saving": "Saving…",
       "saved": "Linked to {name} on Google.",
+      "rateLimited": "That's a lot of searches. Try again later, or paste your link below.",
+      "results": "Places found on Google Maps",
       "saveFailed": "That wasn't saved. Please try again.",
       "hoursRange": "{opens} to {closes}",
       "pasteInstead": "Not on the list? Paste your review link instead",

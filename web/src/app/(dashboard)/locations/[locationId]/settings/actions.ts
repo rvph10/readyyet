@@ -27,12 +27,13 @@ export async function checkReviewLink(
   return data?.result ?? "unknown";
 }
 
-// ADR 0126: at most five places from Google Maps, null when Google didn't answer.
+// ADR 0126: at most five places from Google Maps, or why there are none.
 export async function findOnGoogle(locationId: string, q: string) {
-  const { data } = await (
+  const { data, response } = await (
     await api()
   ).GET("/locations/{locationId}/google-places", { params: { path: { locationId }, query: { q } } });
-  return data?.places ?? null;
+  if (data) return data.places;
+  return response.status === 429 ? "rateLimited" : "failed";
 }
 
 // Redirects from here: refreshing the page they're on would be a 404 by then.

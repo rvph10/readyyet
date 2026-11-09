@@ -1,7 +1,8 @@
 "use client";
 
+import { ErrorCode } from "@readyyet/shared";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
@@ -60,27 +61,44 @@ function useHoursSummary() {
 // link, and its address and hours where it has none yet.
 export function GoogleFinder({ locationId, query: initialQuery, needsAddress, needsHours, onSaved }: Props) {
   const t = useTranslations("settings.google");
+  const tSettings = useTranslations("settings");
   const format = useFormatter();
   const toast = useToast();
   const summary = useHoursSummary();
   const [query, setQuery] = useState(initialQuery);
   const [places, setPlaces] = useState<Place[] | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<"failed" | "rateLimited" | null>(null);
   const [chosen, setChosen] = useState<Place | null>(null);
   const [useAddress, setUseAddress] = useState(true);
   const [useHours, setUseHours] = useState(true);
   const [searching, startSearching] = useTransition();
   const [saving, startSaving] = useTransition();
+  // Only the last search's answer is shown, whichever comes back last.
+  const latest = useRef(0);
+
+  // Each place offers Google's address and hours ticked, whatever was
+  // unticked for another.
+  function choose(place: Place | null) {
+    setChosen(place);
+    setUseAddress(true);
+    setUseHours(true);
+  }
 
   function search() {
     if (!query.trim()) return;
-    setChosen(null);
-    setFailed(false);
+    const run = ++latest.current;
+    choose(null);
+    setFailed(null);
     startSearching(async () => {
       const found = await findOnGoogle(locationId, query.trim());
+      if (run !== latest.current) return;
+      if (typeof found === "string") {
+        setPlaces(null);
+        setFailed(found);
+        return;
+      }
       setPlaces(found);
-      setFailed(found === null);
-      if (found?.length === 1) setChosen(found[0]);
+      if (found.length === 1) choose(found[0]);
     });
   }
 
@@ -100,7 +118,11 @@ export function GoogleFinder({ locationId, query: initialQuery, needsAddress, ne
       if (result.ok) {
         toast({ message: t("saved", { name: place.name }) });
         onSaved?.();
-      } else toast({ tone: "error", message: t("saveFailed") });
+      } else
+        toast({
+          tone: "error",
+          message: result.code === ErrorCode.PLAN_REQUIRED ? tSettings("reviewNeedsPro") : t("saveFailed"),
+        });
     });
   }
 
@@ -135,20 +157,21 @@ export function GoogleFinder({ locationId, query: initialQuery, needsAddress, ne
       <div aria-live="polite">
         {failed && (
           <div className="mt-4">
-            <FormAlert>{t("failed")}</FormAlert>
+            <FormAlert>{t(failed)}</FormAlert>
           </div>
         )}
         {places?.length === 0 && <p className="mt-4 text-p-sm">{t("nothing")}</p>}
         {places && places.length > 0 && (
-          <ul className="mt-4 flex flex-col gap-2">
+          <ul role="radiogroup" aria-label={t("results")} className="mt-4 flex flex-col gap-2">
             {places.map((place) => {
               const on = chosen?.placeId === place.placeId;
               return (
                 <li key={place.placeId}>
                   <button
                     type="button"
-                    aria-pressed={on}
-                    onClick={() => setChosen(place)}
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => choose(place)}
                     className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border p-3.5 text-left transition-colors ${
                       on ? "border-pine bg-pine-subtle" : "border-border hover:bg-subtle"
                     }`}
@@ -177,6 +200,12 @@ export function GoogleFinder({ locationId, query: initialQuery, needsAddress, ne
               );
             })}
           </ul>
+        )}
+        {/* Google's terms: its places shown off a map say where they're from. */}
+        {places && places.length > 0 && (
+          <p translate="no" className="mt-2 text-right text-p-xs text-muted">
+            Google Maps
+          </p>
         )}
       </div>
 

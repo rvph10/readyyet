@@ -3861,6 +3861,15 @@ export interface operations {
                     "application/json": components["schemas"]["ApiErrorResponseDto"];
                 };
             };
+            /** @description PLAN_REQUIRED: the review link it's for needs Pro */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
             /** @description UNAUTHORIZED: signed in, but not allowed to do this */
             403: {
                 headers: {
