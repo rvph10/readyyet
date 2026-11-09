@@ -4,8 +4,14 @@ import type { NotifyingStatusCode } from "@readyyet/shared";
 // READY_DATE_CHANGED: the estimated ready date moved later (ADR 0030).
 // READY_REMINDER: the item is still waiting to be collected (ADR 0028).
 // FEEDBACK_REQUEST: after COMPLETED, how did it go (ADR 0039).
+// FEEDBACK_REPLY: the shop answering what the Customer wrote (ADR 0125).
 export type CustomerEmailKind =
-  "TICKET_CREATED" | "READY_DATE_CHANGED" | "READY_REMINDER" | "FEEDBACK_REQUEST" | NotifyingStatusCode;
+  | "TICKET_CREATED"
+  | "READY_DATE_CHANGED"
+  | "READY_REMINDER"
+  | "FEEDBACK_REQUEST"
+  | "FEEDBACK_REPLY"
+  | NotifyingStatusCode;
 
 // What the email calls the customer's job, per business type ("your
 // repair", "votre retouche"). French nouns carry their gender, the
@@ -85,6 +91,7 @@ interface LocaleMessages {
   feedbackNotice: string;
   starLabel: (stars: number) => string;
   starsHint: string;
+  replyHint: (location: string) => string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -103,6 +110,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     feedbackNotice: "Once you've picked it up, you'll get one email asking how it went.",
     starLabel: (stars) => `${stars} out of 5 stars`,
     starsHint: "1 star is poor, 5 stars is great.",
+    replyHint: (location) => `To answer ${location}, simply reply to this email.`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
@@ -113,6 +121,10 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
         subject: ({ location, job }) => `Reminder: your ${job.word} is waiting for you at ${location}`,
         body: ({ location, title, job }) =>
           `Your ${job.word} "${title}" is ready and waiting for you at ${location}. Already picked it up? Let us know with the link below and the reminders stop.`,
+      },
+      FEEDBACK_REPLY: {
+        subject: ({ location }) => `${location} replied to your message`,
+        body: ({ location, title, job }) => `Here is ${location}'s reply about your ${job.word} "${title}":`,
       },
       FEEDBACK_REQUEST: {
         subject: ({ location, job }) => `How did your ${job.word} at ${location} go?`,
@@ -164,6 +176,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     feedbackNotice: "Après la récupération, vous recevrez un seul e-mail pour nous dire comment cela s'est passé.",
     starLabel: (stars) => `${stars} étoile${stars > 1 ? "s" : ""} sur 5`,
     starsHint: "1 étoile, c'est décevant, 5 étoiles, c'est excellent.",
+    replyHint: (location) => `Pour répondre à ${location}, répondez simplement à cet e-mail.`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
@@ -175,6 +188,11 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
         subject: ({ location, job }) => `Rappel\u00a0: votre ${job.word} vous attend chez ${location}`,
         body: ({ location, title, job }) =>
           `Votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")} et vous attend chez ${location}. Vous l'avez déjà ${agree(job, "récupéré", "récupérée")}\u00a0? Dites-le-nous avec le lien ci-dessous et les rappels s'arrêtent.`,
+      },
+      FEEDBACK_REPLY: {
+        subject: ({ location }) => `${location} a répondu à votre message`,
+        body: ({ location, title, job }) =>
+          `Voici la réponse de ${location} au sujet de votre ${job.word} «\u00a0${title}\u00a0»\u00a0:`,
       },
       FEEDBACK_REQUEST: {
         subject: ({ location, job }) =>

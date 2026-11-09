@@ -7,6 +7,15 @@ export const styles = {
   logo: { display: "block", margin: "0 0 16px", maxWidth: "100%" },
   heading: { color: "#18181b", fontSize: "20px", margin: "0 0 24px" },
   text: { color: "#27272a", fontSize: "16px", lineHeight: "24px" },
+  // Someone's own words, as they wrote them.
+  quote: {
+    color: "#27272a",
+    fontSize: "16px",
+    lineHeight: "24px",
+    borderLeft: "4px solid #d4d4d8",
+    paddingLeft: "12px",
+    whiteSpace: "pre-wrap" as const,
+  },
   button: {
     backgroundColor: "#18181b",
     borderRadius: "6px",

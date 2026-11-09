@@ -3,11 +3,11 @@ import { IsIn, IsInt, IsOptional, Max, Min } from "class-validator";
 import { MAX_PAGE } from "../../common/pagination";
 
 export class ListFeedbackQueryDto {
-  // "false" lists only what's still to be dealt with, "true" only what's
-  // been handled.
+  // "follow-up" lists only what still needs someone (ADR 0125), "all" every
+  // answer, the default.
   @IsOptional()
-  @IsIn(["true", "false"])
-  handled?: "true" | "false";
+  @IsIn(["follow-up", "all"])
+  view?: "follow-up" | "all";
 
   @IsOptional()
   @Type(() => Number)

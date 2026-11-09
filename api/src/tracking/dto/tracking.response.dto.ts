@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Locale } from "@readyyet/db";
+import { FEEDBACK_TAGS, type FeedbackTag } from "@readyyet/shared";
 import { PublicStatusDto } from "../../common/dto/status.response.dto";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 
@@ -33,6 +34,15 @@ export class TrackingPhotoDto {
   createdAt!: Date;
 }
 
+export class TrackingFeedbackDto {
+  @ApiProperty({ type: Number, nullable: true })
+  stars!: number | null;
+  @ApiProperty({ enum: FEEDBACK_TAGS, isArray: true })
+  tags!: FeedbackTag[];
+  // Once true the answer is closed, the page thanks them instead of asking.
+  messageSent!: boolean;
+}
+
 export class TrackingDto {
   trackingCode!: string;
   title!: string;
@@ -50,12 +60,14 @@ export class TrackingDto {
   currentStatus!: PublicStatusDto;
   steps!: TrackingStepDto[];
   statusHistory!: TrackingHistoryEntryDto[];
-  // Google's "write a review" link, set only on a COMPLETED ticket of a
-  // Location that asks for feedback. The page then offers it next to
-  // private feedback (ADR 0027, ADR 0039).
+  // A COMPLETED ticket of a Location on Pro: the review page is open
+  // (ADR 0039, ADR 0125).
+  asksForFeedback!: boolean;
+  // Google's "write a review" link, only when asksForFeedback and the
+  // Location set one. The review page then offers it.
   reviewUrl!: string | null;
-  // When the Customer sent private feedback, the form is hidden once set.
-  feedbackSentAt!: Date | null;
+  // What the Customer already gave, null before their first answer.
+  feedback!: TrackingFeedbackDto | null;
   // Oldest first, who took them isn't shown (ADR 0026).
   photos!: TrackingPhotoDto[];
 }
