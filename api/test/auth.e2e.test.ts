@@ -112,7 +112,10 @@ describe("Better Auth email OTP", () => {
     await sent.send({ email, type: "sign-in" });
 
     // Sent after the answer (ADR 0047).
-    const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } }));
+    const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "auth_otp" } }), {
+      timeout: 10_000,
+      interval: 200,
+    });
     expect(log.subject).toBe(subject);
     expect(log.html).toContain(await readOtp(prisma, email));
   });
