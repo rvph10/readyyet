@@ -119,7 +119,13 @@ describe("Customers", () => {
     const ticketId = BigInt(created.body.id);
     const about = { subject: "Erased Log", html: "<p>Erased Log</p>", ticketId };
     const toCustomer = await prisma.emailLog.create({
-      data: { ...about, to: email, type: "ticket_status_update", lastEvent: { data: { to: [email] } } },
+      data: {
+        ...about,
+        to: email,
+        type: "ticket_status_update",
+        lastEvent: { data: { to: [email] } },
+        attachments: [{ filename: "ready-date.ics", content: "QkVHSU4=", contentType: "text/calendar" }],
+      },
     });
     const staffCopy = await prisma.emailLog.create({
       data: { ...about, to: "delivered+staff@resend.dev", type: "feedback_received" },
@@ -141,6 +147,7 @@ describe("Customers", () => {
         html: null,
         text: null,
         lastEvent: null,
+        attachments: null,
       });
       expect(after.gaveUpAt).toBeTruthy();
     }

@@ -212,17 +212,21 @@ describe("Customer emails", () => {
     expect(html).not.toContain("google.com/maps");
   });
 
-  it("shows the Location's logo above its name when it has one", async () => {
+  it("heads with the Location's logo when it has one, named for screen readers", async () => {
     const logoUrl = "https://api.readyyet.app/images/logos/0b7c7a9e-3f2a-4d7e-9a53-1c2d3e4f5a6b.png";
     const html = await render(buildCustomerEmail(input({ location: { ...input().location, logoUrl } })).react);
 
-    expect(html).toMatch(new RegExp(`<img[^>]+src="${logoUrl}"[^>]*>.*Joe&#x27;s Garage</h1>`, "s"));
+    expect(html).toMatch(new RegExp(`<img alt="Joe&#x27;s Garage"[^>]+src="${logoUrl}"`));
   });
 
-  it("shows no image when the Location has no logo", async () => {
+  it("heads with the Location's name when it has no logo, and says it was sent with ReadyYet", async () => {
     const html = await render(buildCustomerEmail(input()).react);
+    const images = html.match(/<img[^>]+>/g) ?? [];
 
-    expect(html).not.toContain("<img");
+    // Only ReadyYet's own mark, at the bottom.
+    expect(images).toHaveLength(1);
+    expect(images[0]).toContain("/email/logo.png");
+    expect(html).toContain("Sent with ReadyYet");
   });
 
   describe("feedback (ADR 0039)", () => {

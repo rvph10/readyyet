@@ -1,6 +1,6 @@
 import { BillingInterval, Plan, SubscriptionStatus, type Subscription } from "@readyyet/db";
 
-const TRIAL_DAYS = 14;
+export const TRIAL_DAYS = 14;
 export const ESSENTIEL_MEMBER_LIMIT = 2;
 
 // ADR 0082: an Owner's first Business gets the trial on its first Location,

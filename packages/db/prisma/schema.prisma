@@ -509,6 +509,9 @@ model EmailLog {
   replyTo       String?     @map("reply_to")
   // Extra headers (List-Unsubscribe), a flat name to value object.
   headers       Json?
+  // Files sent with it, like a calendar event (ADR 0127): a list of
+  // { filename, content (base64), contentType }, so a retry sends them too.
+  attachments   Json?
   subject       String
   // react content is rendered to html at send time and stored here, so a
   // later retry (a fresh process, possibly minutes later) has the exact

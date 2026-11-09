@@ -19,7 +19,8 @@ import {
   stopUpdatesUrl,
   trackingUrl,
 } from "../tracking/tracking-link";
-import { buildCustomerEmail } from "./customer-email/customer-email";
+import { readyDateEvent } from "./customer-email/calendar-event";
+import { buildCustomerEmail, calendarTitle } from "./customer-email/customer-email";
 import type { CustomerEmailKind } from "./customer-email/messages";
 import { isReminderHour, nextReadyReminderAt } from "./ready-reminders";
 
@@ -346,16 +347,20 @@ export class NotificationService {
     const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
       ? toCalendarDate(ticket.estimatedReadyDate)
       : null;
+    const locale = ticket.customer.locale ?? ticket.location.locale;
+    const address = toPostalAddress(ticket.location);
+    // The emails that state the date carry it as a calendar event too.
+    const statesDate = estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED");
     const { subject, react } = buildCustomerEmail({
       kind,
-      locale: ticket.customer.locale ?? ticket.location.locale,
+      locale,
       businessTypeCode: ticket.location.businessType.code,
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
       estimatedReadyDate,
       location: {
         ...ticket.location,
-        address: toPostalAddress(ticket.location),
+        address,
         logoUrl: publicImageUrl(ticket.location.business.logoKey),
       },
       trackingUrl: trackingUrl(ticket.trackingCode),
@@ -380,10 +385,22 @@ export class NotificationService {
         "List-Unsubscribe": `<${oneClickStopUrl(ticket.trackingCode)}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
+      ...(statesDate && {
+        attachments: [
+          readyDateEvent({
+            trackingCode: ticket.trackingCode,
+            date: estimatedReadyDate,
+            title: calendarTitle(locale, ticket.location.businessType.code, ticket.location.name),
+            location: ticket.location.name,
+            address: address && `${address.streetAddress}, ${address.postalCode} ${address.addressLocality}`,
+            trackingUrl: trackingUrl(ticket.trackingCode),
+          }),
+        ],
+      }),
     });
     // What a later date is compared to. Only the emails that state the date
     // tell it, a status email doesn't.
-    if (estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED")) {
+    if (statesDate) {
       await this.prisma.ticket.update({
         where: { id: ticket.id },
         data: { customerToldReadyDate: ticket.estimatedReadyDate },

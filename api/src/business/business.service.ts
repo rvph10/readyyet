@@ -4,9 +4,13 @@ import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
-import { trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
+import { TRIAL_DAYS, trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
 import { EmailService } from "../email/email.service";
-import { buildNewOwnerEmail, buildPreviousOwnerEmail } from "../notification/staff-email/staff-email";
+import {
+  buildNewOwnerEmail,
+  buildPreviousOwnerEmail,
+  buildWelcomeEmail,
+} from "../notification/staff-email/staff-email";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
 import { toAddressColumns, toOpeningHoursJson } from "../location/location-info";
 import { locationSelect, toLocationResponse } from "../location/location-select";
@@ -70,7 +74,44 @@ export class BusinessService {
       },
       select: { ...businessSelect, locations: locationSelect },
     });
+    if (firstBusiness) {
+      // Not awaited, like every staff email sent along a request.
+      this.sendWelcomeEmail(ownerId, business.locations[0].id).catch((err) => {
+        this.logger.error(`Failed to email a welcome to ${ownerId}`, err instanceof Error ? err.stack : err);
+      });
+    }
     return { ...toBusinessResponse(business), locations: business.locations.map(toLocationResponse) };
+  }
+
+  // ADR 0127: once, with an Owner's first shop and its trial.
+  private async sendWelcomeEmail(ownerId: string, locationId: string) {
+    const [owner, location] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({ where: { id: ownerId } }),
+      this.prisma.location.findUniqueOrThrow({
+        where: { id: locationId },
+        select: { name: true, timeZone: true, subscription: { select: { trialEndsAt: true } } },
+      }),
+    ]);
+    const trialEndsOn = new Intl.DateTimeFormat(owner.locale === "FR" ? "fr-BE" : "en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: location.timeZone,
+    }).format(location.subscription!.trialEndsAt!);
+    await this.email.send({
+      to: owner.email,
+      ...buildWelcomeEmail({
+        locale: owner.locale,
+        location: location.name,
+        trialDays: TRIAL_DAYS,
+        trialEndsOn,
+        appUrl: `${process.env.WEB_URL}/locations/${locationId}`,
+      }),
+      type: "welcome",
+      dedupeKey: `welcome:${ownerId}`,
+      // "Reply to this email" has to reach someone.
+      replyTo: process.env.SUPPORT_EMAIL,
+    });
   }
 
   // Owner only, like every Business-wide action (ADR 0002). Members see

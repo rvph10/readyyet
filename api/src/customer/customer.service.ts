@@ -102,6 +102,8 @@ export class CustomerService {
           text: null,
           lastError: null,
           lastEvent: Prisma.DbNull,
+          // The calendar event names where and when (ADR 0127).
+          attachments: Prisma.DbNull,
           gaveUpAt: new Date(),
         },
       }),
