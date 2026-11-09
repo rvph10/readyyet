@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
+import { Plan, SubscriptionStatus } from "@readyyet/db";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -39,6 +40,31 @@ const PLACES = {
       displayName: { text: "Velo 24/7" },
       addressComponents: [{ longText: "Belgium", shortText: "BE", types: ["country"] }],
       regularOpeningHours: { periods: [{ open: { day: 0, hour: 0, minute: 0 } }] },
+    },
+    {
+      // No street number, and hours Save would refuse: neither is offered.
+      id: "ChIJbacktoback",
+      displayName: { text: "Velo Midi" },
+      addressComponents: [
+        { longText: "Rue Haute", shortText: "Rue Haute", types: ["route"] },
+        { longText: "Bruxelles", shortText: "Bruxelles", types: ["locality"] },
+        { longText: "1000", shortText: "1000", types: ["postal_code"] },
+        { longText: "Belgium", shortText: "BE", types: ["country"] },
+      ],
+      regularOpeningHours: {
+        periods: [
+          { open: { day: 2, hour: 9, minute: 0 }, close: { day: 2, hour: 12, minute: 0 } },
+          { open: { day: 2, hour: 12, minute: 0 }, close: { day: 2, hour: 18, minute: 0 } },
+        ],
+      },
+    },
+    {
+      // Closes at midnight, which Google puts on the next day.
+      id: "ChIJmidnight",
+      displayName: { text: "Velo Minuit" },
+      regularOpeningHours: {
+        periods: [{ open: { day: 5, hour: 18, minute: 0 }, close: { day: 6, hour: 0, minute: 0 } }],
+      },
     },
   ],
 };
@@ -86,8 +112,8 @@ describe("Finding a shop on Google", () => {
   // Only Google is faked, the test's own requests go through.
   function answerGoogle(status: number, body: unknown) {
     // fetch is typed by Node's undici, Response here by the DOM lib: the same object.
-    const answer = new Response(JSON.stringify(body), { status }) as unknown as Awaited<ReturnType<typeof fetch>>;
-    google = vi.fn<typeof fetch>(() => Promise.resolve(answer));
+    const answer = () => new Response(JSON.stringify(body), { status }) as unknown as Awaited<ReturnType<typeof fetch>>;
+    google = vi.fn<typeof fetch>(() => Promise.resolve(answer()));
     vi.spyOn(globalThis, "fetch").mockImplementation((input, init) =>
       input === GOOGLE ? google(input, init) : realFetch(input, init),
     );
@@ -114,7 +140,7 @@ describe("Finding a shop on Google", () => {
     const response = await search(ownerCookie);
 
     expect(response.status).toBe(200);
-    const [shop, open247] = response.body.places;
+    const [shop, open247, backToBack, midnight] = response.body.places;
     expect(shop).toEqual({
       placeId: "ChIJlUcTsJrEw0cRZqSMDlRHCK8",
       name: "Velo Ixelles",
@@ -135,6 +161,8 @@ describe("Finding a shop on Google", () => {
       ],
     });
     expect(open247).toMatchObject({ formattedAddress: null, address: null, openingHours: [], rating: null });
+    expect(backToBack).toMatchObject({ address: null, openingHours: [] });
+    expect(midnight.openingHours).toEqual([{ dayOfWeek: "Friday", opens: "18:00", closes: "23:59" }]);
 
     const saved = await request(app.getHttpServer())
       .patch(`/locations/${locationId}`)
@@ -183,5 +211,45 @@ describe("Finding a shop on Google", () => {
     answerGoogle(200, PLACES);
 
     expect((await search(ownerCookie, "   ")).status).toBe(400);
+  });
+
+  it("is not for another Business's members", async () => {
+    answerGoogle(200, PLACES);
+    const stranger = await signInViaOtp(app, app.get(PrismaService), `delivered+places-stranger-${stamp}@resend.dev`);
+
+    expect((await search(stranger)).status).not.toBe(200);
+    expect(google).not.toHaveBeenCalled();
+  });
+
+  it("needs Pro, as the review link it's for does", async () => {
+    answerGoogle(200, PLACES);
+    const prisma = app.get(PrismaService);
+    const before = await prisma.subscription.findUniqueOrThrow({ where: { locationId } });
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { plan: Plan.ESSENTIEL, status: SubscriptionStatus.ACTIVE, trialEndsAt: null },
+    });
+
+    const response = await search(ownerCookie);
+
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { plan: before.plan, status: before.status, trialEndsAt: before.trialEndsAt },
+    });
+    expect(response.status).toBe(402);
+    expect(google).not.toHaveBeenCalled();
+  });
+
+  it("stops a Location at thirty searches a day", async () => {
+    answerGoogle(200, { places: [] });
+    const statuses: number[] = [];
+    for (let n = 0; n < 35; n++) {
+      // Each from its own address, so the per-minute limit isn't what stops it.
+      const response = await search(ownerCookie).set("X-Real-IP", `100.65.0.${n + 1}`);
+      statuses.push(response.status);
+    }
+
+    expect(statuses.at(-1)).toBe(429);
+    expect(google.mock.calls.length).toBeLessThanOrEqual(30);
   });
 });

@@ -1,4 +1,11 @@
-import { DAYS_OF_WEEK, type OpeningHoursSpecification, type PostalAddress, toOpeningHoursJson } from "./location-info";
+import { isISO31661Alpha2 } from "class-validator";
+import {
+  DAYS_OF_WEEK,
+  isWeeklyOpeningHours,
+  type OpeningHoursSpecification,
+  type PostalAddress,
+  toOpeningHoursJson,
+} from "./location-info";
 
 const SEARCH_URL = "https://places.googleapis.com/v1/places:searchText";
 const MOST_PLACES = 5;
@@ -15,7 +22,6 @@ const FIELDS = [
 ].map((field) => `places.${field}`);
 // Where the number comes before the street, as people there write it.
 const NUMBER_FIRST = new Set(["FR", "LU", "GB", "IE", "US", "CA", "AU"]);
-const MOST_RANGES_A_DAY = 2;
 
 interface GoogleComponent {
   longText: string;
@@ -91,7 +97,8 @@ export async function searchGooglePlaces(
   }));
 }
 
-// ADR 0034's four parts, or nothing: half an address isn't offered.
+// ADR 0034's four parts, a street with its number, or nothing: half an
+// address isn't offered, nor one Save would refuse.
 function toAddress(components: GoogleComponent[]): PostalAddress | null {
   const part = (type: string) => components.find(({ types }) => types.includes(type));
   const number = part("street_number")?.longText;
@@ -99,30 +106,31 @@ function toAddress(components: GoogleComponent[]): PostalAddress | null {
   const postalCode = part("postal_code")?.longText;
   const locality = (part("locality") ?? part("postal_town"))?.longText;
   const country = part("country")?.shortText;
-  if (!route || !postalCode || !locality || !country) {
+  if (!number || !route || !postalCode || !locality || !country || !isISO31661Alpha2(country)) {
     return null;
   }
-  const streetAddress = !number ? route : NUMBER_FIRST.has(country) ? `${number} ${route}` : `${route} ${number}`;
+  const streetAddress = NUMBER_FIRST.has(country) ? `${number} ${route}` : `${route} ${number}`;
   return { streetAddress, postalCode, addressLocality: locality, addressCountry: country };
 }
 
 const time = ({ hour, minute }: GooglePoint) => `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 
-// Ranges that open and close the same day, at most two a day. A place open
-// around the clock or past midnight isn't offered any hours at all, rather
-// than hours that are wrong.
+// Google closes a shop that shuts at midnight on the next day, at 00:00.
+const closesAtMidnight = (open: GooglePoint, close: GooglePoint) =>
+  close.day === (open.day + 1) % 7 && close.hour === 0 && close.minute === 0;
+
+// Hours Save would take: ranges within a day, at most two, apart. A place
+// open around the clock or past midnight isn't offered any hours at all,
+// rather than hours that are wrong.
 function toOpeningHours(periods: { open: GooglePoint; close?: GooglePoint }[]): OpeningHoursSpecification[] {
-  if (periods.some(({ open, close }) => !close || close.day !== open.day)) {
+  if (periods.some(({ open, close }) => !close || (close.day !== open.day && !closesAtMidnight(open, close)))) {
     return [];
   }
   // Google counts from Sunday, DAYS_OF_WEEK from Monday.
   const ranges = periods.map(({ open, close }) => ({
     dayOfWeek: DAYS_OF_WEEK[(open.day + 6) % 7],
     opens: time(open),
-    closes: time(close!),
+    closes: close!.day === open.day ? time(close!) : "23:59",
   }));
-  const tooMany = DAYS_OF_WEEK.some(
-    (day) => ranges.filter(({ dayOfWeek }) => dayOfWeek === day).length > MOST_RANGES_A_DAY,
-  );
-  return tooMany ? [] : toOpeningHoursJson(ranges);
+  return isWeeklyOpeningHours(ranges) ? toOpeningHoursJson(ranges) : [];
 }

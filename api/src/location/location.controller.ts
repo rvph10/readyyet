@@ -59,6 +59,7 @@ export class LocationController {
   @ApiParam({ name: "locationId" })
   @ApiOperation({ summary: "Find this shop on Google Maps, for its review link, address and hours (ADR 0126)" })
   @ApiErrors(HttpStatus.BAD_REQUEST)
+  @ApiError(HttpStatus.PAYMENT_REQUIRED, "PLAN_REQUIRED: the review link it's for needs Pro")
   findOnGoogle(
     @Param("locationId") locationId: string,
     @Query() query: SearchGooglePlacesQueryDto,

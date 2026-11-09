@@ -2602,6 +2602,16 @@
               }
             }
           },
+          "402": {
+            "description": "PLAN_REQUIRED: the review link it's for needs Pro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
           "403": {
             "description": "UNAUTHORIZED: signed in, but not allowed to do this",
             "content": {
