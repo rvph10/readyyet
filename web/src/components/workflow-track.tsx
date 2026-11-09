@@ -23,7 +23,8 @@ function showCurrent(track: HTMLOListElement | null) {
 }
 
 // ADR 0087: the current step is the only thing on the page that moves. It
-// breathes in a loop, and a pulse leaves it toward the next step. A stopped
+// breathes in a loop, and a pulse leaves it toward the next step. Moving on
+// fills the line behind it (ADR 0122). A stopped
 // Ticket's track stays still, faded where it got to.
 export function WorkflowTrack({ steps, currentCode, reachedCode, label, horizontal }: Props) {
   const ended = isEndedStatus(currentCode);
@@ -63,8 +64,15 @@ export function WorkflowTrack({ steps, currentCode, reachedCode, label, horizont
                   horizontal
                     ? "top-[1.125rem] left-[calc(50%+1.625rem)] h-1 w-[calc(100%-3.25rem)]"
                     : "top-10 bottom-0 left-[1.125rem] w-1 md:top-[1.125rem] md:bottom-auto md:left-[calc(50%+1.625rem)] md:h-1 md:w-[calc(100%-3.25rem)]"
-                } ${done ? "bg-pine" : "bg-border-strong"}`}
+                } bg-border-strong`}
               >
+                <span
+                  className={`absolute inset-0 bg-pine transition-transform duration-(--duration-slow) ease-move ${
+                    horizontal
+                      ? `origin-left ${done ? "" : "scale-x-0"}`
+                      : `origin-top md:origin-left ${done ? "" : "scale-y-0 md:scale-y-100 md:scale-x-0"}`
+                  }`}
+                />
                 {current && (
                   <span
                     className={`absolute ${
@@ -84,7 +92,7 @@ export function WorkflowTrack({ steps, currentCode, reachedCode, label, horizont
                 />
               )}
               <span
-                className={`relative flex size-10 items-center justify-center rounded-full ${
+                className={`relative flex size-10 items-center justify-center rounded-full transition-colors duration-(--duration-slow) ${
                   current ? fill : done ? "bg-pine text-brand" : "border-2 border-border-strong bg-surface"
                 }`}
               >
