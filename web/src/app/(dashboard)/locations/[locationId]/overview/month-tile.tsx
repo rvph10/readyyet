@@ -5,17 +5,11 @@ import { Icon } from "@/components/ui/icon";
 import { RollingNumber } from "@/components/ui/rolling-number";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
+import { sized } from "@/lib/sized";
 import { intlLocale } from "../tickets/ticket-views";
 
 type Received = components["schemas"]["InsightsReceivedDto"];
 type Customers = components["schemas"]["InsightsCustomersDto"];
-
-// Heights and widths go through the CSSOM, which the CSP allows (ADR 0048).
-function sized(property: "height" | "width", percent: number) {
-  return (element: HTMLElement | null) => {
-    if (element) element.style[property] = `${percent}%`;
-  };
-}
 
 // ADR 0116: whether the shop is growing, month by month, and who's coming in.
 // This month is compared with last month up to the same day, not all of it.

@@ -33,7 +33,7 @@ export async function getLatestFeedback(locationId: string) {
       await (
         await api()
       ).GET("/locations/{locationId}/feedback", {
-        params: { path: { locationId }, query: { handled: "false", take: FEEDBACK_ON_THE_BELL } },
+        params: { path: { locationId }, query: { view: "follow-up", take: FEEDBACK_ON_THE_BELL } },
       }),
     );
     return items;

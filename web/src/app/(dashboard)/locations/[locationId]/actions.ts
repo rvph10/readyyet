@@ -18,6 +18,18 @@ export async function searchTickets(locationId: string, q: string) {
   return data?.items ?? [];
 }
 
+// ADR 0125: emailed to the Customer in the shop's name, which also handles it.
+export async function replyToFeedback(locationId: string, feedbackId: string, reply: string) {
+  const result = await (
+    await api()
+  ).POST("/locations/{locationId}/feedback/{feedbackId}/reply", {
+    params: { path: { locationId, feedbackId } },
+    body: { reply },
+  });
+  revalidatePath(`/locations/${locationId}`, "layout");
+  return actionResult(result);
+}
+
 export async function markFeedbackHandled(locationId: string, feedbackId: string) {
   const result = await (
     await api()

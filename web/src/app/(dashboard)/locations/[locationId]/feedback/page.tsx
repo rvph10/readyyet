@@ -20,15 +20,17 @@ import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
 import { daysBetween, formatMoment } from "../tickets/ticket-views";
 import { FeedbackBoard } from "./feedback-board";
-import { feedbackBlock, feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
+import { FeedbackInsights } from "./feedback-insights";
+import { asksForFeedback, feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
 import { Reveal } from "@/components/reveal";
 
 // Someone may be waiting on an answer, so a tab left open has to show it.
 const REFRESH_EVERY_MS = 60 * 1000;
 const PAGE_SIZE = 20;
 
-// ADR 0096: the page the "new private feedback" email leads to. ADR 0119: the
-// header and the tabs stand at once, the messages wait in their own panels.
+// ADR 0096: the page the "new feedback" email leads to. ADR 0125: the month's
+// numbers over the inbox. ADR 0119: the header and the tabs stand at once, the
+// numbers and the answers wait in their own panels.
 export default async function FeedbackPage({ params, searchParams }: PageProps<"/locations/[locationId]/feedback">) {
   const [{ locationId }, search, { memberships }, t] = await Promise.all([
     params,
@@ -47,6 +49,9 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
     <div className="fit-screen flex flex-col gap-4 lg:gap-5">
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader title={t("pageTitle")} />
+      <Reveal fallback={<FeedbackInsights insights={null} settingsHref="" hasReviewLink />}>
+        <Insights locationId={locationId} />
+      </Reveal>
       {/* Keyed, so another tab or page shows its messages loading straight away. */}
       <Reveal key={`${view}:${page}`} fallback={<FeedbackLoading locationId={locationId} view={view} />}>
         <FeedbackContent locationId={locationId} view={view} page={page} />
@@ -55,16 +60,30 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
   );
 }
 
+async function Insights({ locationId }: { locationId: string }) {
+  const [client, location] = await Promise.all([api(), getLocation(locationId)]);
+  const insights = await client
+    .GET("/locations/{locationId}/feedback/insights", { params: { path: { locationId } } })
+    .then(pageData);
+  return (
+    <FeedbackInsights
+      insights={insights}
+      settingsHref={`/locations/${locationId}/settings?section=reviews`}
+      hasReviewLink={location.googleReviewUrl !== null}
+    />
+  );
+}
+
 function ViewTabs({ locationId, view, waiting }: { locationId: string; view: View; waiting: number | undefined }) {
   const t = useTranslations("feedback");
   return (
     <Tabs
       label={t("viewsLabel")}
-      tabs={(Object.keys(VIEWS) as View[]).map((name) => ({
+      tabs={VIEWS.map((name) => ({
         href: feedbackHref(locationId, { view: name }),
         label: t(`views.${name}`),
         current: name === view,
-        count: name === "waiting" ? waiting : undefined,
+        count: name === "follow-up" ? waiting : undefined,
       }))}
     />
   );
@@ -80,7 +99,7 @@ async function FeedbackContent({ locationId, view, page }: { locationId: string;
   const [list, location, billing, overview] = await Promise.all([
     client
       .GET("/locations/{locationId}/feedback", {
-        params: { path: { locationId }, query: { handled: VIEWS[view], take: PAGE_SIZE, page } },
+        params: { path: { locationId }, query: { view, take: PAGE_SIZE, page } },
       })
       .then(pageData),
     getLocation(locationId),
@@ -97,46 +116,48 @@ async function FeedbackContent({ locationId, view, page }: { locationId: string;
   const today = calendarDateIn(new Date(), timeZone);
   const moment = (instant: string) =>
     formatMoment(new Date(instant), timeZone, today, locale, (parts) => tDetail("moment", parts));
-  const block = feedbackBlock(location, billing);
-  const fixHref = `/locations/${locationId}/${block === "plan" ? "billing" : "settings?section=reviews"}`;
+  const asks = asksForFeedback(billing);
 
   const tabs = <ViewTabs locationId={locationId} view={view} waiting={overview.counts.unhandledFeedback} />;
 
   return list.items.length === 0 ? (
     <Panel padding="none" className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <div className="px-5 pt-5 lg:px-7 lg:pt-6">{tabs}</div>
-      {block && view === "waiting" ? (
+      {asks ? (
         <EmptyState
-          illustration="messages"
-          title={t(`blocked.${block}.title`)}
-          description={t(`blocked.${block}.description`)}
-          action={
-            <Link href={fixHref} className={buttonClass()}>
-              {t(`blocked.${block}.action`)}
-            </Link>
-          }
+          illustration={view === "follow-up" ? "chill" : "inbox"}
+          title={t(`empty.${view}.title`)}
+          description={t(`empty.${view}.description`)}
         />
       ) : (
         <EmptyState
-          illustration={view === "waiting" ? "chill" : "inbox"}
-          title={t(`empty.${view}.title`)}
-          description={t(`empty.${view}.description`)}
+          illustration="messages"
+          title={t("plan.title")}
+          description={t("plan.description")}
+          action={
+            <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
+              {t("plan.action")}
+            </Link>
+          }
         />
       )}
     </Panel>
   ) : (
     <>
-      {block && (
-        <Banner action={{ href: fixHref, label: t(`blocked.${block}.action`) }}>{t(`blocked.${block}.notice`)}</Banner>
+      {!asks && (
+        <Banner action={{ href: `/locations/${locationId}/billing`, label: t("plan.action") }}>
+          {t("plan.notice")}
+        </Banner>
       )}
       <FeedbackBoard
         locationId={locationId}
-        shopName={location.name}
         items={list.items.map((item) => ({
           ...item,
           receivedShown: moment(item.createdAt),
           handledShown: item.handledAt && moment(item.handledAt),
-          waitingDays: item.handledAt ? null : daysBetween(calendarDateIn(new Date(item.createdAt), timeZone), today),
+          waitingDays: item.needsFollowUp
+            ? daysBetween(calendarDateIn(new Date(item.createdAt), timeZone), today)
+            : null,
         }))}
         tabs={tabs}
         pager={

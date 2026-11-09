@@ -355,12 +355,11 @@
     "opensOn": "Closed now, opens {day} at {time}",
     "closed": "Closed",
     "hoursRange": "{opens} to {closes}",
-    "feedbackPrivateTitle": "Tell the shop privately",
+    "feedbackPrivateTitle": "Tell the shop",
     "feedbackPlaceholder": "What went well, or what could have gone better?",
     "feedbackSend": "Send to the shop",
     "feedbackSending": "Sending…",
-    "feedbackSent": "Thanks, your message went to the shop.",
-    "feedbackMissing": "Write a message first.",
+    "feedbackSent": "Thanks, the shop got your answer.",
     "feedbackTooLong": "Keep it under {max} characters.",
     "rateItem": "Tell us how it went",
     "ratingTitle": "How did it go?",
@@ -368,10 +367,9 @@
     "starsLabel": "Rating",
     "starLabel": "{count, plural, one {# star} other {# stars}} out of 5",
     "ratingPrompt": "Choose a number of stars.",
-    "publicReviewTitle": "Leave a public review",
-    "publicReviewText": "It's written on Google, where anyone can read it.",
-    "privateNoteTitle": "Or write to the shop",
-    "privateNoteText": "Only the shop reads this.",
+    "publicReviewTitle": "Review on Google",
+    "publicReviewText": "Help other people find a good shop. Your review is public on Google.",
+    "privateNoteText": "Anything to add? Only the shop reads this, and it's optional.",
     "reviewOnGoogle": "Write a review on Google",
     "backToTracking": "Back to the tracking page",
     "stopTitle": "Stop emails about this job?",
@@ -386,7 +384,10 @@
     "collectedTitle": "Already picked up your item?",
     "collectedText": "We'll let the shop know, and the reminders will stop.",
     "collectedConfirm": "Yes, I picked it up",
-    "collectedNotYet": "Not yet"
+    "collectedNotYet": "Not yet",
+    "tagsTitle": "What stood out?",
+    "tagsHint": "Pick as many as you like.",
+    "ratingSaved": "Thanks, the shop got your rating. You can still write to them below."
   },
   "ticketDetail": {
     "status": "Status",
@@ -746,45 +747,64 @@
     "pageTitle": "Feedback",
     "viewsLabel": "Feedback status",
     "views": {
-      "waiting": "Needs follow-up",
-      "handled": "Handled"
+      "follow-up": "To follow up",
+      "all": "All answers"
     },
     "messagesTitle": "Customer messages",
-    "markHandled": "Mark handled",
     "marking": "Marking…",
-    "moved": "Moved to Handled",
     "failed": "That didn't work. Try again.",
     "handled": "Handled",
-    "handledBy": "Handled by {name}",
     "empty": {
-      "waiting": {
-        "title": "Nothing needs follow-up",
-        "description": "New private Feedback from Customers appears here. Open a Ticket to contact the Customer, then mark the message handled."
+      "follow-up": {
+        "title": "Nobody's waiting on you",
+        "description": "A message or a rating of 1 or 2 stars lands here, so you can put things right while it's still fresh."
       },
-      "handled": {
-        "title": "No handled messages yet",
-        "description": "Feedback you have handled stays here with who handled it and when."
-      }
-    },
-    "blocked": {
-      "plan": {
-        "title": "Private feedback comes with Pro",
-        "description": "On Pro, each Customer is asked how it went after collecting their item, and what they tell you privately lands here.",
-        "notice": "This shop is no longer on Pro, so Customers can't send new feedback. What they already sent stays here.",
-        "action": "See plans"
-      },
-      "reviewLink": {
-        "title": "Customers aren't being asked yet",
-        "description": "Customers are asked how it went once this shop has its Google review link. Add it in Settings to start hearing from them.",
-        "notice": "Customers aren't being asked for feedback, as this shop has no Google review link.",
-        "action": "Go to Settings"
+      "all": {
+        "title": "No answers yet",
+        "description": "After a Customer collects their item, they're asked how it went. Their stars, what they ticked and what they wrote show up here."
       }
     },
     "waitingFor": "{days, plural, =0 {New today} one {Waiting # day} other {Waiting # days}}",
-    "replyEmail": "Reply by email",
     "replyCall": "Call",
-    "replySubject": "{shop}: about {ticket}",
-    "noContact": "No email or phone for this Customer."
+    "noContact": "No email or phone for this Customer.",
+    "plan": {
+      "title": "Customer feedback comes with Pro",
+      "description": "On Pro, each Customer is asked how it went after collecting their item. You see their rating, what stood out, and anything they write.",
+      "notice": "This shop is no longer on Pro, so Customers aren't asked any more. What they already sent stays here.",
+      "action": "See plans"
+    },
+    "insights": {
+      "label": "This month",
+      "average": "Average rating in {month}",
+      "ratings": "{count, plural, =0 {No ratings yet} one {From # rating} other {From # ratings}}",
+      "allTime": "{average} overall, from {count, plural, one {# rating} other {# ratings}}",
+      "spread": "How they rated",
+      "google": "Went to Google",
+      "googleOf": "{count, plural, =0 {Nobody rated yet} other {Out of # who rated}}",
+      "addGoogleLink": "Add your Google link to send them there",
+      "answered": "Answered",
+      "answeredOf": "{count, plural, =0 {Nobody asked yet} one {Out of # Customer asked} other {Out of # Customers asked}}",
+      "mentioned": "Mentioned most",
+      "noTags": "Nothing yet this month."
+    },
+    "starsLabel": "{stars} out of 5",
+    "ratedOnly": "Rated it {stars} out of 5",
+    "wentToGoogle": "Went to Google",
+    "noMessage": "No message, only a rating.",
+    "replyLabel": "Reply to {name}",
+    "replyPlaceholder": "Thank them, or say how you'll put it right.",
+    "replyHint": "Emailed to {email} in your shop's name. Their answer comes to your shop's email.",
+    "replyMissing": "Write your reply first.",
+    "replyTooLong": "Keep it under {max} characters.",
+    "sendReply": "Send reply",
+    "replying": "Sending…",
+    "replied": "Reply sent to {name}.",
+    "repliedTitle": "Your reply",
+    "repliedBy": "Replied by {name}",
+    "closeWithoutReply": "Close without replying",
+    "close": "Mark as dealt with",
+    "closed": "Marked as dealt with",
+    "closedBy": "Dealt with by {name}"
   },
   "customers": {
     "title": "Customers",
@@ -1359,5 +1379,16 @@
       "title": "Nothing to show",
       "description": "No shop signed up through your link before your sales partner status ended, so nothing is owed to you."
     }
+  },
+  "feedbackTags": {
+    "ON_TIME": "Ready on time",
+    "FRIENDLY": "Friendly",
+    "GOOD_VALUE": "Good value",
+    "CLEAR": "Clear explanations",
+    "QUALITY": "Quality work",
+    "LATE": "Took longer than expected",
+    "PRICE": "Higher price than expected",
+    "NOT_FIXED": "Problem not fully fixed",
+    "HARD_TO_REACH": "Hard to reach"
   }
 }

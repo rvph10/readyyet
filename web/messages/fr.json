@@ -355,12 +355,11 @@
     "opensOn": "Fermé, ouvre {day} à {time}",
     "closed": "Fermé",
     "hoursRange": "{opens} à {closes}",
-    "feedbackPrivateTitle": "Le dire au commerce en privé",
+    "feedbackPrivateTitle": "Dites-le au commerce",
     "feedbackPlaceholder": "Ce qui s'est bien passé, ou ce qui aurait pu être mieux ?",
     "feedbackSend": "Envoyer au commerce",
     "feedbackSending": "Envoi…",
-    "feedbackSent": "Merci, votre message a été envoyé au commerce.",
-    "feedbackMissing": "Écrivez d'abord un message.",
+    "feedbackSent": "Merci, le commerce a bien reçu votre réponse.",
     "feedbackTooLong": "Restez sous {max} caractères.",
     "rateItem": "Donner mon avis",
     "ratingTitle": "Comment ça s'est passé ?",
@@ -368,10 +367,9 @@
     "starsLabel": "Note",
     "starLabel": "{count, plural, one {# étoile} other {# étoiles}} sur 5",
     "ratingPrompt": "Choisissez un nombre d'étoiles.",
-    "publicReviewTitle": "Laisser un avis public",
-    "publicReviewText": "Il est publié sur Google, où tout le monde peut le lire.",
-    "privateNoteTitle": "Ou écrire au commerce",
-    "privateNoteText": "Lui seul lit ce message.",
+    "publicReviewTitle": "Avis Google",
+    "publicReviewText": "Aidez d'autres personnes à trouver un bon commerce. Votre avis est public sur Google.",
+    "privateNoteText": "Quelque chose à ajouter ? Seul le commerce le lit, et c'est facultatif.",
     "reviewOnGoogle": "Écrire un avis sur Google",
     "backToTracking": "Retour à la page de suivi",
     "stopTitle": "Arrêter les e-mails pour ce travail ?",
@@ -386,7 +384,10 @@
     "collectedTitle": "Vous avez déjà récupéré votre article ?",
     "collectedText": "Nous le signalerons au commerce, et les rappels s'arrêteront.",
     "collectedConfirm": "Oui, je l'ai récupéré",
-    "collectedNotYet": "Pas encore"
+    "collectedNotYet": "Pas encore",
+    "tagsTitle": "Qu'est-ce qui vous a marqué ?",
+    "tagsHint": "Choisissez-en autant que vous voulez.",
+    "ratingSaved": "Merci, le commerce a bien reçu votre note. Vous pouvez encore lui écrire ci-dessous."
   },
   "ticketDetail": {
     "status": "Statut",
@@ -746,45 +747,64 @@
     "pageTitle": "Avis",
     "viewsLabel": "État des retours",
     "views": {
-      "waiting": "À traiter",
-      "handled": "Traités"
+      "follow-up": "À traiter",
+      "all": "Toutes les réponses"
     },
     "messagesTitle": "Messages des clients",
-    "markHandled": "Marquer comme traité",
     "marking": "Enregistrement…",
-    "moved": "Déplacé dans Traités",
     "failed": "Cela n'a pas fonctionné. Réessayez.",
     "handled": "Traité",
-    "handledBy": "Traité par {name}",
     "empty": {
-      "waiting": {
-        "title": "Aucun message à suivre",
-        "description": "Les retours privés des clients apparaîtront ici. Ouvrez leur ticket pour les recontacter, puis marquez le message comme traité."
+      "follow-up": {
+        "title": "Personne ne vous attend",
+        "description": "Un message ou une note de 1 ou 2 étoiles arrive ici, pour que vous puissiez arranger les choses tant que c'est récent."
       },
-      "handled": {
-        "title": "Aucun message traité pour l'instant",
-        "description": "Les retours traités restent ici, avec le nom de la personne qui s'en est occupée et la date."
-      }
-    },
-    "blocked": {
-      "plan": {
-        "title": "Les avis privés sont inclus dans Pro",
-        "description": "Avec Pro, chaque client est invité à dire comment ça s'est passé après avoir récupéré son article, et ce qu'il vous dit en privé arrive ici.",
-        "notice": "Ce magasin n'est plus sur Pro : les clients ne peuvent plus envoyer de nouveaux avis. Ceux déjà reçus restent ici.",
-        "action": "Voir les plans"
-      },
-      "reviewLink": {
-        "title": "Vos clients ne sont pas encore sollicités",
-        "description": "Les clients sont invités à donner leur avis dès que ce magasin a son lien d'avis Google. Ajoutez-le dans les réglages pour commencer à les lire.",
-        "notice": "Les clients ne sont pas invités à donner leur avis : ce magasin n'a pas de lien d'avis Google.",
-        "action": "Aller aux réglages"
+      "all": {
+        "title": "Pas encore de réponses",
+        "description": "Quand un client récupère son article, on lui demande comment ça s'est passé. Ses étoiles, ce qu'il a coché et ce qu'il a écrit apparaissent ici."
       }
     },
     "waitingFor": "{days, plural, =0 {Nouveau aujourd'hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
-    "replyEmail": "Répondre par email",
     "replyCall": "Appeler",
-    "replySubject": "{shop} : à propos de {ticket}",
-    "noContact": "Pas d'email ni de téléphone pour ce client."
+    "noContact": "Pas d'email ni de téléphone pour ce client.",
+    "plan": {
+      "title": "Les avis clients sont inclus dans Pro",
+      "description": "Avec Pro, chaque client reçoit une demande d'avis après avoir récupéré son article. Vous voyez sa note, ce qui l'a marqué et ce qu'il écrit.",
+      "notice": "Ce magasin n'est plus sur Pro, les clients ne sont donc plus sollicités. Ce qu'ils ont déjà envoyé reste ici.",
+      "action": "Voir les formules"
+    },
+    "insights": {
+      "label": "Ce mois-ci",
+      "average": "Note moyenne en {month}",
+      "ratings": "{count, plural, =0 {Pas encore de note} one {Sur # note} other {Sur # notes}}",
+      "allTime": "{average} au total, sur {count, plural, one {# note} other {# notes}}",
+      "spread": "Répartition des notes",
+      "google": "Partis sur Google",
+      "googleOf": "{count, plural, =0 {Personne n'a encore noté} one {Sur # personne qui a noté} other {Sur # personnes qui ont noté}}",
+      "addGoogleLink": "Ajoutez votre lien Google pour les y envoyer",
+      "answered": "Réponses",
+      "answeredOf": "{count, plural, =0 {Personne n'a encore été sollicité} one {Sur # client sollicité} other {Sur # clients sollicités}}",
+      "mentioned": "Le plus cité",
+      "noTags": "Rien pour l'instant ce mois-ci."
+    },
+    "starsLabel": "{stars} sur 5",
+    "ratedOnly": "A donné {stars} sur 5",
+    "wentToGoogle": "Passé par Google",
+    "noMessage": "Aucun message, seulement une note.",
+    "replyLabel": "Répondre à {name}",
+    "replyPlaceholder": "Un merci, ou comment vous allez arranger les choses.",
+    "replyHint": "Envoyé à {email} au nom de votre magasin. Sa réponse arrivera sur l'e-mail de votre magasin.",
+    "replyMissing": "Écrivez d'abord votre réponse.",
+    "replyTooLong": "Restez sous {max} caractères.",
+    "sendReply": "Envoyer la réponse",
+    "replying": "Envoi…",
+    "replied": "Réponse envoyée à {name}.",
+    "repliedTitle": "Votre réponse",
+    "repliedBy": "Répondu par {name}",
+    "closeWithoutReply": "Clore sans répondre",
+    "close": "Marquer comme traité",
+    "closed": "Marqué comme traité",
+    "closedBy": "Traité par {name}"
   },
   "customers": {
     "title": "Clients",
@@ -1359,5 +1379,16 @@
       "title": "Rien à afficher",
       "description": "Aucun magasin ne s'est inscrit avec votre lien avant la fin de votre statut de partenaire commercial, donc rien ne vous est dû."
     }
+  },
+  "feedbackTags": {
+    "ON_TIME": "Prêt à temps",
+    "FRIENDLY": "Accueil sympathique",
+    "GOOD_VALUE": "Bon rapport qualité-prix",
+    "CLEAR": "Explications claires",
+    "QUALITY": "Travail soigné",
+    "LATE": "Plus long que prévu",
+    "PRICE": "Plus cher que prévu",
+    "NOT_FIXED": "Problème pas entièrement réglé",
+    "HARD_TO_REACH": "Difficile à joindre"
   }
 }
