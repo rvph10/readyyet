@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/checkbox";
-import { Field, SelectField } from "@/components/ui/field";
+import { SelectField } from "@/components/ui/field";
 import { Icon } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
@@ -31,6 +31,34 @@ interface Props {
   timeZone: string;
   // Called once saved, when the section opened in a panel (ADR 0117).
   onSaved?: () => void;
+}
+
+const QUARTER_HOURS = Array.from(
+  { length: 24 * 4 },
+  (_, index) => `${String(Math.floor(index / 4)).padStart(2, "0")}:${String((index % 4) * 15).padStart(2, "0")}`,
+);
+
+// Always 24-hour, as shops here write their hours. The browser's own time
+// input follows the computer's clock instead, and in a field this narrow a
+// 12-hour clock's "PM" was cut off: 18:00 read as 06:00. A saved time off the
+// quarter hours stays in the list, so opening the page never changes it.
+function TimeSelect({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const times = QUARTER_HOURS.includes(value) ? QUARTER_HOURS : [...QUARTER_HOURS, value].sort();
+  return (
+    <SelectField
+      className="w-32"
+      label={label}
+      hideLabel
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      {times.map((time) => (
+        <option key={time} value={time}>
+          {time}
+        </option>
+      ))}
+    </SelectField>
+  );
 }
 
 // ADR 0111: a day is on or off. An open one is a white row with its times, a
@@ -150,26 +178,17 @@ export function OpeningHours({ locationId, hours, timeZone, onSaved }: Props) {
                   {open && (
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                       {ranges.map((range, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 max-sm:[&_input::-webkit-calendar-picker-indicator]:hidden"
-                        >
-                          <Field
-                            className="w-28"
+                        <div key={index} className="flex items-center gap-2">
+                          <TimeSelect
                             label={t("opensOn", { day: name })}
-                            hideLabel
-                            type="time"
                             value={range.opens}
-                            onChange={(event) => setTime(day, index, "opens", event.target.value)}
+                            onChange={(value) => setTime(day, index, "opens", value)}
                           />
                           <span className="text-p-sm text-muted">{t("to")}</span>
-                          <Field
-                            className="w-28"
+                          <TimeSelect
                             label={t("closesOn", { day: name })}
-                            hideLabel
-                            type="time"
                             value={range.closes}
-                            onChange={(event) => setTime(day, index, "closes", event.target.value)}
+                            onChange={(value) => setTime(day, index, "closes", value)}
                           />
                         </div>
                       ))}

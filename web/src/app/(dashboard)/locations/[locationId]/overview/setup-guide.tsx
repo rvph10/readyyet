@@ -82,7 +82,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         onSaved={close}
       />
     ),
-    reviewLink: <ReviewLink locationId={location.id} url={location.googleReviewUrl} hasPro={hasPro} onSaved={close} />,
+    reviewLink: <ReviewLink location={location} hasPro={hasPro} onSaved={close} />,
     team: <InviteForm locationId={location.id} ownerActs={owner} onDone={close} onCancel={close} />,
     logo: <LogoPicker businessId={location.businessId} name={businessName} logoUrl={location.logoUrl} onDone={close} />,
   };

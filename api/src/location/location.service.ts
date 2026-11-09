@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { ThrottlerException } from "@nestjs/throttler";
 import { InvitationStatus } from "@readyyet/db";
 import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
@@ -6,8 +7,15 @@ import { hasPro } from "../billing/plans";
 import { NotFoundError, PlanRequiredError } from "../common/errors/app-error";
 import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { searchGooglePlaces } from "./google-places";
 import { toAddressColumns, toOpeningHoursJson } from "./location-info";
 import { locationSelect, toLocationResponse } from "./location-select";
+
+// Where ReadyYet sells, for a shop with no address yet.
+const DEFAULT_REGION = "BE";
+// Google bills each search (ADR 0126): plenty to find one shop, few enough
+// that a Location can't run up the bill.
+const GOOGLE_SEARCHES_A_DAY = 30;
 
 @Injectable()
 export class LocationService {
@@ -17,12 +25,41 @@ export class LocationService {
     private readonly storage: StorageService,
   ) {}
 
+  // In memory: the API runs as one instance, and a restart only resets it.
+  private readonly googleSearches = new Map<string, { day: string; count: number }>();
+
   async findById(locationId: string) {
     const location = await this.prisma.location.findUnique({ where: { id: locationId }, ...locationSelect });
     if (!location) {
       throw new NotFoundError("Location not found");
     }
     return toLocationResponse(location);
+  }
+
+  // In the shop's language, and its country when it has an address: a name
+  // is often shared by shops in several countries.
+  async findOnGoogle(locationId: string, query: string) {
+    const { locale, addressCountry, subscription } = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      select: { locale: true, addressCountry: true, subscription: true },
+    });
+    // What it finds is for the review link, which needs Pro.
+    if (!subscription || !hasPro(subscription)) {
+      throw new PlanRequiredError("Review requests");
+    }
+    const day = new Date().toISOString().slice(0, 10);
+    const used = this.googleSearches.get(locationId);
+    const count = used?.day === day ? used.count : 0;
+    if (count >= GOOGLE_SEARCHES_A_DAY) {
+      throw new ThrottlerException();
+    }
+    this.googleSearches.set(locationId, { day, count: count + 1 });
+
+    const places = await searchGooglePlaces(query, {
+      languageCode: locale.toLowerCase(),
+      regionCode: addressCountry ?? DEFAULT_REGION,
+    });
+    return { places };
   }
 
   async update(locationId: string, dto: UpdateLocationDto) {

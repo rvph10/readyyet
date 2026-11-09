@@ -118,19 +118,21 @@ export function IsRegionTimeZone() {
 
 // At most two ranges a day (a shop closed at lunch), each opening before it
 // closes and not overlapping the other. "HH:MM" strings compare in order.
+export function isWeeklyOpeningHours(value: OpeningHoursSpecification[]) {
+  return DAYS_OF_WEEK.every((day) => {
+    const ranges = value.filter((range) => range?.dayOfWeek === day).sort((a, b) => (a.opens < b.opens ? -1 : 1));
+    return (
+      ranges.length <= 2 &&
+      ranges.every((range, i) => range.opens < range.closes && (i === 0 || ranges[i - 1].closes < range.opens))
+    );
+  });
+}
+
 export function IsWeeklyOpeningHours() {
   return ValidateBy({
     name: "isWeeklyOpeningHours",
     validator: {
-      validate: (value: OpeningHoursSpecification[]) =>
-        Array.isArray(value) &&
-        DAYS_OF_WEEK.every((day) => {
-          const ranges = value.filter((range) => range?.dayOfWeek === day).sort((a, b) => (a.opens < b.opens ? -1 : 1));
-          return (
-            ranges.length <= 2 &&
-            ranges.every((range, i) => range.opens < range.closes && (i === 0 || ranges[i - 1].closes < range.opens))
-          );
-        }),
+      validate: (value: OpeningHoursSpecification[]) => Array.isArray(value) && isWeeklyOpeningHours(value),
       defaultMessage: buildMessage(
         (eachPrefix) =>
           `${eachPrefix}$property must have at most two ranges a day, each opening before it closes, without overlapping`,
