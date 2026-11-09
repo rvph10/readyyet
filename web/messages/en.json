@@ -435,8 +435,7 @@
     "erasedCustomer": "Erased Customer",
     "noContact": "No email or phone",
     "tracking": "Tracking link",
-    "trackingLink": "Link for the Customer",
-    "showQr": "Show QR code",
+    "showQr": "Show it large",
     "qrTitle": "Scan to follow this Ticket",
     "qrHint": "The Customer scans this with their phone's camera to follow their Ticket.",
     "qrLabel": "QR code of the tracking link for {name}",
@@ -472,7 +471,14 @@
     "call": "Call",
     "sendEmail": "Email",
     "trackingCode": "Tracking code",
-    "moment": "{day} at {time}"
+    "moment": "{day} at {time}",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "copyFailed": "This browser didn't let us copy. Use the QR code or a message instead.",
+    "sendSms": "SMS",
+    "printSlip": "Print a slip",
+    "shareText": "Hi {name}, this is {shop}. Follow “{ticket}” here: {url}",
+    "scanToFollow": "Scan this with your phone's camera to follow your item."
   },
   "today": {
     "greeting": {

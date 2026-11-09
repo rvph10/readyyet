@@ -331,6 +331,40 @@
   }
 }
 
+/* A slip printed from an open dialog (the Ticket's QR code): only the sheet
+   goes on paper, at the top left, not the dashboard behind it. Whatever
+   neither holds the sheet nor is in it is left out, so nothing else takes room
+   and no blank pages follow. */
+@media print {
+  body:has(dialog[open] .print-sheet) {
+    background: white;
+    *:not(:has(.print-sheet), .print-sheet, .print-sheet *) {
+      display: none;
+    }
+    *:has(.print-sheet) {
+      border: 0;
+      background: none;
+    }
+  }
+  /* A modal dialog is fixed, and anything fixed is printed on every page. Its
+     open scale would also hold the sheet inside its scrolling box. */
+  dialog[open]:has(.print-sheet) {
+    position: absolute;
+    inset: 0 auto auto 0;
+    margin: 0;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    scale: none;
+    &::backdrop {
+      display: none;
+    }
+  }
+  dialog[open] .print-sheet {
+    width: 8cm;
+  }
+}
+
 @layer components {
   .select-field {
     appearance: none;
