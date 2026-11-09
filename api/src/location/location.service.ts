@@ -6,8 +6,12 @@ import { hasPro } from "../billing/plans";
 import { NotFoundError, PlanRequiredError } from "../common/errors/app-error";
 import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { searchGooglePlaces } from "./google-places";
 import { toAddressColumns, toOpeningHoursJson } from "./location-info";
 import { locationSelect, toLocationResponse } from "./location-select";
+
+// Where ReadyYet sells, for a shop with no address yet.
+const DEFAULT_REGION = "BE";
 
 @Injectable()
 export class LocationService {
@@ -23,6 +27,20 @@ export class LocationService {
       throw new NotFoundError("Location not found");
     }
     return toLocationResponse(location);
+  }
+
+  // In the shop's language, and its country when it has an address: a name
+  // is often shared by shops in several countries.
+  async findOnGoogle(locationId: string, query: string) {
+    const { locale, addressCountry } = await this.prisma.location.findUniqueOrThrow({
+      where: { id: locationId },
+      select: { locale: true, addressCountry: true },
+    });
+    const places = await searchGooglePlaces(query, {
+      languageCode: locale.toLowerCase(),
+      regionCode: addressCountry ?? DEFAULT_REGION,
+    });
+    return { places };
   }
 
   async update(locationId: string, dto: UpdateLocationDto) {

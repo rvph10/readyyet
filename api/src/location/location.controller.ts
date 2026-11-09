@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ApiCookieAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
@@ -6,6 +18,7 @@ import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
 import { CheckReviewLinkDto, ReviewLinkCheckDto } from "./dto/check-review-link.dto";
+import { GooglePlacesDto, SearchGooglePlacesQueryDto } from "./dto/google-places.dto";
 import { LocationDto } from "./dto/location.response.dto";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 import { LocationService } from "./location.service";
@@ -36,6 +49,21 @@ export class LocationController {
   @ApiError(HttpStatus.PAYMENT_REQUIRED, "PLAN_REQUIRED: a Google review link needs Pro")
   update(@Param("locationId") locationId: string, @Body() dto: UpdateLocationDto): Promise<LocationDto> {
     return this.location.update(locationId, dto);
+  }
+
+  @Get(":locationId/google-places")
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @UseGuards(LocationMembershipGuard)
+  // Each one is billed to ReadyYet by Google.
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiParam({ name: "locationId" })
+  @ApiOperation({ summary: "Find this shop on Google Maps, for its review link, address and hours (ADR 0126)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST)
+  findOnGoogle(
+    @Param("locationId") locationId: string,
+    @Query() query: SearchGooglePlacesQueryDto,
+  ): Promise<GooglePlacesDto> {
+    return this.location.findOnGoogle(locationId, query.q);
   }
 
   @Post(":locationId/review-link/check")

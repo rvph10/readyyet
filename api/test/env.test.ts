@@ -38,18 +38,20 @@ describe("validateEnv", () => {
     expect(check).toThrow(/WEB_URL/);
   });
 
-  it("requires the webhook secrets and error tracking in production only", () => {
+  it("requires the webhook secrets, error tracking and Google Places in production only", () => {
     const production = {
       ...valid,
       NODE_ENV: "production",
       RESEND_WEBHOOK_SECRET: "whsec_x",
       STRIPE_WEBHOOK_SECRET: "whsec_y",
       SENTRY_DSN: "https://key@o1.ingest.sentry.io/1",
+      GOOGLE_PLACES_API_KEY: "AIza-test",
     };
 
     expect(() => validateEnv({ ...production, RESEND_WEBHOOK_SECRET: undefined })).toThrow(/RESEND_WEBHOOK_SECRET/);
     expect(() => validateEnv({ ...production, STRIPE_WEBHOOK_SECRET: undefined })).toThrow(/STRIPE_WEBHOOK_SECRET/);
     expect(() => validateEnv({ ...production, SENTRY_DSN: undefined })).toThrow(/SENTRY_DSN/);
+    expect(() => validateEnv({ ...production, GOOGLE_PLACES_API_KEY: undefined })).toThrow(/GOOGLE_PLACES_API_KEY/);
     expect(validateEnv(production)).toBeTruthy();
   });
 

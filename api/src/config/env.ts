@@ -34,6 +34,8 @@ const envSchema = z
     S3_BUCKET: z.string().min(1),
     S3_ACCESS_KEY_ID: z.string().min(1),
     S3_SECRET_ACCESS_KEY: z.string().min(1),
+    // Places API (New) only, for finding a shop on Google (ADR 0126).
+    GOOGLE_PLACES_API_KEY: z.string().min(1).optional(),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",
@@ -46,6 +48,10 @@ const envSchema = z
   .refine((env) => env.NODE_ENV !== "production" || env.STRIPE_WEBHOOK_SECRET, {
     message: "Required in production",
     path: ["STRIPE_WEBHOOK_SECRET"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_PLACES_API_KEY, {
+    message: "Required in production",
+    path: ["GOOGLE_PLACES_API_KEY"],
   });
 
 export function validateEnv(config: Record<string, unknown>) {
