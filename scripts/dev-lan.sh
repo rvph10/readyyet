@@ -12,8 +12,10 @@ echo "Starting on http://$IP:3001"
 fuser -k 3001/tcp 3003/tcp 2>/dev/null || true
 
 # The API checks Stripe's webhook signatures even when nothing forwards them.
-SECRET_KEY=$(grep -E '^STRIPE_SECRET_KEY=' api/.env | cut -d= -f2- | tr -d '"')
-WEBHOOK_SECRET=$(stripe listen --print-secret --api-key "$SECRET_KEY")
+SECRET_KEY=$(grep -E '^STRIPE_SECRET_KEY=' api/.env | cut -d= -f2- | tr -d '"') || true
+[ -n "$SECRET_KEY" ] || { echo "STRIPE_SECRET_KEY is missing from api/.env" >&2; exit 1; }
+WEBHOOK_SECRET=$(stripe listen --print-secret --api-key "$SECRET_KEY") ||
+  { echo "The Stripe CLI couldn't give a webhook secret, is it installed?" >&2; exit 1; }
 
 # Pages built for the old address reload in a loop otherwise.
 rm -rf web/.next/dev
