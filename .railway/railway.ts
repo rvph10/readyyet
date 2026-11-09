@@ -68,6 +68,7 @@ export default defineRailway((ctx) => {
       STRIPE_SECRET_KEY: preserve(),
       STRIPE_WEBHOOK_SECRET: preserve(),
       PLATFORM_ADMIN_EMAILS: preserve(),
+      GOOGLE_PLACES_API_KEY: preserve(),
     },
   });
 
