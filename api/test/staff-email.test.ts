@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildAccountDeletedEmail,
   buildInvitationEmail,
+  buildJoinedTeamEmail,
+  buildMemberJoinedEmail,
   buildNewOwnerEmail,
   buildPreviousOwnerEmail,
   buildSignInCodeEmail,
+  buildWelcomeEmail,
   type InvitationEmailInput,
 } from "../src/notification/staff-email/staff-email";
 
@@ -144,5 +147,57 @@ describe("Account deleted email", () => {
     const [, text] = await rendered(email.react);
     expect(text).toContain("sam@example.test");
     expect(text).toContain(notYou);
+  });
+});
+
+describe("Welcome email", () => {
+  it.each([
+    ["EN", "Welcome to ReadyYet, Joe's Garage is ready", "Until 23 November 2026"],
+    ["FR", "Bienvenue sur ReadyYet, Joe's Garage est prêt", "Jusqu'au 23 novembre 2026"],
+  ] as const)("in %s, gives the trial's end and the first steps", async (locale, subject, trial) => {
+    const email = buildWelcomeEmail({
+      locale,
+      location: "Joe's Garage",
+      trialEndsOn: locale === "EN" ? "23 November 2026" : "23 novembre 2026",
+      appUrl: "https://app.readyyet.app/locations/x",
+    });
+    const [html, text] = await rendered(email.react);
+
+    expect(email.subject).toBe(subject);
+    expect(text).toContain(trial);
+    expect(html).toContain('href="https://app.readyyet.app/locations/x"');
+    expect([...new Set(html.match(/ lang="[^"]*"/g))]).toEqual([` lang="${locale.toLowerCase()}"`]);
+  });
+});
+
+describe("Team emails", () => {
+  const joined = {
+    member: "Sam Peeters",
+    memberEmail: "sam@example.test",
+    location: "Joe's Garage Downtown",
+    business: "Joe's Garage",
+    role: "ADMIN" as const,
+  };
+
+  it("welcomes the new member with their role and a way in", async () => {
+    const email = buildJoinedTeamEmail({
+      ...joined,
+      locale: "EN",
+      locationUrl: "https://app.readyyet.app/locations/x",
+    });
+    const [html, text] = await rendered(email.react);
+
+    expect(email.subject).toBe("You're in the team at Joe's Garage Downtown");
+    expect(text).toContain("Admin");
+    expect(html).toContain('href="https://app.readyyet.app/locations/x"');
+  });
+
+  it("tells whoever invited them, in French too", async () => {
+    const email = buildMemberJoinedEmail({ ...joined, locale: "FR", teamUrl: "https://app.readyyet.app/t" });
+    const [, text] = await rendered(email.react);
+
+    expect(email.subject).toBe("Sam Peeters a rejoint Joe's Garage Downtown");
+    expect(text).toContain("sam@example.test");
+    expect(text).toContain("en tant qu'administrateur");
   });
 });

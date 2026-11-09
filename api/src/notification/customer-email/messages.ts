@@ -75,6 +75,8 @@ interface MessageParams {
 
 interface KindMessages {
   subject: (params: MessageParams) => string;
+  // Where the job stands, as the email's key card says it (ADR 0127).
+  status: (params: MessageParams) => string;
   body: (params: MessageParams) => string;
 }
 
@@ -92,6 +94,8 @@ interface LocaleMessages {
   starLabel: (stars: number) => string;
   starsHint: string;
   replyHint: (location: string) => string;
+  contactLabels: { phone: string; email: string; address: string };
+  calendarTitle: (params: { location: string; job: JobNoun }) => string;
   kinds: Record<CustomerEmailKind, KindMessages>;
 }
 
@@ -111,53 +115,65 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     starLabel: (stars) => `${stars} out of 5 stars`,
     starsHint: "1 star is poor, 5 stars is great.",
     replyHint: (location) => `To answer ${location}, simply reply to this email.`,
+    contactLabels: { phone: "Phone", email: "Email", address: "Address" },
+    calendarTitle: ({ location, job }) => `Collect your ${job.word} at ${location}`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
+        status: () => "Registered",
         body: ({ location, title, job }) =>
           `${location} has registered your ${job.word} "${title}". You can follow its progress at any time, no account needed.`,
       },
       READY_REMINDER: {
         subject: ({ location, job }) => `Reminder: your ${job.word} is waiting for you at ${location}`,
+        status: () => "Waiting for you",
         body: ({ location, title, job }) =>
           `Your ${job.word} "${title}" is ready and waiting for you at ${location}. Already picked it up? Let us know with the link below and the reminders stop.`,
       },
       FEEDBACK_REPLY: {
         subject: ({ location }) => `${location} replied to your feedback`,
+        status: ({ location }) => `${location} replied`,
         body: ({ location, title, job }) => `Here is ${location}'s reply about your ${job.word} "${title}":`,
       },
       FEEDBACK_REQUEST: {
         subject: ({ location, job }) => `How did your ${job.word} at ${location} go?`,
+        status: () => "How did it go?",
         body: ({ location, title, job }) =>
           `Thank you for choosing ${location}. How did it go with your ${job.word} "${title}"? Tap a star below, it only takes a moment.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `New date for your ${job.word} at ${location}`,
+        status: () => "New date",
         body: ({ location, title, job, readyDate }) =>
           `${location} needs a little more time for your ${job.word} "${title}". It should now be ready on ${readyDate}.`,
       },
       READY: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is ready`,
+        status: () => "Ready to collect",
         body: ({ location, title, job }) =>
           `Good news: your ${job.word} "${title}" is ready. You can collect it at ${location}.`,
       },
       AWAITING_APPROVAL: {
         subject: ({ location }) => `${location} needs your approval`,
+        status: () => "Waiting for your approval",
         body: ({ location, title, job }) =>
           `${location} has prepared a quote for your ${job.word} "${title}" and needs your approval before going further. Please contact ${location} with your answer.`,
       },
       AWAITING_CLIENT_INFO: {
         subject: ({ location }) => `${location} needs some information from you`,
+        status: () => "Information needed",
         body: ({ location, title, job }) =>
           `${location} needs some information from you to continue working on your ${job.word} "${title}". Please contact ${location}.`,
       },
       CANCELLED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} was cancelled`,
+        status: () => "Cancelled",
         body: ({ location, title, job }) =>
           `Your ${job.word} "${title}" was cancelled. Please contact ${location} to arrange collecting your item.`,
       },
       REJECTED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} couldn't be completed`,
+        status: () => "Couldn't be completed",
         body: ({ location, title, job }) =>
           `${location} wasn't able to complete your ${job.word} "${title}". Please contact ${location} to arrange collecting your item.`,
       },
@@ -177,57 +193,69 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     starLabel: (stars) => `${stars} étoile${stars > 1 ? "s" : ""} sur 5`,
     starsHint: "1 étoile, c'est décevant, 5 étoiles, c'est excellent.",
     replyHint: (location) => `Pour répondre à ${location}, répondez simplement à cet e-mail.`,
+    contactLabels: { phone: "Téléphone", email: "E-mail", address: "Adresse" },
+    calendarTitle: ({ location, job }) => `Récupérer ${monMa(job)} ${job.word} chez ${location}`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>
           `Votre ${job.word} chez ${location} est ${agree(job, "enregistré", "enregistrée")}`,
+        status: ({ job }) => agree(job, "Enregistré", "Enregistrée"),
         body: ({ location, title, job }) =>
           `${location} a enregistré votre ${job.word} «\u00a0${title}\u00a0». Vous pouvez suivre son avancement à tout moment, sans créer de compte.`,
       },
       READY_REMINDER: {
         subject: ({ location, job }) => `Rappel\u00a0: votre ${job.word} vous attend chez ${location}`,
+        status: () => "Vous attend",
         body: ({ location, title, job }) =>
           `Votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")} et vous attend chez ${location}. Vous l'avez déjà ${agree(job, "récupéré", "récupérée")}\u00a0? Dites-le-nous avec le lien ci-dessous et les rappels s'arrêtent.`,
       },
       FEEDBACK_REPLY: {
         subject: ({ location }) => `${location} a répondu à votre avis`,
+        status: ({ location }) => `${location} vous répond`,
         body: ({ location, title, job }) =>
           `Voici la réponse de ${location} au sujet de votre ${job.word} «\u00a0${title}\u00a0»\u00a0:`,
       },
       FEEDBACK_REQUEST: {
         subject: ({ location, job }) =>
           `Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} chez ${location}\u00a0?`,
+        status: () => "Comment ça s'est passé\u00a0?",
         body: ({ location, title, job }) =>
           `Merci d'avoir choisi ${location}. Comment s'est ${agree(job, "passé", "passée")} votre ${job.word} «\u00a0${title}\u00a0»\u00a0? Touchez une étoile ci-dessous, cela ne prend qu'un instant.`,
       },
       READY_DATE_CHANGED: {
         subject: ({ location, job }) => `Nouvelle date pour votre ${job.word} chez ${location}`,
+        status: () => "Nouvelle date",
         body: ({ location, title, job, readyDate }) =>
           `${location} a besoin d'un peu plus de temps pour votre ${job.word} «\u00a0${title}\u00a0». ${agree(job, "Il", "Elle")} devrait maintenant être ${agree(job, "prêt", "prête")} le ${readyDate}.`,
       },
       READY: {
         subject: ({ location, job }) => `Votre ${job.word} chez ${location} est ${agree(job, "prêt", "prête")}`,
+        status: ({ job }) => agree(job, "Prêt à récupérer", "Prête à récupérer"),
         body: ({ location, title, job }) =>
           `Bonne nouvelle\u00a0: votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")}. Vous pouvez venir ${agree(job, "le", "la")} récupérer chez ${location}.`,
       },
       AWAITING_APPROVAL: {
         subject: ({ location }) => `${location} attend votre accord`,
+        status: () => "En attente de votre accord",
         body: ({ location, title, job }) =>
           `${location} a préparé un devis pour votre ${job.word} «\u00a0${title}\u00a0» et attend votre accord pour continuer. Merci de contacter ${location} pour donner votre réponse.`,
       },
       AWAITING_CLIENT_INFO: {
         subject: ({ location }) => `${location} a besoin d'informations de votre part`,
+        status: () => "Informations nécessaires",
         body: ({ location, title, job }) =>
           `${location} a besoin d'informations de votre part pour continuer à travailler sur votre ${job.word} «\u00a0${title}\u00a0». Merci de contacter ${location}.`,
       },
       CANCELLED: {
         subject: ({ location, job }) => `Votre ${job.word} chez ${location} a été ${agree(job, "annulé", "annulée")}`,
+        status: ({ job }) => agree(job, "Annulé", "Annulée"),
         body: ({ location, title, job }) =>
           `Votre ${job.word} «\u00a0${title}\u00a0» a été ${agree(job, "annulé", "annulée")}. Merci de contacter ${location} pour convenir de la récupération de votre article.`,
       },
       REJECTED: {
         subject: ({ location, job }) =>
           `Votre ${job.word} chez ${location} n'a pas pu être ${agree(job, "traité", "traitée")}`,
+        status: ({ job }) => agree(job, "Non réalisé", "Non réalisée"),
         body: ({ location, title, job }) =>
           `${location} n'a pas pu effectuer le travail prévu sur votre ${job.word} «\u00a0${title}\u00a0». Merci de contacter ${location} pour convenir de la récupération de votre article.`,
       },
