@@ -783,7 +783,7 @@
       "googleOf": "{count, plural, =0 {Personne n'a encore noté} one {Sur # personne qui a noté} other {Sur # personnes qui ont noté}}",
       "addGoogleLink": "Ajoutez votre lien Google pour les y envoyer",
       "answered": "Réponses",
-      "answeredOf": "{count, plural, =0 {Personne n'a encore été sollicité} one {Sur # client sollicité} other {Sur # clients sollicités}}",
+      "answeredOf": "{count, plural, =0 {Personne sollicité par e-mail} one {# sollicité par e-mail} other {# sollicités par e-mail}}",
       "mentioned": "Le plus cité",
       "noTags": "Rien pour l'instant ce mois-ci."
     },

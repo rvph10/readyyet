@@ -783,7 +783,7 @@
       "googleOf": "{count, plural, =0 {Nobody rated yet} other {Out of # who rated}}",
       "addGoogleLink": "Add your Google link to send them there",
       "answered": "Answered",
-      "answeredOf": "{count, plural, =0 {Nobody asked yet} one {Out of # Customer asked} other {Out of # Customers asked}}",
+      "answeredOf": "{count, plural, =0 {Nobody asked by email yet} other {# asked by email}}",
       "mentioned": "Mentioned most",
       "noTags": "Nothing yet this month."
     },

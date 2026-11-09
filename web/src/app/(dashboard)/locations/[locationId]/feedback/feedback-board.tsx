@@ -94,7 +94,9 @@ function Answer({ item, locationId }: { item: Item; locationId: string }) {
       <div className="mt-auto border-t border-border pt-4">
         <p className="text-label-sm">
           {item.handledBy ? t("repliedBy", { name: item.handledBy.name }) : t("repliedTitle")}
-          <span className="ml-2 text-p-xs text-muted">{item.handledShown}</span>
+          <time dateTime={item.handledAt!} className="ml-2 text-p-xs text-muted">
+            {item.handledShown}
+          </time>
         </p>
         <p className="mt-2 ml-auto rounded-2xl rounded-tr-sm bg-pine p-4 text-p-md wrap-anywhere whitespace-pre-line text-surface">
           {item.reply}
@@ -113,7 +115,9 @@ function Answer({ item, locationId }: { item: Item; locationId: string }) {
           <span className="block truncate">
             {item.handledBy ? t("closedBy", { name: item.handledBy.name }) : t("handled")}
           </span>
-          <span className="block text-p-xs text-muted">{item.handledShown}</span>
+          <time dateTime={item.handledAt} className="block text-p-xs text-muted">
+            {item.handledShown}
+          </time>
         </span>
       </p>
     );

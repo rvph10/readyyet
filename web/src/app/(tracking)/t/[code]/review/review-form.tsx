@@ -28,6 +28,12 @@ export function ReviewForm({ code, stars, savedTags, reviewUrl }: Props) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  // Another star picked: what was saved is no longer what the page shows.
+  const [savedStars, setSavedStars] = useState(stars);
+  if (savedStars !== stars) {
+    setSavedStars(stars);
+    setSaved(false);
+  }
   const [failed, setFailed] = useState(false);
   const [pending, startTransition] = useTransition();
   const rating = { stars, tags };

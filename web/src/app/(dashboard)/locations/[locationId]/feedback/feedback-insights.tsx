@@ -50,7 +50,7 @@ export function FeedbackInsights({
             insights.average !== null &&
             format.number(insights.average, { maximumFractionDigits: 1, minimumFractionDigits: 1 })
           )}
-          {insights && <Stars value={Math.round(insights.average ?? 0)} className="text-2xl" />}
+          {insights?.average != null && <Stars value={Math.round(insights.average)} className="text-2xl" />}
         </span>
         <span className="text-p-sm">
           {insights ? t("ratings", { count: insights.ratings }) : <Skeleton className="my-1 h-3.5 w-32 bg-pine/15!" />}

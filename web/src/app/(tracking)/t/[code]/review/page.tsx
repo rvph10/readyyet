@@ -29,9 +29,10 @@ export default async function ReviewPage({ params, searchParams }: PageProps<"/t
   if (!asksForFeedback) {
     redirect(trackingPath);
   }
-  const stars = parseStars(query.stars) ?? feedback?.stars ?? null;
-  const closed = feedback?.messageSent ?? false;
-  await openInTicketLanguage(tracking, query.stars ? `${path}?stars=${stars}` : path);
+  const picked = parseStars(query.stars);
+  const stars = picked ?? feedback?.stars ?? null;
+  const closed = feedback?.closed ?? false;
+  await openInTicketLanguage(tracking, picked ? `${path}?stars=${picked}` : path);
 
   return (
     <LocationCard location={location}>
