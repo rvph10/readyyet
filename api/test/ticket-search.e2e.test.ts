@@ -124,6 +124,8 @@ describe("Ticket search and filters", () => {
 
     const { trackingCode } = await prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(ids.tires) } });
     expect(await titles({ q: trackingCode })).toEqual(["Tire rotation 100% free"]);
+    const grouped = trackingCode.match(/.{1,4}/g)!.join(" ");
+    expect(await titles({ q: grouped })).toEqual(["Tire rotation 100% free"]);
   });
 
   it("sorts by a column in either direction, and keeps a Ticket without a date last", async () => {

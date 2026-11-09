@@ -474,7 +474,7 @@
     "moment": "{day} à {time}",
     "copyLink": "Copier le lien",
     "linkCopied": "Lien copié",
-    "copyFailed": "Ce navigateur a refusé la copie. Utilisez le QR code ou un message.",
+    "copyFailed": "Ce navigateur a refusé la copie. Affichez plutôt le QR code.",
     "sendSms": "SMS",
     "printSlip": "Imprimer un ticket",
     "shareText": "Bonjour {name}, ici {shop}. Suivez « {ticket} » ici : {url}",

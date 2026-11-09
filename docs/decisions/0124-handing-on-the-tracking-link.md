@@ -10,7 +10,7 @@ The tracking link is never shown as text in the dashboard. The tile offers ways 
 
 - The QR code is always in the tile, small, and opens large on a click, with the Ticket's title, the Customer and the shop under it.
 - That large view prints as a slip, alone on the page, for a Customer who has no email or would rather keep paper.
-- The tracking code is shown in groups of four, so it can be read out or typed from the slip, and copied without the spaces.
+- The tracking code is shown in groups of four, so a Customer can read it out from the slip and staff find the Ticket by it, spaces or not. Copy gives it without the spaces.
 - Copy link, WhatsApp, and SMS on touch screens, where `sms:` opens an app. WhatsApp and SMS need the Customer's phone, and open with a message ready to send.
 - The message and the line under the large QR code are in the Customer's language, like their emails, as the Customer is the one reading them. The rest of the dashboard stays in the User's language.
 

@@ -40,8 +40,20 @@ function grouped(code: string) {
 
 // The link itself is never shown: it's long and means nothing to anyone. Staff
 // hand it on by QR, a copy, a message or a printed slip.
-export function TrackingPanel(props: Props) {
-  const { locationId, ticketId, url, code, qr, shareText, phone, resendTo } = props;
+export function TrackingPanel({
+  locationId,
+  ticketId,
+  url,
+  code,
+  qr,
+  shopName,
+  title,
+  customerName,
+  shareText,
+  scanText,
+  phone,
+  resendTo,
+}: Props) {
   const t = useTranslations("ticketDetail");
   const toast = useToast();
   const { copied, copy } = useCopy();
@@ -77,7 +89,9 @@ export function TrackingPanel(props: Props) {
           </span>
         </span>
         <span className="min-w-0">
-          <span className="block text-p-sm">{t("qrHint")}</span>
+          <span aria-hidden="true" className="block text-p-sm">
+            {t("qrHint")}
+          </span>
           <span className="mt-1 block text-label-sm underline-offset-4 group-hover:underline">{t("showQr")}</span>
         </span>
       </button>
@@ -89,6 +103,9 @@ export function TrackingPanel(props: Props) {
           <Icon name={copied ? "check" : "link"} className="size-3.5" />
           {copied ? t("linkCopied") : t("copyLink")}
         </Button>
+        <p aria-live="polite" className="sr-only">
+          {copied ? t("linkCopied") : ""}
+        </p>
         {phone && (
           <a
             href={`https://wa.me/${phone.replace(/\D/g, "")}?text=${message}`}
@@ -131,16 +148,16 @@ export function TrackingPanel(props: Props) {
       <Dialog open={showQr} onClose={() => setShowQr(false)} title={t("qrTitle")}>
         <div className="print-sheet flex flex-col items-center text-center">
           <div className="mt-2 w-full max-w-72">{qr}</div>
-          <p className="mt-4 text-label-lg wrap-anywhere">{props.title}</p>
+          <p className="mt-4 text-label-lg wrap-anywhere">{title}</p>
           <p className="text-p-sm wrap-anywhere text-muted">
-            {props.customerName}, {props.shopName}
+            {customerName}, {shopName}
           </p>
           <p className="mt-3 rounded-full bg-subtle px-4 py-1.5 font-mono text-label-md font-semibold tracking-wide">
             {grouped(code)}
           </p>
-          <p className="mt-3 max-w-xs text-p-sm text-muted">{props.scanText}</p>
+          <p className="mt-3 max-w-xs text-p-sm text-muted">{scanText}</p>
         </div>
-        <Button variant="secondary" onClick={() => window.print()} className="mt-5 w-full print:hidden">
+        <Button variant="secondary" onClick={() => window.print()} className="mt-5 w-full">
           <Icon name="receipt" className="size-3.5" />
           {t("printSlip")}
         </Button>

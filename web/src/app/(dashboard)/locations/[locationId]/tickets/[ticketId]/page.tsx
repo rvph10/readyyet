@@ -77,7 +77,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
   if (!membership) notFound();
   // What the Customer reads beside their link, in their language.
   const tCustomer = await getTranslations({
-    locale: (ticket.customer.locale ?? location.locale).toLowerCase(),
+    locale: ticket.customer.locale ?? location.locale,
     namespace: "ticketDetail",
   });
 
