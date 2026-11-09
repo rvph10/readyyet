@@ -52,7 +52,16 @@
   --radius-card: 1.25rem;
   --radius-sheet: 1.75rem;
 
+  /* ADR 0122: three durations and three curves for all motion. What opens
+     takes its time and eases in to rest, what closes leaves faster, and what
+     moves from one place to another eases both ways. */
   --default-transition-duration: 150ms;
+  --duration-quick: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 280ms;
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* ADR 0087: the current step of a Workflow breathes in a loop, and a pulse
      leaves it toward the next step. */
@@ -254,6 +263,22 @@
     background-color: var(--color-muted);
   }
 
+  /* ADR 0122: whatever a component forgets, nothing moves when the browser
+     asks for reduced motion. Ended at once rather than removed, so what waits
+     for a transition or an animation to end still hears it. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after,
+    ::backdrop {
+      animation-duration: 1ms !important;
+      animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      transition-delay: 0s !important;
+    }
+  }
+
   body {
     font-synthesis: none;
     font-variant-numeric: tabular-nums;
@@ -322,6 +347,23 @@
     .select-field::picker(select) {
       @apply my-1.5 rounded-xl border border-border-strong bg-surface p-1;
       position-try-order: normal;
+      opacity: 0;
+      scale: 0.97;
+      transition-property: opacity, scale, display, overlay;
+      transition-behavior: allow-discrete;
+      transition-duration: var(--duration-quick);
+      transition-timing-function: var(--ease-exit);
+    }
+    /* Opens like a popover (ADR 0122). */
+    .select-field:open::picker(select) {
+      opacity: 1;
+      scale: 1;
+      transition-duration: var(--duration-base);
+      transition-timing-function: var(--ease-enter);
+      @starting-style {
+        opacity: 0;
+        scale: 0.97;
+      }
     }
     .select-field option {
       @apply flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-label-sm text-muted transition-colors;
@@ -467,6 +509,75 @@
     .needs-popover::backdrop,
     .menu-popover::backdrop {
       background: color-mix(in srgb, var(--color-ink) 40%, transparent);
+    }
+  }
+
+  /* ADR 0122: a popover grows in from 97% and fades, from wherever it was
+     anchored, so a flipped one is still right. display and overlay go along
+     so it stays drawn while it leaves. */
+  .switcher-popover,
+  .user-popover,
+  .bar-popover,
+  .date-popover,
+  .needs-popover,
+  .menu-popover {
+    opacity: 0;
+    scale: 0.97;
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-exit);
+  }
+  .switcher-popover:popover-open,
+  .user-popover:popover-open,
+  .bar-popover:popover-open,
+  .date-popover:popover-open,
+  .needs-popover:popover-open,
+  .menu-popover:popover-open {
+    opacity: 1;
+    scale: 1;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-enter);
+    @starting-style {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* A phone's sheet rises from the bottom edge instead, under a fading dim. */
+  @media (width < 48rem) {
+    .switcher-popover,
+    .needs-popover,
+    .menu-popover {
+      opacity: 1;
+      scale: 1;
+      translate: 0 100%;
+    }
+    .switcher-popover:popover-open,
+    .needs-popover:popover-open,
+    .menu-popover:popover-open {
+      translate: 0;
+      transition-duration: var(--duration-slow);
+      @starting-style {
+        translate: 0 100%;
+      }
+    }
+    .switcher-popover::backdrop,
+    .needs-popover::backdrop,
+    .menu-popover::backdrop {
+      opacity: 0;
+      transition-property: opacity, display, overlay;
+      transition-behavior: allow-discrete;
+      transition-duration: var(--duration-quick);
+    }
+    .switcher-popover:popover-open::backdrop,
+    .needs-popover:popover-open::backdrop,
+    .menu-popover:popover-open::backdrop {
+      opacity: 1;
+      transition-duration: var(--duration-slow);
+      @starting-style {
+        opacity: 0;
+      }
     }
   }
 }
