@@ -62,6 +62,8 @@
   --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+  /* ADR 0123: a number rolling to its value, slow enough to read as motion. */
+  --duration-count: 900ms;
 
   /* ADR 0087: the current step of a Workflow breathes in a loop, and a pulse
      leaves it toward the next step. */
@@ -699,6 +701,62 @@
 ::view-transition-new(.arrive) {
   animation-duration: var(--duration-base);
   animation-timing-function: var(--ease-move);
+}
+
+/* ADR 0123: a number's digits roll like an odometer (<RollingNumber>). Each
+   digit shows one line of its 0 to 9 strip, a little taller than the line so
+   the strip fades in and out at the edges instead of being cut. */
+.rolling-number {
+  font-variant-numeric: tabular-nums;
+}
+.rolling-digit {
+  display: inline-block;
+  height: calc(1lh + 0.3em);
+  margin-block: -0.15em;
+  padding-block: 0.15em;
+  overflow: clip;
+  mask-image: linear-gradient(transparent, #000 0.15em, #000 calc(100% - 0.15em), transparent);
+}
+.rolling-strip {
+  display: flex;
+  flex-direction: column;
+  transition: translate var(--duration-count) var(--ease-enter);
+}
+.rolling-strip > span {
+  height: 1lh;
+}
+.rolling-strip[data-d="1"] {
+  translate: 0 -10%;
+}
+.rolling-strip[data-d="2"] {
+  translate: 0 -20%;
+}
+.rolling-strip[data-d="3"] {
+  translate: 0 -30%;
+}
+.rolling-strip[data-d="4"] {
+  translate: 0 -40%;
+}
+.rolling-strip[data-d="5"] {
+  translate: 0 -50%;
+}
+.rolling-strip[data-d="6"] {
+  translate: 0 -60%;
+}
+.rolling-strip[data-d="7"] {
+  translate: 0 -70%;
+}
+.rolling-strip[data-d="8"] {
+  translate: 0 -80%;
+}
+.rolling-strip[data-d="9"] {
+  translate: 0 -90%;
+}
+/* Drawn for the first time, it rolls up from 0. */
+.rolling-strip[data-d] {
+  @starting-style {
+    translate: 0 0;
+  }
 }
 
 /* A range field: pine up to the thumb, its share in --fill, set by the page. */

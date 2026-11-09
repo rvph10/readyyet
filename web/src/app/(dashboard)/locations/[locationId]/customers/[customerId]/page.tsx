@@ -8,6 +8,7 @@ import { StatusPill } from "@/components/status-pill";
 import { Banner } from "@/components/ui/banner";
 import { Icon } from "@/components/ui/icon";
 import { Pagination } from "@/components/ui/pagination";
+import { RollingNumber } from "@/components/ui/rolling-number";
 import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
@@ -64,7 +65,7 @@ function Stat({
     >
       <span className="text-label-sm">{label}</span>
       <span className="mt-2 flex h-12 items-center text-[2.5rem] leading-[3rem] font-bold tracking-tight lg:h-15 lg:text-[3.25rem] lg:leading-[3.75rem]">
-        {value ?? <Skeleton className="h-3/5 w-14" />}
+        {value === null ? <Skeleton className="h-3/5 w-14" /> : <RollingNumber value={value} />}
       </span>
       {sub === null ? (
         <Skeleton className="mt-1.5 h-3.5 w-36 max-w-full" />

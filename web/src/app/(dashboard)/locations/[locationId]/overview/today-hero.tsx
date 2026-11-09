@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { RollingNumber } from "@/components/ui/rolling-number";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationActions } from "../location-actions";
 
@@ -92,7 +93,7 @@ function Stat({ href, icon, label, value, sub, tone }: HeroStat) {
       <span
         className={`mt-2 flex items-center font-bold tracking-tight ${lime ? "h-[4.25rem] text-[4rem] leading-[4.25rem]" : "h-14 text-[2.75rem] leading-[3.5rem]"}`}
       >
-        {value ?? <Skeleton className={`h-3/5 w-16 ${placeholder}`} />}
+        {value === null ? <Skeleton className={`h-3/5 w-16 ${placeholder}`} /> : <RollingNumber value={value} />}
       </span>
       {sub === null ? (
         <Skeleton className={`my-1 h-3.5 w-32 max-w-full ${placeholder}`} />
