@@ -2,7 +2,7 @@ import { Column, Row, Section, Text } from "react-email";
 import type { InvitationRole, Locale } from "@readyyet/db";
 import type { ReactElement } from "react";
 import { Code, colors, Cta, Headline, KeyCard, KeyValue, Layout, oneLine, Paragraph, Quote, text } from "../email-kit";
-import { MESSAGES, ROLE_NAMES } from "./messages";
+import { type JoinedParams, MESSAGES, ROLE_NAMES } from "./messages";
 
 const READYYET = { kind: "readyyet" } as const;
 
@@ -166,7 +166,13 @@ export function buildFeedbackReceivedEmail(input: {
 }
 
 // ADR 0127: to an Owner whose first shop was just created.
-export function buildWelcomeEmail(input: { locale: Locale; location: string; trialEndsOn: string; appUrl: string }) {
+export function buildWelcomeEmail(input: {
+  locale: Locale;
+  location: string;
+  trialDays: number;
+  trialEndsOn: string;
+  appUrl: string;
+}) {
   const messages = MESSAGES[input.locale].welcome;
   const body = messages.body(input);
   const react: ReactElement = (
@@ -174,7 +180,7 @@ export function buildWelcomeEmail(input: { locale: Locale; location: string; tri
       <Headline>{messages.headline}</Headline>
       <Paragraph>{body}</Paragraph>
       <KeyCard label={messages.trialLabel}>
-        <KeyValue detail={messages.trialDetail(input)}>{messages.trialValue}</KeyValue>
+        <KeyValue detail={messages.trialDetail(input)}>{messages.trialValue(input)}</KeyValue>
       </KeyCard>
       <Text style={{ ...text, fontSize: "18px", fontWeight: 800, margin: "0 0 12px" }}>{messages.stepsTitle}</Text>
       {messages.steps.map((step, index) => (
@@ -210,16 +216,8 @@ export function buildWelcomeEmail(input: { locale: Locale; location: string; tri
   return { subject: oneLine(messages.subject(input)), react };
 }
 
-export interface JoinedInput {
-  member: string;
-  memberEmail: string;
-  location: string;
-  business: string;
-  role: InvitationRole;
-}
-
 // ADR 0127: to the new member once they accepted an invitation.
-export function buildJoinedTeamEmail(input: JoinedInput & { locale: Locale; locationUrl: string }) {
+export function buildJoinedTeamEmail(input: JoinedParams & { locale: Locale; locationUrl: string }) {
   const messages = MESSAGES[input.locale].joinedTeam;
   const body = messages.body(input);
   const react: ReactElement = (
@@ -227,7 +225,10 @@ export function buildJoinedTeamEmail(input: JoinedInput & { locale: Locale; loca
       <Headline>{messages.headline(input)}</Headline>
       <Paragraph>{body}</Paragraph>
       <KeyCard label={messages.label}>
-        <KeyValue detail={`${input.location}, ${input.business}`}>{ROLE_NAMES[input.locale][input.role]}</KeyValue>
+        {/* The Business only when it isn't named like the shop. */}
+        <KeyValue detail={input.business === input.location ? input.location : `${input.location}, ${input.business}`}>
+          {ROLE_NAMES[input.locale][input.role]}
+        </KeyValue>
       </KeyCard>
       <Cta href={input.locationUrl}>{messages.button(input)}</Cta>
     </Layout>
@@ -236,7 +237,7 @@ export function buildJoinedTeamEmail(input: JoinedInput & { locale: Locale; loca
 }
 
 // ADR 0127: to whoever sent the invitation the new member accepted.
-export function buildMemberJoinedEmail(input: JoinedInput & { locale: Locale; teamUrl: string }) {
+export function buildMemberJoinedEmail(input: JoinedParams & { locale: Locale; teamUrl: string }) {
   const messages = MESSAGES[input.locale].memberJoined;
   const body = messages.body(input);
   const react: ReactElement = (

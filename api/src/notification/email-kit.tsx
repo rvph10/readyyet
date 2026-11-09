@@ -1,4 +1,19 @@
-import { Body, Button, Column, Container, Font, Head, Html, Img, Link, Preview, Row, Section, Text } from "react-email";
+import {
+  Body,
+  Button,
+  Column,
+  Container,
+  Font,
+  Head,
+  Heading,
+  Html,
+  Img,
+  Link,
+  Preview,
+  Row,
+  Section,
+  Text,
+} from "react-email";
 import type { Locale } from "@readyyet/db";
 import type { CSSProperties, ReactNode } from "react";
 
@@ -23,8 +38,8 @@ const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 const FIGTREE_URL = "https://fonts.gstatic.com/s/figtree/v9/_Xms-HUzqDCFdgfMm4S9DQ.woff2";
 
 // Served by the web app: Gmail and Outlook don't show SVG.
-export const logoUrl = () => `${process.env.WEB_URL}/email/logo.png`;
-export const SITE_URL = "https://readyyet.app";
+const logoUrl = () => `${process.env.WEB_URL}/email/logo.png`;
+const SITE_URL = "https://readyyet.app";
 const SENT_WITH: Record<Locale, string> = { EN: "Sent with ReadyYet", FR: "Envoyé avec ReadyYet" };
 
 export const text: CSSProperties = {
@@ -35,10 +50,12 @@ export const text: CSSProperties = {
   margin: "0 0 16px",
 };
 
-// Bold and large: the one line read before deciding to open the rest.
+// Bold and large: the one line read before deciding to open the rest, and
+// the heading a screen reader jumps to.
 export function Headline({ children }: { children: ReactNode }) {
   return (
-    <Text
+    <Heading
+      as="h1"
       style={{
         ...text,
         fontSize: "30px",
@@ -49,7 +66,7 @@ export function Headline({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-    </Text>
+    </Heading>
   );
 }
 
@@ -216,7 +233,7 @@ function LogoMark({ size }: { size: number }) {
 }
 
 // ReadyYet's own emails carry its logo; a shop's, its logo or its name.
-export type Sender = { kind: "readyyet" } | { kind: "shop"; name: string; logoUrl: string | null };
+type Sender = { kind: "readyyet" } | { kind: "shop"; name: string; logoUrl: string | null };
 
 function Header({ sender }: { sender: Sender }) {
   if (sender.kind === "shop") {
@@ -264,7 +281,8 @@ export function Layout({
   return (
     <Html lang={lang}>
       <Head>
-        {/* Light only: dark mode apps would otherwise invert the pine and lime. */}
+        {/* Light only, for the mail apps that honour it (Apple Mail): others
+            may still invert colours in dark mode. */}
         <meta name="color-scheme" content="light" />
         <meta name="supported-color-schemes" content="light" />
         <Font
@@ -275,27 +293,23 @@ export function Layout({
           fontStyle="normal"
         />
         {/* A phone gets the whole width: no canvas around the card, less
-            padding inside it. react-email puts each padding on the cell
-            inside its table, hence the selectors. */}
+            padding inside it. */}
         <style>{`@media (max-width: 600px) {
-  .email-body > table > tbody > tr > td { padding: 0 0 24px !important; }
-  .email-card { border-radius: 0 !important; }
-  .email-card > tbody > tr > td { padding: 28px 20px 24px !important; }
-  .email-foot > tbody > tr > td { padding: 20px 20px 0 !important; }
+  .email-card { border-radius: 0 !important; margin-top: 0 !important; }
+  .email-card-cell { padding: 28px 20px 24px !important; }
+  .email-foot-cell { padding: 20px 20px 24px !important; }
 }`}</style>
       </Head>
       <Preview>{preview}</Preview>
       {/* Body sets its own lang, English unless told otherwise. */}
-      <Body
-        lang={lang}
-        className="email-body"
-        style={{ backgroundColor: colors.canvas, fontFamily: FONT, margin: 0, padding: "32px 0" }}
-      >
+      <Body lang={lang} style={{ backgroundColor: colors.canvas, fontFamily: FONT, margin: 0, padding: 0 }}>
         <Container
           className="email-card"
+          tdClassName="email-card-cell"
           style={{
             backgroundColor: colors.surface,
             borderRadius: "28px",
+            marginTop: "32px",
             maxWidth: "560px",
             padding: "36px 32px 32px",
           }}
@@ -303,24 +317,34 @@ export function Layout({
           <Header sender={sender} />
           {children}
         </Container>
-        <Container className="email-foot" style={{ maxWidth: "560px", padding: "24px 32px 0" }}>
+        <Container tdClassName="email-foot-cell" style={{ maxWidth: "560px", padding: "24px 32px 32px" }}>
           {footer && (
             <Text style={{ ...text, color: colors.muted, fontSize: "13px", lineHeight: "20px", margin: "0 0 16px" }}>
               {footer}
             </Text>
           )}
-          <Link href={SITE_URL} style={{ textDecoration: "none" }}>
-            <Row style={{ width: "auto" }}>
-              <Column style={{ width: "28px" }}>
+          {/* A link in each cell: a link around a table breaks in Outlook. */}
+          <Row style={{ width: "auto" }}>
+            <Column style={{ width: "28px" }}>
+              <Link href={SITE_URL}>
                 <LogoMark size={20} />
-              </Column>
-              <Column>
-                <Text style={{ ...text, color: colors.muted, fontSize: "13px", fontWeight: 700, margin: 0 }}>
-                  {sender.kind === "shop" ? SENT_WITH[locale] : "ReadyYet"}
-                </Text>
-              </Column>
-            </Row>
-          </Link>
+              </Link>
+            </Column>
+            <Column>
+              <Link
+                href={SITE_URL}
+                style={{
+                  color: colors.muted,
+                  fontFamily: FONT,
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                {sender.kind === "shop" ? SENT_WITH[locale] : "ReadyYet"}
+              </Link>
+            </Column>
+          </Row>
         </Container>
       </Body>
     </Html>

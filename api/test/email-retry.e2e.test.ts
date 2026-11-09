@@ -49,7 +49,7 @@ describe("EmailRetryService", () => {
     expect(updated.attempts).toBeGreaterThan(1);
   });
 
-  it("retries with the same display name, Reply-To and headers as the original send", async () => {
+  it("retries with the same display name, Reply-To, headers and attachments as the original send", async () => {
     const stuck = await prisma.emailLog.create({
       data: {
         to: "delivered@resend.dev",
@@ -58,6 +58,7 @@ describe("EmailRetryService", () => {
         fromName: "Retry Shop via ReadyYet",
         replyTo: "retry@shop.test",
         headers: { "List-Unsubscribe": "<https://api.readyyet.test/stop>" },
+        attachments: [{ filename: "ready-date.ics", content: "QkVHSU46VkNBTEVOREFS", contentType: "text/calendar" }],
         type: "test",
         status: EmailStatus.FAILED,
         attempts: 1,
@@ -76,6 +77,7 @@ describe("EmailRetryService", () => {
       from: expect.stringMatching(/^"Retry Shop via ReadyYet" </),
       replyTo: "retry@shop.test",
       headers: { "List-Unsubscribe": "<https://api.readyyet.test/stop>" },
+      attachments: [{ filename: "ready-date.ics", content: "QkVHSU46VkNBTEVOREFS", contentType: "text/calendar" }],
     });
   });
 

@@ -23,11 +23,12 @@ interface TrialEndingParams {
 
 interface WelcomeParams {
   location: string;
+  trialDays: number;
   // Formatted in the User's language.
   trialEndsOn: string;
 }
 
-interface JoinedParams {
+export interface JoinedParams {
   member: string;
   memberEmail: string;
   location: string;
@@ -106,7 +107,7 @@ interface StaffMessages {
     headline: string;
     body: (params: WelcomeParams) => string;
     trialLabel: string;
-    trialValue: string;
+    trialValue: (params: WelcomeParams) => string;
     trialDetail: (params: WelcomeParams) => string;
     stepsTitle: string;
     steps: string[];
@@ -133,12 +134,10 @@ const ROLES: Record<Locale, Record<InvitationRole, string>> = {
   FR: { ADMIN: "administrateur", EMPLOYEE: "employé" },
 };
 
-const ROLE_NAMES: Record<Locale, Record<InvitationRole, string>> = {
+export const ROLE_NAMES: Record<Locale, Record<InvitationRole, string>> = {
   EN: { ADMIN: "Admin", EMPLOYEE: "Employee" },
   FR: { ADMIN: "Administrateur", EMPLOYEE: "Employé" },
 };
-
-export { ROLE_NAMES };
 
 export const MESSAGES: Record<Locale, StaffMessages> = {
   EN: {
@@ -212,7 +211,7 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       body: ({ location }) =>
         `${location} is set up. From now on, your customers follow their items themselves, and you get fewer calls asking if it's ready yet.`,
       trialLabel: "Your Pro trial",
-      trialValue: "14 days free",
+      trialValue: ({ trialDays }) => `${trialDays} days free`,
       trialDetail: ({ trialEndsOn }) => `Until ${trialEndsOn}. No card needed.`,
       stepsTitle: "Three steps to get going",
       steps: [
@@ -309,12 +308,12 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       button: "Voir l'avis",
     },
     welcome: {
-      subject: ({ location }) => `Bienvenue sur ReadyYet, ${location} est prêt`,
+      subject: ({ location }) => `Bienvenue sur ReadyYet, votre magasin ${location} est prêt`,
       headline: "Bienvenue sur ReadyYet",
       body: ({ location }) =>
-        `${location} est configuré. Désormais, vos clients suivent eux-mêmes leurs articles, et vous recevez moins d'appels pour savoir si c'est prêt.`,
+        `Votre magasin ${location} est configuré. Désormais, vos clients suivent eux-mêmes leurs articles, et vous recevez moins d'appels pour savoir si c'est prêt.`,
       trialLabel: "Votre essai Pro",
-      trialValue: "14\u00a0jours offerts",
+      trialValue: ({ trialDays }) => `${trialDays}\u00a0jours offerts`,
       trialDetail: ({ trialEndsOn }) => `Jusqu'au ${trialEndsOn}. Sans carte bancaire.`,
       stepsTitle: "Trois étapes pour démarrer",
       steps: [

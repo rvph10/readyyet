@@ -4,7 +4,7 @@ import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
-import { trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
+import { TRIAL_DAYS, trialSubscription, UNPAID_SUBSCRIPTION } from "../billing/plans";
 import { EmailService } from "../email/email.service";
 import {
   buildNewOwnerEmail,
@@ -103,6 +103,7 @@ export class BusinessService {
       ...buildWelcomeEmail({
         locale: owner.locale,
         location: location.name,
+        trialDays: TRIAL_DAYS,
         trialEndsOn,
         appUrl: `${process.env.WEB_URL}/locations/${locationId}`,
       }),

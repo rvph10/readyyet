@@ -241,20 +241,27 @@ export class InvitationService {
       role,
     };
     const locationUrl = `${process.env.WEB_URL}/locations/${location.id}`;
-    await this.email.send({
-      to: member.email,
-      ...buildJoinedTeamEmail({ ...params, locale: member.locale, locationUrl }),
-      type: "joined_team",
-      dedupeKey: `joined_team:${invitationId}`,
-    });
-    if (!inviter.deletedAt) {
-      await this.email.send({
-        to: inviter.email,
-        ...buildMemberJoinedEmail({ ...params, locale: inviter.locale, teamUrl: `${locationUrl}/team` }),
-        type: "member_joined",
-        dedupeKey: `member_joined:${invitationId}`,
-      });
-    }
+    // Only to an inviter still on the team: someone who left shouldn't learn
+    // the new member's address.
+    const inviterStays =
+      !inviter.deletedAt &&
+      (await this.prisma.membership.count({ where: { userId: inviter.id, locationId: location.id } })) > 0;
+    // Both tried, whatever happens to the other.
+    await Promise.allSettled([
+      this.email.send({
+        to: member.email,
+        ...buildJoinedTeamEmail({ ...params, locale: member.locale, locationUrl }),
+        type: "joined_team",
+        dedupeKey: `joined_team:${invitationId}`,
+      }),
+      inviterStays &&
+        this.email.send({
+          to: inviter.email,
+          ...buildMemberJoinedEmail({ ...params, locale: inviter.locale, teamUrl: `${locationUrl}/team` }),
+          type: "member_joined",
+          dedupeKey: `member_joined:${invitationId}`,
+        }),
+    ]);
   }
 
   private async loadDetails(invitationId: string) {

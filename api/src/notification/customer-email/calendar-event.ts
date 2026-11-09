@@ -4,17 +4,20 @@ import type { EmailAttachment } from "../../email/email.service";
 // RFC 5545 text: these four would otherwise end a value or a field.
 const escape = (value: string) => value.replace(/[\\;,]/g, "\\$&").replace(/\r?\n/g, "\\n");
 
-// Lines longer than 75 octets continue on the next, after a space.
+// Lines longer than 75 octets continue on the next after a space, which
+// counts in the 75. Cut between characters, never inside one.
 function fold(line: string) {
-  const parts: string[] = [];
-  let rest = line;
-  while (Buffer.byteLength(rest) > 75) {
-    let cut = 75;
-    while (Buffer.byteLength(rest.slice(0, cut)) > 75) cut--;
-    parts.push(rest.slice(0, cut));
-    rest = rest.slice(cut);
+  const lines: string[] = [];
+  let current = "";
+  for (const character of line) {
+    const limit = lines.length === 0 ? 75 : 74;
+    if (Buffer.byteLength(current + character) > limit) {
+      lines.push(current);
+      current = "";
+    }
+    current += character;
   }
-  return [...parts, rest].join("\r\n ");
+  return [...lines, current].join("\r\n ");
 }
 
 const compact = (date: string) => date.replaceAll("-", "");

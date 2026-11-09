@@ -6,14 +6,14 @@ Adds to ADR 0010, 0015 and 0018, which decided who gets which email but left eac
 
 ## Decision
 
-**One design for every email**, in `api/src/notification/email-kit.tsx`, on the dashboard's tokens: a canvas background, a white card with large rounded corners, no shadows, Figtree where the mail app loads web fonts and Helvetica elsewhere, a bold 30px headline and pine pill buttons. Each email has one **key card**, pine with a lime label, holding the thing it's sent for: a sign-in code, a Ticket and its ready date, the stars to tap, the shop's reply, the trial. Light only, declared to mail apps, so a dark mode doesn't invert pine and lime.
+**One design for every email**, in `api/src/notification/email-kit.tsx`, on the dashboard's tokens: a canvas background, a white card with large rounded corners, no shadows, Figtree where the mail app loads web fonts and Helvetica elsewhere, a bold 30px headline and pine pill buttons. Each email has one **key card**, pine with a lime label, holding the thing it's sent for: a sign-in code, a Ticket and its ready date, the stars to tap, the shop's reply, the trial. Light only, declared to mail apps; Apple Mail honours that, while the Gmail apps and Outlook may still invert colours in dark mode.
 
 **Who it comes from:** ReadyYet's own emails open with its logo and name. A Customer's email opens with the shop's logo, or its name when it has none, as it's the shop writing, and ends with a small "Sent with ReadyYet" and the logo. The logo is a PNG served by the web app at `/email/logo.png`, as Gmail and Outlook don't show SVG.
 
 **Built for mail apps:**
 
 - The sign-in code sits alone on its line, one run of digits right after the word "code", where Apple Mail and Gmail look for one to autofill or copy. It stays out of the subject and the preview, as before, so it doesn't show on a locked phone.
-- The emails that state a ready date (Ticket created, date changed) attach it as an all-day calendar event, `ready-date.ics`, one per Ticket with a growing sequence, so a new date replaces the old one in the calendar. The email log keeps attachments, so a retry sends them too.
+- The emails that state a ready date (Ticket created, date changed) attach it as an all-day calendar event, `ready-date.ics`, one per Ticket with a growing sequence, so a new date replaces the old one in the calendar. Its title says the item should be ready, not that it's a pickup day. A date moved earlier or cleared, which emails nothing (ADR 0030), leaves the old event in place for now. The email log keeps attachments, so a retry sends them too, and erasing the Customer clears them.
 - Every email is sent with its plain-text part as well as its HTML. The text was rendered and stored, but only the HTML was sent.
 - A shop's phone, email and address are large labelled rows, each a link, rather than a line of small links.
 - Customer emails keep ADR 0015's one-click `List-Unsubscribe`.
@@ -24,7 +24,7 @@ Adds to ADR 0010, 0015 and 0018, which decided who gets which email but left eac
 | --- | --- | --- |
 | Owner | Welcome: the trial and its end date, three first steps | Once, when they create their first Business |
 | New member | You're in the team: their role and a way in | When they accept an invitation |
-| Whoever invited them | They joined | Same moment, unless that User deleted their account |
+| Whoever invited them | They joined | Same moment, if they're still on that Location's team |
 
 Each is written in its recipient's language, sent once (a dedupe key per Owner or invitation), and doesn't hold up the request it follows. The welcome's replies go to `SUPPORT_EMAIL`.
 

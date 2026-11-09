@@ -153,11 +153,12 @@ describe("Account deleted email", () => {
 describe("Welcome email", () => {
   it.each([
     ["EN", "Welcome to ReadyYet, Joe's Garage is ready", "Until 23 November 2026"],
-    ["FR", "Bienvenue sur ReadyYet, Joe's Garage est prêt", "Jusqu'au 23 novembre 2026"],
+    ["FR", "Bienvenue sur ReadyYet, votre magasin Joe's Garage est prêt", "Jusqu'au 23 novembre 2026"],
   ] as const)("in %s, gives the trial's end and the first steps", async (locale, subject, trial) => {
     const email = buildWelcomeEmail({
       locale,
       location: "Joe's Garage",
+      trialDays: 14,
       trialEndsOn: locale === "EN" ? "23 November 2026" : "23 novembre 2026",
       appUrl: "https://app.readyyet.app/locations/x",
     });

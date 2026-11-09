@@ -24,12 +24,28 @@ describe("Ready date event", () => {
     expect(ics).toContain("DTSTAMP:20261109T100000Z\r\n");
   });
 
-  it("escapes what would end a field, and folds long lines", () => {
-    // Unfolded first: the summary is longer than one line may be.
-    expect(ics.replaceAll("\r\n ", "")).toContain("SUMMARY:Collect your repair at Joe's Garage\\, Ixelles\\; today");
-    for (const line of ics.split("\r\n")) {
+  it("escapes what would end a field", () => {
+    expect(ics).toContain("SUMMARY:Collect your repair at Joe's Garage\\, Ixelles\\; today");
+  });
+
+  it("folds a long line at 75 octets, the space included, without cutting a character", () => {
+    const title = `Votre réparation chez Vélo 🚲 Atelier ${"é".repeat(60)} devrait être prête`;
+    const long = decode(
+      readyDateEvent({
+        trackingCode: "x",
+        date: "2026-11-14",
+        title,
+        location: "l",
+        address: null,
+        trackingUrl: "https://x",
+      }).content,
+    );
+
+    for (const line of long.split("\r\n")) {
       expect(Buffer.byteLength(line)).toBeLessThanOrEqual(75);
     }
+    expect(long).not.toContain("\uFFFD");
+    expect(long.replaceAll("\r\n ", "")).toContain(`SUMMARY:${title}`);
   });
 
   it("goes up in sequence, so a new date replaces the old one", () => {

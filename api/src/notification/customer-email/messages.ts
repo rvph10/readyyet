@@ -116,7 +116,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     starsHint: "1 star is poor, 5 stars is great.",
     replyHint: (location) => `To answer ${location}, simply reply to this email.`,
     contactLabels: { phone: "Phone", email: "Email", address: "Address" },
-    calendarTitle: ({ location, job }) => `Collect your ${job.word} at ${location}`,
+    calendarTitle: ({ location, job }) => `Your ${job.word} at ${location} should be ready`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) => `Your ${job.word} at ${location} is registered`,
@@ -194,7 +194,8 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
     starsHint: "1 étoile, c'est décevant, 5 étoiles, c'est excellent.",
     replyHint: (location) => `Pour répondre à ${location}, répondez simplement à cet e-mail.`,
     contactLabels: { phone: "Téléphone", email: "E-mail", address: "Adresse" },
-    calendarTitle: ({ location, job }) => `Récupérer ${monMa(job)} ${job.word} chez ${location}`,
+    calendarTitle: ({ location, job }) =>
+      `Votre ${job.word} chez ${location} devrait être ${agree(job, "prêt", "prête")}`,
     kinds: {
       TICKET_CREATED: {
         subject: ({ location, job }) =>

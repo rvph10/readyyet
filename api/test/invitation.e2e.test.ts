@@ -295,14 +295,44 @@ describe("Invitations", () => {
 
     // ADR 0127: the new member is welcomed, and whoever invited them told.
     const sent = (type: string) => prisma.emailLog.findMany({ where: { type, dedupeKey: `${type}:${invitationId}` } });
-    await vi.waitFor(async () => expect(await sent("member_joined")).toHaveLength(1), {
-      timeout: 10_000,
-      interval: 200,
-    });
+    // Both are sent at once, either can land first.
+    await vi.waitFor(
+      async () => {
+        expect(await sent("member_joined")).toHaveLength(1);
+        expect(await sent("joined_team")).toHaveLength(1);
+      },
+      { timeout: 10_000, interval: 200 },
+    );
     const [joined] = await sent("joined_team");
     expect(joined.to).toBe(employeeEmail);
     const owner = await request(app.getHttpServer()).get("/me").set("Cookie", ownerCookie);
     expect((await sent("member_joined"))[0].to).toBe(owner.body.email);
+  });
+
+  it("doesn't tell an inviter who has left the Location that someone joined (ADR 0127)", async () => {
+    const stamp = Date.now();
+    const adminEmail = `delivered+invite-leaver-${stamp}@resend.dev`;
+    const adminCookie = await signInViaOtp(app, prisma, adminEmail);
+    const toAdmin = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", ownerCookie)
+      .send({ email: adminEmail, role: "ADMIN" });
+    await request(app.getHttpServer()).post(`/invitations/${toAdmin.body.id}/accept`).set("Cookie", adminCookie);
+    const newcomerEmail = `delivered+invite-newcomer-${stamp}@resend.dev`;
+    const newcomerCookie = await signInViaOtp(app, prisma, newcomerEmail);
+    const invitation = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", adminCookie)
+      .send({ email: newcomerEmail, role: "EMPLOYEE" });
+    const admin = await prisma.user.findFirstOrThrow({ where: { email: adminEmail } });
+    await prisma.membership.deleteMany({ where: { userId: admin.id, locationId } });
+
+    await request(app.getHttpServer()).post(`/invitations/${invitation.body.id}/accept`).set("Cookie", newcomerCookie);
+
+    const sent = (type: string) => prisma.emailLog.findMany({ where: { dedupeKey: `${type}:${invitation.body.id}` } });
+    await vi.waitFor(async () => expect(await sent("joined_team")).toHaveLength(1), { timeout: 10_000, interval: 200 });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(await sent("member_joined")).toHaveLength(0);
   });
 
   it("rejects accepting an already-accepted invitation again", async () => {
