@@ -544,6 +544,22 @@
     }
   }
 
+  /* A hint fades in after a moment, so passing the pointer over a row of
+     icons doesn't flash each one. */
+  .tooltip {
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-behavior: allow-discrete;
+    transition-duration: var(--duration-quick);
+  }
+  .tooltip:popover-open {
+    opacity: 1;
+    transition-delay: 200ms;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
   /* A dialog grows in from 95% and shrinks back as it closes, its backdrop
      fading with it. The side panel slides from the right edge it sits on. */
   .dialog,
