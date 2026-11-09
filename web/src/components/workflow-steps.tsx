@@ -34,7 +34,9 @@ const labelClasses: Record<State, string> = {
 function StepLabel({ state, label, className }: { state: State; label: string; className?: string }) {
   const t = useTranslations("common");
   return (
-    <p className={`text-label-sm transition-colors duration-(--duration-slow) ${labelClasses[state]} ${className ?? ""}`}>
+    <p
+      className={`text-label-sm transition-colors duration-(--duration-slow) ${labelClasses[state]} ${className ?? ""}`}
+    >
       {label}
       {state === "done" && <span className="sr-only">, {t("stepDone")}</span>}
     </p>
@@ -72,7 +74,9 @@ function Marker({ state, code }: { state: State; code: string }) {
       </span>
     );
   }
-  return <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface transition duration-(--duration-slow)" />;
+  return (
+    <span className="size-6 shrink-0 rounded-full border-2 border-border bg-surface transition duration-(--duration-slow)" />
+  );
 }
 
 // Where a Ticket stands in its Workflow: done steps in ink, the current one

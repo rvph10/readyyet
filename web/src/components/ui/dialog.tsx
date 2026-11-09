@@ -44,7 +44,15 @@ const shapes: Record<Variant, string> = {
 // makes the page behind it inert. ADR 0049 and 0056: a panel over the page
 // dimmed and blurred, with a round close button. A click on the backdrop
 // closes it.
-export function Dialog({ open, onClose, title: openTitle, variant = "default", locked, media: openMedia, children: openChildren }: Props) {
+export function Dialog({
+  open,
+  onClose,
+  title: openTitle,
+  variant = "default",
+  locked,
+  media: openMedia,
+  children: openChildren,
+}: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   // Callers empty a dialog as they close it, like a form shown only while
   // open. What it last showed open stays while it fades out (ADR 0122).
