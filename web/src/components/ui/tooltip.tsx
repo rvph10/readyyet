@@ -65,7 +65,7 @@ export function Tooltip({ wide, children }: { wide?: boolean; children: ReactNod
         ref={ref}
         popover="manual"
         aria-hidden="true"
-        className={`pointer-events-none fixed inset-auto m-0 overflow-visible rounded-lg border-0 bg-ink px-2.5 py-1.5 text-surface after:absolute after:left-(--arrow) after:-translate-x-1/2 after:border-4 after:border-transparent data-[side=above]:after:top-full data-[side=above]:after:border-t-ink data-[side=below]:after:bottom-full data-[side=below]:after:border-b-ink ${wide ? "w-64 text-left text-p-xs" : "text-label-xs whitespace-nowrap"}`}
+        className={`tooltip pointer-events-none fixed inset-auto m-0 overflow-visible rounded-lg border-0 bg-ink px-2.5 py-1.5 text-surface after:absolute after:left-(--arrow) after:-translate-x-1/2 after:border-4 after:border-transparent data-[side=above]:after:top-full data-[side=above]:after:border-t-ink data-[side=below]:after:bottom-full data-[side=below]:after:border-b-ink ${wide ? "w-64 text-left text-p-xs" : "text-label-xs whitespace-nowrap"}`}
       >
         {children}
       </span>

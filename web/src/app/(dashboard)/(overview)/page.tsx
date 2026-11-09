@@ -1,12 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { Suspense, type ComponentProps } from "react";
+import { type ComponentProps } from "react";
 import { getLocation } from "@/app/(dashboard)/locations/[locationId]/location-data";
 import { api } from "@/lib/api/client";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
 import { chooseBusiness, groupByBusiness } from "@/lib/memberships";
 import { LocationPicker } from "./location-picker";
+import { Reveal } from "@/components/reveal";
 
 // ADR 0077: only someone with a choice to make sees this. It asks every time
 // rather than reopening the last Location, so a Ticket isn't created in the
@@ -46,9 +47,9 @@ export default async function ChooseLocationPage({ searchParams }: PageProps<"/"
     businesses: groups.length > 1 ? groups : [],
   };
   return (
-    <Suspense fallback={<LocationPicker {...picker} counts={null} />}>
+    <Reveal fallback={<LocationPicker {...picker} counts={null} />}>
       <Counted picker={picker} />
-    </Suspense>
+    </Reveal>
   );
 }
 

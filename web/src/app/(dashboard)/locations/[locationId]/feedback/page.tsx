@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { Banner } from "@/components/ui/banner";
 import { buttonClass } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import { isManager } from "../sections";
 import { daysBetween, formatMoment } from "../tickets/ticket-views";
 import { FeedbackBoard } from "./feedback-board";
 import { feedbackBlock, feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
+import { Reveal } from "@/components/reveal";
 
 // Someone may be waiting on an answer, so a tab left open has to show it.
 const REFRESH_EVERY_MS = 60 * 1000;
@@ -48,9 +48,9 @@ export default async function FeedbackPage({ params, searchParams }: PageProps<"
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader title={t("pageTitle")} />
       {/* Keyed, so another tab or page shows its messages loading straight away. */}
-      <Suspense key={`${view}:${page}`} fallback={<FeedbackLoading locationId={locationId} view={view} />}>
+      <Reveal key={`${view}:${page}`} fallback={<FeedbackLoading locationId={locationId} view={view} />}>
         <FeedbackContent locationId={locationId} view={view} page={page} />
-      </Suspense>
+      </Reveal>
     </div>
   );
 }

@@ -3,11 +3,12 @@ import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { cache, Suspense } from "react";
+import { cache } from "react";
 import { StatusPill } from "@/components/status-pill";
 import { Banner } from "@/components/ui/banner";
 import { Icon } from "@/components/ui/icon";
 import { Pagination } from "@/components/ui/pagination";
+import { RollingNumber } from "@/components/ui/rolling-number";
 import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
@@ -19,6 +20,7 @@ import { PageHeader } from "../../page-header";
 import { formatDay } from "../../tickets/ticket-views";
 import { customersHref, emailFails } from "../customer-views";
 import { CustomerCard } from "./customer-card";
+import { Reveal } from "@/components/reveal";
 
 const PAGE_SIZE = 50;
 // More than a shop can have open for one Customer.
@@ -63,7 +65,7 @@ function Stat({
     >
       <span className="text-label-sm">{label}</span>
       <span className="mt-2 flex h-12 items-center text-[2.5rem] leading-[3rem] font-bold tracking-tight lg:h-15 lg:text-[3.25rem] lg:leading-[3.75rem]">
-        {value ?? <Skeleton className="h-3/5 w-14" />}
+        {value === null ? <Skeleton className="h-3/5 w-14" /> : <RollingNumber value={value} />}
       </span>
       {sub === null ? (
         <Skeleton className="mt-1.5 h-3.5 w-36 max-w-full" />
@@ -90,18 +92,18 @@ export default async function CustomerPage({
 
   return (
     <>
-      <Suspense fallback={<PageHeader title={null} />}>
+      <Reveal fallback={<PageHeader title={null} />}>
         <Header {...ids} />
-      </Suspense>
+      </Reveal>
       <div className="grid flex-1 grid-cols-2 gap-3 lg:gap-5 xl:grid-cols-3 xl:grid-rows-[auto_minmax(0,1fr)]">
         <Panel as="section" padding="lg" className="col-span-2 flex flex-col xl:col-span-1 xl:row-span-2">
-          <Suspense fallback={<CardLoading />}>
+          <Reveal fallback={<CardLoading />}>
             <Card {...ids} />
-          </Suspense>
+          </Reveal>
         </Panel>
-        <Suspense fallback={<StatsLoading />}>
+        <Reveal fallback={<StatsLoading />}>
           <Stats {...ids} />
-        </Suspense>
+        </Reveal>
         <Panel
           as="section"
           aria-labelledby="customer-tickets"
@@ -110,9 +112,9 @@ export default async function CustomerPage({
           <h2 id="customer-tickets" className="text-title-h6">
             {t("tickets")}
           </h2>
-          <Suspense key={page} fallback={<TicketsLoading />}>
+          <Reveal key={page} fallback={<TicketsLoading />}>
             <TicketList {...ids} page={page} />
-          </Suspense>
+          </Reveal>
         </Panel>
       </div>
     </>

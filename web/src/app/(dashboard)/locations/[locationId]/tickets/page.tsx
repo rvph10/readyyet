@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 import type { IllustrationName } from "@/components/illustration";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
@@ -21,6 +20,7 @@ import { getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { ListHeader, TicketRow } from "./ticket-row";
 import { LIST_SORTS, parseQuery, parseView, ticketsHref, VIEWS, type ListSort, type View } from "./ticket-views";
+import { Reveal } from "@/components/reveal";
 
 // A counter leaves this open all day while colleagues move Tickets.
 const REFRESH_EVERY_MS = 60 * 1000;
@@ -64,9 +64,9 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
       <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
       <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
-          <Suspense fallback={<ViewTabs query={query} counts={null} />}>
+          <Reveal fallback={<ViewTabs query={query} counts={null} />}>
             <CountedTabs query={query} />
-          </Suspense>
+          </Reveal>
           {q && (
             <Link
               href={ticketsHref(locationId, { view, sort })}
@@ -77,7 +77,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           )}
         </div>
         {/* Keyed, so another tab or page shows its rows loading straight away. */}
-        <Suspense
+        <Reveal
           key={`${view}:${q}:${query.page}:${sort?.column}:${sort?.dir}`}
           fallback={
             <>
@@ -90,7 +90,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
           }
         >
           <TicketList query={query} />
-        </Suspense>
+        </Reveal>
       </Panel>
     </>
   );

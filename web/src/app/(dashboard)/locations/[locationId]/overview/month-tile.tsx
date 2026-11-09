@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/icon";
+import { RollingNumber } from "@/components/ui/rolling-number";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
 import { intlLocale } from "../tickets/ticket-views";
@@ -46,7 +47,9 @@ export function MonthTile({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-label-md">{t("title")}</h2>
-          <p className="text-[3rem] leading-[3.5rem] font-bold tracking-tight">{current}</p>
+          <p className="text-[3rem] leading-[3.5rem] font-bold tracking-tight">
+            <RollingNumber value={current} />
+          </p>
         </div>
         <div className="flex flex-col items-end gap-1">
           <span
@@ -75,7 +78,7 @@ export function MonthTile({
                 />
                 <div
                   ref={sized("height", count === 0 ? 2 : (count / max) * 100)}
-                  className={`pointer-events-none absolute inset-x-0 bottom-0 rounded-t-lg rounded-b-sm transition-colors ${
+                  className={`grows pointer-events-none absolute inset-x-0 bottom-0 rounded-t-lg rounded-b-sm ${
                     now ? "bg-pine" : "bg-pine-subtle group-hover/bar:bg-pine/30"
                   }`}
                 />
@@ -108,8 +111,11 @@ export function MonthTile({
         <div className="mt-2 flex h-3 gap-1 overflow-hidden rounded-full bg-subtle">
           {people > 0 && (
             <>
-              <span ref={sized("width", (customers.new / people) * 100)} className="rounded-full bg-pine" />
-              <span ref={sized("width", (customers.returning / people) * 100)} className="rounded-full bg-brand" />
+              <span ref={sized("width", (customers.new / people) * 100)} className="grows rounded-full bg-pine" />
+              <span
+                ref={sized("width", (customers.returning / people) * 100)}
+                className="grows rounded-full bg-brand"
+              />
             </>
           )}
         </div>

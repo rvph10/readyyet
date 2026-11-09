@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/icon";
+import { RollingNumber } from "@/components/ui/rolling-number";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
 
@@ -72,7 +73,9 @@ export function LocationTile({ id, name, badge, counts, loading = false }: Props
       ) : counts ? (
         <span className="mt-auto flex flex-col gap-3 pt-6">
           <span className="flex items-baseline gap-2">
-            <span className="text-[3.25rem] leading-[3.5rem] font-bold tracking-tight">{counts.open}</span>
+            <span className="text-[3.25rem] leading-[3.5rem] font-bold tracking-tight">
+              <RollingNumber value={counts.open} />
+            </span>
             <span className="text-label-sm text-muted">{t("openCount", { count: counts.open })}</span>
           </span>
           <span className="flex h-3 gap-0.5">

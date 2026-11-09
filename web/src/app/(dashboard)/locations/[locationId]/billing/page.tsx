@@ -1,6 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
 import { getMe } from "@/lib/me";
 import { getBilling, getDaysToChoosePlan, getLocation } from "../location-data";
 import { PageHeader } from "../page-header";
@@ -9,6 +8,7 @@ import { parsePlan } from "../plan-prices";
 import { intlLocale } from "../tickets/ticket-views";
 import { BillingBoard } from "./billing-board";
 import { BillingLoading } from "./billing-loading";
+import { Reveal } from "@/components/reveal";
 
 // ADR 0091. ADR 0119: the header stands at once, the plan waits in its tiles.
 export default async function BillingPage({ params, searchParams }: PageProps<"/locations/[locationId]/billing">) {
@@ -31,9 +31,9 @@ export default async function BillingPage({ params, searchParams }: PageProps<"/
   return (
     <>
       <PageHeader title={t("sections.billing")} />
-      <Suspense fallback={<BillingLoading />}>
+      <Reveal fallback={<BillingLoading />}>
         <BillingContent locationId={locationId} role={membership.role} businessId={membership.location.business.id} />
-      </Suspense>
+      </Reveal>
     </>
   );
 }

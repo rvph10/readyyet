@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { PhoneNumber } from "@/components/phone-number";
 import { QrCode } from "@/components/qr-code";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
@@ -32,6 +32,7 @@ import { StatusPanel } from "./status-panel";
 import { TicketDetails } from "./ticket-details";
 import { TicketPhotos } from "./ticket-photos";
 import { TrackingPanel } from "./tracking-panel";
+import { Reveal } from "@/components/reveal";
 
 // Colleagues move Tickets too, and a photo's address expires after 15 minutes.
 const REFRESH_EVERY_MS = 60 * 1000;
@@ -43,7 +44,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
   return (
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
-      <Suspense
+      <Reveal
         fallback={
           <>
             <PageHeader title={null} crumb={`#${ticketId}`} />
@@ -52,7 +53,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
         }
       >
         <TicketContent locationId={locationId} ticketId={ticketId} />
-      </Suspense>
+      </Reveal>
     </>
   );
 }

@@ -14,6 +14,7 @@ import { SectionLoading } from "./section-form";
 import { parseSection, SETTINGS_SECTIONS, type SettingsSection } from "./settings-views";
 import { ShopDetails } from "./shop-details";
 import { Turnaround } from "./turnaround";
+import { Reveal } from "@/components/reveal";
 
 const ICONS: Record<SettingsSection, IconName> = {
   shop: "home",
@@ -76,9 +77,9 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
               ) : undefined,
             danger: name === "delete",
             content: (
-              <Suspense fallback={<SectionLoading title={tSettings(title)} hint={tSettings(hint)} groups={groups} />}>
+              <Reveal fallback={<SectionLoading title={tSettings(title)} hint={tSettings(hint)} groups={groups} />}>
                 {sections[name]}
-              </Suspense>
+              </Reveal>
             ),
           };
         })}

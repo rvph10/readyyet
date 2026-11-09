@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./icon";
 
 type Variant = "default" | "destructive" | "announcement" | "image" | "panel" | "pricing";
@@ -44,8 +44,29 @@ const shapes: Record<Variant, string> = {
 // makes the page behind it inert. ADR 0049 and 0056: a panel over the page
 // dimmed and blurred, with a round close button. A click on the backdrop
 // closes it.
-export function Dialog({ open, onClose, title, variant = "default", locked, media, children }: Props) {
+export function Dialog({
+  open,
+  onClose,
+  title: openTitle,
+  variant = "default",
+  locked,
+  media: openMedia,
+  children: openChildren,
+}: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Callers empty a dialog as they close it, like a form shown only while
+  // open. What it last showed open stays while it fades out (ADR 0122).
+  const [kept, setKept] = useState({ title: openTitle, media: openMedia, children: openChildren });
+  if (open && (kept.title !== openTitle || kept.media !== openMedia || kept.children !== openChildren)) {
+    setKept({ title: openTitle, media: openMedia, children: openChildren });
+  }
+  // Each opening starts its content afresh, as a form shown only while open
+  // expects, rather than with the state it was closed with.
+  const [openings, setOpenings] = useState({ open, count: 0 });
+  if (openings.open !== open) setOpenings({ open, count: openings.count + (open ? 1 : 0) });
+  const shown = open ? { title: openTitle, media: openMedia, children: openChildren } : kept;
+  const { title, media } = shown;
+  const children = <Fragment key={openings.count}>{shown.children}</Fragment>;
   const titleId = useId();
   const dismiss = () => {
     if (!locked) onClose();
@@ -69,7 +90,11 @@ export function Dialog({ open, onClose, title, variant = "default", locked, medi
         if (locked) event.preventDefault();
       }}
       onClick={(event) => event.target === ref.current && dismiss()}
-      className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm motion-safe:transition motion-safe:starting:open:scale-95 motion-safe:starting:open:opacity-0 ${shapes[variant]} ${frames[variant]}`}
+      // Faded out, what it kept goes, so a closed form's effects stop too.
+      onTransitionEnd={(event) => {
+        if (!open && event.target === ref.current) setKept((last) => ({ ...last, media: null, children: null }));
+      }}
+      className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm ${variant === "panel" ? "dialog-panel" : "dialog"} ${shapes[variant]} ${frames[variant]}`}
     >
       {variant === "panel" && (
         <div className="flex h-full flex-col">
