@@ -329,7 +329,7 @@ export class NotificationService {
   // other emails so a reply to it reaches the shop.
   async sendFeedbackReply(ticketId: bigint, reply: string) {
     const ticket = await this.loadTicket(ticketId);
-    if (!ticket.customer.email || !canEmail(ticket.customer)) {
+    if (!canEmail(ticket.customer)) {
       throw new ConflictError("This customer can't be emailed");
     }
     await this.sendCustomerEmail(ticket, ticket.customer.email, "FEEDBACK_REPLY", "feedback_reply", undefined, reply);

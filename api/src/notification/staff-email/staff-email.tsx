@@ -15,7 +15,6 @@ const codeStyle = {
   textAlign: "center" as const,
 };
 
-// The Customer's own words, line breaks kept.
 function Layout({ locale, preview, children }: { locale: Locale; preview: string; children: ReactNode }) {
   return (
     <Html lang={locale.toLowerCase()}>

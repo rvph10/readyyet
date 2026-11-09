@@ -51,7 +51,7 @@ export class TrackingService {
             subscription: true,
           },
         },
-        feedback: { select: { stars: true, tags: true, message: true } },
+        feedback: { select: { stars: true, tags: true, message: true, reply: true } },
         // Only to resolve the page's language, never returned as is.
         customer: { select: { locale: true } },
         currentStatus: publicStatusSelect,
@@ -107,7 +107,7 @@ export class TrackingService {
       feedback: ticket.feedback && {
         stars: ticket.feedback.stars,
         tags: ticket.feedback.tags as FeedbackTag[],
-        messageSent: ticket.feedback.message !== null,
+        closed: ticket.feedback.message !== null || ticket.feedback.reply !== null,
       },
       photos: await Promise.all(
         ticket.photos.map(async (photo) => ({

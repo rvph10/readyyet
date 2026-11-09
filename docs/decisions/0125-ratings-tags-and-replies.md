@@ -18,14 +18,14 @@ On the review page the Customer gives:
 - **Tags**, from a fixed list, as many as they like: what went well ("Ready on time", "Friendly", "Good value", "Clear explanations", "Quality work") and what didn't ("Took longer than expected", "Higher price than expected", "Problem not fully fixed", "Hard to reach"). The same list whatever the rating. Never free text, so tags can one day be shown in public with no moderation.
 - **A message**, optional, private to the shop as before.
 
-Nothing is saved when the page opens, as ADR 0076 requires: mail scanners open every link in an email, all five stars included. Stars and tags are saved by the Customer's own action on the page: **Send to the shop**, or **Review on Google**. They can change their stars and tags until they send a message, which closes their answer.
+Nothing is saved when the page opens, as ADR 0076 requires: mail scanners open every link in an email, all five stars included. Stars and tags are saved by the Customer's own action on the page: **Send to the shop**, or **Review on Google**. They can change their stars and tags until they send a message or the shop replies, either of which closes their answer.
 
 A tap on **Review on Google** is recorded, so the shop can see how many Customers ReadyYet sent to Google. What they write there is never seen by ReadyYet.
 
 ### What the shop does with it
 
-- An answer **needs a follow-up** while nobody has dealt with it and it has a message or 1 or 2 stars. Only those count in the sidebar, the bell and the staff email. A 2-star rating with no message is the Customer most likely to leave unhappy without saying it.
-- The shop **replies from ReadyYet**. The reply is emailed to the Customer in the shop's name, with the shop's contact email as the reply-to address, stored with the answer, and deals with it. A Customer with no email address is called instead, and the answer is closed without a reply.
+- An answer **needs a follow-up** while nobody has dealt with it and it has a message or 1 or 2 stars. Only those count in the sidebar and the bell. Staff are emailed when a low rating is first given and when a message comes, not each time the stars change. A 2-star rating with no message is the Customer most likely to leave unhappy without saying it, and a message written after the shop closed their rating opens it again.
+- The shop **replies from ReadyYet**. The reply is emailed to the Customer in the shop's name, with the shop's contact email as the reply-to address, stored with the answer, and deals with it. One reply per answer: further talk goes on by email. A Customer with no email address, or whose address bounced, is called instead, and the answer is closed without a reply.
 - The Feedback page shows **this month's numbers** on the Location's clock: Customers asked, answers, the average and spread of the stars, the most chosen tags, and how many went to Google.
 
 ## Why

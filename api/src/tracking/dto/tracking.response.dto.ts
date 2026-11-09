@@ -39,8 +39,9 @@ export class TrackingFeedbackDto {
   stars!: number | null;
   @ApiProperty({ enum: FEEDBACK_TAGS, isArray: true })
   tags!: FeedbackTag[];
-  // Once true the answer is closed, the page thanks them instead of asking.
-  messageSent!: boolean;
+  // Sent with a message or replied to by the shop: the page thanks them
+  // instead of asking.
+  closed!: boolean;
 }
 
 export class TrackingDto {

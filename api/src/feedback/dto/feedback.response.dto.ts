@@ -12,6 +12,8 @@ export class FeedbackCustomerDto {
   // To answer them, null when they gave none.
   email!: string | null;
   phone!: string | null;
+  // Has an address that hasn't bounced or complained, so a reply can go.
+  emailable!: boolean;
 }
 
 export class FeedbackHandlerDto {

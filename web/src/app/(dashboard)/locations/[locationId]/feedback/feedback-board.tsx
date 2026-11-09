@@ -127,11 +127,11 @@ function Answer({ item, locationId }: { item: Item; locationId: string }) {
   );
   const closeButton = (
     <Button variant="secondary" pending={closing} pendingLabel={t("marking")} onClick={close}>
-      {t(customer.email ? "closeWithoutReply" : "close")}
+      {t(customer.email && customer.emailable ? "closeWithoutReply" : "close")}
     </Button>
   );
 
-  return customer.email ? (
+  return customer.email && customer.emailable ? (
     <form noValidate onSubmit={send} className="mt-auto flex flex-col gap-3 border-t border-border pt-4">
       <TextareaField
         label={t("replyLabel", { name: customer.fullName })}

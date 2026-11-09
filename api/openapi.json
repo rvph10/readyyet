@@ -11178,14 +11178,14 @@
               ]
             }
           },
-          "messageSent": {
+          "closed": {
             "type": "boolean"
           }
         },
         "required": [
           "stars",
           "tags",
-          "messageSent"
+          "closed"
         ]
       },
       "TrackingPhotoDto": {
@@ -11391,13 +11391,17 @@
           "phone": {
             "type": "string",
             "nullable": true
+          },
+          "emailable": {
+            "type": "boolean"
           }
         },
         "required": [
           "id",
           "fullName",
           "email",
-          "phone"
+          "phone",
+          "emailable"
         ]
       },
       "FeedbackHandlerDto": {

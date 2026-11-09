@@ -368,7 +368,7 @@ describe("Customer feedback", () => {
         { timeout: 10_000, interval: 200 },
       );
       const tracking = await client().get(`/tracking/${ticket.trackingCode}`);
-      expect(tracking.body.feedback).toEqual({ stars: 3, tags: ["NOT_FIXED", "FRIENDLY"], messageSent: true });
+      expect(tracking.body.feedback).toEqual({ stars: 3, tags: ["NOT_FIXED", "FRIENDLY"], closed: true });
 
       const again = await sendFeedback(ticket.trackingCode, "And another thing");
       expect(again.status).toBe(409);
@@ -475,6 +475,42 @@ describe("Customer feedback", () => {
       const [email] = await staffEmailsAbout(`Low ${stamp}`);
       expect(email.subject).toBe("Client low gave Garage Martin 2 out of 5");
       expect(await staffEmailsAbout(`Good ${stamp}`)).toHaveLength(0);
+    });
+
+    it("emails staff again when a message follows a low rating, and opens it again if it was closed", async () => {
+      const ticket = await createTicket("low-then-message", `Then message ${stamp}`);
+      await complete(ticket.id);
+      await sendFeedback(ticket.trackingCode, undefined, { stars: 2, tags: [] });
+      const feedback = await prisma.ticketFeedback.findUniqueOrThrow({ where: { ticketId: BigInt(ticket.id) } });
+      await client().post(`/locations/${locationId}/feedback/${feedback.id}/handled`).set("Cookie", ownerCookie);
+
+      await sendFeedback(ticket.trackingCode, "Still broken", { stars: 2, tags: [] });
+
+      await vi.waitFor(async () => expect(await staffEmailsAbout(`Then message ${stamp}`)).toHaveLength(4), {
+        timeout: 10_000,
+        interval: 200,
+      });
+      expect(await prisma.ticketFeedback.findUniqueOrThrow({ where: { id: feedback.id } })).toMatchObject({
+        message: "Still broken",
+        handledAt: null,
+        handledBy: null,
+      });
+    });
+
+    it("doesn't email staff again for stars changed back and forth", async () => {
+      const ticket = await createTicket("back-and-forth", `Back and forth ${stamp}`);
+      await complete(ticket.id);
+
+      await sendFeedback(ticket.trackingCode, undefined, { stars: 2, tags: [] });
+      await sendFeedback(ticket.trackingCode, undefined, { stars: 4, tags: [] });
+      await sendFeedback(ticket.trackingCode, undefined, { stars: 1, tags: [] });
+
+      await vi.waitFor(async () => expect(await staffEmailsAbout(`Back and forth ${stamp}`)).toHaveLength(2), {
+        timeout: 10_000,
+        interval: 200,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(await staffEmailsAbout(`Back and forth ${stamp}`)).toHaveLength(2);
     });
 
     it("is deleted when the Customer is erased", async () => {
@@ -623,7 +659,10 @@ describe("Customer feedback", () => {
         handledBy: { name: expect.any(String) },
       });
       const [email] = await emailsTo("list-b", "feedback_reply");
-      expect(email).toMatchObject({ subject: "Garage Martin replied to your message", replyTo: "atelier@martin.test" });
+      expect(email).toMatchObject({
+        subject: "Garage Martin replied to your feedback",
+        replyTo: "atelier@martin.test",
+      });
       expect(email.html).toContain("Sorry about that, come by and we&#x27;ll look again.");
 
       const again = await client()
@@ -650,6 +689,44 @@ describe("Customer feedback", () => {
         reply: null,
         handledAt: null,
       });
+      await prisma.ticketFeedback.delete({ where: { id: feedback.id } });
+    });
+
+    it("closes the answer for the Customer once the shop replied", async () => {
+      const ticket = await createTicket("list-replied", "Ticket list-replied");
+      await complete(ticket.id);
+      await sendFeedback(ticket.trackingCode, undefined, { stars: 2, tags: [] });
+      const feedback = await prisma.ticketFeedback.findUniqueOrThrow({ where: { ticketId: BigInt(ticket.id) } });
+
+      await client()
+        .post(`/locations/${locationId}/feedback/${feedback.id}/reply`)
+        .set("Cookie", ownerCookie)
+        .send({ reply: "Sorry, we'll call you" });
+      const late = await sendFeedback(ticket.trackingCode, "Thanks", { stars: 2, tags: [] });
+
+      expect(late.status).toBe(409);
+      expect((await client().get(`/tracking/${ticket.trackingCode}`)).body.feedback.closed).toBe(true);
+      await prisma.ticketFeedback.delete({ where: { id: feedback.id } });
+    });
+
+    it("can't reply to a Customer whose email bounced, and says so before trying", async () => {
+      const ticket = await createTicket("list-bounced", "Ticket list-bounced");
+      await complete(ticket.id);
+      await sendFeedback(ticket.trackingCode, "Call me", { stars: 1, tags: [] });
+      await prisma.customer.update({ where: { id: BigInt(ticket.customer.id) }, data: { emailBouncedAt: new Date() } });
+      const feedback = await prisma.ticketFeedback.findUniqueOrThrow({ where: { ticketId: BigInt(ticket.id) } });
+
+      const listed = (await listFeedback(ownerCookie, "?view=all")).body.items.find(
+        (item: { id: string }) => item.id === feedback.id.toString(),
+      );
+      const response = await client()
+        .post(`/locations/${locationId}/feedback/${feedback.id}/reply`)
+        .set("Cookie", ownerCookie)
+        .send({ reply: "Hello" });
+
+      expect(listed.customer.emailable).toBe(false);
+      expect(response.status).toBe(409);
+      expect(await emailsTo("list-bounced", "feedback_reply")).toHaveLength(0);
       await prisma.ticketFeedback.delete({ where: { id: feedback.id } });
     });
 

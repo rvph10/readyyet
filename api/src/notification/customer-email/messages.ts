@@ -123,7 +123,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
           `Your ${job.word} "${title}" is ready and waiting for you at ${location}. Already picked it up? Let us know with the link below and the reminders stop.`,
       },
       FEEDBACK_REPLY: {
-        subject: ({ location }) => `${location} replied to your message`,
+        subject: ({ location }) => `${location} replied to your feedback`,
         body: ({ location, title, job }) => `Here is ${location}'s reply about your ${job.word} "${title}":`,
       },
       FEEDBACK_REQUEST: {
@@ -190,7 +190,7 @@ export const MESSAGES: Record<Locale, LocaleMessages> = {
           `Votre ${job.word} «\u00a0${title}\u00a0» est ${agree(job, "prêt", "prête")} et vous attend chez ${location}. Vous l'avez déjà ${agree(job, "récupéré", "récupérée")}\u00a0? Dites-le-nous avec le lien ci-dessous et les rappels s'arrêtent.`,
       },
       FEEDBACK_REPLY: {
-        subject: ({ location }) => `${location} a répondu à votre message`,
+        subject: ({ location }) => `${location} a répondu à votre avis`,
         body: ({ location, title, job }) =>
           `Voici la réponse de ${location} au sujet de votre ${job.word} «\u00a0${title}\u00a0»\u00a0:`,
       },
