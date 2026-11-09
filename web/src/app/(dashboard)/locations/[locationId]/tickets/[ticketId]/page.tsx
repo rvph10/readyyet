@@ -75,6 +75,11 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
   ]);
   const membership = me.memberships.find((candidate) => candidate.location.id === locationId);
   if (!membership) notFound();
+  // What the Customer reads beside their link, in their language.
+  const tCustomer = await getTranslations({
+    locale: ticket.customer.locale ?? location.locale,
+    namespace: "ticketDetail",
+  });
 
   const { customer, currentStatus: status } = ticket;
   const now = new Date();
@@ -249,7 +254,17 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
                     url={ticket.trackingUrl}
                     code={ticket.trackingCode}
                     qr={<QrCode value={ticket.trackingUrl} label={t("qrLabel", { name })} className="w-full" />}
-                    qrFirst={!emailWorks || ticket.emailProblem !== null}
+                    shopName={location.name}
+                    title={ticket.title}
+                    customerName={name}
+                    shareText={tCustomer("shareText", {
+                      name: customer.fullName,
+                      shop: location.name,
+                      ticket: ticket.title,
+                      url: ticket.trackingUrl,
+                    })}
+                    scanText={tCustomer("scanToFollow")}
+                    phone={customer.phone}
                     resendTo={emailWorks ? customer.email : null}
                   />
                 )}

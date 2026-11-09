@@ -1,11 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef } from "react";
 import { Icon } from "./icon";
-
-// How long the button shows its check before it offers to copy again.
-const COPIED_FOR_MS = 2000;
+import { useCopy } from "./use-copy";
 
 interface Props {
   label: string;
@@ -24,21 +22,10 @@ export function CopyField({ label, value, shown, mono, className }: Props) {
   const t = useTranslations("common");
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), COPIED_FOR_MS);
-    return () => clearTimeout(timer);
-  }, [copied]);
+  const { copied, copy: copyValue } = useCopy();
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-    } catch {
-      input.current!.select();
-    }
+    if (!(await copyValue(value))) input.current!.select();
   }
 
   return (

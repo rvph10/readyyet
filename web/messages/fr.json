@@ -435,8 +435,7 @@
     "erasedCustomer": "Client effacé",
     "noContact": "Ni e-mail ni téléphone",
     "tracking": "Lien de suivi",
-    "trackingLink": "Lien pour le client",
-    "showQr": "Afficher le QR code",
+    "showQr": "Afficher en grand",
     "qrTitle": "Scannez pour suivre ce ticket",
     "qrHint": "Le client scanne ce code avec l'appareil photo de son téléphone pour suivre son ticket.",
     "qrLabel": "QR code du lien de suivi pour {name}",
@@ -472,7 +471,14 @@
     "call": "Appeler",
     "sendEmail": "Email",
     "trackingCode": "Code de suivi",
-    "moment": "{day} à {time}"
+    "moment": "{day} à {time}",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "copyFailed": "Ce navigateur a refusé la copie. Affichez plutôt le QR code.",
+    "sendSms": "SMS",
+    "printSlip": "Imprimer un ticket",
+    "shareText": "Bonjour {name}, ici {shop}. Suivez « {ticket} » ici : {url}",
+    "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article."
   },
   "today": {
     "greeting": {

@@ -348,13 +348,15 @@ export class TicketService {
     if (query.q) {
       // Prisma passes contains through to ILIKE as-is, so a typed % or _
       // would otherwise act as a wildcard instead of a literal character.
-      const contains = { contains: query.q.replace(/[\\%_]/g, "\\$&"), mode: "insensitive" } as const;
+      const escape = (text: string) => text.replace(/[\\%_]/g, "\\$&");
+      const contains = { contains: escape(query.q), mode: "insensitive" } as const;
       const digits = phoneDigits(query.q);
       filters.push({
         OR: [
           { title: contains },
           { description: contains },
-          { trackingCode: contains },
+          // Read off a slip, the code comes in groups of four (ADR 0124).
+          { trackingCode: { contains: escape(query.q.replace(/\s/g, "")), mode: "insensitive" } },
           // An erased customer's fields are placeholders, not searchable data.
           {
             customer: {
