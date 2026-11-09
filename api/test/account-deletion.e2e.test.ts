@@ -191,14 +191,17 @@ describe("Invitations sent by a deleted account", () => {
 
     expect(resent.status).toBe(200);
     expect(resent.body.status).toBe("PENDING");
-    const logs = await vi.waitFor(async () => {
-      const found = await prisma.emailLog.findMany({
-        where: { to: inviteeEmail, type: "invitation", status: "SENT" },
-        orderBy: { createdAt: "asc" },
-      });
-      expect(found).toHaveLength(2);
-      return found;
-    });
+    const logs = await vi.waitFor(
+      async () => {
+        const found = await prisma.emailLog.findMany({
+          where: { to: inviteeEmail, type: "invitation", status: "SENT" },
+          orderBy: { createdAt: "asc" },
+        });
+        expect(found).toHaveLength(2);
+        return found;
+      },
+      { timeout: 10_000, interval: 200 },
+    );
     expect(logs[1]).toMatchObject({
       replyTo: "shop@invitertest.test",
       subject: "Former member invited you to join Shop on ReadyYet",

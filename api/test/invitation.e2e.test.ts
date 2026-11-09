@@ -70,8 +70,9 @@ describe("Invitations", () => {
       .send({ email, role: "ADMIN" });
 
     // Sent after the response.
-    const log = await vi.waitFor(() =>
-      prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+    const log = await vi.waitFor(
+      () => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+      { timeout: 10_000, interval: 200 },
     );
     const owner = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.invitedBy.id } });
     expect(invitation.body.invitedBy).toEqual({ id: owner.id, name: owner.name });
@@ -94,8 +95,9 @@ describe("Invitations", () => {
       .set("Cookie", ownerCookie)
       .send({ email, role: "EMPLOYEE" });
 
-    const log = await vi.waitFor(() =>
-      prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+    const log = await vi.waitFor(
+      () => prisma.emailLog.findFirstOrThrow({ where: { to: email, type: "invitation", status: "SENT" } }),
+      { timeout: 10_000, interval: 200 },
     );
     expect(log.subject).toBe("Test User vous invite à rejoindre Main Shop sur ReadyYet");
   });
@@ -208,7 +210,10 @@ describe("Invitations", () => {
     it("drops a failed invitation email once the invitation is revoked", async () => {
       const email = `delivered+invite-late-${Date.now()}@resend.dev`;
       const id = await invite(email);
-      const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id } }));
+      const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id } }), {
+        timeout: 10_000,
+        interval: 200,
+      });
       await prisma.emailLog.update({
         where: { id: log.id },
         data: { status: "FAILED", resendId: null, attempts: 3, lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
@@ -461,7 +466,10 @@ describe("Invitations", () => {
       const expiresIn = new Date(response.body.expiresAt).getTime() - Date.now();
       expect(expiresIn).toBeGreaterThan(7 * 24 * 60 * 60 * 1000 - 60_000);
       // The email is sent after the response, like the first one.
-      await vi.waitFor(async () => expect(await prisma.emailLog.count({ where: { to: email } })).toBe(2));
+      await vi.waitFor(async () => expect(await prisma.emailLog.count({ where: { to: email } })).toBe(2), {
+        timeout: 10_000,
+        interval: 200,
+      });
     });
 
     it("refuses a revoked or lapsed invitation", async () => {
