@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./icon";
 
 type Variant = "default" | "destructive" | "announcement" | "image" | "panel" | "pricing";
@@ -60,7 +60,13 @@ export function Dialog({
   if (open && (kept.title !== openTitle || kept.media !== openMedia || kept.children !== openChildren)) {
     setKept({ title: openTitle, media: openMedia, children: openChildren });
   }
-  const { title, media, children } = open ? { title: openTitle, media: openMedia, children: openChildren } : kept;
+  // Each opening starts its content afresh, as a form shown only while open
+  // expects, rather than with the state it was closed with.
+  const [openings, setOpenings] = useState({ open, count: 0 });
+  if (openings.open !== open) setOpenings({ open, count: openings.count + (open ? 1 : 0) });
+  const shown = open ? { title: openTitle, media: openMedia, children: openChildren } : kept;
+  const { title, media } = shown;
+  const children = <Fragment key={openings.count}>{shown.children}</Fragment>;
   const titleId = useId();
   const dismiss = () => {
     if (!locked) onClose();
@@ -84,6 +90,10 @@ export function Dialog({
         if (locked) event.preventDefault();
       }}
       onClick={(event) => event.target === ref.current && dismiss()}
+      // Faded out, what it kept goes, so a closed form's effects stop too.
+      onTransitionEnd={(event) => {
+        if (!open && event.target === ref.current) setKept((last) => ({ ...last, media: null, children: null }));
+      }}
       className={`max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain text-ink backdrop:backdrop-blur-sm ${variant === "panel" ? "dialog-panel" : "dialog"} ${shapes[variant]} ${frames[variant]}`}
     >
       {variant === "panel" && (
