@@ -75,7 +75,7 @@ export function MonthTile({
                 />
                 <div
                   ref={sized("height", count === 0 ? 2 : (count / max) * 100)}
-                  className={`pointer-events-none absolute inset-x-0 bottom-0 rounded-t-lg rounded-b-sm transition-colors ${
+                  className={`grows pointer-events-none absolute inset-x-0 bottom-0 rounded-t-lg rounded-b-sm ${
                     now ? "bg-pine" : "bg-pine-subtle group-hover/bar:bg-pine/30"
                   }`}
                 />
@@ -108,8 +108,8 @@ export function MonthTile({
         <div className="mt-2 flex h-3 gap-1 overflow-hidden rounded-full bg-subtle">
           {people > 0 && (
             <>
-              <span ref={sized("width", (customers.new / people) * 100)} className="rounded-full bg-pine" />
-              <span ref={sized("width", (customers.returning / people) * 100)} className="rounded-full bg-brand" />
+              <span ref={sized("width", (customers.new / people) * 100)} className="grows rounded-full bg-pine" />
+              <span ref={sized("width", (customers.returning / people) * 100)} className="grows rounded-full bg-brand" />
             </>
           )}
         </div>

@@ -742,6 +742,16 @@
   }
 }
 
+/* ADR 0122: a bar moving to its new length when a refresh changes it. Set
+   through the CSSOM, so a bar drawn for the first time starts at its length
+   and doesn't grow in. Its colour still answers the pointer at once. */
+@utility grows {
+  transition:
+    height var(--duration-slow) var(--ease-move),
+    width var(--duration-slow) var(--ease-move),
+    background-color var(--duration-quick);
+}
+
 /* inline, so the utilities use next/font's variables, set on <html>. */
 /* ADR 0106: a page whose lists scroll inside their tiles, so it never scrolls
    itself: the window less the top bar and the page's padding. Not on a phone

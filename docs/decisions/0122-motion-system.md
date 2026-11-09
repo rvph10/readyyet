@@ -6,7 +6,7 @@ Date: 2026-11-09
 
 Motion marks the moments something opens, closes or changes. What is simply on the page stays still: no page transitions, no staggered entrances, no counting numbers, no hover lift.
 
-**Tokens**, in `globals.css`: `--duration-quick` 150ms for hover, press and closing, `--duration-base` 200ms for menus and fades, `--duration-slow` 280ms for panels, sheets and heights. `--ease-enter` for what opens, `--ease-exit` for what closes, faster than it opened, and `--ease-move` for what goes from one place to another. Only opacity, transform and a grid's rows are animated, so nothing animates layout.
+**Tokens**, in `globals.css`: `--duration-quick` 150ms for hover, press and closing, `--duration-base` 200ms for menus and fades, `--duration-slow` 280ms for panels, sheets and heights. `--ease-enter` for what opens, `--ease-exit` for what closes, faster than it opened, and `--ease-move` for what goes from one place to another. Only opacity, transform and a grid's rows are animated, plus the length of a chart's bars, which are placed on their own, so nothing around them moves.
 
 **Where it applies:**
 
