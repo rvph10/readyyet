@@ -107,7 +107,7 @@ export async function StatusHero({ tracking, locale, now, className }: Props) {
         )}
 
         {/* The way in for a Customer without an email address (ADR 0076). */}
-        {tracking.reviewUrl && !tracking.feedbackSentAt && (
+        {tracking.asksForFeedback && !tracking.feedback?.messageSent && (
           <Link
             href={`/t/${encodeURIComponent(tracking.trackingCode)}/review`}
             className={`${buttonClass({ variant: "secondary" })} mt-6`}

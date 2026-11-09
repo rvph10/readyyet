@@ -1,5 +1,6 @@
 "use server";
 
+import type { FeedbackTag } from "@readyyet/shared";
 import { revalidatePath } from "next/cache";
 import { api } from "@/lib/api/client";
 import { actionResult, type ActionResult } from "@/lib/api/errors";
@@ -26,12 +27,27 @@ export async function stopUpdates(code: string) {
   return finish(code, result);
 }
 
-export async function sendFeedback(code: string, message: string) {
+export interface Rating {
+  stars: number;
+  tags: FeedbackTag[];
+}
+
+// ADR 0125: saved by the Customer's own action, never by opening the page.
+export async function sendFeedback(code: string, rating: Rating, message: string) {
   const result = await (
     await api()
   ).POST("/tracking/{code}/feedback", {
     params: { path: { code } },
-    body: { message },
+    body: { ...rating, ...(message && { message }) },
   });
   return finish(code, result);
+}
+
+// Counted for the shop as the Customer leaves for Google. Not revalidated:
+// the page they leave behind has nothing new to show.
+export async function recordGoogleClick(code: string, rating: Rating) {
+  const result = await (
+    await api()
+  ).POST("/tracking/{code}/google-click", { params: { path: { code } }, body: rating });
+  return actionResult(result);
 }
