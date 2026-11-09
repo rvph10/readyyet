@@ -127,6 +127,28 @@ describe("EmailService", () => {
     expect(sent.mock.lastCall![0].headers).toEqual(headers);
   });
 
+  it("sends the plain-text part with the HTML, and attachments kept for a retry", async () => {
+    const attachments = [
+      {
+        filename: "event.ics",
+        content: Buffer.from("BEGIN:VCALENDAR").toString("base64"),
+        contentType: "text/calendar",
+      },
+    ];
+    const log = (await email.send({
+      to: "delivered@resend.dev",
+      subject: "readyyet attachment test",
+      type: "test",
+      html: "<p>With a file.</p>",
+      text: "With a file.",
+      attachments,
+    }))!;
+
+    expect(log.status).toBe("SENT");
+    expect(log.attachments).toEqual(attachments);
+    expect(sent.mock.lastCall![0]).toMatchObject({ html: "<p>With a file.</p>", text: "With a file.", attachments });
+  });
+
   it("throws when no content is provided", async () => {
     await expect(email.send({ to: "delivered@resend.dev", subject: "Empty", type: "test" })).rejects.toThrow(
       /requires one of react, html, or text/,

@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nestjs";
 import { render } from "react-email";
 import { Inject, Injectable } from "@nestjs/common";
-import { EmailStatus } from "@readyyet/db";
+import { EmailStatus, Prisma } from "@readyyet/db";
 import type { EmailLog, PrismaClient } from "@readyyet/db";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
@@ -13,6 +13,13 @@ import { getResendClient, waitForResendSlot } from "./resend-client";
 // up-to-3-attempt loop later (ADR 0081).
 const MAX_IMMEDIATE_ATTEMPTS = 3;
 const IMMEDIATE_BACKOFF_MS = [0, 500, 1500];
+
+// Stored with the email, so content is base64 text rather than a Buffer.
+export interface EmailAttachment {
+  filename: string;
+  content: string;
+  contentType: string;
+}
 
 export interface SendEmailInput {
   to: string;
@@ -28,6 +35,7 @@ export interface SendEmailInput {
   fromName?: string;
   replyTo?: string;
   headers?: Record<string, string>;
+  attachments?: EmailAttachment[];
   // The Ticket it's about, checked again before a late retry.
   ticketId?: bigint;
   invitationId?: string;
@@ -38,7 +46,7 @@ export interface SendEmailInput {
 
 type StoredMessage = Pick<
   EmailLog,
-  "id" | "type" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers"
+  "id" | "type" | "to" | "subject" | "html" | "text" | "fromName" | "replyTo" | "headers" | "attachments"
 >;
 
 // fromName is user input (a Location's name): quoted so a comma or angle
@@ -105,6 +113,7 @@ export class EmailService {
           fromName: input.fromName,
           replyTo: input.replyTo,
           headers: input.headers,
+          attachments: input.attachments as unknown as Prisma.InputJsonValue | undefined,
           ticketId: input.ticketId,
           invitationId: input.invitationId,
           dedupeKey: input.dedupeKey,
@@ -164,7 +173,10 @@ export class EmailService {
             subject,
             ...(message.replyTo && { replyTo: message.replyTo }),
             ...(message.headers && { headers: message.headers as Record<string, string> }),
-            ...(html ? { html } : { text: text! }),
+            ...(message.attachments && { attachments: message.attachments as unknown as EmailAttachment[] }),
+            // Both, so a mail app that can't or won't show HTML still has the
+            // whole message (ADR 0127).
+            ...(html ? { html, ...(text && { text }) } : { text: text! }),
           },
           { idempotencyKey: logId },
         );

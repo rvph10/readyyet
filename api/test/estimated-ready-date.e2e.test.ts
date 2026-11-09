@@ -224,6 +224,12 @@ describe("Estimated ready date", () => {
       expect(email.text).toContain(`It should be ready on`);
       expect(email.text).toContain(written);
       expect((await ticketRow(ticket.id)).customerToldReadyDate).toEqual(new Date(date));
+      // ADR 0127: and as an event mail apps offer to add to the calendar.
+      const [event] = email.attachments as { filename: string; content: string }[];
+      expect(event.filename).toBe("ready-date.ics");
+      expect(Buffer.from(event.content, "base64").toString()).toContain(
+        `DTSTART;VALUE=DATE:${date.replaceAll("-", "")}`,
+      );
     });
 
     it("emails a later date once its delay has passed", async () => {
@@ -241,6 +247,10 @@ describe("Estimated ready date", () => {
       await makeDueAndSweep(ticket.id);
       const [email] = await emailsTo("later", "ticket_ready_date_changed");
       expect(email.subject).toBe("New date for your repair at Maroquinerie Lumière");
+      const [event] = email.attachments as { content: string }[];
+      expect(Buffer.from(event.content, "base64").toString()).toContain(
+        `DTSTART;VALUE=DATE:${inDays(5).replaceAll("-", "")}`,
+      );
       const row = await ticketRow(ticket.id);
       expect(row.customerToldReadyDate).toEqual(new Date(inDays(5)));
       expect(row.readyDateEmailDueAt).toBeNull();
