@@ -292,6 +292,17 @@ describe("Invitations", () => {
     expect(me.body.memberships).toHaveLength(1);
     expect(me.body.memberships[0].role).toBe("EMPLOYEE");
     expect(me.body.memberships[0].location.id).toBe(locationId);
+
+    // ADR 0127: the new member is welcomed, and whoever invited them told.
+    const sent = (type: string) => prisma.emailLog.findMany({ where: { type, dedupeKey: `${type}:${invitationId}` } });
+    await vi.waitFor(async () => expect(await sent("member_joined")).toHaveLength(1), {
+      timeout: 10_000,
+      interval: 200,
+    });
+    const [joined] = await sent("joined_team");
+    expect(joined.to).toBe(employeeEmail);
+    const owner = await request(app.getHttpServer()).get("/me").set("Cookie", ownerCookie);
+    expect((await sent("member_joined"))[0].to).toBe(owner.body.email);
   });
 
   it("rejects accepting an already-accepted invitation again", async () => {

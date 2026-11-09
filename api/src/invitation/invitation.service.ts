@@ -7,7 +7,11 @@ import { ConflictError, NotFoundError, UnauthorizedError } from "../common/error
 import { PrismaService } from "../database/prisma.service";
 import { EmailService } from "../email/email.service";
 import { assertCanManage, roleAt } from "../membership/team-rules";
-import { buildInvitationEmail } from "../notification/staff-email/staff-email";
+import {
+  buildInvitationEmail,
+  buildJoinedTeamEmail,
+  buildMemberJoinedEmail,
+} from "../notification/staff-email/staff-email";
 import { publicImageUrl } from "../storage/image";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
 
@@ -186,7 +190,7 @@ export class InvitationService {
       throw new ConflictError("This invitation is no longer pending");
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const membership = await this.prisma.$transaction(async (tx) => {
       const accepted = await tx.invitation.updateMany({
         where: { id: invitationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.ACCEPTED, acceptedAt: new Date() },
@@ -211,6 +215,46 @@ export class InvitationService {
         throw err;
       }
     });
+    // Not awaited: joining shouldn't wait on two sends, which EmailService
+    // records and retries on its own.
+    this.sendJoinedEmails(invitation.id, user).catch((err) => {
+      this.logger.error(
+        `Failed to email about invitation ${invitation.id} being accepted`,
+        err instanceof Error ? err.stack : err,
+      );
+    });
+    return membership;
+  }
+
+  // ADR 0127: a welcome to the new member, and word to whoever invited them,
+  // each in their own language.
+  private async sendJoinedEmails(invitationId: string, member: User) {
+    const { location, inviter, role } = await this.prisma.invitation.findUniqueOrThrow({
+      where: { id: invitationId },
+      include: { location: { include: { business: true } }, inviter: true },
+    });
+    const params = {
+      member: member.name,
+      memberEmail: member.email,
+      location: location.name,
+      business: location.business.name,
+      role,
+    };
+    const locationUrl = `${process.env.WEB_URL}/locations/${location.id}`;
+    await this.email.send({
+      to: member.email,
+      ...buildJoinedTeamEmail({ ...params, locale: member.locale, locationUrl }),
+      type: "joined_team",
+      dedupeKey: `joined_team:${invitationId}`,
+    });
+    if (!inviter.deletedAt) {
+      await this.email.send({
+        to: inviter.email,
+        ...buildMemberJoinedEmail({ ...params, locale: inviter.locale, teamUrl: `${locationUrl}/team` }),
+        type: "member_joined",
+        dedupeKey: `member_joined:${invitationId}`,
+      });
+    }
   }
 
   private async loadDetails(invitationId: string) {

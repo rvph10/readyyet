@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
@@ -64,6 +64,21 @@ describe("POST /businesses", () => {
     await expect(
       app.get(PrismaService).subscription.findUniqueOrThrow({ where: { locationId: later.body.locations[0].id } }),
     ).resolves.toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
+  });
+
+  it("welcomes an Owner by email with their first Business only (ADR 0127)", async () => {
+    const prisma = app.get(PrismaService);
+    const email = `delivered+welcome-${Date.now()}@resend.dev`;
+    const cookie = await signInViaOtp(app, prisma, email);
+    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    await create();
+    await create();
+
+    const welcomes = () => prisma.emailLog.findMany({ where: { to: email, type: "welcome" } });
+    await vi.waitFor(async () => expect(await welcomes()).toHaveLength(1), { timeout: 10_000, interval: 200 });
+    const [welcome] = await welcomes();
+    expect(welcome.subject).toBe("Welcome to ReadyYet, Downtown is ready");
+    expect(welcome.text).toContain("14 days free");
   });
 
   it("keeps what an OTHER location does, in the owner's words", async () => {
