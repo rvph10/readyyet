@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
 import type { User } from "@readyyet/db";
@@ -6,7 +6,8 @@ import { ApiErrors } from "../common/decorators/api-errors.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
-import { FeedbackDto, FeedbackPageDto } from "./dto/feedback.response.dto";
+import { FeedbackDto, FeedbackInsightsDto, FeedbackPageDto } from "./dto/feedback.response.dto";
+import { ReplyFeedbackDto } from "./dto/reply-feedback.dto";
 import { ListFeedbackQueryDto } from "./dto/list-feedback.query.dto";
 import { FeedbackService } from "./feedback.service";
 
@@ -27,9 +28,28 @@ export class FeedbackController {
     return this.feedback.list(locationId, query);
   }
 
+  @Get("insights")
+  @ApiOperation({ summary: "This month's answers, ratings, tags and Google taps (ADR 0125)" })
+  insights(@Param("locationId") locationId: string): Promise<FeedbackInsightsDto> {
+    return this.feedback.insights(locationId);
+  }
+
+  @Post(":feedbackId/reply")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Email the Customer the shop's answer, which also handles it (ADR 0125)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT)
+  reply(
+    @Param("locationId") locationId: string,
+    @Param("feedbackId") feedbackId: string,
+    @CurrentUser() user: User,
+    @Body() dto: ReplyFeedbackDto,
+  ): Promise<FeedbackDto> {
+    return this.feedback.reply(locationId, feedbackId, user.id, dto.reply);
+  }
+
   @Post(":feedbackId/handled")
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: "Mark a piece of feedback as dealt with" })
+  @ApiOperation({ summary: "Close a piece of feedback without a reply, after a call for instance" })
   markHandled(
     @Param("locationId") locationId: string,
     @Param("feedbackId") feedbackId: string,

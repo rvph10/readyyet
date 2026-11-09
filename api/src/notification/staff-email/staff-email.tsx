@@ -15,14 +15,6 @@ const codeStyle = {
   textAlign: "center" as const,
 };
 
-// The Customer's own words, line breaks kept.
-const quoteStyle = {
-  ...styles.text,
-  borderLeft: "4px solid #d4d4d8",
-  paddingLeft: "12px",
-  whiteSpace: "pre-wrap" as const,
-};
-
 function Layout({ locale, preview, children }: { locale: Locale; preview: string; children: ReactNode }) {
   return (
     <Html lang={locale.toLowerCase()}>
@@ -182,18 +174,26 @@ export function buildFeedbackReceivedEmail(input: {
   location: string;
   customer: string;
   title: string;
-  message: string;
+  stars: number | null;
+  // Null for a low rating sent without a word (ADR 0125).
+  message: string | null;
   feedbackUrl: string;
 }) {
   const messages = MESSAGES[input.locale].feedbackReceived;
-  const body = messages.body(input);
+  const body = input.message === null ? messages.lowRating(input) : messages.body(input);
   const react: ReactElement = (
     <Layout locale={input.locale} preview={body}>
       <Heading as="h1" style={styles.heading}>
         {input.location}
       </Heading>
       <Text style={styles.text}>{body}</Text>
-      <Text style={quoteStyle}>{input.message}</Text>
+      {input.stars !== null && (
+        <Text style={styles.text}>
+          {"★".repeat(input.stars)}
+          {"☆".repeat(5 - input.stars)}
+        </Text>
+      )}
+      {input.message !== null && <Text style={styles.quote}>{input.message}</Text>}
       <Section style={{ margin: "24px 0" }}>
         <Button href={input.feedbackUrl} style={styles.button}>
           {messages.button}
@@ -201,5 +201,6 @@ export function buildFeedbackReceivedEmail(input: {
       </Section>
     </Layout>
   );
-  return { subject: oneLine(messages.subject(input)), react };
+  const subject = input.message === null ? messages.lowRatingSubject(input) : messages.subject(input);
+  return { subject: oneLine(subject), react };
 }

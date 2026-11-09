@@ -426,13 +426,26 @@ model Ticket {
 
 // What a Customer told the shop privately from the tracking page, one per
 // Ticket (ADR 0027, ADR 0039). Erased with the Customer.
+// A Customer's answer on the review page (ADR 0125), once per Ticket. Older
+// rows have a message and no stars; a CHECK requires one of the two.
 model TicketFeedback {
-  id        BigInt    @id @default(autoincrement())
-  ticketId  BigInt    @unique @map("ticket_id")
-  message   String
-  handledAt DateTime? @map("handled_at")
-  handledBy String?   @map("handled_by")
-  createdAt DateTime  @default(now()) @map("created_at")
+  id              BigInt    @id @default(autoincrement())
+  ticketId        BigInt    @unique @map("ticket_id")
+  // 1 to 5, a CHECK enforces it.
+  stars           Int?      @db.SmallInt
+  // FEEDBACK_TAGS values, checked by the API.
+  tags            String[]  @default([])
+  // Once set the answer is closed: stars and tags can't change after it.
+  message         String?
+  // The first tap on "Review on Google".
+  googleClickedAt DateTime? @map("google_clicked_at")
+  // What the shop emailed back. Replying also handles it.
+  reply           String?
+  repliedAt       DateTime? @map("replied_at")
+  handledAt       DateTime? @map("handled_at")
+  handledBy       String?   @map("handled_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   ticket  Ticket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
   handler User?  @relation("TicketFeedbackHandledBy", fields: [handledBy], references: [id], onDelete: Restrict)

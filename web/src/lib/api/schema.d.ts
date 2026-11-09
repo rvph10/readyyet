@@ -796,8 +796,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** The customer tells the shop privately how it went, once per ticket (ADR 0027) */
+        /** The customer rates the job and may write to the shop, once per ticket (ADR 0125) */
         post: operations["TrackingController_sendFeedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracking/{code}/google-click": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The customer is leaving for Google to review the shop, counted for it (ADR 0125) */
+        post: operations["TrackingController_recordGoogleClick"];
         delete?: never;
         options?: never;
         head?: never;
@@ -821,6 +838,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/locations/{locationId}/feedback/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** This month's answers, ratings, tags and Google taps (ADR 0125) */
+        get: operations["FeedbackController_insights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/locations/{locationId}/feedback/{feedbackId}/reply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email the Customer the shop's answer, which also handles it (ADR 0125) */
+        post: operations["FeedbackController_reply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/locations/{locationId}/feedback/{feedbackId}/handled": {
         parameters: {
             query?: never;
@@ -830,7 +881,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark a piece of feedback as dealt with */
+        /** Close a piece of feedback without a reply, after a call for instance */
         post: operations["FeedbackController_markHandled"];
         delete?: never;
         options?: never;
@@ -1555,6 +1606,11 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        TrackingFeedbackDto: {
+            stars: number | null;
+            tags: ("ON_TIME" | "FRIENDLY" | "GOOD_VALUE" | "CLEAR" | "QUALITY" | "LATE" | "PRICE" | "NOT_FIXED" | "HARD_TO_REACH")[];
+            closed: boolean;
+        };
         TrackingPhotoDto: {
             url: string;
             /** Format: date-time */
@@ -1575,13 +1631,19 @@ export interface components {
             currentStatus: components["schemas"]["PublicStatusDto"];
             steps: components["schemas"]["TrackingStepDto"][];
             statusHistory: components["schemas"]["TrackingHistoryEntryDto"][];
+            asksForFeedback: boolean;
             reviewUrl: string | null;
-            /** Format: date-time */
-            feedbackSentAt: string | null;
+            feedback: components["schemas"]["TrackingFeedbackDto"] | null;
             photos: components["schemas"]["TrackingPhotoDto"][];
         };
         SendFeedbackDto: {
-            message: string;
+            tags: ("ON_TIME" | "FRIENDLY" | "GOOD_VALUE" | "CLEAR" | "QUALITY" | "LATE" | "PRICE" | "NOT_FIXED" | "HARD_TO_REACH")[];
+            message?: string;
+            stars: number;
+        };
+        RateDto: {
+            tags: ("ON_TIME" | "FRIENDLY" | "GOOD_VALUE" | "CLEAR" | "QUALITY" | "LATE" | "PRICE" | "NOT_FIXED" | "HARD_TO_REACH")[];
+            stars: number;
         };
         FeedbackTicketDto: {
             id: string;
@@ -1592,14 +1654,23 @@ export interface components {
             fullName: string;
             email: string | null;
             phone: string | null;
+            emailable: boolean;
         };
         FeedbackHandlerDto: {
             id: string;
             name: string;
         };
         FeedbackDto: {
+            stars: number | null;
+            tags: ("ON_TIME" | "FRIENDLY" | "GOOD_VALUE" | "CLEAR" | "QUALITY" | "LATE" | "PRICE" | "NOT_FIXED" | "HARD_TO_REACH")[];
+            message: string | null;
+            reply: string | null;
             id: string;
-            message: string;
+            /** Format: date-time */
+            googleClickedAt: string | null;
+            /** Format: date-time */
+            repliedAt: string | null;
+            needsFollowUp: boolean;
             ticket: components["schemas"]["FeedbackTicketDto"];
             customer: components["schemas"]["FeedbackCustomerDto"];
             /** Format: date-time */
@@ -1611,6 +1682,30 @@ export interface components {
         FeedbackPageDto: {
             items: components["schemas"]["FeedbackDto"][];
             total: number;
+        };
+        FeedbackTagCountDto: {
+            /** @enum {string} */
+            tag: "ON_TIME" | "FRIENDLY" | "GOOD_VALUE" | "CLEAR" | "QUALITY" | "LATE" | "PRICE" | "NOT_FIXED" | "HARD_TO_REACH";
+            count: number;
+        };
+        FeedbackAllTimeDto: {
+            average: number | null;
+            ratings: number;
+        };
+        FeedbackInsightsDto: {
+            average: number | null;
+            stars: number[];
+            month: string;
+            asked: number;
+            answers: number;
+            ratings: number;
+            tags: components["schemas"]["FeedbackTagCountDto"][];
+            google: number;
+            messages: number;
+            allTime: components["schemas"]["FeedbackAllTimeDto"];
+        };
+        ReplyFeedbackDto: {
+            reply: string;
         };
         DefaultWorkflowStepDto: {
             position: number;
@@ -7360,10 +7455,96 @@ export interface operations {
             };
         };
     };
+    TrackingController_recordGoogleClick: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RateDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VALIDATION_ERROR: the request is invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description CONFLICT: not possible in the resource's current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
     FeedbackController_list: {
         parameters: {
             query?: {
-                handled?: "true" | "false";
+                view?: "follow-up" | "all";
                 take?: number;
                 page?: number;
             };
@@ -7412,6 +7593,197 @@ export interface operations {
             };
             /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    FeedbackController_insights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackInsightsDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    FeedbackController_reply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+                feedbackId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplyFeedbackDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request is invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description CONFLICT: not possible in the resource's current state */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

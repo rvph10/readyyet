@@ -325,12 +325,23 @@ export class NotificationService {
     });
   }
 
+  // ADR 0125: the shop's answer to what the Customer wrote, sent like their
+  // other emails so a reply to it reaches the shop.
+  async sendFeedbackReply(ticketId: bigint, reply: string) {
+    const ticket = await this.loadTicket(ticketId);
+    if (!canEmail(ticket.customer)) {
+      throw new ConflictError("This customer can't be emailed");
+    }
+    await this.sendCustomerEmail(ticket, ticket.customer.email, "FEEDBACK_REPLY", "feedback_reply", undefined, reply);
+  }
+
   private async sendCustomerEmail(
     ticket: LoadedTicket,
     to: string,
     kind: CustomerEmailKind,
     type: string,
     dedupeKey?: string,
+    reply?: string,
   ) {
     const estimatedReadyDate = showsEstimatedReadyDate(ticket.currentStatus.code)
       ? toCalendarDate(ticket.estimatedReadyDate)
@@ -352,6 +363,7 @@ export class NotificationService {
       ratingUrl: ratingUrl(ticket.trackingCode),
       asksForFeedback: asksForFeedback(ticket.location),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
+      reply,
     });
     await this.email.send({
       to,

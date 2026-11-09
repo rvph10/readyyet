@@ -24,12 +24,13 @@ export async function generateMetadata({ params }: LayoutProps<"/locations/[loca
 // ADR 0077: the Location is in the URL, nothing remembers a "current" one, so
 // two tabs can show two Locations and an email's link opens the right one.
 export default async function LocationLayout({ children, params }: LayoutProps<"/locations/[locationId]">) {
-  const [{ locationId }, me, cookieStore, tTickets, tDetail, locale] = await Promise.all([
+  const [{ locationId }, me, cookieStore, tTickets, tDetail, tFeedback, locale] = await Promise.all([
     params,
     getMe(),
     cookies(),
     getTranslations("tickets"),
     getTranslations("ticketDetail"),
+    getTranslations("feedback"),
     getLocale(),
   ]);
   const current = me.memberships.find(({ location }) => location.id === locationId);
@@ -89,10 +90,11 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           inviteLink={owned && (await referralLink(owned.referralCode))}
           needsYou={{
             trialDaysLeft: trialDaysLeft !== null && trialDaysLeft <= 3 ? trialDaysLeft : null,
-            feedback: feedback.map(({ id, customer: { fullName }, message, createdAt }) => ({
+            feedback: feedback.map(({ id, customer: { fullName }, message, stars, createdAt }) => ({
               id,
               name: fullName,
-              detail: message,
+              // A low rating with no word is a follow-up too (ADR 0125).
+              detail: message ?? tFeedback("ratedOnly", { stars: stars! }),
               shown: moment(createdAt),
             })),
             feedbackCount: manager ? overview.counts.unhandledFeedback : 0,

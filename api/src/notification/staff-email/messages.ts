@@ -25,6 +25,7 @@ interface FeedbackParams {
   location: string;
   customer: string;
   title: string;
+  stars: number | null;
 }
 
 interface StaffMessages {
@@ -71,6 +72,9 @@ interface StaffMessages {
   feedbackReceived: {
     subject: (params: FeedbackParams) => string;
     body: (params: FeedbackParams) => string;
+    // A rating of 1 or 2 with no message, which needs a follow-up too.
+    lowRatingSubject: (params: FeedbackParams) => string;
+    lowRating: (params: FeedbackParams) => string;
     button: string;
   };
 }
@@ -131,6 +135,9 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
     feedbackReceived: {
       subject: ({ location, customer }) => `${customer} sent private feedback to ${location}`,
       body: ({ customer, title }) => `${customer} wrote about "${title}", only your team can see it:`,
+      lowRatingSubject: ({ location, customer, stars }) => `${customer} gave ${location} ${stars} out of 5`,
+      lowRating: ({ customer, title, stars }) =>
+        `${customer} rated "${title}" ${stars} out of 5 without writing anything. A quick call can still put it right.`,
       button: "See the feedback",
     },
   },
@@ -188,6 +195,9 @@ export const MESSAGES: Record<Locale, StaffMessages> = {
       subject: ({ location, customer }) => `${customer} a envoyé un avis privé à ${location}`,
       body: ({ customer, title }) =>
         `${customer} a écrit à propos de «\u00a0${title}\u00a0», seule votre équipe peut le voir\u00a0:`,
+      lowRatingSubject: ({ location, customer, stars }) => `${customer} a donné ${stars} sur 5 à ${location}`,
+      lowRating: ({ customer, title, stars }) =>
+        `${customer} a noté «\u00a0${title}\u00a0» ${stars} sur 5 sans rien écrire. Un appel peut encore arranger les choses.`,
       button: "Voir l'avis",
     },
   },

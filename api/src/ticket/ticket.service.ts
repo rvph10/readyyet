@@ -27,6 +27,7 @@ import { UpdateTicketStatusDto } from "./dto/update-ticket-status.dto";
 import { TicketPhotoService } from "./ticket-photo.service";
 import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-rules";
 import { generateTrackingCode } from "./tracking-code";
+import { NEEDS_FOLLOW_UP } from "../feedback/asks-for-feedback";
 
 const DEFAULT_LIST_TAKE = 50;
 const OVERVIEW_TICKETS = 100;
@@ -276,7 +277,7 @@ export class TicketService {
           },
         },
       }),
-      this.prisma.ticketFeedback.count({ where: { ticket: { locationId }, handledAt: null } }),
+      this.prisma.ticketFeedback.count({ where: { ticket: { locationId }, ...NEEDS_FOLLOW_UP } }),
     ]);
 
     const emailGaveUp = await this.ticketsWhoseEmailGaveUp(open.map((ticket) => ticket.id));

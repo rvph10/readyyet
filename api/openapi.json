@@ -7362,7 +7362,111 @@
             }
           }
         },
-        "summary": "The customer tells the shop privately how it went, once per ticket (ADR 0027)",
+        "summary": "The customer rates the job and may write to the shop, once per ticket (ADR 0125)",
+        "tags": [
+          "Tracking"
+        ]
+      }
+    },
+    "/tracking/{code}/google-click": {
+      "post": {
+        "operationId": "TrackingController_recordGoogleClick",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "The customer is leaving for Google to review the shop, counted for it (ADR 0125)",
         "tags": [
           "Tracking"
         ]
@@ -7381,14 +7485,14 @@
             }
           },
           {
-            "name": "handled",
+            "name": "view",
             "required": false,
             "in": "query",
             "schema": {
               "type": "string",
               "enum": [
-                "true",
-                "false"
+                "follow-up",
+                "all"
               ]
             }
           },
@@ -7516,6 +7620,256 @@
         ]
       }
     },
+    "/locations/{locationId}/feedback/insights": {
+      "get": {
+        "operationId": "FeedbackController_insights",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackInsightsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "This month's answers, ratings, tags and Google taps (ADR 0125)",
+        "tags": [
+          "Feedback"
+        ]
+      }
+    },
+    "/locations/{locationId}/feedback/{feedbackId}/reply": {
+      "post": {
+        "operationId": "FeedbackController_reply",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "feedbackId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyFeedbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT: not possible in the resource's current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Email the Customer the shop's answer, which also handles it (ADR 0125)",
+        "tags": [
+          "Feedback"
+        ]
+      }
+    },
     "/locations/{locationId}/feedback/{feedbackId}/handled": {
       "post": {
         "operationId": "FeedbackController_markHandled",
@@ -7624,7 +7978,7 @@
             "cookie": []
           }
         ],
-        "summary": "Mark a piece of feedback as dealt with",
+        "summary": "Close a piece of feedback without a reply, after a call for instance",
         "tags": [
           "Feedback"
         ]
@@ -10800,6 +11154,40 @@
           "createdAt"
         ]
       },
+      "TrackingFeedbackDto": {
+        "type": "object",
+        "properties": {
+          "stars": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ON_TIME",
+                "FRIENDLY",
+                "GOOD_VALUE",
+                "CLEAR",
+                "QUALITY",
+                "LATE",
+                "PRICE",
+                "NOT_FIXED",
+                "HARD_TO_REACH"
+              ]
+            }
+          },
+          "closed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "stars",
+          "tags",
+          "closed"
+        ]
+      },
       "TrackingPhotoDto": {
         "type": "object",
         "properties": {
@@ -10864,14 +11252,21 @@
               "$ref": "#/components/schemas/TrackingHistoryEntryDto"
             }
           },
+          "asksForFeedback": {
+            "type": "boolean"
+          },
           "reviewUrl": {
             "type": "string",
             "nullable": true
           },
-          "feedbackSentAt": {
-            "format": "date-time",
-            "type": "string",
-            "nullable": true
+          "feedback": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TrackingFeedbackDto"
+              }
+            ]
           },
           "photos": {
             "type": "array",
@@ -10891,21 +11286,78 @@
           "currentStatus",
           "steps",
           "statusHistory",
+          "asksForFeedback",
           "reviewUrl",
-          "feedbackSentAt",
+          "feedback",
           "photos"
         ]
       },
       "SendFeedbackDto": {
         "type": "object",
         "properties": {
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "ON_TIME",
+                "FRIENDLY",
+                "GOOD_VALUE",
+                "CLEAR",
+                "QUALITY",
+                "LATE",
+                "PRICE",
+                "NOT_FIXED",
+                "HARD_TO_REACH"
+              ]
+            }
+          },
           "message": {
             "type": "string",
             "maxLength": 2000
+          },
+          "stars": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
           }
         },
         "required": [
-          "message"
+          "tags",
+          "stars"
+        ]
+      },
+      "RateDto": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "ON_TIME",
+                "FRIENDLY",
+                "GOOD_VALUE",
+                "CLEAR",
+                "QUALITY",
+                "LATE",
+                "PRICE",
+                "NOT_FIXED",
+                "HARD_TO_REACH"
+              ]
+            }
+          },
+          "stars": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "tags",
+          "stars"
         ]
       },
       "FeedbackTicketDto": {
@@ -10939,13 +11391,17 @@
           "phone": {
             "type": "string",
             "nullable": true
+          },
+          "emailable": {
+            "type": "boolean"
           }
         },
         "required": [
           "id",
           "fullName",
           "email",
-          "phone"
+          "phone",
+          "emailable"
         ]
       },
       "FeedbackHandlerDto": {
@@ -10966,11 +11422,50 @@
       "FeedbackDto": {
         "type": "object",
         "properties": {
+          "stars": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ON_TIME",
+                "FRIENDLY",
+                "GOOD_VALUE",
+                "CLEAR",
+                "QUALITY",
+                "LATE",
+                "PRICE",
+                "NOT_FIXED",
+                "HARD_TO_REACH"
+              ]
+            }
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "reply": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           },
-          "message": {
-            "type": "string"
+          "googleClickedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "repliedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "needsFollowUp": {
+            "type": "boolean"
           },
           "ticket": {
             "$ref": "#/components/schemas/FeedbackTicketDto"
@@ -10998,8 +11493,14 @@
           }
         },
         "required": [
-          "id",
+          "stars",
+          "tags",
           "message",
+          "reply",
+          "id",
+          "googleClickedAt",
+          "repliedAt",
+          "needsFollowUp",
           "ticket",
           "customer",
           "handledAt",
@@ -11023,6 +11524,114 @@
         "required": [
           "items",
           "total"
+        ]
+      },
+      "FeedbackTagCountDto": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "enum": [
+              "ON_TIME",
+              "FRIENDLY",
+              "GOOD_VALUE",
+              "CLEAR",
+              "QUALITY",
+              "LATE",
+              "PRICE",
+              "NOT_FIXED",
+              "HARD_TO_REACH"
+            ],
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "tag",
+          "count"
+        ]
+      },
+      "FeedbackAllTimeDto": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "nullable": true
+          },
+          "ratings": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "average",
+          "ratings"
+        ]
+      },
+      "FeedbackInsightsDto": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "nullable": true
+          },
+          "stars": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "month": {
+            "type": "string"
+          },
+          "asked": {
+            "type": "number"
+          },
+          "answers": {
+            "type": "number"
+          },
+          "ratings": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackTagCountDto"
+            }
+          },
+          "google": {
+            "type": "number"
+          },
+          "messages": {
+            "type": "number"
+          },
+          "allTime": {
+            "$ref": "#/components/schemas/FeedbackAllTimeDto"
+          }
+        },
+        "required": [
+          "average",
+          "stars",
+          "month",
+          "asked",
+          "answers",
+          "ratings",
+          "tags",
+          "google",
+          "messages",
+          "allTime"
+        ]
+      },
+      "ReplyFeedbackDto": {
+        "type": "object",
+        "properties": {
+          "reply": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "reply"
         ]
       },
       "DefaultWorkflowStepDto": {
