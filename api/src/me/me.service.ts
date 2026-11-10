@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { User } from "@readyyet/db";
+import { TERMS_VERSION } from "@readyyet/shared";
 import { isPlatformAdmin } from "../admin/platform-admin";
 import { ConflictError, ReauthenticationRequiredError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -54,7 +55,14 @@ export class MeService {
           select: {
             id: true,
             name: true,
-            business: { select: { id: true, name: true, logoKey: true } },
+            business: {
+              select: {
+                id: true,
+                name: true,
+                logoKey: true,
+                termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true } },
+              },
+            },
           },
         },
       },
@@ -63,7 +71,12 @@ export class MeService {
       role,
       location: {
         ...location,
-        business: { id: business.id, name: business.name, logoUrl: publicImageUrl(business.logoKey) },
+        business: {
+          id: business.id,
+          name: business.name,
+          logoUrl: publicImageUrl(business.logoKey),
+          termsAccepted: business.termsAcceptances.length > 0,
+        },
       },
     }));
   }

@@ -8,6 +8,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 type ListResponse = { items: { id: string; title: string }[]; total: number };
 
@@ -61,6 +62,7 @@ describe("Ticket search and filters", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Search Test Garage",
         location: {
           name: "Search Shop",

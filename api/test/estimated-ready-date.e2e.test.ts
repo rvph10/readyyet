@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Role } from "@readyyet/db";
-import { calendarDateIn, turnaroundReadyDate } from "@readyyet/shared";
+import { calendarDateIn, TERMS_VERSION, turnaroundReadyDate } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -81,6 +81,7 @@ describe("Estimated ready date", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Ready Date Test",
         location: {
           name: "Maroquinerie Lumière",

@@ -7,6 +7,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("GET /me", () => {
   let app: INestApplication;
@@ -35,6 +36,7 @@ describe("GET /me", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Me Test Garage",
         location: {
           name: "Shop",

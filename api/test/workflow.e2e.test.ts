@@ -8,6 +8,7 @@ import { Role } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("GET /locations/:locationId/workflow", () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe("GET /locations/:locationId/workflow", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Workflow Test Garage",
         location: {
           name: "Main Shop",
@@ -140,6 +142,7 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Workflow Edit Garage",
         location: {
           name: "Main Shop",

@@ -15,6 +15,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
+import { AcceptTermsDto } from "./accept-terms.dto";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../../location/location-info";
 
@@ -65,7 +66,7 @@ export class CreateLocationDto {
   openingHours?: OpeningHoursSpecificationDto[];
 }
 
-export class CreateBusinessDto {
+export class CreateBusinessDto extends AcceptTermsDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(NAME_MAX_LENGTH)

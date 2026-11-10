@@ -10,6 +10,7 @@ import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const REVIEW_URL = "https://g.page/r/CabcDEF123/review";
@@ -122,6 +123,7 @@ describe("Customer feedback", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Feedback Test",
         location: {
           name: "Garage Martin",

@@ -10,6 +10,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -100,6 +101,7 @@ describe("Uncollected item reminders", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Reminder Test Garage",
         location: {
           name: "Joe's Garage",

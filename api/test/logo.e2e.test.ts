@@ -10,6 +10,7 @@ import { StorageService } from "../src/storage/storage.service";
 import { createTestApp } from "./support/create-test-app";
 import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0026: a logo is uploaded, stored as a PNG in the bucket, and served
 // publicly from the API with a long cache. ADR 0051: it's the Business's,
@@ -72,6 +73,7 @@ describe("Business logo", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Logo Test",
         location: {
           name: "Cordonnerie Dupont",

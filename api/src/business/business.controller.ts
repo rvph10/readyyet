@@ -25,6 +25,7 @@ import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
+import { AcceptTermsDto } from "./dto/accept-terms.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
 @ApiTags("Businesses")
@@ -69,6 +70,19 @@ export class BusinessController {
     @UploadedFile(new ParseFilePipe()) file: { buffer: Buffer },
   ): Promise<BusinessDto> {
     return this.business.setLogo(businessId, file.buffer);
+  }
+
+  @Post(":businessId/terms-acceptance")
+  @UseGuards(BusinessOwnerGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Accept the terms in force for the business (owner only, ADR 0130)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  acceptTerms(
+    @Param("businessId") businessId: string,
+    @CurrentUser() user: User,
+    @Body() dto: AcceptTermsDto,
+  ): Promise<void> {
+    return this.business.acceptTerms(businessId, user.id, dto.termsVersion);
   }
 
   @Delete(":businessId/logo")

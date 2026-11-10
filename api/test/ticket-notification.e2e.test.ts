@@ -10,6 +10,7 @@ import { signInViaOtp } from "./support/sign-in-via-otp";
 import { NotificationService } from "../src/notification/notification.service";
 import { EmailRetryService } from "../src/email/email-retry.service";
 import { EmailService } from "../src/email/email.service";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // Customer addresses are Resend's test addresses: real sends through the
 // real API, accepted but never delivered, so no bounce hurts the sending
@@ -50,6 +51,7 @@ describe("Ticket tracking link emails", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Notification Test Garage",
         location: {
           name: "Garage Lumière",

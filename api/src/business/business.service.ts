@@ -65,6 +65,8 @@ export class BusinessService {
         name: dto.name,
         referralCode: generateReferralCode(),
         ...(await this.findReferrer(dto.referralCode, ownerId)),
+        // Creating it is accepting the terms shown above the button (ADR 0130).
+        termsAcceptances: { create: { userId: ownerId, version: dto.termsVersion } },
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
@@ -81,6 +83,16 @@ export class BusinessService {
       });
     }
     return { ...toBusinessResponse(business), locations: business.locations.map(toLocationResponse) };
+  }
+
+  // An Owner from before the terms, or from before a version they must
+  // accept again (ADR 0130). Accepting twice changes nothing.
+  async acceptTerms(businessId: string, userId: string, version: string) {
+    await this.prisma.termsAcceptance.upsert({
+      where: { businessId_version: { businessId, version } },
+      create: { businessId, userId, version },
+      update: {},
+    });
   }
 
   // ADR 0127: once, with an Owner's first shop and its trial.

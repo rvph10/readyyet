@@ -41,6 +41,7 @@ model User {
   photosUploaded     TicketPhoto[]       @relation("TicketPhotoUploadedBy")
   referredBusinesses Business[]          @relation("SalesPartnerReferral")
   feedbackHandled    TicketFeedback[]    @relation("TicketFeedbackHandledBy")
+  termsAccepted      TermsAcceptance[]
   commissions        Commission[]
 
   @@map("user")
@@ -167,14 +168,15 @@ model Business {
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
 
-  owner                  User            @relation("BusinessOwner", fields: [ownerId], references: [id])
+  owner                  User              @relation("BusinessOwner", fields: [ownerId], references: [id])
   locations              Location[]
-  referredByBusiness     Business?       @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
-  referredBusinesses     Business[]      @relation("BusinessReferral")
-  referredBySalesPartner User?           @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
+  referredByBusiness     Business?         @relation("BusinessReferral", fields: [referredByBusinessId], references: [id], onDelete: Restrict)
+  referredBusinesses     Business[]        @relation("BusinessReferral")
+  referredBySalesPartner User?             @relation("SalesPartnerReferral", fields: [referredBySalesPartnerId], references: [id], onDelete: Restrict)
   commissions            Commission[]
-  sponsorCreditEarned    SponsorCredit?  @relation("SponsorCreditEarned")
-  sponsorCreditsReceived SponsorCredit[] @relation("SponsorCreditReceived")
+  sponsorCreditEarned    SponsorCredit?    @relation("SponsorCreditEarned")
+  sponsorCreditsReceived SponsorCredit[]   @relation("SponsorCreditReceived")
+  termsAcceptances       TermsAcceptance[]
 
   @@map("business")
 }
@@ -633,4 +635,21 @@ model SponsorCredit {
   sponsorBusiness Business @relation("SponsorCreditReceived", fields: [sponsorBusinessId], references: [id], onDelete: Restrict)
 
   @@map("sponsor_credit")
+}
+
+// Who accepted which version of the terms for a Business, and when: the
+// proof the contract was concluded (ADR 0130). A new version is a new row.
+model TermsAcceptance {
+  id         BigInt   @id @default(autoincrement())
+  businessId String   @map("business_id") @db.Uuid
+  userId     String   @map("user_id")
+  version    String
+  acceptedAt DateTime @default(now()) @map("accepted_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, version])
+  @@index([userId])
+  @@map("terms_acceptance")
 }
