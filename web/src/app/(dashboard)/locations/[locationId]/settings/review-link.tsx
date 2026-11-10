@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { use, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
+import { Switch } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
@@ -15,7 +16,10 @@ import { GoogleFinder } from "./google-finder";
 import { InPanel, SectionForm, SectionHeading } from "./section-form";
 
 interface Props {
-  location: Pick<components["schemas"]["LocationDto"], "id" | "name" | "googleReviewUrl" | "address" | "openingHours">;
+  location: Pick<
+    components["schemas"]["LocationDto"],
+    "id" | "name" | "googleReviewUrl" | "feedbackEmails" | "address" | "openingHours"
+  >;
   // Whether this Location's plan includes review requests (ADR 0039).
   hasPro: boolean;
   // Called once saved, when the section opened in a panel (ADR 0117).
@@ -92,7 +96,7 @@ function ManualLink({ children }: { children: ReactNode }) {
 // follows the link itself, rather than opening it for the shop to judge.
 export function ReviewLink({ location, hasPro, onSaved }: Props) {
   const t = useTranslations("settings");
-  const { id: locationId, googleReviewUrl: url } = location;
+  const { id: locationId, googleReviewUrl: url, feedbackEmails } = location;
   const toast = useToast();
   const saved = url ?? "";
   const [value, setValue] = useState(saved);
@@ -104,6 +108,13 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     setShown(saved);
     setValue(saved);
     setChanging(false);
+  }
+  // ADR 0131: the shop's choice, saved with the link.
+  const [emails, setEmails] = useState(feedbackEmails);
+  const [shownEmails, setShownEmails] = useState(feedbackEmails);
+  if (shownEmails !== feedbackEmails) {
+    setShownEmails(feedbackEmails);
+    setEmails(feedbackEmails);
   }
   const [error, setError] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
@@ -150,7 +161,12 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     setError(null);
     setFailure(null);
     startTransition(async () => {
-      const result = await orFailure(updateLocation(locationId, { googleReviewUrl: next }));
+      const result = await orFailure(
+        updateLocation(locationId, {
+          ...(next !== url && { googleReviewUrl: next }),
+          ...(emails !== feedbackEmails && { feedbackEmails: emails }),
+        }),
+      );
       if (result.ok) {
         toast({ message: t("saved") });
         onSaved?.();
@@ -166,16 +182,24 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
       onSubmit={submit}
       onDiscard={() => {
         setValue(saved);
+        setEmails(feedbackEmails);
         setError(null);
         setFailure(null);
         setCheck(null);
       }}
-      dirty={value.trim() !== saved}
+      dirty={value.trim() !== saved || emails !== feedbackEmails}
       pending={pending}
       failure={failure}
     >
       <div className="grid max-w-5xl gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
         <div className="flex min-w-0 flex-col gap-5">
+          <Switch
+            className="rounded-2xl bg-subtle p-4"
+            label={t("feedbackEmailsSwitch")}
+            description={t("feedbackEmailsHint")}
+            checked={emails}
+            onChange={(event) => setEmails(event.target.checked)}
+          />
           {/* ADR 0126: a saved link reads as linked, never as the long Google address. */}
           <div
             className={`flex flex-wrap items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}

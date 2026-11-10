@@ -1109,6 +1109,7 @@ export interface components {
             openingHours: components["schemas"]["OpeningHoursSpecificationDto"][];
             turnaroundDays: number | null;
             googleReviewUrl: string | null;
+            feedbackEmails: boolean;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -1219,6 +1220,7 @@ export interface components {
             openingHours?: components["schemas"]["OpeningHoursSpecificationDto"][];
             turnaroundDays?: number | null;
             googleReviewUrl?: string | null;
+            feedbackEmails?: boolean;
         };
         GooglePlaceDto: {
             formattedAddress: string | null;
