@@ -52,8 +52,9 @@ export class TrackingService {
           },
         },
         feedback: { select: { stars: true, tags: true, message: true, reply: true } },
-        // Only to resolve the page's language, never returned as is.
-        customer: { select: { locale: true } },
+        // Only to resolve the page's language and to know they weren't
+        // erased, never returned as is.
+        customer: { select: { locale: true, deletedAt: true } },
         currentStatus: publicStatusSelect,
         workflow: {
           select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatusSelect } } },
@@ -66,7 +67,7 @@ export class TrackingService {
       },
     });
 
-    if (!ticket || ticket.location.deletedAt) {
+    if (!ticket || ticket.location.deletedAt || ticket.customer.deletedAt) {
       throw new NotFoundError("Tracking link not found");
     }
     // Same response as an unknown code on purpose, see ADR 0013.

@@ -354,7 +354,8 @@ export class TicketService {
       const digits = phoneDigits(query.q);
       filters.push({
         OR: [
-          { title: contains },
+          // An erased Customer's Tickets have a placeholder title (ADR 0128).
+          { title: contains, customer: { deletedAt: null } },
           { description: contains },
           // Read off a slip, the code comes in groups of four (ADR 0124).
           { trackingCode: { contains: escape(query.q.replace(/\s/g, "")), mode: "insensitive" } },

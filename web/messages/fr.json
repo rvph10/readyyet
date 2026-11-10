@@ -136,6 +136,7 @@
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
     "erasedCustomer": "Client effacé",
+    "erasedTicket": "Objet effacé",
     "empty": {
       "open": {
         "title": "Aucun ticket en cours",

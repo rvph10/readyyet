@@ -312,6 +312,27 @@ describe("Customers", () => {
     expect(ticket.status).toBe(404);
   });
 
+  // ADR 0128: staff describe the item in their own words.
+  it("clears what an erased Customer's Tickets say, and their tracking link stops", async () => {
+    const prisma = app.get(PrismaService);
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Robe de Julie", description: "Julie passe jeudi", customer: { fullName: "Julie Erased" } });
+    expect(created.status).toBe(201);
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    await expect(prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(created.body.id) } })).resolves.toMatchObject({
+      title: "[deleted]",
+      description: null,
+    });
+    await request(app.getHttpServer()).get(`/tracking/${created.body.trackingCode}`).expect(404);
+  });
+
   it("finds a customer by part of their email or phone, however the number is written", async () => {
     const path = `/locations/${locationId}/customers`;
     const found = await request(app.getHttpServer())
