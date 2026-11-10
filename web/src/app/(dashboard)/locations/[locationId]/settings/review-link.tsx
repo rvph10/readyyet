@@ -109,7 +109,7 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     setValue(saved);
     setChanging(false);
   }
-  // ADR 0131: the shop's choice, saved with the link.
+  // ADR 0131: the shop's choice, saved as soon as it's flipped, as a switch reads as done.
   const [emails, setEmails] = useState(feedbackEmails);
   const [shownEmails, setShownEmails] = useState(feedbackEmails);
   if (shownEmails !== feedbackEmails) {
@@ -121,6 +121,7 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
   const [check, setCheck] = useState<{ link: string; found: keyof typeof CHECKS | "invalid" } | null>(null);
   const [checking, startChecking] = useTransition();
   const [pending, startTransition] = useTransition();
+  const [switching, startSwitching] = useTransition();
   const inPanel = use(InPanel);
 
   if (!hasPro) {
@@ -155,18 +156,26 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     });
   }
 
+  function toggleEmails(next: boolean) {
+    setEmails(next);
+    setFailure(null);
+    startSwitching(async () => {
+      const result = await orFailure(updateLocation(locationId, { feedbackEmails: next }));
+      if (result.ok) toast({ message: t(next ? "feedbackEmailsOn" : "feedbackEmailsOff") });
+      else {
+        setEmails(!next);
+        setFailure(t(result.code === ErrorCode.PLAN_REQUIRED ? "reviewNeedsPro" : "saveFailed"));
+      }
+    });
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const next = value.trim() || null;
     setError(null);
     setFailure(null);
     startTransition(async () => {
-      const result = await orFailure(
-        updateLocation(locationId, {
-          ...(next !== url && { googleReviewUrl: next }),
-          ...(emails !== feedbackEmails && { feedbackEmails: emails }),
-        }),
-      );
+      const result = await orFailure(updateLocation(locationId, { googleReviewUrl: next }));
       if (result.ok) {
         toast({ message: t("saved") });
         onSaved?.();
@@ -182,12 +191,11 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
       onSubmit={submit}
       onDiscard={() => {
         setValue(saved);
-        setEmails(feedbackEmails);
         setError(null);
         setFailure(null);
         setCheck(null);
       }}
-      dirty={value.trim() !== saved || emails !== feedbackEmails}
+      dirty={value.trim() !== saved}
       pending={pending}
       failure={failure}
     >
@@ -198,125 +206,131 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
             label={t("feedbackEmailsSwitch")}
             description={t("feedbackEmailsHint")}
             checked={emails}
-            onChange={(event) => setEmails(event.target.checked)}
+            disabled={switching}
+            onChange={(event) => toggleEmails(event.target.checked)}
           />
-          {/* ADR 0126: a saved link reads as linked, never as the long Google address. */}
-          <div
-            className={`flex flex-wrap items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}
-          >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface text-ink">
-              <Icon name={url ? "check" : "info"} className="size-3" />
-            </span>
-            <span className="min-w-0 flex-1">{t(url ? "reviewOn" : "reviewMissing")}</span>
-            {url && changing && (
-              <Button variant="secondary" size="sm" onClick={() => setChanging(false)}>
-                {t("google.keep")}
-              </Button>
-            )}
-            {url && !changing && (
-              <span className="flex gap-2">
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonClass({ variant: "secondary", size: "sm" })}
-                >
-                  {t("google.open")}
-                </a>
-                <Button variant="secondary" size="sm" onClick={() => setChanging(true)}>
-                  {t("google.change")}
-                </Button>
-              </span>
-            )}
-          </div>
-
-          {(!url || changing) && (
-            <GoogleFinder
-              locationId={locationId}
-              query={googleQuery(location.name, location.address?.addressLocality)}
-              needsAddress={location.address === null}
-              needsHours={location.openingHours.length === 0}
-              onSaved={onSaved}
-            />
-          )}
-
-          {(!url || changing) && (
-            <ManualLink>
-              <div>
-                <div className="flex items-start gap-2">
-                  <Field
-                    className="min-w-0 flex-1"
-                    label={t("reviewLabel")}
-                    type="url"
-                    autoComplete="off"
-                    placeholder="https://g.page/r/.../review"
-                    maxLength={2048}
-                    value={value}
-                    onChange={(event) => {
-                      setValue(event.target.value);
-                      setError(null);
-                    }}
-                    error={error ?? (checked?.found === "invalid" ? t("reviewInvalid") : null)}
-                  />
-                  <Button
-                    variant="secondary"
-                    className="mt-7"
-                    disabled={!checkable}
-                    pending={checking}
-                    pendingLabel={t("reviewChecking")}
-                    onClick={runCheck}
-                  >
-                    {t("reviewCheck")}
+          {/* The link only serves the email, so it's set up once the email is on. */}
+          {emails && (
+            <>
+              {/* ADR 0126: a saved link reads as linked, never as the long Google address. */}
+              <div
+                className={`flex flex-wrap items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}
+              >
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface text-ink">
+                  <Icon name={url ? "check" : "info"} className="size-3" />
+                </span>
+                <span className="min-w-0 flex-1">{t(url ? "reviewOn" : "reviewMissing")}</span>
+                {url && changing && (
+                  <Button variant="secondary" size="sm" onClick={() => setChanging(false)}>
+                    {t("google.keep")}
                   </Button>
-                </div>
-                <div aria-live="polite">
-                  {checked && checked.found !== "invalid" && (
-                    <p
-                      className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-p-sm ${CHECKS[checked.found].tone}`}
+                )}
+                {url && !changing && (
+                  <span className="flex gap-2">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={buttonClass({ variant: "secondary", size: "sm" })}
                     >
-                      <Icon name={CHECKS[checked.found].icon} className="size-3.5 shrink-0" />
-                      <span className="min-w-0 flex-1">{t(`reviewCheckResult.${checked.found}`)}</span>
-                      {checked.found === "works" && (
-                        <a
-                          href={checked.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 font-semibold underline underline-offset-4"
-                        >
-                          {t("reviewOpen")}
-                        </a>
-                      )}
-                    </p>
-                  )}
-                </div>
+                      {t("google.open")}
+                    </a>
+                    <Button variant="secondary" size="sm" onClick={() => setChanging(true)}>
+                      {t("google.change")}
+                    </Button>
+                  </span>
+                )}
               </div>
 
-              {/* Only for finding the link, so it goes once there's one. */}
-              {!value.trim() && (
-                <section className="rounded-3xl border border-border-strong p-5">
-                  <h3 className="text-label-md">{t("reviewFindTitle")}</h3>
-                  <ol className="mt-3 flex flex-col gap-2.5">
-                    {STEPS.map((step, index) => (
-                      <li key={step} className="flex items-center gap-3 text-p-sm">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-subtle text-label-xs font-semibold">
-                          {index + 1}
-                        </span>
-                        {t(step)}
-                      </li>
-                    ))}
-                  </ol>
-                  <a
-                    href={PROFILE_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${buttonClass({ variant: "secondary", size: "sm" })} mt-4`}
-                  >
-                    {t("reviewOpenProfile")}
-                    <Icon name="arrow-right" className="size-2.5" />
-                  </a>
-                </section>
+              {(!url || changing) && (
+                <GoogleFinder
+                  locationId={locationId}
+                  query={googleQuery(location.name, location.address?.addressLocality)}
+                  needsAddress={location.address === null}
+                  needsHours={location.openingHours.length === 0}
+                  onSaved={onSaved}
+                />
               )}
-            </ManualLink>
+
+              {(!url || changing) && (
+                <ManualLink>
+                  <div>
+                    <div className="flex items-start gap-2">
+                      <Field
+                        className="min-w-0 flex-1"
+                        label={t("reviewLabel")}
+                        type="url"
+                        autoComplete="off"
+                        placeholder="https://g.page/r/.../review"
+                        maxLength={2048}
+                        value={value}
+                        onChange={(event) => {
+                          setValue(event.target.value);
+                          setError(null);
+                        }}
+                        error={error ?? (checked?.found === "invalid" ? t("reviewInvalid") : null)}
+                      />
+                      <Button
+                        variant="secondary"
+                        className="mt-7"
+                        disabled={!checkable}
+                        pending={checking}
+                        pendingLabel={t("reviewChecking")}
+                        onClick={runCheck}
+                      >
+                        {t("reviewCheck")}
+                      </Button>
+                    </div>
+                    <div aria-live="polite">
+                      {checked && checked.found !== "invalid" && (
+                        <p
+                          className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-p-sm ${CHECKS[checked.found].tone}`}
+                        >
+                          <Icon name={CHECKS[checked.found].icon} className="size-3.5 shrink-0" />
+                          <span className="min-w-0 flex-1">{t(`reviewCheckResult.${checked.found}`)}</span>
+                          {checked.found === "works" && (
+                            <a
+                              href={checked.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0 font-semibold underline underline-offset-4"
+                            >
+                              {t("reviewOpen")}
+                            </a>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Only for finding the link, so it goes once there's one. */}
+                  {!value.trim() && (
+                    <section className="rounded-3xl border border-border-strong p-5">
+                      <h3 className="text-label-md">{t("reviewFindTitle")}</h3>
+                      <ol className="mt-3 flex flex-col gap-2.5">
+                        {STEPS.map((step, index) => (
+                          <li key={step} className="flex items-center gap-3 text-p-sm">
+                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-subtle text-label-xs font-semibold">
+                              {index + 1}
+                            </span>
+                            {t(step)}
+                          </li>
+                        ))}
+                      </ol>
+                      <a
+                        href={PROFILE_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${buttonClass({ variant: "secondary", size: "sm" })} mt-4`}
+                      >
+                        {t("reviewOpenProfile")}
+                        <Icon name="arrow-right" className="size-2.5" />
+                      </a>
+                    </section>
+                  )}
+                </ManualLink>
+              )}
+            </>
           )}
         </div>
         <CustomerPreview />

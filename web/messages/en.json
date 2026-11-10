@@ -961,6 +961,8 @@
     "turnaroundRowHint": "You can always change it on a Ticket.",
     "feedbackEmailsSwitch": "Ask for feedback by email",
     "feedbackEmailsHint": "Once the work is done, your Customers get an email asking how it went. Tell them when they drop off their item: asking them is your decision.",
+    "feedbackEmailsOn": "Feedback emails turned on.",
+    "feedbackEmailsOff": "Feedback emails turned off.",
     "reviewHint": "Ask your Customers how it went, and offer them your Google listing.",
     "deleteHint": "Permanent, for this shop only. Your other shops stay as they are.",
     "emailHint": "The address Customers write to. Their replies to our emails also come here.",

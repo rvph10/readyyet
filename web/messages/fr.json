@@ -961,6 +961,8 @@
     "turnaroundRowHint": "Vous pouvez toujours la changer sur un Ticket.",
     "feedbackEmailsSwitch": "Demander un avis par email",
     "feedbackEmailsHint": "Une fois le travail terminé, vos clients reçoivent un email qui leur demande comment ça s'est passé. Prévenez-les au dépôt : c'est vous qui décidez de les solliciter.",
+    "feedbackEmailsOn": "Les emails d'avis sont activés.",
+    "feedbackEmailsOff": "Les emails d'avis sont désactivés.",
     "reviewHint": "Demandez à vos clients comment ça s'est passé, et proposez-leur votre fiche Google.",
     "deleteHint": "Définitif, pour ce magasin seulement. Vos autres magasins ne changent pas.",
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
