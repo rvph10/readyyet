@@ -5,6 +5,7 @@ import { BillingService } from "../billing/billing.service";
 import { PrismaService } from "../database/prisma.service";
 import { hasPro } from "../billing/plans";
 import { NotFoundError, PlanRequiredError } from "../common/errors/app-error";
+import { customerErasure } from "../customer/customer-erasure";
 import { StorageService } from "../storage/storage.service";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 import { searchGooglePlaces } from "./google-places";
@@ -87,9 +88,9 @@ export class LocationService {
     return toLocationResponse(location);
   }
 
-  // A soft delete, final in v1 (ADR 0017): tickets are permanent records.
-  // The guard, tracking page and customer emails all treat a deleted
-  // Location as gone, this only clears what would otherwise linger.
+  // A soft delete, final in v1 (ADR 0017): its Tickets stay, for the
+  // Business's history, its Customers are erased (ADR 0128). The guard,
+  // tracking page and customer emails all treat a deleted Location as gone.
   async remove(locationId: string) {
     // Stripe first: a Location deleted while still billed would be worse
     // than one still there after its subscription ended, deleting it again
@@ -101,9 +102,17 @@ export class LocationService {
       where: { ticket: { locationId } },
       select: { objectKey: true },
     });
+    const customers = await this.prisma.customer.findMany({
+      where: { locationId, deletedAt: null },
+      select: { id: true },
+    });
     await this.prisma.$transaction([
       this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { locationId } } }),
+      ...customerErasure(
+        this.prisma,
+        customers.map((customer) => customer.id),
+      ),
       this.prisma.invitation.updateMany({
         where: { locationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.REVOKED },
