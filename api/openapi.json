@@ -9300,6 +9300,9 @@
             "type": "string",
             "nullable": true
           },
+          "feedbackEmails": {
+            "type": "boolean"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -9324,6 +9327,7 @@
           "openingHours",
           "turnaroundDays",
           "googleReviewUrl",
+          "feedbackEmails",
           "createdAt",
           "updatedAt"
         ]
@@ -9734,6 +9738,9 @@
             "type": "string",
             "nullable": true,
             "maxLength": 2048
+          },
+          "feedbackEmails": {
+            "type": "boolean"
           }
         }
       },

@@ -9,6 +9,12 @@ export function asksForFeedback(location: { subscription: Subscription | null })
   return location.subscription !== null && hasPro(location.subscription);
 }
 
+// ADR 0131: the email asking for it, and the line announcing it, only when the
+// shop chose to send it. The tracking page still offers it either way.
+export function emailsForFeedback(location: { subscription: Subscription | null; feedbackEmails: boolean }) {
+  return location.feedbackEmails && asksForFeedback(location);
+}
+
 // ADR 0125: what the sidebar, the bell and the staff email count.
 export const NEEDS_FOLLOW_UP = {
   handledAt: null,

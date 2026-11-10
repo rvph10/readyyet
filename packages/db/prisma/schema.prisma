@@ -232,6 +232,9 @@ model Location {
   // Google's "write a review" link, it turns review requests on (ADR 0027,
   // ADR 0039).
   googleReviewUrl    String?   @map("google_review_url")
+  // Emails a Customer for feedback once their Ticket is done, the shop's
+  // choice and off until it makes it (ADR 0131).
+  feedbackEmails     Boolean   @default(false) @map("feedback_emails")
   deletedAt          DateTime? @map("deleted_at")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")

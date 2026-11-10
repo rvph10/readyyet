@@ -63,7 +63,7 @@ export class LocationService {
   }
 
   async update(locationId: string, dto: UpdateLocationDto) {
-    if (dto.googleReviewUrl) {
+    if (dto.googleReviewUrl || dto.feedbackEmails) {
       const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
       if (!hasPro(subscription)) {
         throw new PlanRequiredError("Review requests");
@@ -82,6 +82,7 @@ export class LocationService {
         ...(dto.openingHours !== undefined && { openingHours: toOpeningHoursJson(dto.openingHours) }),
         ...(dto.turnaroundDays !== undefined && { turnaroundDays: dto.turnaroundDays }),
         ...(dto.googleReviewUrl !== undefined && { googleReviewUrl: dto.googleReviewUrl }),
+        ...(dto.feedbackEmails !== undefined && { feedbackEmails: dto.feedbackEmails }),
       },
     });
     return toLocationResponse(location);

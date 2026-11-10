@@ -21,6 +21,7 @@ export const locationSelect = {
     openingHours: true,
     turnaroundDays: true,
     googleReviewUrl: true,
+    feedbackEmails: true,
     createdAt: true,
     updatedAt: true,
     businessType: { select: { code: true } },
