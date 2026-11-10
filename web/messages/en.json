@@ -1420,6 +1420,7 @@
     "HARD_TO_REACH": "Hard to reach"
   },
   "terms": {
+    "title": "Our terms of service",
     "ask": "To keep using ReadyYet for {name}, please accept our <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
     "accept": "I accept",
     "accepting": "Saving…",

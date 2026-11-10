@@ -4,7 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getOwnedBusiness, referralLink } from "@/lib/business";
-import { TermsBanner } from "@/components/terms-banner";
+import { TermsDialog } from "@/components/terms-dialog";
 import { legalLinks } from "@/lib/legal";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
@@ -113,7 +113,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           }}
         >
           {current.role === "OWNER" && !current.location.business.termsAccepted && (
-            <TermsBanner
+            <TermsDialog
               businessId={current.location.business.id}
               businessName={current.location.business.name}
               legal={legalLinks(locale)}

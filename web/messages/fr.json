@@ -1420,6 +1420,7 @@
     "HARD_TO_REACH": "Difficile à joindre"
   },
   "terms": {
+    "title": "Nos conditions générales",
     "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
     "accept": "J'accepte",
     "accepting": "Enregistrement…",

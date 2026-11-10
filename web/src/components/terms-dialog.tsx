@@ -4,15 +4,16 @@ import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { acceptTerms } from "@/app/(dashboard)/terms-actions";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
 
 const link = "font-semibold underline underline-offset-2";
 
 // ADR 0130: an Owner whose Business hasn't accepted the terms in force, from
-// before they existed or since a version to accept again, until they do.
-export function TermsBanner({
+// before they existed or since a version to accept again, can't go on with
+// it until they do.
+export function TermsDialog({
   businessId,
   businessName,
   legal,
@@ -33,9 +34,8 @@ export function TermsBanner({
   }
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl bg-pine px-5 py-4 text-surface lg:mb-5">
-      <Icon name="info" className="size-3.5 shrink-0 text-brand" />
-      <p className="min-w-0 flex-1 basis-72 text-p-sm text-pretty">
+    <Dialog open required onClose={() => undefined} title={t("title")}>
+      <p className="text-p-md text-pretty">
         {t.rich("ask", {
           name: businessName,
           terms: (chunks) => (
@@ -50,9 +50,9 @@ export function TermsBanner({
           ),
         })}
       </p>
-      <Button size="sm" variant="brand" pending={pending} pendingLabel={t("accepting")} onClick={accept}>
+      <Button className="mt-6 w-full" size="lg" pending={pending} pendingLabel={t("accepting")} onClick={accept}>
         {t("accept")}
       </Button>
-    </div>
+    </Dialog>
   );
 }

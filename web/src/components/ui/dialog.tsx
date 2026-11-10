@@ -14,6 +14,9 @@ interface Props {
   variant?: Variant;
   // Stays open, while a form inside is waiting on an answer it would otherwise lose.
   locked?: boolean;
+  // Something to answer before going on, like the terms (ADR 0130): it can't
+  // be dismissed at all and has no close button.
+  required?: boolean;
   // The picture over an announcement, or the image an image dialog shows.
   media?: ReactNode;
   children?: ReactNode;
@@ -49,7 +52,8 @@ export function Dialog({
   onClose,
   title: openTitle,
   variant = "default",
-  locked,
+  locked: busy,
+  required,
   media: openMedia,
   children: openChildren,
 }: Props) {
@@ -68,6 +72,7 @@ export function Dialog({
   const { title, media } = shown;
   const children = <Fragment key={openings.count}>{shown.children}</Fragment>;
   const titleId = useId();
+  const locked = busy || required;
   const dismiss = () => {
     if (!locked) onClose();
   };
@@ -157,7 +162,7 @@ export function Dialog({
                 {title}
               </h2>
             )}
-            <CloseButton onClose={dismiss} />
+            {!required && <CloseButton onClose={dismiss} />}
           </div>
           {variant === "destructive" && (
             <h2 id={titleId} className="mt-4 text-title-h6">

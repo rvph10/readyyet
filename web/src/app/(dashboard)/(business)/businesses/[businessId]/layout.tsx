@@ -2,7 +2,7 @@ import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getOwnedBusiness, referralLink } from "@/lib/business";
-import { TermsBanner } from "@/components/terms-banner";
+import { TermsDialog } from "@/components/terms-dialog";
 import { legalLinks } from "@/lib/legal";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
@@ -40,7 +40,7 @@ export default async function BusinessLayout({ children, params }: LayoutProps<"
         collapsed={cookieStore.get(SIDEBAR_COOKIE)?.value === "collapsed"}
       >
         {!termsAccepted && (
-          <TermsBanner businessId={businessId} businessName={business.name} legal={legalLinks(locale)} />
+          <TermsDialog businessId={businessId} businessName={business.name} legal={legalLinks(locale)} />
         )}
         {children}
       </BusinessNav>
