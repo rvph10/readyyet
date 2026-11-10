@@ -1,0 +1,90 @@
+import { Injectable } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
+import { Prisma } from "@readyyet/db";
+import { ENDED_STATUS_CODES } from "@readyyet/shared";
+import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { customerErasure, photoKeysOfCustomers } from "../customer/customer-erasure";
+import { PrismaService } from "../database/prisma.service";
+import { StorageService } from "../storage/storage.service";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const EMAIL_CONTENT_DAYS = 30;
+const CUSTOMER_MONTHS = 24;
+const BATCH_SIZE = 500;
+
+// The retention periods of ADR 0128 that no request triggers.
+@Injectable()
+export class RetentionService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
+
+  @Cron("0 30 3 * * *", { name: "retention" })
+  @CronMonitor("retention", {
+    schedule: { type: "crontab", value: "30 3 * * *" },
+    checkinMargin: 15,
+    maxRuntime: 30,
+  })
+  async run() {
+    await this.clearOldEmailContent();
+    await this.deleteExpiredSignIns();
+    await this.eraseInactiveCustomers();
+  }
+
+  // Long past any retry, the sweep gives up after a day (ADR 0081). That
+  // it was sent and whether it arrived stays, what it said goes.
+  async clearOldEmailContent() {
+    await this.prisma.emailLog.updateMany({
+      where: {
+        createdAt: { lt: new Date(Date.now() - EMAIL_CONTENT_DAYS * DAY_MS) },
+        OR: [{ html: { not: null } }, { text: { not: null } }, { attachments: { not: Prisma.DbNull } }],
+      },
+      data: { html: null, text: null, attachments: Prisma.DbNull },
+    });
+  }
+
+  // Better Auth only deletes an expired session or code when it's used again.
+  async deleteExpiredSignIns() {
+    const now = new Date();
+    await this.prisma.session.deleteMany({ where: { expiresAt: { lt: now } } });
+    await this.prisma.verification.deleteMany({ where: { expiresAt: { lt: now } } });
+  }
+
+  // A Customer with nothing open and nothing moving for 24 months, or left
+  // at a Location deleted before ADR 0128 erased them with it.
+  async eraseInactiveCustomers() {
+    const cutoff = new Date();
+    cutoff.setUTCMonth(cutoff.getUTCMonth() - CUSTOMER_MONTHS);
+    for (;;) {
+      const customers = await this.prisma.customer.findMany({
+        where: {
+          deletedAt: null,
+          OR: [
+            {
+              createdAt: { lt: cutoff },
+              tickets: {
+                none: {
+                  OR: [
+                    { currentStatus: { code: { notIn: [...ENDED_STATUS_CODES] } } },
+                    { statusEvents: { some: { createdAt: { gte: cutoff } } } },
+                  ],
+                },
+              },
+            },
+            { location: { deletedAt: { not: null } } },
+          ],
+        },
+        select: { id: true },
+        take: BATCH_SIZE,
+      });
+      if (customers.length === 0) {
+        return;
+      }
+      const ids = customers.map((customer) => customer.id);
+      const photoKeys = await photoKeysOfCustomers(this.prisma, ids);
+      await this.prisma.$transaction(customerErasure(this.prisma, ids));
+      await this.storage.delete(photoKeys);
+    }
+  }
+}
