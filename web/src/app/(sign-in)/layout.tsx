@@ -1,11 +1,12 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
 import { Icon } from "@/components/ui/icon";
 import { SignInPanel } from "./sign-in-panel";
 
 export default async function SignInLayout({ children }: { children: ReactNode }) {
-  const t = await getTranslations("signIn");
+  const [t, tCookies] = await Promise.all([getTranslations("signIn"), getTranslations("cookies")]);
   const locale = await getLocale();
   const site = new URL(process.env.SITE_URL as string);
   const supportEmail = process.env.SUPPORT_EMAIL as string;
@@ -30,7 +31,12 @@ export default async function SignInLayout({ children }: { children: ReactNode }
           {children}
         </main>
         <footer className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-label-sm text-muted xl:h-15">
-          <p>© {new Date().getFullYear()} ReadyYet</p>
+          <p className="flex flex-wrap gap-x-4">
+            © {new Date().getFullYear()} ReadyYet
+            <CookieSettingsButton className="cursor-pointer transition-colors hover:text-ink">
+              {tCookies("settings")}
+            </CookieSettingsButton>
+          </p>
           <a
             href={`mailto:${supportEmail}`}
             aria-label={t("help", { email: supportEmail })}
