@@ -3,10 +3,8 @@ import path from "node:path";
 import { getTranslations } from "next-intl/server";
 import { noOrphan } from "@/lib/typography";
 import { CtaPair } from "../CtaPair";
-import { type FloatText, Floats } from "./Floats";
 import { Nav } from "../Nav";
 import "./hero.css";
-import { type PhoneText, PhoneScreen } from "./PhoneScreen";
 
 // Inlined rather than linked: the scroll timeline animates the shapes inside
 // them. Read at build time, the pages are static.
@@ -14,8 +12,6 @@ const svg = (name: string) => readFileSync(path.join(process.cwd(), "src/compone
 
 export async function Hero() {
   const t = await getTranslations("home.hero");
-  const phone = t.raw("phone") as PhoneText;
-  const floats = t.raw("float") as FloatText;
 
   return (
     <section className="hero">
@@ -72,13 +68,29 @@ export async function Hero() {
                     aria-hidden="true"
                     dangerouslySetInnerHTML={{ __html: svg("hero-phone-base.svg") }}
                   />
-                  <div className="hero__device">
-                    <PhoneScreen t={phone} />
-                  </div>
+                  <div className="hero__device" dangerouslySetInnerHTML={{ __html: svg("hero-phone.svg") }} />
                 </div>
               </div>
             </div>
-            <Floats t={floats} />
+            <div className="hero__floats" aria-hidden="true">
+              <div
+                className="hero__float hero__float--payment"
+                dangerouslySetInnerHTML={{ __html: svg("hero-float-payment.svg") }}
+              />
+              <div
+                className="hero__float hero__float--tap"
+                dangerouslySetInnerHTML={{ __html: svg("hero-float-tap.svg") }}
+              />
+              <div
+                className="hero__float hero__float--invoice"
+                dangerouslySetInnerHTML={{ __html: svg("hero-float-invoice.svg") }}
+              />
+            </div>
+            <div className="hero__burst" aria-hidden="true">
+              <div className="hero__burst-pill">
+                <img src="/home/logo.svg" alt="" width="28" height="28" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

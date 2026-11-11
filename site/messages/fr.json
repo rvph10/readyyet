@@ -17,63 +17,7 @@
       "label": "/ Le suivi en magasin",
       "title": "Vos clients savent quand c'est prêt",
       "lede": "Déposé, en cours, prêt : ils suivent leur article en ligne, sans appeler le magasin et sans créer de compte.",
-      "artLabel": "L'app ReadyYet d'un magasin : les Tickets du jour, un Ticket qui passe à Prêt et l'email envoyé au client.",
-      "phone": {
-        "hello": "Bonjour Sofie",
-        "shop": "Atelier Sofie",
-        "today": "Aujourd'hui",
-        "active": "en cours",
-        "readyCount": "3 prêts",
-        "status": "Statut",
-        "due": "Prévu le",
-        "step": "Étape",
-        "t1": {
-          "item": "Montre",
-          "customer": "Marc Dubois",
-          "status": "Prêt",
-          "due": "12 nov.",
-          "step": "4/4"
-        },
-        "t2": {
-          "item": "Costume",
-          "customer": "Léa Vermeulen",
-          "status": "Nettoyage",
-          "due": "13 nov.",
-          "step": "2/3"
-        },
-        "t3": {
-          "item": "Chaussures",
-          "customer": "Tom Bastin",
-          "status": "Ressemelage",
-          "due": "15 nov.",
-          "step": "2/4"
-        },
-        "t4": {
-          "item": "Veste en cuir",
-          "customer": "Sofie Peeters",
-          "status": "En réparation",
-          "due": "14 nov.",
-          "step": "2/4"
-        },
-        "dueOn": "Prévu le 14 nov.",
-        "ticket": "Ticket",
-        "emails": "Emails envoyés",
-        "week": "Cette semaine",
-        "created": "Tickets créés cette semaine",
-        "tickets": "Tickets",
-        "days": ["L", "M", "M", "J", "V", "S", "D"],
-        "slide": "Marquer Prêt",
-        "emailed": "Email envoyé à Sofie"
-      },
-      "float": {
-        "createdTitle": "Ticket #129 créé",
-        "createdText": "Lien de suivi envoyé à Marc",
-        "qrTitle": "QR code remis à Léa",
-        "qrText": "Ticket #130 · Costume",
-        "readyTitle": "Veste en cuir · Sofie",
-        "readyText": "En réparation",
-        "doneText": "Email « C'est prêt » envoyé"
-      }
+      "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
     },
     "cta": {
       "start": "Essai gratuit de 14 jours",

@@ -25,15 +25,15 @@ const RISE = bezier(0.16, 1, 0.3, 1);
 
 const U_MAX = 616;
 const U_PIN = 30.6;
+const U_BURST = 436;
 const U_STACK = 150;
 const U_STEP = 24;
 const U_SLIDE = 30;
 const U_LATE = 144;
 
 // Ledger's hero: the panel opens to the window, the camera zooms and pans
-// over the mat, and the phone plays a shop's day in ReadyYet: its Tickets,
-// one Ticket opened, new Tickets landing in the week's count, and the jacket
-// slid to Ready while its email goes out, all scrubbed by the scroll. Timeline
+// over the mat, the phone's screen plays its story, and the call to action
+// bursts into a full-screen panel, all scrubbed by the scroll. Timeline
 // positions are in the template's own units, unit() turns one into pixels of
 // scroll for the current window height.
 export function startHeroScroll(hero: HTMLElement) {
@@ -45,11 +45,12 @@ export function startHeroScroll(hero: HTMLElement) {
     const pin = hero.querySelector<HTMLElement>(".hero__pin")!;
     const box = hero.querySelector<HTMLElement>(".hero__panelbox")!;
     const panel = hero.querySelector<HTMLElement>(".hero__panel")!;
+    const burst = hero.querySelector<HTMLElement>(".hero__burst")!;
     const svg = hero.querySelector<SVGSVGElement>(".hero__device svg")!;
     const $ = (selector: string) => svg.querySelector(selector);
 
     const uStart = wide ? 12 : U_PIN;
-    const uEnd = (wide ? 440 : 400) + U_LATE;
+    const uEnd = (wide ? 496 : 400) + U_LATE;
     const at = (u: number) => u - uStart;
     const later = (u: number) => at(u + U_LATE);
     const unit = () => (4 * window.innerHeight + 188) / U_MAX;
@@ -215,17 +216,22 @@ export function startHeroScroll(hero: HTMLElement) {
     const today = bars[6];
     const pulse = $(".phone__bar-pulse");
     const value = $(".phone__rev-value")!;
+    const cents = $(".phone__rev-cents")!;
     const rate = $(".phone__rev-rate")!;
-    const tally = { amount: 24, rate: 12 };
+    const tally = { amount: 12240, rate: 16.9 };
     const write = () => {
-      value.textContent = `${Math.round(tally.amount)}`;
-      rate.textContent = `${Math.round(tally.rate)}%`;
+      const shown = Math.round(tally.amount * 100) / 100;
+      value.textContent = `$${Math.floor(shown).toLocaleString("en-US")}`;
+      cents.textContent = `.${Math.round((shown % 1) * 100)
+        .toString()
+        .padStart(2, "0")}`;
+      rate.textContent = `${tally.rate.toFixed(1)}%`;
     };
 
     (
       [
-        { card: payment, u: 140, from: peaks[6], to: 72, amount: 25, pace: 17, gain: ".phone__bar-gain" },
-        { card: tap, u: 186, from: 72, to: 78, amount: 26, pace: 21, gain: ".phone__bar-gain2" },
+        { card: payment, u: 140, from: peaks[6], to: 72, amount: 12480, pace: 18.2, gain: ".phone__bar-gain" },
+        { card: tap, u: 186, from: 72, to: 78, amount: 12566.5, pace: 19, gain: ".phone__bar-gain2" },
       ] as const
     ).forEach(({ card, u, from, to, amount, pace, gain }, i) => {
       const land = u + 40;
@@ -303,29 +309,8 @@ export function startHeroScroll(hero: HTMLElement) {
         { opacity: 1, scale: 1, duration: 12, ease: "power2.out" },
         later(400),
       );
+      tl.fromTo(mark, { rotation: 0, transformOrigin: "50% 50%" }, { rotation: 360, duration: 36 }, later(400));
     }
-
-    // The slide lands: the jacket is Ready, its last step is filled and the
-    // Customer's email is counted.
-    const done = { duration: 12, ease: "sine.inOut" };
-    tl.fromTo($(".phone__huld-status"), { opacity: 1 }, { opacity: 0, ...done }, later(380));
-    tl.fromTo($(".phone__huld-ready"), { opacity: 0 }, { opacity: 1, ...done }, later(386));
-    tl.fromTo($(".phone__huld-caption"), { opacity: 1 }, { opacity: 0, ...done }, later(380));
-    tl.fromTo($(".phone__huld-emailed"), { opacity: 0 }, { opacity: 1, ...done }, later(386));
-    tl.fromTo(
-      $(".phone__huld-progress"),
-      { attr: { width: 151 } },
-      { attr: { width: 302 }, duration: 18, ease: EXPAND },
-      later(382),
-    );
-    const emails = svg.querySelectorAll<SVGTextElement>(".phone__huld-stat-value")[1];
-    const sent = { n: 2 };
-    tl.fromTo(
-      sent,
-      { n: 2 },
-      { n: 3, duration: 6, onUpdate: () => (emails.textContent = `${Math.round(sent.n)}`) },
-      later(386),
-    );
 
     tl.set({}, {}, at(uEnd));
 
@@ -334,6 +319,78 @@ export function startHeroScroll(hero: HTMLElement) {
         const u = box.clientWidth / 1408;
         return (window.innerHeight - 665.496 * u) / 2 + 103 * u;
       };
+
+      const track = svg.querySelector(".phone__cta > rect")!;
+      const fill = $(".phone__cta-fill")!;
+      const pill = burst.querySelector<HTMLElement>(".hero__burst-pill")!;
+      const from = { top: 0, right: 0, bottom: 0, left: 0, radius: 0 };
+      const shift = { x: 0, y: 0 };
+      const shape = { p: 0 };
+
+      const measure = () => {
+        const b = box.getBoundingClientRect();
+        const t = track.getBoundingClientRect();
+        const f = fill.getBoundingClientRect();
+        const width = document.documentElement.clientWidth;
+        const height = window.innerHeight;
+        const top = b.top - restTop();
+        Object.assign(burst.style, {
+          top: `${-restTop()}px`,
+          left: `${-b.left}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        });
+        Object.assign(from, {
+          top: t.top - top,
+          right: width - t.right,
+          bottom: top + height - t.bottom,
+          left: t.left,
+          radius: t.height / 3,
+        });
+        Object.assign(pill.style, {
+          left: `${f.left}px`,
+          top: `${f.top - top}px`,
+          width: `${f.width}px`,
+          height: `${f.height}px`,
+          borderRadius: `${f.height / 4}px`,
+        });
+        shift.x = width / 2 - (f.left + f.width / 2);
+        shift.y = height / 2 - (f.top - top + f.height / 2);
+      };
+
+      let measured = false;
+      const paint = () => {
+        if (!measured) {
+          measure();
+          measured = true;
+        }
+        const p = shape.p;
+        const q = 1 - p;
+        burst.style.clipPath = `inset(${from.top * q}px ${from.right * q}px ${from.bottom * q}px ${from.left * q}px round ${q * (from.radius + p * 64)}px)`;
+        pill.style.transform = `translate(${shift.x * p}px, ${shift.y * p}px) scale(${1 - 0.4 * p})`;
+      };
+
+      const tuckNext = () => {
+        const bottom = parseFloat(getComputedStyle(hero).paddingBottom);
+        hero.style.marginBottom = `${window.innerHeight - restTop() - box.offsetHeight - bottom}px`;
+      };
+      tuckNext();
+      ScrollTrigger.addEventListener("refreshInit", tuckNext);
+
+      const remeasure = () => {
+        measured = false;
+        if (shape.p > 0) paint();
+      };
+      ScrollTrigger.addEventListener("refresh", remeasure);
+
+      tl.fromTo(burst, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, later(U_BURST));
+      tl.fromTo(
+        shape,
+        { p: 0 },
+        { p: 1, duration: 496 - U_BURST, ease: "sine.inOut", onUpdate: paint },
+        later(U_BURST),
+      );
+      tl.fromTo(pill, { autoAlpha: 1 }, { autoAlpha: 0, duration: 28, ease: "sine.in" }, later(462));
 
       const pinned = ScrollTrigger.create({
         trigger: pin,
@@ -364,6 +421,16 @@ export function startHeroScroll(hero: HTMLElement) {
           },
         },
       );
+
+      cleanup.push(() => {
+        ScrollTrigger.removeEventListener("refreshInit", tuckNext);
+        ScrollTrigger.removeEventListener("refresh", remeasure);
+        hero.style.marginBottom = "";
+        ["top", "left", "width", "height", "clipPath"].forEach((key) =>
+          burst.style.removeProperty(key.replace("clipPath", "clip-path")),
+        );
+        pill.removeAttribute("style");
+      });
 
       ScrollTrigger.create({
         trigger: pin,
