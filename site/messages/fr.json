@@ -25,16 +25,16 @@
     },
     "steps": {
       "badge": "En trois étapes",
-      "title": "Trois étapes, zéro coup de fil",
-      "intro": "Vous enregistrez l'article au comptoir, votre client le suit en ligne et revient quand c'est prêt. Pas d'application à installer, pas de compte à créer.",
+      "title": "Du dépôt au retrait",
+      "intro": "Vous enregistrez l'article, ReadyYet tient votre client au courant, et il revient au bon moment.",
       "stepLabel": "Étape {n}",
       "step1": {
         "title": "Vous enregistrez l'article",
-        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par e-mail ou par QR code."
+        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par e-mail, sur WhatsApp ou avec un QR code à scanner sur place."
       },
       "step2": {
-        "title": "Votre client suit l'avancement",
-        "text": "Chaque étape que vous validez s'affiche sur sa page de suivi. Il sait où en est son article sans vous appeler."
+        "title": "Il suit chaque étape",
+        "text": "Chaque étape que vous cochez s'affiche sur sa page de suivi, avec la date prévue et vos photos de l'article."
       },
       "step3": {
         "title": "Il revient quand c'est prêt",
@@ -64,20 +64,20 @@
       "headingStart": "Un suivi qui tourne",
       "headingEnd": "tout seul",
       "tracking": {
-        "title": "Page de suivi",
-        "text": "Chaque article a sa page, avec ses étapes et la date prévue. Un lien ou un QR code suffit, sans compte ni application."
+        "title": "Une page qui répond à tout",
+        "text": "Étape en cours, date prévue, photos de l'article, adresse, horaires et itinéraire : votre client trouve tout au même endroit."
       },
       "emails": {
-        "title": "E-mails automatiques",
-        "text": "Votre client est prévenu quand l'article est enregistré et quand il est prêt. Vous n'avez rien à écrire."
+        "title": "Le bon e-mail au bon moment",
+        "text": "Un devis qui attend sa réponse, une date repoussée, un article prêt : votre client est prévenu sans que vous écriviez une ligne. S'il tarde à venir, un rappel part après 3 puis 10 jours."
       },
       "workflow": {
         "title": "Les étapes de votre métier",
-        "text": "Cordonnerie, pressing, réparation : chaque métier part de ses propres étapes. En Pro, vous les choisissez et les mettez dans votre ordre."
+        "text": "Diagnostic, nettoyage, pièce en commande : ReadyYet part des étapes de votre métier, prêtes dès l'inscription. En Pro, vous les choisissez et les mettez dans votre ordre."
       },
       "reviews": {
         "title": "Plus d'avis Google",
-        "text": "En Pro, après la récupération, votre client reçoit un e-mail pour noter son passage. Il peut laisser un avis Google ou vous écrire en privé."
+        "text": "En Pro, après le retrait, chaque client note son passage et choisit : un avis sur Google, ou un message privé auquel vous répondez depuis ReadyYet."
       },
       "art": {
         "shop": "Atelier Sofie",
@@ -106,35 +106,35 @@
       "next": "Métier suivant",
       "shoe": {
         "title": "Cordonnerie et maroquinerie",
-        "text": "Ressemelage, talons, sacs à recoudre : le client sait quand passer."
+        "text": "Un ressemelage, un sac à recoudre : votre client voit l'avancement et passe au bon moment."
       },
       "pressing": {
         "title": "Pressing",
-        "text": "Costumes, robes, couettes : chaque pièce a son suivi, du dépôt au retrait."
+        "text": "Costumes, robes, couettes : chaque pièce a sa page de suivi."
       },
       "tailoring": {
         "title": "Retouches et couture",
-        "text": "Ourlets, ajustements, essayages : le client voit où en est sa retouche."
+        "text": "Votre client voit quand l'essayage l'attend, puis quand sa pièce est prête."
       },
       "electronics": {
         "title": "Téléphones et ordinateurs",
-        "text": "Diagnostic, pièce commandée, réparation : plus d'appels pour savoir si c'est fait."
+        "text": "Écran, batterie, carte mère : fini les « alors, c'est réparé ? » au comptoir."
       },
       "watch": {
         "title": "Horlogerie et bijouterie",
-        "text": "Piles, révisions, mises à taille : un suivi clair, même quand ça prend des semaines."
+        "text": "Une révision qui prend des semaines ? Votre client suit chaque étape, jusqu'au contrôle final."
       },
       "garage": {
         "title": "Garage",
-        "text": "Diagnostic, réparation, contrôle : le client suit sa voiture sans appeler l'atelier."
+        "text": "Diagnostic, réparation : votre client suit sa voiture et sait quand venir la récupérer."
       },
       "appliance": {
         "title": "Électroménager",
-        "text": "Pièces en commande, test, réparation : le client sait quand revenir."
+        "text": "Pièce en commande ? Votre client le voit sur sa page, inutile de lui expliquer le retard."
       },
       "framing": {
         "title": "Encadrement",
-        "text": "Du choix de la baguette à la pose : le client sait quand son cadre l'attend."
+        "text": "Du choix de la baguette à la pose, votre client sait quand son cadre l'attend."
       }
     },
     "promise": {
@@ -169,30 +169,40 @@
         "name": "Essentiel",
         "price": "29 €",
         "yearly": "ou 290 € par an, 2 mois offerts",
-        "pitch": "Pour un magasin avec une petite équipe, qui veut que ses clients arrêtent d'appeler.",
-        "items": ["Page de suivi et QR code", "E-mails automatiques", "2 membres d'équipe", "Étapes prêtes pour votre métier"]
+        "pitch": "Pour un magasin avec une petite équipe, qui veut un suivi clair sans rien à régler.",
+        "items": [
+          "Page de suivi et QR code",
+          "E-mails automatiques",
+          "2 membres d'équipe",
+          "Étapes prêtes pour votre métier"
+        ]
       },
       "pro": {
         "name": "Pro",
         "price": "49 €",
         "yearly": "ou 490 € par an, 2 mois offerts",
         "pitch": "Pour les ateliers qui ont leur façon de travailler et veulent plus d'avis.",
-        "items": ["Tout Essentiel", "Équipe illimitée", "Étapes à choisir et à ordonner", "Retours privés et avis Google"]
+        "items": [
+          "Tout Essentiel",
+          "Équipe illimitée",
+          "Étapes à choisir et à ordonner",
+          "Retours privés et avis Google"
+        ]
       }
     },
     "faq": {
-      "title": "Questions sur le suivi des réparations",
+      "title": "Bon à savoir avant de commencer",
       "app": {
         "q": "Mes clients doivent-ils installer une application ?",
         "a": "Non. Ils reçoivent un lien par e-mail, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
       },
       "notified": {
         "q": "Comment mon client est-il prévenu ?",
-        "a": "Par e-mail : quand l'article est enregistré, quand la date prévue est repoussée et quand il est prêt. Il peut aussi ouvrir sa page de suivi quand il le veut."
+        "a": "Par e-mail : quand l'article est enregistré, quand un devis ou une information attend sa réponse, quand la date prévue est repoussée et quand il est prêt, avec un rappel s'il ne vient pas le chercher. Il peut aussi ouvrir sa page de suivi quand il le veut."
       },
       "sms": {
         "q": "Est-ce que ReadyYet envoie des SMS ?",
-        "a": "Non. Le suivi passe par e-mail et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients."
+        "a": "Non. Le suivi passe par e-mail et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients. Si votre client préfère, vous lui envoyez son lien sur WhatsApp en un clic."
       },
       "start": {
         "q": "Combien de temps faut-il pour démarrer ?",
