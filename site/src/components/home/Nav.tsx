@@ -1,8 +1,15 @@
 import { getTranslations } from "next-intl/server";
-import { APP_URL } from "@/lib/app-url";
 import { Link } from "@/i18n/navigation";
+import { APP_URL } from "@/lib/app-url";
 import { FillButton } from "./FillButton";
 import "./nav.css";
+
+const SECTIONS = [
+  ["howItWorks", "how-it-works"],
+  ["features", "features"],
+  ["pricing", "pricing"],
+  ["faq", "faq"],
+] as const;
 
 export async function Nav() {
   const t = await getTranslations("home.nav");
@@ -13,9 +20,23 @@ export async function Nav() {
         <img src="/home/logo.svg" alt="" width="28" height="28" />
         <span className="nav__wordmark t-wordmark">ReadyYet</span>
       </Link>
-      <FillButton href={`${APP_URL}/sign-in`} className="btn--muted btn--sm">
-        {t("signIn")}
-      </FillButton>
+      <ul className="nav__links">
+        {SECTIONS.map(([label, anchor]) => (
+          <li key={anchor}>
+            <a className="nav__link" href={`#${anchor}`}>
+              {t(label)}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div className="nav__actions">
+        <FillButton href={`${APP_URL}/sign-in`} className="btn--muted btn--sm nav__signin">
+          {t("signIn")}
+        </FillButton>
+        <FillButton href={`${APP_URL}/sign-in`} className="btn--dark btn--sm">
+          {t("start")}
+        </FillButton>
+      </div>
     </nav>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Momo_Trust_Display, Stack_Sans_Headline } from "next/font/google";
+import { Inter, Momo_Trust_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -8,7 +8,6 @@ import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const momo = Momo_Trust_Display({ subsets: ["latin"], weight: "400", variable: "--font-momo" });
-const stack = Stack_Sans_Headline({ subsets: ["latin"], weight: "400", variable: "--font-stack" });
 
 // Runs before the first paint, so what has an entrance stays hidden until it
 // plays instead of flashing in place first. Without scripts, or with reduced
@@ -41,7 +40,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   // suppressHydrationWarning: holdEntrances sets data-enter on <html> before
   // React hydrates it.
   return (
-    <html lang={locale} className={`${inter.variable} ${momo.variable} ${stack.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${momo.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: holdEntrances }} />
       </head>

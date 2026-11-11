@@ -6,7 +6,12 @@
   "home": {
     "nav": {
       "label": "Main",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "howItWorks": "How it works",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "start": "Start free trial"
     },
     "hero": {
       "label": "/ Tracking for shops",

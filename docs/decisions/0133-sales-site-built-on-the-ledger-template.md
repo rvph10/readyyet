@@ -10,7 +10,7 @@ The sales site's home is built on **Ledger**, a paid landing page template (Astr
 
 **Ported, not rewritten.** Each section keeps the template's markup, class names and CSS, and its script runs unchanged from a React effect. Each Temlis section keeps its `data-temlis` wrapper, and is brought to Ledger's look by overriding its variables and rules on that wrapper, in one place, never by editing its own rules. The page then reads as one site: Ledger's fonts, buttons, radii and spacing everywhere.
 
-**ReadyYet's colours, Ledger's fonts.** Lime `#d6ff53` takes the place of Ledger's yellow and pine `#17423a` of its black. Headings are Momo Trust Display, the wordmark Stack Sans Headline, the rest Inter, all self-hosted by `next/font` at build time, so no page asks a font server for anything. The site no longer uses Figtree and Geist.
+**ReadyYet's colours, Ledger's fonts.** Lime `#d6ff53` takes the place of Ledger's yellow and pine `#17423a` of its black. Headings and the ReadyYet wordmark are Momo Trust Display, the rest Inter, all self-hosted by `next/font` at build time, so no page asks a font server for anything. The site no longer uses Figtree and Geist.
 
 **New dependencies**, pinned: `gsap` (with its ScrollTrigger, SplitText and CustomEase plugins, all free to use), which every animated section uses; `lenis`, Ledger's smooth scroll, which its scroll-driven timelines are tuned against; `swiper` for the trades slider, added with it.
 

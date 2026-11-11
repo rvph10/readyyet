@@ -60,7 +60,6 @@
 
   --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-wordmark: var(--font-stack), var(--font-momo), system-ui, sans-serif;
 
   --shadow-float:
     0 24px 48px -16px rgba(30, 30, 30, 0.28), 0 2px 8px rgba(30, 30, 30, 0.06), inset 0 0 0 1px var(--color-border-soft);
@@ -146,7 +145,7 @@ p {
 }
 
 .t-wordmark {
-  font-family: var(--font-wordmark) !important;
+  font-family: var(--font-display) !important;
   font-weight: 400 !important;
   font-size: 1.75rem !important;
   line-height: 1 !important;
@@ -291,6 +290,12 @@ html[data-enter] :is(.nav, .hero__label, .hero__title, .hero__lede, .hero .cta, 
 .btn--dark {
   background-color: var(--color-bg-dark);
   color: var(--color-text-white);
+}
+
+/* On a pine button, the fill is lime, as the chip button's is. */
+.btn--dark .btn__overlay {
+  background-color: var(--color-bg-accent);
+  color: var(--color-ink);
 }
 
 .btn--muted {

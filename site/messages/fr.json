@@ -6,7 +6,12 @@
   "home": {
     "nav": {
       "label": "Principale",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "howItWorks": "Comment ça marche",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "start": "Essai gratuit"
     },
     "hero": {
       "label": "/ Le suivi en magasin",

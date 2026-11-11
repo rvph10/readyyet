@@ -6,7 +6,12 @@
   "home": {
     "nav": {
       "label": "Hoofdmenu",
-      "signIn": "Aanmelden"
+      "signIn": "Aanmelden",
+      "howItWorks": "Hoe het werkt",
+      "features": "Functies",
+      "pricing": "Prijzen",
+      "faq": "FAQ",
+      "start": "Gratis proberen"
     },
     "hero": {
       "label": "/ Opvolging in de winkel",
