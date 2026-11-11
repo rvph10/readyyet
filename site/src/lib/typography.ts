@@ -5,22 +5,27 @@ const isWord = (t: string) => /[\p{L}\p{N}]/u.test(t);
 
 const hard = (w: string) => w.replace(/-/g, NB_HYPHEN);
 
+const OPENING = /^[«“‘(/]+$/;
+
 // Punctuation that stands alone, like French's spaced "?" or ":", is glued
-// to its word so it can't start a line by itself.
+// to the word before it so it can't start a line; an opening mark such as
+// "«" is glued to the word after it.
 function toWords(tokens: string[]): string[] {
   const words: string[] = [];
-  let pending = "";
+  let opening = "";
   for (const t of tokens) {
-    if (!isWord(t)) {
-      pending = pending ? `${pending}${NBSP}${t}` : t;
-      continue;
+    if (isWord(t)) {
+      words.push(opening ? `${opening}${NBSP}${t}` : t);
+      opening = "";
+    } else if (OPENING.test(t) || !words.length) {
+      opening = opening ? `${opening}${NBSP}${t}` : t;
+    } else {
+      words[words.length - 1] += `${NBSP}${t}`;
     }
-    words.push(pending ? `${pending}${NBSP}${t}` : t);
-    pending = "";
   }
-  if (pending) {
-    if (words.length) words[words.length - 1] += `${NBSP}${pending}`;
-    else words.push(pending);
+  if (opening) {
+    if (words.length) words[words.length - 1] += `${NBSP}${opening}`;
+    else words.push(opening);
   }
   return words;
 }
