@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" fill="none" role="img" aria-label="Notification: Tap to Pay charge of $86.50 on a Visa card ending 4242">
-  <rect width="44" height="44" x="14" y="14" fill="#ffde50" rx="12"/>
-  <path stroke="#0d0d0d" stroke-linecap="round" stroke-width="2.2" d="M28.7 29.5a9 9 0 0 1 0 13M33.2 26a14 14 0 0 1 0 20M37.7 22.5a19 19 0 0 1 0 27"/>
-  <text x="70" y="32" fill="#fff" font-size="15" font-weight="600">Tap to Pay</text>
-  <text x="286" y="32" fill="#fff" font-size="15" font-weight="600" text-anchor="end">$86.50</text>
-  <text x="70" y="51" fill="#fff" fill-opacity=".55" font-size="12.5">Visa •••• 4242 · In store</text>
-</svg>

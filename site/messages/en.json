@@ -17,7 +17,63 @@
       "label": "/ Tracking for shops",
       "title": "Your customers know when it's ready",
       "lede": "Dropped off, in progress, ready: they follow their item online, with no call to the shop and no account to create.",
-      "artLabel": "A phone showing the tracking of an item left at a shop"
+      "artLabel": "A shop's ReadyYet app: today's Tickets, one Ticket moved to Ready, and the email sent to the customer.",
+      "phone": {
+        "hello": "Morning, Sofie",
+        "shop": "Atelier Sofie",
+        "today": "Today",
+        "active": "in progress",
+        "readyCount": "3 ready",
+        "status": "Status",
+        "due": "Due",
+        "step": "Step",
+        "t1": {
+          "item": "Watch",
+          "customer": "Marc Dubois",
+          "status": "Ready",
+          "due": "Nov 12",
+          "step": "4/4"
+        },
+        "t2": {
+          "item": "Suit",
+          "customer": "Léa Vermeulen",
+          "status": "Cleaning",
+          "due": "Nov 13",
+          "step": "2/3"
+        },
+        "t3": {
+          "item": "Shoes",
+          "customer": "Tom Bastin",
+          "status": "Resoling",
+          "due": "Nov 15",
+          "step": "2/4"
+        },
+        "t4": {
+          "item": "Leather jacket",
+          "customer": "Sofie Peeters",
+          "status": "Being repaired",
+          "due": "Nov 14",
+          "step": "2/4"
+        },
+        "dueOn": "Due Nov 14",
+        "ticket": "Ticket",
+        "emails": "Emails sent",
+        "week": "This week",
+        "created": "Tickets created this week",
+        "tickets": "Tickets",
+        "days": ["M", "T", "W", "T", "F", "S", "S"],
+        "slide": "Mark as Ready",
+        "emailed": "Email sent to Sofie"
+      },
+      "float": {
+        "createdTitle": "Ticket #129 created",
+        "createdText": "Tracking link sent to Marc",
+        "qrTitle": "QR code handed to Léa",
+        "qrText": "Ticket #130 · Suit",
+        "readyTitle": "Leather jacket · Sofie",
+        "readyText": "Being repaired",
+        "doneText": "“It's ready” email sent"
+      }
     },
     "cta": {
       "start": "Try it free for 14 days",

@@ -207,7 +207,6 @@
   text-rendering: geometricPrecision;
 }
 
-.hero__burst,
 .hero__floats {
   display: none;
 }
@@ -365,28 +364,6 @@
         calc(-1 * var(--fill) * max(0px, 100vh - var(--rest-top) - 598 * var(--u-rest) + var(--radius-panel))) round
         calc((1 - var(--open)) * var(--radius-panel))
     );
-  }
-
-  .hero__burst {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    visibility: hidden;
-    background-color: var(--color-bg-dark);
-    pointer-events: none;
-  }
-
-  .hero__burst-pill {
-    position: absolute;
-    display: grid;
-    place-items: center;
-    background-color: var(--color-bg-accent);
-  }
-
-  .hero__burst-pill img {
-    width: auto;
-    height: 50%;
   }
 }
 

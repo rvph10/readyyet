@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" fill="none" role="img" aria-label="Notification: payment received, plus $240.00 from an online checkout">
-  <rect width="44" height="44" x="14" y="14" fill="#109f00" fill-opacity=".12" rx="12"/>
-  <path stroke="#109f00" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="m27.5 36.5 5.5 5.5L45 30"/>
-  <text x="70" y="32" fill="#131313" font-size="15" font-weight="600">Payment received</text>
-  <text x="286" y="32" fill="#109f00" font-size="15" font-weight="600" text-anchor="end">+$240.00</text>
-  <text x="70" y="51" fill="#131313" fill-opacity=".5" font-size="12.5">Online checkout · Just now</text>
-</svg>

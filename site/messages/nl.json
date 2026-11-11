@@ -17,7 +17,63 @@
       "label": "/ Opvolging in de winkel",
       "title": "Uw klanten weten wanneer het klaar is",
       "lede": "Binnengebracht, in behandeling, klaar: ze volgen hun spullen online, zonder naar de winkel te bellen en zonder account.",
-      "artLabel": "Een telefoon die de opvolging toont van iets dat in de winkel is binnengebracht"
+      "artLabel": "De ReadyYet-app van een winkel: de Tickets van vandaag, een Ticket dat op Klaar komt en de e-mail aan de klant.",
+      "phone": {
+        "hello": "Goeiedag Sofie",
+        "shop": "Atelier Sofie",
+        "today": "Vandaag",
+        "active": "lopend",
+        "readyCount": "3 klaar",
+        "status": "Status",
+        "due": "Verwacht",
+        "step": "Stap",
+        "t1": {
+          "item": "Horloge",
+          "customer": "Marc Dubois",
+          "status": "Klaar",
+          "due": "12 nov.",
+          "step": "4/4"
+        },
+        "t2": {
+          "item": "Kostuum",
+          "customer": "Léa Vermeulen",
+          "status": "Reiniging",
+          "due": "13 nov.",
+          "step": "2/3"
+        },
+        "t3": {
+          "item": "Schoenen",
+          "customer": "Tom Bastin",
+          "status": "Nieuwe zolen",
+          "due": "15 nov.",
+          "step": "2/4"
+        },
+        "t4": {
+          "item": "Leren jas",
+          "customer": "Sofie Peeters",
+          "status": "In herstelling",
+          "due": "14 nov.",
+          "step": "2/4"
+        },
+        "dueOn": "Verwacht op 14 nov.",
+        "ticket": "Ticket",
+        "emails": "E-mails verstuurd",
+        "week": "Deze week",
+        "created": "Tickets aangemaakt deze week",
+        "tickets": "Tickets",
+        "days": ["M", "D", "W", "D", "V", "Z", "Z"],
+        "slide": "Op Klaar zetten",
+        "emailed": "E-mail verstuurd naar Sofie"
+      },
+      "float": {
+        "createdTitle": "Ticket #129 aangemaakt",
+        "createdText": "Opvolglink verstuurd naar Marc",
+        "qrTitle": "QR-code gegeven aan Léa",
+        "qrText": "Ticket #130 · Kostuum",
+        "readyTitle": "Leren jas · Sofie",
+        "readyText": "In herstelling",
+        "doneText": "E-mail “Het is klaar” verstuurd"
+      }
     },
     "cta": {
       "start": "14 dagen gratis proberen",
