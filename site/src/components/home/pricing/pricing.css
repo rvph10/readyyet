@@ -1,0 +1,85 @@
+/* Miros' pricing in Ledger's look (ADR 0133), overridden on its wrapper. Its
+   own rules stay as bought, in src/temlis/miros-681. Essentiel is a white
+   card, Pro a lime one, the intro pine. */
+
+[data-temlis="miros-681"] {
+  --brand--neutral-dark: #1e1e1e;
+  --brand--neutral: #565656;
+  --brand--neon-green: #d6ff53;
+  --bg-color--bg-secondary: var(--color-bg-page);
+  --bg-color--bg-primary: var(--color-bg-white);
+  --bg-color--bg-tertiary: var(--color-bg-dark);
+
+  font-family: var(--font-body);
+}
+
+[data-temlis="miros-681"] :is(.text-6xl, .text-5xl, .text-3xl) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="miros-681"] .text-6xl {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* Momo Trust Display has no italic: the emphasis is the lime instead. */
+[data-temlis="miros-681"] em {
+  font-style: normal;
+}
+
+[data-temlis="miros-681"] .pricing_card.is-secondary em {
+  color: var(--color-bg-accent);
+}
+
+[data-temlis="miros-681"] .pricing_card.is-three {
+  background-color: var(--color-bg-accent);
+}
+
+[data-temlis="miros-681"] .pricing_card.is-three .text-color-secondary {
+  color: var(--color-ink);
+}
+
+/* Miros resets links, which would strip Ledger's button of its pine. */
+[data-temlis="miros-681"] .btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  [data-temlis="miros-681"] .btn--dark.btn--chip:hover {
+    color: var(--color-ink);
+  }
+}
+
+/* On the lime Pro card, the button's own lime fill would vanish: it fills
+   white there. */
+[data-temlis="miros-681"] .pricing_card.is-three .btn--chip::before {
+  background-color: var(--color-bg-white);
+}
+
+@media (max-width: 991px) {
+  [data-temlis="miros-681"] .text-6xl {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-temlis="miros-681"] .text-6xl {
+    font-size: 2.125rem;
+  }
+}
+
+/* Without scripts the cards would stay hidden: they show after 4 s, as the
+   hero's entrances do (globals.css). */
+@keyframes miros-reveal-fallback {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-temlis="miros-681"] .reveal-ready [data-reveal]:not(.is-revealed) {
+  animation: miros-reveal-fallback 0s 4s forwards;
+}

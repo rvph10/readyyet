@@ -46,6 +46,7 @@ export function HomeMotion() {
         "/temlis/lumoras-699/animations.js",
         "/temlis/lumoras-699/slider.js",
         "/temlis/ledger-781/animations.js",
+        "/temlis/miros-681/animations.js",
       ]);
     }
 

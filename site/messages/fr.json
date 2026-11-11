@@ -124,6 +124,31 @@
         "title": "Votre veste est prête",
         "text": "Atelier Sofie · à l'instant"
       }
+    },
+    "pricing": {
+      "title": "Un prix simple, par magasin",
+      "idealFor": "Idéal pour",
+      "start": "Commencer l'essai",
+      "intro": {
+        "titleStart": "14 jours",
+        "titleEnd": "pour essayer",
+        "text": "Toutes les fonctionnalités pendant 14 jours, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
+        "start": "Commencer l'essai gratuit"
+      },
+      "essentiel": {
+        "name": "Essentiel",
+        "price": "29 €",
+        "per": "par mois et par magasin, ou 290 € par an",
+        "includes": "Page de suivi et emails automatiques, 2 membres d'équipe, les étapes par défaut de votre métier.",
+        "idealFor": "Un magasin avec une petite équipe, qui veut que ses clients arrêtent d'appeler."
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "49 €",
+        "per": "par mois et par magasin, ou 490 € par an",
+        "includes": "Tout Essentiel, avec une équipe illimitée, vos propres étapes, les retours privés et les demandes d'avis Google.",
+        "idealFor": "Les ateliers qui ont leur façon de travailler et veulent plus d'avis."
+      }
     }
   }
 }

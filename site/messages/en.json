@@ -124,6 +124,31 @@
         "title": "Your jacket is ready",
         "text": "Atelier Sofie · just now"
       }
+    },
+    "pricing": {
+      "title": "Simple pricing, per shop",
+      "idealFor": "Ideal for",
+      "start": "Start the trial",
+      "intro": {
+        "titleStart": "14 days",
+        "titleEnd": "to try it",
+        "text": "Every feature for 14 days, no card needed. After that, one subscription per shop, monthly or yearly, cancelled at the end of the period.",
+        "start": "Start the free trial"
+      },
+      "essentiel": {
+        "name": "Essentiel",
+        "price": "€29",
+        "per": "per month per shop, or €290 a year",
+        "includes": "Tracking page and automatic emails, 2 team members, your trade's default steps.",
+        "idealFor": "A shop with a small team that wants customers to stop calling."
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€49",
+        "per": "per month per shop, or €490 a year",
+        "includes": "Everything in Essentiel, plus an unlimited team, your own steps, private feedback and Google review requests.",
+        "idealFor": "Workshops with their own way of working that want more reviews."
+      }
     }
   }
 }
