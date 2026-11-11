@@ -140,11 +140,23 @@
     "promise": {
       "label": "/ Waarom ReadyYet",
       "statement": "Elk telefoontje met „is het al klaar?” is een onderbreking voor u en wachten voor uw klant. ReadyYet geeft het antwoord nog voor de vraag gesteld wordt.",
-      "note": "Niets te installeren voor uw klanten, niets te leren voor uw team. U maakt uw eerste Ticket in enkele minuten aan en de klant krijgt meteen zijn link.",
       "cta": "Bekijk hoe het werkt",
-      "art": {
-        "title": "Uw jas is klaar",
-        "text": "Atelier Sofie · zonet"
+      "stats": {
+        "one": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Cijfer in te vullen]"
+        },
+        "two": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Cijfer in te vullen]"
+        },
+        "three": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Cijfer in te vullen]"
+        }
       }
     },
     "pricing": {

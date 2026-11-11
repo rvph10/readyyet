@@ -44,7 +44,7 @@ export function HomeMotion() {
         "/temlis/wilun-559/motion.js",
         "/temlis/lumoras-699/animations.js",
         "/temlis/lumoras-699/slider.js",
-        "/temlis/ledger-781/animations.js",
+        "/temlis/serenium-587/motion.js",
         "/temlis/miros-681/animations.js",
         "/temlis/strivo-833/animations.js",
         "/temlis/ledger-783/animations.js",

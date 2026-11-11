@@ -140,11 +140,23 @@
     "promise": {
       "label": "/ Why ReadyYet",
       "statement": "Every “is it ready yet?” call is an interruption for you and a wait for your customer. ReadyYet answers before they even ask.",
-      "note": "Nothing for your customers to install, nothing for your team to learn. You create your first Ticket in minutes, and the customer gets their link straight away.",
       "cta": "See how it works",
-      "art": {
-        "title": "Your jacket is ready",
-        "text": "Atelier Sofie · just now"
+      "stats": {
+        "one": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Figure to set]"
+        },
+        "two": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Figure to set]"
+        },
+        "three": {
+          "value": "0",
+          "unit": "+",
+          "label": "[Figure to set]"
+        }
       }
     },
     "pricing": {

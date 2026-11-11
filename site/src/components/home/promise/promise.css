@@ -1,29 +1,53 @@
-/* Ledger's dark about band in pine and lime (ADR 0133), overridden on its
-   wrapper. Its own rules stay as bought, in src/temlis/ledger-781. */
+/* Serenium's stats band in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/serenium-587. */
 
-[data-temlis="ledger-781"] {
-  --color-ink: #1e1e1e;
-  --color-bg-dark: #17423a;
-  --color-bg-accent: #d6ff53;
-  /* The note is real information, so it stays readable on pine. */
-  --color-text-muted: rgba(255, 255, 255, 0.78);
-  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
-}
+[data-temlis="serenium-587"] {
+  /* Ledger's fixed rem instead of Serenium's size that grows with the window. */
+  --temlis-rem: 1rem;
+  --background-color--bg-secondary: var(--color-bg-dark);
+  --background-color--bg-primary: rgba(255, 255, 255, 0.24);
+  --text-color--text-secondary: var(--color-text-white);
+  --text-color--text-tertiary: var(--color-bg-accent);
+  --link-color--link-alternate: var(--color-text-white);
 
-[data-temlis="ledger-781"] .promise-art {
   font-family: var(--font-body);
 }
 
-/* As the hero's entrances (globals.css). */
-@media (prefers-reduced-motion: no-preference) {
-  html[data-enter] [data-temlis="ledger-781"] :is(.about__statement, .about__media):not(.is-revealed) {
-    animation: enter-fallback 0s 4s forwards;
-  }
+/* A panel inset like the hero's, with the page's content width inside. */
+[data-temlis="serenium-587"] .section_statistics {
+  margin-inline: var(--container-bleed);
+  border-radius: var(--radius-container);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html[data-enter] [data-temlis="ledger-781"] :is(.about__statement, .about__media) {
-    visibility: visible;
+[data-temlis="serenium-587"] .container-large {
+  max-width: calc(var(--section-max) + 2 * var(--section-gutter));
+}
+
+[data-temlis="serenium-587"] .padding-global {
+  padding-inline: var(--section-gutter);
+}
+
+[data-temlis="serenium-587"] .stats_number {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+[data-temlis="serenium-587"] .description_wrapper {
+  max-width: 28rem;
+}
+
+[data-temlis="serenium-587"] .description_wrapper .text-base {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+[data-temlis="serenium-587"] .section-label {
+  color: var(--color-bg-accent);
+}
+
+@media (max-width: 767px) {
+  [data-temlis="serenium-587"] .description_wrapper {
+    max-width: none;
   }
 }
