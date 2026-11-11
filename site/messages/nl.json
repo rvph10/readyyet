@@ -161,27 +161,23 @@
     },
     "pricing": {
       "title": "Eenvoudige prijzen, per winkel",
-      "idealFor": "Ideaal voor",
+      "intro": "14 dagen om alles te proberen, zonder bankkaart. Daarna één abonnement per winkel, per maand of per jaar, opzegbaar aan het einde van de periode.",
+      "perMonth": "/maand",
+      "popular": "Populair",
       "start": "Start de proefperiode",
-      "intro": {
-        "titleStart": "14 dagen",
-        "titleEnd": "om te proberen",
-        "text": "Alle functies gedurende 14 dagen, zonder bankkaart. Daarna één abonnement per winkel, per maand of per jaar, opzegbaar tegen het einde van de periode.",
-        "start": "Start de gratis proefperiode"
-      },
       "essentiel": {
         "name": "Essentiel",
         "price": "€ 29",
-        "per": "per maand per winkel, of € 290 per jaar",
-        "includes": "Opvolgpagina en automatische e-mails, 2 teamleden, de standaardstappen van uw vak.",
-        "idealFor": "Een winkel met een klein team die wil dat klanten stoppen met bellen."
+        "yearly": "of € 290 per jaar, 2 maanden gratis",
+        "pitch": "Voor een winkel met een klein team die wil dat klanten stoppen met bellen.",
+        "items": ["Opvolgpagina en QR-code", "Automatische e-mails", "2 teamleden", "De stappen van uw vak"]
       },
       "pro": {
         "name": "Pro",
         "price": "€ 49",
-        "per": "per maand per winkel, of € 490 per jaar",
-        "includes": "Alles van Essentiel, plus een onbeperkt team, uw eigen stappen, privéfeedback en verzoeken om Google-reviews.",
-        "idealFor": "Werkplaatsen met hun eigen werkwijze die meer reviews willen."
+        "yearly": "of € 490 per jaar, 2 maanden gratis",
+        "pitch": "Voor ateliers met hun eigen werkwijze die meer reviews willen.",
+        "items": ["Alles van Essentiel", "Onbeperkt team", "Uw eigen stappen", "Privéfeedback en Google-reviews"]
       }
     },
     "faq": {

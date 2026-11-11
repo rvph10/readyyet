@@ -1,85 +1,78 @@
-/* Miros' pricing in Ledger's look (ADR 0133), overridden on its wrapper. Its
-   own rules stay as bought, in src/temlis/miros-681. Essentiel is a white
-   card, Pro a lime one, the intro pine. */
+/* Contelas' pricing in Ledger's look (ADR 0133), overridden on its wrapper.
+   Its own rules stay as bought, in src/temlis/contelas-518. Essentiel sits in
+   a grey frame, Pro in a pine one. */
 
-[data-temlis="miros-681"] {
-  --brand--neutral-dark: #1e1e1e;
-  --brand--neutral: #565656;
-  --brand--neon-green: #d6ff53;
-  --bg-color--bg-secondary: var(--color-bg-page);
-  --bg-color--bg-primary: var(--color-bg-white);
-  --bg-color--bg-tertiary: var(--color-bg-dark);
+[data-temlis="contelas-518"] {
+  --base--black: var(--color-ink);
+  --base--yellow: var(--color-bg-accent);
+  --bg-color--bg-default: var(--color-bg-page);
+  --bg-color--bg-primary: var(--color-surface-muted);
+  --bg-color--bg-dark: var(--color-bg-dark);
+  --grey--grey-400: var(--color-text-secondary);
+  --_typography---font-family--headers: var(--font-display);
+  --_typography---font-family--body: var(--font-body);
+  --_sizes---padding-section--medium: var(--section-space);
 
   font-family: var(--font-body);
 }
 
-[data-temlis="miros-681"] :is(.text-6xl, .text-5xl, .text-3xl) {
+[data-temlis="contelas-518"] .padding-global {
+  padding-inline: var(--section-gutter);
+}
+
+[data-temlis="contelas-518"] .container-small {
+  max-width: 56rem;
+}
+
+[data-temlis="contelas-518"] h2 {
+  font-size: var(--section-heading);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="contelas-518"] .header .text-color-secondary {
+  max-width: 36rem;
+  font-size: 1.125rem;
+}
+
+[data-temlis="contelas-518"] .text-5xl {
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.03em;
 }
 
-[data-temlis="miros-681"] .text-6xl {
-  font-size: 3rem;
-  line-height: 1;
+[data-temlis="contelas-518"] .text-lg {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
-/* Momo Trust Display has no italic: the emphasis is the lime instead. */
-[data-temlis="miros-681"] em {
-  font-style: normal;
+[data-temlis="contelas-518"] .text-sm {
+  font-size: 1rem;
 }
 
-[data-temlis="miros-681"] .pricing_card.is-secondary em {
-  color: var(--color-bg-accent);
-}
-
-[data-temlis="miros-681"] .pricing_card.is-three {
-  background-color: var(--color-bg-accent);
-}
-
-[data-temlis="miros-681"] .pricing_card.is-three .text-color-secondary {
-  color: var(--color-ink);
-}
-
-/* Miros resets links, which would strip Ledger's button of its pine. */
-[data-temlis="miros-681"] .btn--dark {
+/* Contelas resets every link to a transparent background, which would strip
+   Ledger's button of its pine. It spans the card, as Contelas' did. */
+[data-temlis="contelas-518"] .btn--dark {
+  width: 100%;
+  justify-content: space-between;
   background-color: var(--color-bg-dark);
   color: var(--color-text-white);
 }
 
 @media (min-width: 992px) and (hover: hover) and (pointer: fine) {
-  [data-temlis="miros-681"] .btn--dark.btn--chip:hover {
+  [data-temlis="contelas-518"] .btn--dark.btn--chip:hover {
     color: var(--color-ink);
   }
 }
 
-/* On the lime Pro card, the button's own lime fill would vanish: it fills
-   white there. */
-[data-temlis="miros-681"] .pricing_card.is-three .btn--chip::before {
-  background-color: var(--color-bg-white);
+[data-temlis="contelas-518"] .tag {
+  width: 8rem;
+  height: auto;
 }
 
-@media (max-width: 991px) {
-  [data-temlis="miros-681"] .text-6xl {
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 767px) {
-  [data-temlis="miros-681"] .text-6xl {
-    font-size: 2.125rem;
-  }
-}
-
-/* Without scripts the cards would stay hidden: they show after 4 s, as the
-   hero's entrances do (globals.css). */
-@keyframes miros-reveal-fallback {
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-[data-temlis="miros-681"] .reveal-ready [data-reveal]:not(.is-revealed) {
-  animation: miros-reveal-fallback 0s 4s forwards;
+[data-temlis="contelas-518"] .tag text {
+  font-family: var(--font-body);
 }

@@ -161,27 +161,23 @@
     },
     "pricing": {
       "title": "Un prix simple, par magasin",
-      "idealFor": "Idéal pour",
+      "intro": "14 jours pour tout essayer, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
+      "perMonth": "/mois",
+      "popular": "Populaire",
       "start": "Commencer l'essai",
-      "intro": {
-        "titleStart": "14 jours",
-        "titleEnd": "pour essayer",
-        "text": "Toutes les fonctionnalités pendant 14 jours, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
-        "start": "Commencer l'essai gratuit"
-      },
       "essentiel": {
         "name": "Essentiel",
         "price": "29 €",
-        "per": "par mois et par magasin, ou 290 € par an",
-        "includes": "Page de suivi et emails automatiques, 2 membres d'équipe, les étapes par défaut de votre métier.",
-        "idealFor": "Un magasin avec une petite équipe, qui veut que ses clients arrêtent d'appeler."
+        "yearly": "ou 290 € par an, 2 mois offerts",
+        "pitch": "Pour un magasin avec une petite équipe, qui veut que ses clients arrêtent d'appeler.",
+        "items": ["Page de suivi et QR code", "Emails automatiques", "2 membres d'équipe", "Les étapes de votre métier"]
       },
       "pro": {
         "name": "Pro",
         "price": "49 €",
-        "per": "par mois et par magasin, ou 490 € par an",
-        "includes": "Tout Essentiel, avec une équipe illimitée, vos propres étapes, les retours privés et les demandes d'avis Google.",
-        "idealFor": "Les ateliers qui ont leur façon de travailler et veulent plus d'avis."
+        "yearly": "ou 490 € par an, 2 mois offerts",
+        "pitch": "Pour les ateliers qui ont leur façon de travailler et veulent plus d'avis.",
+        "items": ["Tout Essentiel", "Équipe illimitée", "Vos propres étapes", "Retours privés et avis Google"]
       }
     },
     "faq": {
