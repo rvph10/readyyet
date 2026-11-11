@@ -9,7 +9,9 @@ import tseslint from "typescript-eslint";
 // run on: typescript-eslint doesn't support TypeScript 7 yet, which
 // packages/* build with.
 export default defineConfig(
-  { ignores: ["**/dist/", "**/generated/", "**/node_modules/", "**/.next/", "**/next-env.d.ts"] },
+  {
+    ignores: ["**/dist/", "**/generated/", "**/node_modules/", "**/.next/", "**/next-env.d.ts", "site/public/temlis/"],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {

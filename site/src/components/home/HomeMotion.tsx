@@ -5,6 +5,7 @@ import { startEntrances } from "@/lib/motion/entrances";
 import { startFillButtons } from "@/lib/motion/fill-buttons";
 import { startHeroScroll } from "@/lib/motion/hero-scroll";
 import { startSmoothScroll } from "@/lib/motion/smooth-scroll";
+import { startTemlisSections } from "@/lib/motion/temlis";
 
 // The entrances split and hide elements as they run, so they must only ever
 // start once per page, even when React mounts this twice in development.
@@ -33,6 +34,7 @@ export function HomeMotion() {
       startSmoothScroll();
       startFillButtons();
       void startEntrances();
+      void startTemlisSections(["/temlis/payable-626/animations.js"]);
     }
 
     return () => {

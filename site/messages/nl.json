@@ -22,6 +22,42 @@
     "cta": {
       "start": "14 dagen gratis proberen",
       "pricing": "Bekijk de prijzen"
+    },
+    "steps": {
+      "badge": "In drie stappen",
+      "title": "Drie stappen, geen telefoontjes",
+      "intro": "U registreert het stuk aan de toonbank, uw klant volgt het online en komt terug zodra het klaar is. Geen app te installeren, geen account aan te maken.",
+      "stepLabel": "Stap {n}",
+      "step1": {
+        "title": "U registreert het stuk",
+        "text": "Aan de toonbank, in enkele seconden: de klant, het stuk, de verwachte datum. De klant krijgt een opvolglink per e-mail of via QR-code."
+      },
+      "step2": {
+        "title": "Uw klant volgt mee",
+        "text": "Elke stap die u afvinkt, verschijnt op de opvolgpagina. Uw klant ziet hoe ver het staat, zonder te bellen."
+      },
+      "step3": {
+        "title": "Terugkomen als het klaar is",
+        "text": "Zodra u het Ticket op Klaar zet, krijgt uw klant een e-mail. Ophalen zonder een vergeefse rit."
+      },
+      "art": {
+        "customer": "Klant",
+        "qr": "QR-code",
+        "item": "Leren jas",
+        "due": "Klaar op 14 nov.",
+        "create": "Aanmaken",
+        "yourItem": "Uw stuk",
+        "dropped": "Binnengebracht",
+        "diagnosis": "Diagnose",
+        "repairing": "In herstelling",
+        "ready": "Klaar",
+        "scan": "Scan om te volgen",
+        "ticket": "Ticket #128",
+        "inProgress": "Bezig",
+        "readyAt": "Vandaag om 16:28",
+        "readyTitle": "Het is klaar!",
+        "emailSent": "E-mail net verstuurd"
+      }
     }
   }
 }

@@ -22,6 +22,42 @@
     "cta": {
       "start": "Essai gratuit de 14 jours",
       "pricing": "Voir les tarifs"
+    },
+    "steps": {
+      "badge": "En trois étapes",
+      "title": "Trois étapes, zéro coup de fil",
+      "intro": "Vous enregistrez l'article au comptoir, votre client le suit en ligne et revient quand c'est prêt. Pas d'application à installer, pas de compte à créer.",
+      "stepLabel": "Étape {n}",
+      "step1": {
+        "title": "Vous enregistrez l'article",
+        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par email ou par QR code."
+      },
+      "step2": {
+        "title": "Votre client suit l'avancement",
+        "text": "Chaque étape que vous validez s'affiche sur sa page de suivi. Il sait où en est son article sans vous appeler."
+      },
+      "step3": {
+        "title": "Il revient quand c'est prêt",
+        "text": "Dès que vous passez le Ticket à Prêt, il est prévenu par email. Il vient le chercher, sans déplacement pour rien."
+      },
+      "art": {
+        "customer": "Cliente",
+        "qr": "QR code",
+        "item": "Veste en cuir",
+        "due": "Prête le 14 nov.",
+        "create": "Créer",
+        "yourItem": "Votre article",
+        "dropped": "Déposé",
+        "diagnosis": "Diagnostic",
+        "repairing": "En réparation",
+        "ready": "Prêt",
+        "scan": "Scannez pour suivre",
+        "ticket": "Ticket #128",
+        "inProgress": "En cours",
+        "readyAt": "Aujourd'hui à 16:28",
+        "readyTitle": "C'est prêt !",
+        "emailSent": "Email envoyé à l'instant"
+      }
     }
   }
 }

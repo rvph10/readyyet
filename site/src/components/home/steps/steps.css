@@ -1,0 +1,60 @@
+/* Payable's steps in Ledger's look (ADR 0133): its variables and the rules
+   that aren't variables, overridden on its wrapper. Its own rules stay as
+   bought, in src/temlis/payable-626/styles.css. */
+
+[data-temlis="payable-626"] {
+  /* Ledger's fixed rem instead of Payable's size that grows with the window. */
+  --temlis-rem: 1rem;
+  --brand--gray-70: var(--color-bg-page);
+  --brand--neutral-dark: var(--color-ink);
+  --brand--neutral: var(--color-text-secondary);
+  --brand--dark-green: var(--color-bg-dark);
+  --brand--light-green: var(--color-bg-accent);
+  --brand--sky-blue: #e2eee9;
+
+  font-family: var(--font-body);
+}
+
+[data-temlis="payable-626"] .steps_header .text-5xl {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="payable-626"] .steps_card h3.text-2xl {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="payable-626"] .badge-secondary_icon_wrap {
+  background-color: transparent;
+  border: none;
+}
+
+[data-temlis="payable-626"] .visual-front {
+  box-shadow: none;
+}
+
+[data-temlis="payable-626"] .step-art {
+  font-family: var(--font-body);
+}
+
+@media (max-width: 991px) {
+  [data-temlis="payable-626"] .steps_header .text-5xl {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-temlis="payable-626"] .steps_header .text-5xl {
+    font-size: 2.125rem;
+  }
+}
+
+@media (max-width: 479px) {
+  [data-temlis="payable-626"] .steps_header .text-5xl {
+    font-size: 1.75rem;
+  }
+}

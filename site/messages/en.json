@@ -22,6 +22,42 @@
     "cta": {
       "start": "Try it free for 14 days",
       "pricing": "See pricing"
+    },
+    "steps": {
+      "badge": "In three steps",
+      "title": "Three steps, no phone calls",
+      "intro": "You log the item at the counter, your customer follows it online and comes back when it's ready. No app to install, no account to create.",
+      "stepLabel": "Step {n}",
+      "step1": {
+        "title": "You log the item",
+        "text": "At the counter, in seconds: the customer, the item, the expected date. They get their tracking link by email or QR code."
+      },
+      "step2": {
+        "title": "Your customer follows along",
+        "text": "Every step you mark shows up on their tracking page. They know where their item is without calling you."
+      },
+      "step3": {
+        "title": "They come back when it's ready",
+        "text": "The moment you set the Ticket to Ready, they get an email. They come to collect it, no wasted trip."
+      },
+      "art": {
+        "customer": "Customer",
+        "qr": "QR code",
+        "item": "Leather jacket",
+        "due": "Ready on 14 Nov",
+        "create": "Create",
+        "yourItem": "Your item",
+        "dropped": "Dropped off",
+        "diagnosis": "Diagnosis",
+        "repairing": "Being repaired",
+        "ready": "Ready",
+        "scan": "Scan to follow",
+        "ticket": "Ticket #128",
+        "inProgress": "In progress",
+        "readyAt": "Today at 16:28",
+        "readyTitle": "It's ready!",
+        "emailSent": "Email sent just now"
+      }
     }
   }
 }
