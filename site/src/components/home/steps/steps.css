@@ -29,11 +29,6 @@
   letter-spacing: -0.03em;
 }
 
-[data-temlis="payable-626"] .badge-secondary_icon_wrap {
-  background-color: transparent;
-  border: none;
-}
-
 [data-temlis="payable-626"] .visual-front {
   box-shadow: none;
 }

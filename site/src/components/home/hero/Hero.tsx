@@ -19,7 +19,6 @@ export async function Hero() {
 
       <div className="hero__intro container container--padded">
         <div className="hero__head">
-          <p className="section-label hero__label">{t("label")}</p>
           <h1 className="t-display hero__title">{noOrphan(t("title"))}</h1>
           <p className="body-text hero__lede">{noOrphan(t("lede"))}</p>
         </div>

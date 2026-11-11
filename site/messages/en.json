@@ -14,7 +14,6 @@
       "start": "Start free trial"
     },
     "hero": {
-      "label": "/ For shoe repairers, dry cleaners and repair shops",
       "title": "Your customers track their repair online and know when it's ready",
       "lede": "Dropped off, being repaired, ready: every step shows up on their phone, with no call to the shop and no account to create.",
       "artLabel": "A phone showing the tracking of an item left at a shop"
@@ -24,7 +23,6 @@
       "pricing": "See pricing"
     },
     "steps": {
-      "badge": "In three steps",
       "title": "From drop-off to pickup",
       "intro": "You log the item, ReadyYet keeps your customer posted, and they come back at the right time.",
       "stepLabel": "Step {n}",

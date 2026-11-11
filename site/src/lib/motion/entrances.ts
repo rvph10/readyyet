@@ -98,7 +98,6 @@ function stage(box: Target) {
 
 function hero() {
   const nav = $(".nav");
-  const label = $(".hero__label");
   const title = $(".hero__title");
   const lede = $(".hero__lede");
   const cta = $(".hero .cta");
@@ -107,10 +106,10 @@ function hero() {
   if (!title) return;
 
   const lines = split(title, { type: "lines" });
-  const sequence = [nav, label, ...(lines.lines as HTMLElement[]), lede, ...buttons].filter(Boolean) as HTMLElement[];
+  const sequence = [nav, ...(lines.lines as HTMLElement[]), lede, ...buttons].filter(Boolean) as HTMLElement[];
   gsap.set(sequence, { autoAlpha: 0, y: 28 });
   stage(box);
-  show(nav, label, title, lede, cta, box);
+  show(nav, title, lede, cta, box);
 
   gsap.to(sequence, {
     autoAlpha: 1,

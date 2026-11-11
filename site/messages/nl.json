@@ -14,7 +14,6 @@
       "start": "Gratis proberen"
     },
     "hero": {
-      "label": "/ Voor schoenmakers, droogkuis en herstellers",
       "title": "Uw klanten volgen hun herstelling online en weten wanneer het klaar is",
       "lede": "Binnengebracht, in herstelling, klaar: elke stap verschijnt op hun telefoon, zonder naar de winkel te bellen en zonder account.",
       "artLabel": "Een telefoon die de opvolging toont van iets dat in de winkel is binnengebracht"
@@ -24,7 +23,6 @@
       "pricing": "Bekijk de prijzen"
     },
     "steps": {
-      "badge": "In drie stappen",
       "title": "Van afgifte tot ophaling",
       "intro": "U registreert het stuk, ReadyYet houdt uw klant op de hoogte en die komt terug op het juiste moment.",
       "stepLabel": "Stap {n}",

@@ -14,7 +14,6 @@
       "start": "Essai gratuit"
     },
     "hero": {
-      "label": "/ Pour les cordonniers, pressings et réparateurs",
       "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",
       "lede": "Déposé, en réparation, prêt : chaque étape s'affiche sur leur téléphone, sans appeler le magasin et sans créer de compte.",
       "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
@@ -24,7 +23,6 @@
       "pricing": "Voir les tarifs"
     },
     "steps": {
-      "badge": "En trois étapes",
       "title": "Du dépôt au retrait",
       "intro": "Vous enregistrez l'article, ReadyYet tient votre client au courant, et il revient au bon moment.",
       "stepLabel": "Étape {n}",

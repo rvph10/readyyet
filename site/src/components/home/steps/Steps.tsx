@@ -48,16 +48,6 @@ export async function Steps() {
               <div className="container-medium">
                 <div className="steps_wrap">
                   <div className="steps_header" data-anim-group="">
-                    <div className="steps_badge-wrap" data-anim="pop">
-                      <div className="badge-secondary">
-                        <div className="badge-secondary_icon_wrap">
-                          <img src="/home/logo.svg" loading="lazy" alt="" className="icon-1x1-small" />
-                        </div>
-                        <div className="badge-secondary_text-wrap">
-                          <div className="text-sm">{t("badge")}</div>
-                        </div>
-                      </div>
-                    </div>
                     <h2 className="text-5xl text-align-center" data-anim="lines">
                       {noOrphan(t("title"))}
                     </h2>

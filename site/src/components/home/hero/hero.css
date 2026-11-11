@@ -23,19 +23,9 @@
   text-align: center;
 }
 
-/* A solid lime pill, the page's one signal before the title. */
-.hero__label {
-  padding: 0.25rem 0.875rem;
-  border-radius: 999px;
-  background-color: var(--color-bg-accent);
-  color: var(--color-bg-dark);
-  font-weight: 600;
-}
-
 /* The hero's title outranks every section heading, which share .t-display's
    size; its !important is matched here. */
 .hero__title.t-display {
-  margin-top: 0.75rem;
   font-size: clamp(2.5rem, 5.2vw, 4.75rem) !important;
   line-height: 1 !important;
   letter-spacing: -0.035em !important;
