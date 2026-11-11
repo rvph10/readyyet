@@ -149,6 +149,33 @@
         "includes": "Tout Essentiel, avec une équipe illimitée, vos propres étapes, les retours privés et les demandes d'avis Google.",
         "idealFor": "Les ateliers qui ont leur façon de travailler et veulent plus d'avis."
       }
+    },
+    "faq": {
+      "title": "Vos questions, nos réponses",
+      "app": {
+        "q": "Mes clients doivent-ils installer une application ?",
+        "a": "Non. Ils reçoivent un lien par email, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
+      },
+      "notified": {
+        "q": "Comment mon client est-il prévenu ?",
+        "a": "Par email : quand l'article est enregistré, quand la date prévue est repoussée et quand il est prêt. Il peut aussi ouvrir sa page de suivi quand il le veut."
+      },
+      "sms": {
+        "q": "Est-ce que ReadyYet envoie des SMS ?",
+        "a": "Non. Le suivi passe par email et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients."
+      },
+      "start": {
+        "q": "Combien de temps faut-il pour démarrer ?",
+        "a": "Quelques minutes. Vous créez votre magasin, les étapes de votre métier sont déjà prêtes, et vous enregistrez votre premier Ticket tout de suite."
+      },
+      "afterTrial": {
+        "q": "Que se passe-t-il après l'essai gratuit ?",
+        "a": "Vous choisissez Essentiel ou Pro pour chaque magasin. Sans abonnement, vos données restent là, mais vous ne pouvez plus créer de nouveaux Tickets."
+      },
+      "shops": {
+        "q": "Puis-je gérer plusieurs magasins ?",
+        "a": "Oui. Chaque magasin a son abonnement, son équipe et ses étapes, et vous passez de l'un à l'autre depuis le même compte."
+      }
     }
   }
 }

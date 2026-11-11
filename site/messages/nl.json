@@ -149,6 +149,33 @@
         "includes": "Alles van Essentiel, plus een onbeperkt team, uw eigen stappen, privéfeedback en verzoeken om Google-reviews.",
         "idealFor": "Werkplaatsen met hun eigen werkwijze die meer reviews willen."
       }
+    },
+    "faq": {
+      "title": "Uw vragen, onze antwoorden",
+      "app": {
+        "q": "Moeten mijn klanten een app installeren?",
+        "a": "Nee. Ze krijgen een link per e-mail, of scannen de QR-code die u hen geeft, en volgen hun stuk in de browser. Geen account, geen app."
+      },
+      "notified": {
+        "q": "Hoe krijgt mijn klant bericht?",
+        "a": "Per e-mail: wanneer het stuk geregistreerd is, wanneer de verwachte datum verschuift en wanneer het klaar is. De klant kan de opvolgpagina ook altijd zelf openen."
+      },
+      "sms": {
+        "q": "Stuurt ReadyYet sms'jes?",
+        "a": "Nee. De opvolging verloopt via e-mail en QR-code, wat niets extra kost, voor u noch voor uw klanten."
+      },
+      "start": {
+        "q": "Hoe lang duurt het om te starten?",
+        "a": "Enkele minuten. U maakt uw winkel aan, de stappen van uw vak staan al klaar en u registreert meteen uw eerste Ticket."
+      },
+      "afterTrial": {
+        "q": "Wat gebeurt er na de gratis proefperiode?",
+        "a": "U kiest Essentiel of Pro voor elke winkel. Zonder abonnement blijven uw gegevens bewaard, maar kunt u geen nieuwe Tickets aanmaken."
+      },
+      "shops": {
+        "q": "Kan ik meerdere winkels beheren?",
+        "a": "Ja. Elke winkel heeft een eigen abonnement, team en stappen, en u wisselt ertussen vanuit hetzelfde account."
+      }
     }
   }
 }

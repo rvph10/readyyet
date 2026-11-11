@@ -149,6 +149,33 @@
         "includes": "Everything in Essentiel, plus an unlimited team, your own steps, private feedback and Google review requests.",
         "idealFor": "Workshops with their own way of working that want more reviews."
       }
+    },
+    "faq": {
+      "title": "Questions, answered",
+      "app": {
+        "q": "Do my customers need to install an app?",
+        "a": "No. They get a link by email, or scan the QR code you hand them, and follow their item in their browser. No account, no app."
+      },
+      "notified": {
+        "q": "How does my customer hear about it?",
+        "a": "By email: when the item is logged, when the expected date moves back and when it's ready. They can also open their tracking page whenever they like."
+      },
+      "sms": {
+        "q": "Does ReadyYet send text messages?",
+        "a": "No. Tracking works by email and QR code, which costs nothing extra, for you or your customers."
+      },
+      "start": {
+        "q": "How long does it take to get started?",
+        "a": "A few minutes. You create your shop, your trade's steps are already set up, and you log your first Ticket straight away."
+      },
+      "afterTrial": {
+        "q": "What happens after the free trial?",
+        "a": "You pick Essentiel or Pro for each shop. Without a subscription your data stays, but you can't create new Tickets."
+      },
+      "shops": {
+        "q": "Can I run several shops?",
+        "a": "Yes. Each shop has its own subscription, team and steps, and you switch between them from the same account."
+      }
     }
   }
 }

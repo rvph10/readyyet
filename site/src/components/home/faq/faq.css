@@ -1,0 +1,54 @@
+/* Strivo's FAQ in Ledger's look (ADR 0133), overridden on its wrapper. Its
+   own rules stay as bought, in src/temlis/strivo-833. Questions sit in white
+   cards on the page's grey, with a pine disc. */
+
+[data-temlis="strivo-833"] {
+  --c-ink: #1e1e1e;
+  --c-ink-72: #565656;
+  --c-grey: var(--color-bg-white);
+  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+
+  background-color: var(--color-bg-page);
+}
+
+[data-temlis="strivo-833"] .faq[data-astro-cid-z6gx6xcw] {
+  background-color: var(--color-bg-page);
+}
+
+[data-temlis="strivo-833"] .faq__disc[data-astro-cid-z6gx6xcw] {
+  background-color: var(--color-bg-dark);
+}
+
+/* The site's .t-display (globals.css) sizes Ledger's titles with !important,
+   so Strivo's sizes are restated the same way. Ledger sets no title in
+   capitals. */
+[data-temlis="strivo-833"] .t-display {
+  text-transform: none;
+}
+
+[data-temlis="strivo-833"] .faq__title.t-display {
+  font-size: 3rem !important;
+  line-height: 1 !important;
+}
+
+[data-temlis="strivo-833"] .faq__q .t-display {
+  font-size: 1.5rem !important;
+  line-height: 1.3333 !important;
+}
+
+@media (max-width: 991px) {
+  [data-temlis="strivo-833"] .faq__title.t-display {
+    font-size: 2.5rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-temlis="strivo-833"] .faq__title.t-display {
+    font-size: 2.125rem !important;
+  }
+
+  [data-temlis="strivo-833"] .faq__q .t-display {
+    font-size: 1.25rem !important;
+  }
+}
