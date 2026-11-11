@@ -45,11 +45,11 @@ export async function Hero() {
               </div>
               <div className="hero__props">
                 <div className="hero__swing">
-                  <img className="hero__coins" src="/home/hero-coins.webp" alt="" width="1255" height="1644" />
+                  <img className="hero__coins" src="/home/hero-trades.webp" alt="" width="1255" height="1644" />
                 </div>
                 <div className="hero__swing">
                   <div className="hero__cards">
-                    <img src="/home/hero-cards.webp" alt="" width="1662" height="1402" />
+                    <img src="/home/hero-tiles.webp" alt="" width="1662" height="1402" />
                   </div>
                 </div>
               </div>
