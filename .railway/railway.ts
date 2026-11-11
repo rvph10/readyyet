@@ -114,6 +114,7 @@ export default defineRailway((ctx) => {
     env: {
       NODE_ENV: "production",
       NEXT_PUBLIC_APP_URL: `https://app.${root}`,
+      SITE_URL: `https://${root}`,
     },
   });
 

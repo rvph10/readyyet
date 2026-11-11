@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Momo_Trust_Display } from "next/font/google";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale, type Locale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { INDEXABLE, SITE_URL } from "@/lib/site-url";
 import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -14,9 +15,30 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
-  const t = await getTranslations({ locale: (await params).locale, namespace: "metadata" });
-  return { title: t("title"), description: t("description") };
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      canonical: `/${locale}`,
+      // x-default is the bare /, which sends each visitor to their language.
+      languages: { ...Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])), "x-default": "/" },
+    },
+    openGraph: {
+      type: "website",
+      siteName: "ReadyYet",
+      url: `/${locale}`,
+      title: t("title"),
+      description: t("description"),
+      locale: OG_LOCALES[locale],
+    },
+    robots: INDEXABLE ? undefined : { index: false, follow: false },
+  };
 }
+
+const OG_LOCALES: Record<Locale, string> = { en: "en_GB", fr: "fr_BE", nl: "nl_BE" };
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
