@@ -3,38 +3,29 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// The trades section holds still while the page's scroll runs its cards from
-// the first to the last, which ends on the content's right edge, then the
-// page carries on (ADR 0134).
+// The trades slide sideways while their section crosses the window, so a
+// visitor sees more than the first four without a click. It moves Swiper's
+// container, not its wrapper, which Swiper owns, so the arrows and dragging
+// still work on top.
 export function startTradesScroll() {
   const mm = gsap.matchMedia();
   mm.add("(prefers-reduced-motion: no-preference)", () => {
-    const row = document.querySelector<HTMLElement>("[data-trades]")!;
-    const section = row.closest<HTMLElement>(".section_solutions")!;
-    const container = row.closest<HTMLElement>(".container-large")!;
-    const track = row.querySelector<HTMLElement>(".swiper-wrapper")!;
-    const last = track.lastElementChild!;
-
-    section.setAttribute("data-pinned", "");
-    const distance = () => {
-      const x = Number(gsap.getProperty(track, "x"));
-      return Math.max(0, last.getBoundingClientRect().right - x - container.getBoundingClientRect().right);
-    };
-
-    gsap.to(track, {
-      x: () => -distance(),
-      ease: "none",
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: () => `+=${distance()}`,
-        pin: true,
-        scrub: true,
-        invalidateOnRefresh: true,
+    const slider = document.querySelector<HTMLElement>("[data-temlis='lumoras-699'] [data-slider]")!;
+    gsap.fromTo(
+      slider.querySelector(".swiper"),
+      { x: () => window.innerWidth * 0.3 },
+      {
+        x: () => window.innerWidth * -0.5,
+        ease: "none",
+        scrollTrigger: {
+          trigger: slider,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
       },
-    });
-
-    return () => section.removeAttribute("data-pinned");
+    );
   });
   return () => mm.revert();
 }

@@ -116,6 +116,8 @@
       "title": "Voor elke zaak waar klanten iets binnenbrengen",
       "cta": "14 dagen gratis proberen",
       "label": "Beroepen",
+      "previous": "Vorig beroep",
+      "next": "Volgend beroep",
       "shoe": {
         "title": "Schoenherstelling en lederwaren",
         "text": "Nieuwe zolen, een tas die genaaid moet worden: uw klant ziet hoe ver het staat en komt op het juiste moment langs."
