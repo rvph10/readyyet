@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { APP_URL } from "@/lib/app-url";
 import { noOrphan } from "@/lib/typography";
 import "@/temlis/atniily-923/styles.css";
-import { LanguageSelect } from "./LanguageSelect";
+import { LanguageSwitch } from "./LanguageSwitch";
 import "./footer.css";
 
 const SUPPORT_EMAIL = "support@readyyet.app";
@@ -100,7 +100,7 @@ export async function Footer() {
             <span className="footer__divider" aria-hidden="true" {...CID}></span>
             <div className="footer__legal" {...CID}>
               <p {...CID}>{t("rights", { year: new Date().getFullYear() })}</p>
-              <LanguageSelect label={t("language")} />
+              <LanguageSwitch label={t("language")} />
             </div>
           </div>
           <span
