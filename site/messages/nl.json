@@ -16,7 +16,32 @@
     "hero": {
       "title": "Uw klanten volgen hun herstelling online en weten wanneer het klaar is",
       "lede": "Binnengebracht, in herstelling, klaar: elke stap verschijnt op hun telefoon, zonder naar de winkel te bellen en zonder account.",
-      "artLabel": "Een telefoon die de opvolging toont van iets dat in de winkel is binnengebracht"
+      "artLabel": "Een telefoon die de opvolgpagina toont van een horloge dat bij een horlogemaker is binnengebracht, van de afgifte tot het klaar is",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Horloge, nieuw glas",
+        "steps": {
+          "received": "Ontvangen",
+          "diagnosis": "Diagnose",
+          "approval": "Wacht op akkoord",
+          "repair": "In herstelling",
+          "ready": "Klaar"
+        },
+        "readyTitle": "Het is klaar!",
+        "expected": "Verwacht op donderdag 14 november",
+        "openUntil": "Nu open, tot 18:00",
+        "progress": "Voortgang",
+        "photos": "Foto's",
+        "pickedUp": "Ik heb het opgehaald",
+        "quoteTitle": "Nieuwe offerte",
+        "quoteAmount": "€ 85,00",
+        "quoteText": "E-mail van Atelier Lemaire",
+        "photoTitle": "Nieuwe foto",
+        "photoText": "Toegevoegd aan uw opvolgpagina",
+        "readyText": "E-mail: u kunt het ophalen",
+        "reviewTitle": "Bedankt!",
+        "reviewText": "Review geplaatst op Google"
+      }
     },
     "cta": {
       "start": "14 dagen gratis proberen",

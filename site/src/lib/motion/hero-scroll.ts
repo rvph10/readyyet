@@ -20,15 +20,11 @@ const bezier = (x1: number, y1: number, x2: number, y2: number) => (t: number) =
 
 const ZOOM = bezier(0.4, 0.05, 0.35, 0.95);
 const PAN = bezier(0.4, 0.05, 0.6, 1);
-const EXPAND = bezier(0.6, 0, 0.2, 1.12);
 const RISE = bezier(0.16, 1, 0.3, 1);
 
 const U_MAX = 616;
 const U_PIN = 30.6;
 const U_BURST = 436;
-const U_STACK = 150;
-const U_STEP = 24;
-const U_SLIDE = 30;
 const U_LATE = 144;
 
 // Ledger's hero: the panel opens to the window, the camera zooms and pans
@@ -62,129 +58,46 @@ export function startHeroScroll(hero: HTMLElement) {
     tl.fromTo(box, { "--zoom": 0 }, { "--zoom": 1, duration: 147 - 86, ease: ZOOM }, at(86));
     tl.fromTo(box, { "--pan": 0 }, { "--pan": 1, duration: 298 - 156, ease: PAN }, later(156));
 
-    const huld = $(".phone__card--huld");
-    const deck = [$(".phone__card--artc"), $(".phone__card--nexaa"), $(".phone__card--joy"), huld];
-    const stacked = (k: number) => -114 * k;
-    const slide = { duration: U_SLIDE, ease: "power3.inOut" };
+    // The tracking page walks the Workflow. Each step becomes the current one
+    // at its time here, the Status above changing with it.
+    const reach = [0, 110, 140, 224, 330];
+    const all = (selector: string) => [...svg.querySelectorAll(selector)];
+    const labels = all(".phone__status-label");
+    const now = all(".phone__step-now");
+    const done = all(".phone__step-done");
+    const lines = all(".phone__line");
+    const swap = { duration: 18, ease: RISE };
+    const pop = { duration: 16, ease: RISE };
+    const origin = { transformOrigin: "50% 50%" };
 
-    deck.slice(1).forEach((card, i) => {
-      const k = i + 1;
-      tl.fromTo(card, { y: 0 }, { y: stacked(k), ...slide }, at(U_STACK + i * U_STEP));
-      deck.slice(0, k).forEach((under, j) => {
+    reach.forEach((u, i) => {
+      const next = reach[i + 1];
+      if (i > 0) tl.fromTo(labels[i], { opacity: 0, y: 30 }, { opacity: 1, y: 0, ...swap }, at(u));
+      if (next !== undefined) {
+        tl.fromTo(labels[i], { opacity: 1, y: 0 }, { opacity: 0, y: -30, ...swap, immediateRender: i === 0 }, at(next));
+        if (i > 0) tl.fromTo(now[i], { opacity: 0, scale: 0.6, ...origin }, { opacity: 1, scale: 1, ...pop }, at(u));
         tl.fromTo(
-          under,
-          { scale: 1 - 0.05 * (k - 1 - j), transformOrigin: "50% 0%" },
-          { scale: 1 - 0.05 * (k - j), ...slide, immediateRender: j === k - 1 },
-          at(U_STACK + i * U_STEP),
+          now[i],
+          { opacity: 1, scale: 1, ...origin },
+          { opacity: 0, scale: 0.6, duration: 8, immediateRender: i === 0 },
+          at(next),
         );
-      });
-    });
-    tl.fromTo(deck.slice(0, 3), { opacity: 1 }, { opacity: 0, duration: 1 }, at(U_STACK + 2 * U_STEP + U_SLIDE));
-
-    (
-      [
-        [".phone__header-top", 88],
-        [".phone__header-balance", 92],
-      ] as const
-    ).forEach(([selector, u]) => {
-      tl.fromTo(
-        $(selector),
-        { opacity: 1, y: 0, scale: 1, transformOrigin: "50% 50%" },
-        { opacity: 0, y: -18, scale: 0.94, duration: 22, ease: "power1.in" },
-        later(u),
-      );
+        tl.fromTo(lines[i], { scaleY: 0, transformOrigin: "50% 0%" }, { scaleY: 1, duration: 14 }, at(next));
+      }
+      tl.fromTo(done[i], { opacity: 0, scale: 0.4, ...origin }, { opacity: 1, scale: 1, ...pop }, at(next ?? u));
     });
 
-    const expand = { duration: 52, ease: EXPAND };
-    tl.fromTo(
-      $(".phone__huld-bg"),
-      { attr: { y: 617, height: 194 } },
-      { attr: { y: 80, height: 341 }, ...expand },
-      later(98),
-    );
-    tl.fromTo(
-      $(".phone__huld-edge"),
-      { attr: { y: 617.5, height: 193 } },
-      { attr: { y: 80.5, height: 340 }, ...expand },
-      later(98),
-    );
-    tl.fromTo(
-      $("#phone-huld-grad"),
-      { attr: { y1: 617, y2: 811 } },
-      { attr: { y1: 80, y2: 421 }, ...expand },
-      later(98),
-    );
-    tl.fromTo([$(".phone__huld-head"), $(".phone__huld-row")], { y: 0 }, { y: -537, ...expand }, later(98));
-    tl.fromTo($(".phone__huld-detail"), { y: 537 }, { y: 0, ...expand }, later(98));
-    tl.fromTo(huld, { y: stacked(3) }, { y: 299, ...expand, immediateRender: false }, later(98));
-    tl.fromTo($(".phone__huld-row"), { opacity: 1 }, { opacity: 0, duration: 14, ease: "sine.in" }, later(98));
+    const ready = reach.at(-1)!;
+    tl.fromTo($(".phone__ready-fill"), { opacity: 0 }, { opacity: 1, duration: 16, ease: "sine.out" }, at(ready));
+    tl.fromTo($(".phone__expected"), { opacity: 1 }, { opacity: 0, duration: 8 }, at(ready));
+    tl.fromTo($(".phone__open"), { opacity: 0 }, { opacity: 1, duration: 12 }, at(ready + 6));
 
-    tl.fromTo($(".phone__detail-top"), { opacity: 0 }, { opacity: 1, duration: 1 }, later(102));
-    tl.fromTo(
-      [$(".phone__nav-back"), $(".phone__nav-more")],
-      { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" },
-      { opacity: 1, scale: 1, duration: 22, ease: RISE, stagger: 6 },
-      later(104),
-    );
-    tl.fromTo(
-      $(".phone__nav-title"),
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 22, ease: RISE },
-      later(108),
-    );
-    tl.fromTo($(".phone__rev-label"), { y: 22 }, { y: 0, duration: 28, ease: RISE }, later(110));
-    tl.fromTo($(".phone__rev-amount"), { y: 52 }, { y: 0, duration: 32, ease: RISE }, later(114));
-    tl.fromTo($(".phone__chart-days"), { opacity: 0 }, { opacity: 1, duration: 24, ease: "sine.out" }, later(128));
-    tl.fromTo(
-      $(".phone__rev-badge"),
-      { opacity: 0, scale: 0.7, transformOrigin: "50% 50%" },
-      { opacity: 1, scale: 1, duration: 20, ease: RISE },
-      later(130),
-    );
-
-    const bars = [...svg.querySelectorAll<SVGRectElement>(".phone__bar")];
-    const peaks = [33.1, 44.6, 28.8, 53.3, 39.6, 61.9, 66.2];
-    bars.forEach((bar, i) => {
+    all(".phone__photo").forEach((photo, i) => {
       tl.fromTo(
-        bar,
-        { attr: { y: 334, height: 0 } },
-        { attr: { y: 334 - peaks[i], height: peaks[i] }, duration: 26, ease: RISE },
-        later(122 + i * 5),
-      );
-    });
-
-    tl.fromTo($(".phone__huld-detail"), { opacity: 0 }, { opacity: 1, duration: 1 }, later(140));
-    tl.fromTo($(".phone__huld-amount"), { y: 60 }, { y: 0, duration: 34, ease: RISE }, later(142));
-    tl.fromTo($(".phone__huld-caption"), { y: 18 }, { y: 0, duration: 28, ease: RISE }, later(152));
-    tl.fromTo(
-      $(".phone__huld-arrow"),
-      { opacity: 0, x: -8, y: 8 },
-      { opacity: 1, x: 0, y: 0, duration: 20, ease: RISE },
-      later(162),
-    );
-    svg.querySelectorAll(".phone__huld-stat").forEach((stat, i) => {
-      tl.fromTo(
-        stat,
-        { opacity: 0, y: 24, scale: 0.96, transformOrigin: "50% 100%" },
-        { opacity: 1, y: 0, scale: 1, duration: 24, ease: RISE },
-        later(154 + i * 8),
-      );
-    });
-    svg.querySelectorAll<SVGTextElement>(".phone__huld-stat-value").forEach((value) => {
-      const shown = (value.dataset.value ??= value.textContent);
-      const [, sign, digits] = shown.match(/^(\D*)([\d,]+)$/)!;
-      const count = { n: 0 };
-      cleanup.push(() => (value.textContent = shown));
-      tl.fromTo(
-        count,
-        { n: 0 },
-        {
-          n: Number(digits.replace(/,/g, "")),
-          duration: 96,
-          ease: "power1.out",
-          onUpdate: () => (value.textContent = `${sign}${Math.round(count.n).toLocaleString("en-US")}`),
-        },
-        later(154),
+        photo,
+        { opacity: 0, scale: 0.5, ...origin },
+        { opacity: 1, scale: 1, duration: 20, ease: RISE },
+        at([244, 258, 310][i]),
       );
     });
 
@@ -192,92 +105,45 @@ export function startHeroScroll(hero: HTMLElement) {
     tl.fromTo($(".phone__cta"), { opacity: 0 }, { opacity: 1, duration: 16, ease: "sine.out" }, later(226));
 
     const float = (name: string) => hero.querySelector<HTMLElement>(`.hero__float--${name}`)!;
-    const payment = float("payment");
-    const tap = float("tap");
-    const invoice = float("invoice");
+    const quote = float("quote");
+    const photo = float("photo");
+    const readyCard = float("ready");
     const enter = { "--s": 1, duration: 30, ease: "back.out(1.4)" };
 
-    tl.fromTo(payment, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(92));
-    tl.fromTo(tap, { autoAlpha: 1, "--s": 0 }, { ...enter }, later(116));
-    tl.fromTo(invoice, { autoAlpha: 1, "--s": 0 }, { ...enter }, later(252));
+    tl.fromTo(quote, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(140));
+    tl.fromTo(photo, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(230));
+    tl.fromTo(readyCard, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(ready + 4));
     tl.fromTo(
-      invoice.querySelector(".float__ready"),
+      readyCard.querySelector(".float__ready"),
       { opacity: 1 },
       { opacity: 0, duration: 10, ease: "sine.in" },
       later(378),
     );
     tl.fromTo(
-      invoice.querySelector(".float__done"),
+      readyCard.querySelector(".float__done"),
       { opacity: 0 },
       { opacity: 1, duration: 10, ease: "sine.out" },
       later(384),
     );
 
-    const today = bars[6];
-    const pulse = $(".phone__bar-pulse");
-    const value = $(".phone__rev-value")!;
-    const cents = $(".phone__rev-cents")!;
-    const rate = $(".phone__rev-rate")!;
-    const tally = { amount: 12240, rate: 16.9 };
-    const write = () => {
-      const shown = Math.round(tally.amount * 100) / 100;
-      value.textContent = `$${Math.floor(shown).toLocaleString("en-US")}`;
-      cents.textContent = `.${Math.round((shown % 1) * 100)
-        .toString()
-        .padStart(2, "0")}`;
-      rate.textContent = `${tally.rate.toFixed(1)}%`;
-    };
-
+    // The quote lands on the Status, the photo in the third slot, each one's
+    // landing being the change it brings. fx and fy are fractions of the phone.
     (
       [
-        { card: payment, u: 140, from: peaks[6], to: 72, amount: 12480, pace: 18.2, gain: ".phone__bar-gain" },
-        { card: tap, u: 186, from: 72, to: 78, amount: 12566.5, pace: 19, gain: ".phone__bar-gain2" },
+        { card: quote, u: 184, fx: 0.5, fy: 0.257 },
+        { card: photo, u: 270, fx: 0.736, fy: 0.781 },
       ] as const
-    ).forEach(({ card, u, from, to, amount, pace, gain }, i) => {
-      const land = u + 40;
-
-      tl.to(card, { "--fx": 0.871, duration: 40, ease: "power2.inOut" }, later(u));
-      tl.to(card, { "--fy": 0.348, duration: 40, ease: "power1.inOut" }, later(u));
-      tl.to(card, { "--s": 0, duration: 40, ease: "power2.in" }, later(u));
-      tl.fromTo(
-        card,
-        { "--dy": 0 },
-        { "--dy": -110, duration: 20, ease: "sine.out", immediateRender: false },
-        later(u),
-      );
+    ).forEach(({ card, u, fx, fy }) => {
+      tl.to(card, { "--fx": fx, duration: 40, ease: "power2.inOut" }, at(u));
+      tl.to(card, { "--fy": fy, duration: 40, ease: "power1.inOut" }, at(u));
+      tl.to(card, { "--s": 0, duration: 40, ease: "power2.in" }, at(u));
+      tl.fromTo(card, { "--dy": 0 }, { "--dy": -110, duration: 20, ease: "sine.out", immediateRender: false }, at(u));
       tl.fromTo(
         card,
         { "--dy": -110 },
         { "--dy": 0, duration: 20, ease: "sine.in", immediateRender: false },
-        later(u + 20),
+        at(u + 20),
       );
-
-      tl.fromTo(
-        today,
-        { attr: { y: 334 - from, height: from } },
-        { attr: { y: 334 - to, height: to }, duration: 18, ease: EXPAND, immediateRender: false },
-        later(land),
-      );
-      tl.fromTo(
-        pulse,
-        { opacity: 0, attr: { r: 6, cy: 334 - to } },
-        { opacity: 0.35, attr: { r: 12 }, duration: 4, immediateRender: i === 0 },
-        later(land),
-      );
-      tl.fromTo(
-        pulse,
-        { opacity: 0.35, attr: { r: 12 } },
-        { opacity: 0, attr: { r: 30 }, duration: 20, ease: "power2.out", immediateRender: false },
-        later(land + 4),
-      );
-      tl.fromTo($(gain), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 10, ease: RISE }, later(land));
-      tl.fromTo(
-        $(gain),
-        { opacity: 1, y: 0 },
-        { opacity: 0, y: -8, duration: 14, ease: "sine.in", immediateRender: false },
-        later(land + 18),
-      );
-      tl.to(tally, { amount, rate: pace, duration: 20, ease: "power1.out", onUpdate: write }, later(land));
     });
 
     tl.fromTo($(".phone__cta-chip"), { x: -310 }, { x: 0, duration: 382 - 287, ease: PAN }, later(287));
@@ -287,29 +153,21 @@ export function startHeroScroll(hero: HTMLElement) {
       { attr: { width: 342 }, duration: 382 - 287, ease: PAN },
       later(287),
     );
-    tl.fromTo(
-      svg.querySelectorAll(".phone__cta-label"),
-      { x: 32 },
-      { x: 89.6, duration: 382 - 287, ease: PAN },
-      later(287),
-    );
+    tl.fromTo(all(".phone__cta-label"), { x: 16 }, { x: -16, duration: 382 - 287, ease: PAN }, later(287));
 
     if (wide) {
-      const mark = $(".phone__cta-mark");
-
       tl.fromTo(
-        [...svg.querySelectorAll(".phone__cta-label"), $(".phone__cta-arrow")],
+        [...all(".phone__cta-label"), $(".phone__cta-arrow")],
         { opacity: 1 },
         { opacity: 0, duration: 16, ease: "sine.inOut" },
         later(384),
       );
       tl.fromTo(
-        mark,
-        { opacity: 0, scale: 0.4, transformOrigin: "50% 50%" },
+        $(".phone__cta-mark"),
+        { opacity: 0, scale: 0.4, ...origin },
         { opacity: 1, scale: 1, duration: 12, ease: "power2.out" },
         later(400),
       );
-      tl.fromTo(mark, { rotation: 0, transformOrigin: "50% 50%" }, { rotation: 360, duration: 36 }, later(400));
     }
 
     tl.set({}, {}, at(uEnd));

@@ -16,7 +16,32 @@
     "hero": {
       "title": "Your customers track their repair online and know when it's ready",
       "lede": "Dropped off, being repaired, ready: every step shows up on their phone, with no call to the shop and no account to create.",
-      "artLabel": "A phone showing the tracking of an item left at a shop"
+      "artLabel": "A phone showing the tracking page of a watch left at a watchmaker's, from drop-off until it's ready",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Watch, new glass",
+        "steps": {
+          "received": "Received",
+          "diagnosis": "Diagnosis",
+          "approval": "Quote to approve",
+          "repair": "In repair",
+          "ready": "Ready"
+        },
+        "readyTitle": "It's ready!",
+        "expected": "Expected Thursday 14 November",
+        "openUntil": "Open now, until 18:00",
+        "progress": "Progress",
+        "photos": "Photos",
+        "pickedUp": "I picked it up",
+        "quoteTitle": "New quote",
+        "quoteAmount": "€85.00",
+        "quoteText": "Email from Atelier Lemaire",
+        "photoTitle": "New photo",
+        "photoText": "Added to your tracking page",
+        "readyText": "Email: come and pick it up",
+        "reviewTitle": "Thank you!",
+        "reviewText": "Review posted on Google"
+      }
     },
     "cta": {
       "start": "Try it free for 14 days",

@@ -4,6 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { noOrphan } from "@/lib/typography";
 import { CtaPair } from "../CtaPair";
 import { Nav } from "../Nav";
+import { HeroFloats } from "./HeroFloats";
+import { PhoneScreen } from "./PhoneScreen";
 import "./hero.css";
 
 // Inlined rather than linked: the scroll timeline animates the shapes inside
@@ -67,24 +69,13 @@ export async function Hero() {
                     aria-hidden="true"
                     dangerouslySetInnerHTML={{ __html: svg("hero-phone-base.svg") }}
                   />
-                  <div className="hero__device" dangerouslySetInnerHTML={{ __html: svg("hero-phone.svg") }} />
+                  <div className="hero__device">
+                    <PhoneScreen />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="hero__floats" aria-hidden="true">
-              <div
-                className="hero__float hero__float--payment"
-                dangerouslySetInnerHTML={{ __html: svg("hero-float-payment.svg") }}
-              />
-              <div
-                className="hero__float hero__float--tap"
-                dangerouslySetInnerHTML={{ __html: svg("hero-float-tap.svg") }}
-              />
-              <div
-                className="hero__float hero__float--invoice"
-                dangerouslySetInnerHTML={{ __html: svg("hero-float-invoice.svg") }}
-              />
-            </div>
+            <HeroFloats />
             <div className="hero__burst" aria-hidden="true">
               <div className="hero__burst-pill">
                 <img src="/home/logo.svg" alt="" width="28" height="28" />

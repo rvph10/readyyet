@@ -278,19 +278,19 @@
     text-rendering: geometricPrecision;
   }
 
-  .hero__float--payment {
+  .hero__float--quote {
     --fx: -0.17;
     --fy: 0.21;
   }
 
-  .hero__float--tap {
+  .hero__float--photo {
     --fx: 1.17;
     --fy: 0.47;
 
     background-color: var(--color-bg-dark);
   }
 
-  .hero__float--invoice {
+  .hero__float--ready {
     --fx: 1.17;
     --fy: 0.82;
   }
@@ -301,17 +301,17 @@
     --fs: 0.8;
   }
 
-  .hero__float--payment {
+  .hero__float--quote {
     --fx: 0.5;
     --fy: 0.14;
   }
 
-  .hero__float--tap {
+  .hero__float--photo {
     --fx: 0.5;
     --fy: -0.045;
   }
 
-  .hero__float--invoice {
+  .hero__float--ready {
     --fx: 0.5;
     --fy: 0.99;
   }
@@ -411,17 +411,17 @@
     --fs: 0.94;
   }
 
-  .hero__float--payment {
+  .hero__float--quote {
     --fx: 0.5;
     --fy: 0.14;
   }
 
-  .hero__float--tap {
+  .hero__float--photo {
     --fx: 0.5;
     --fy: -0.0815;
   }
 
-  .hero__float--invoice {
+  .hero__float--ready {
     --fx: 0.5;
     --fy: 0.99;
   }

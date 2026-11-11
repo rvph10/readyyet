@@ -16,7 +16,32 @@
     "hero": {
       "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",
       "lede": "Déposé, en réparation, prêt : chaque étape s'affiche sur leur téléphone, sans appeler le magasin et sans créer de compte.",
-      "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
+      "artLabel": "Un téléphone qui affiche la page de suivi d'une montre déposée chez un horloger, du dépôt jusqu'au moment où elle est prête",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Montre, remplacement du verre",
+        "steps": {
+          "received": "Reçu",
+          "diagnosis": "Diagnostic",
+          "approval": "Devis à accepter",
+          "repair": "En réparation",
+          "ready": "Prêt"
+        },
+        "readyTitle": "C'est prêt !",
+        "expected": "Prévu le jeudi 14 novembre",
+        "openUntil": "Ouvert, jusqu'à 18:00",
+        "progress": "Avancement",
+        "photos": "Photos",
+        "pickedUp": "Je l'ai récupéré",
+        "quoteTitle": "Nouveau devis",
+        "quoteAmount": "85,00 €",
+        "quoteText": "E-mail d'Atelier Lemaire",
+        "photoTitle": "Nouvelle photo",
+        "photoText": "Ajoutée à votre page de suivi",
+        "readyText": "E-mail : venez la chercher",
+        "reviewTitle": "Merci !",
+        "reviewText": "Avis publié sur Google"
+      }
     },
     "cta": {
       "start": "Essai gratuit de 14 jours",
