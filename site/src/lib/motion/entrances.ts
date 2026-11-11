@@ -124,8 +124,7 @@ function hero() {
 }
 
 export async function startEntrances() {
-  clearTimeout((window as unknown as { __enterFallback?: number }).__enterFallback);
-  if (!document.documentElement.hasAttribute("data-enter")) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   await Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 800))]);
 

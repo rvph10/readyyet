@@ -28,6 +28,8 @@ export function HomeMotion() {
 
     if (!started) {
       started = true;
+      // The scroll-driven hero is laid out for the top of the page.
+      history.scrollRestoration = "manual";
       startSmoothScroll();
       startFillButtons();
       void startEntrances();

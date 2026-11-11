@@ -9,18 +9,6 @@ import "../globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const momo = Momo_Trust_Display({ subsets: ["latin"], weight: "400", variable: "--font-momo" });
 
-// Runs before the first paint, so what has an entrance stays hidden until it
-// plays instead of flashing in place first. Without scripts, or with reduced
-// motion, nothing is held back, and the timeout shows everything should the
-// entrances never start.
-const holdEntrances = `history.scrollRestoration = "manual";
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  document.documentElement.setAttribute("data-enter", "");
-  window.__enterFallback = setTimeout(function () {
-    document.documentElement.removeAttribute("data-enter");
-  }, 4000);
-}`;
-
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -37,13 +25,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   // locale from the request.
   setRequestLocale(locale);
 
-  // suppressHydrationWarning: holdEntrances sets data-enter on <html> before
-  // React hydrates it.
+  // data-enter holds back what has an entrance until it plays, see the
+  // Entrances rules in globals.css.
   return (
-    <html lang={locale} className={`${inter.variable} ${momo.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: holdEntrances }} />
-      </head>
+    <html lang={locale} className={`${inter.variable} ${momo.variable}`} data-enter="">
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

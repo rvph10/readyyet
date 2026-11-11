@@ -180,11 +180,23 @@ p {
   letter-spacing: -0.03em;
 }
 
-/* Entrances: held back until their timeline runs, see the head script in
-   the layout. */
+/* Entrances. The page is served with data-enter on <html>, so what has an
+   entrance is hidden from the first paint instead of flashing in place before
+   it plays; entrances.ts reveals each one as its timeline starts. Should the
+   scripts never run, the fallback shows everything after 4 s. Reduced motion
+   holds nothing back. */
 
-html[data-enter] :is(.nav, .hero__label, .hero__title, .hero__lede, .hero .cta, .hero__panelbox):not(.is-revealed) {
-  visibility: hidden;
+@keyframes enter-fallback {
+  to {
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-enter] :is(.nav, .hero__label, .hero__title, .hero__lede, .hero .cta, .hero__panelbox):not(.is-revealed) {
+    visibility: hidden;
+    animation: enter-fallback 0s 4s forwards;
+  }
 }
 
 /* Buttons. The chip button's lime fill slides in from its arrow, the fill
