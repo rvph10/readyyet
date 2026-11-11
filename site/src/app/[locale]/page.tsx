@@ -3,6 +3,7 @@ import { Hero } from "@/components/home/hero/Hero";
 import { Features } from "@/components/home/features/Features";
 import { HomeMotion } from "@/components/home/HomeMotion";
 import { Trades } from "@/components/home/trades/Trades";
+import { PromiseBand } from "@/components/home/promise/PromiseBand";
 import { Steps } from "@/components/home/steps/Steps";
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
@@ -15,6 +16,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       <Steps />
       <Features />
       <Trades />
+      <PromiseBand />
       <HomeMotion />
     </main>
   );

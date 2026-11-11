@@ -114,6 +114,16 @@
         "title": "Encadrement",
         "text": "Du choix de la baguette à la pose : le client sait quand son cadre l'attend."
       }
+    },
+    "promise": {
+      "label": "/ Pourquoi ReadyYet",
+      "statement": "Chaque « c'est prêt ? » au téléphone, c'est une interruption pour vous et une attente pour votre client. ReadyYet lui donne la réponse avant qu'il pose la question.",
+      "note": "Rien à installer pour vos clients, rien à apprendre pour votre équipe. Vous créez votre premier Ticket en quelques minutes, et le client reçoit son lien tout de suite.",
+      "cta": "Voir comment ça marche",
+      "art": {
+        "title": "Votre veste est prête",
+        "text": "Atelier Sofie · à l'instant"
+      }
     }
   }
 }
