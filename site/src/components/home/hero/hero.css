@@ -372,8 +372,11 @@
     border-radius: 0;
     clip-path: inset(
       calc(-1 * var(--open) * var(--rest-top)) calc(-1 * var(--open) * var(--container-bleed))
-        calc(-1 * var(--fill) * max(0px, 100vh - var(--rest-top) - 598 * var(--u-rest) + var(--radius-panel))) round
-        calc((1 - var(--open)) * var(--radius-panel))
+        calc(
+          -1 * var(--fill) *
+            max(0px, 100vh - var(--rest-top) - 598 * var(--u-rest) + (1 - var(--open)) * var(--radius-panel))
+        )
+        round calc((1 - var(--open)) * var(--radius-panel))
     );
   }
 

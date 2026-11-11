@@ -230,7 +230,7 @@ export function startHeroScroll(hero: HTMLElement) {
 
       const tuckNext = () => {
         const bottom = parseFloat(getComputedStyle(hero).paddingBottom);
-        hero.style.marginBottom = `${window.innerHeight - restTop() - box.offsetHeight - bottom}px`;
+        hero.style.marginBottom = `${window.innerHeight - restTop() - box.getBoundingClientRect().height - bottom}px`;
       };
       tuckNext();
       ScrollTrigger.addEventListener("refreshInit", tuckNext);
