@@ -4,8 +4,19 @@
     "description": "Let your customers follow their repair or order online, without calling the shop and without creating an account."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Your customers know when their item is ready, without calling the shop.",
-    "languages": "Language"
+    "nav": {
+      "label": "Main",
+      "signIn": "Sign in"
+    },
+    "hero": {
+      "label": "/ Tracking for shops",
+      "title": "Your customers know when it's ready",
+      "lede": "Dropped off, in progress, ready: they follow their item online, with no call to the shop and no account to create.",
+      "artLabel": "A phone showing the tracking of an item left at a shop"
+    },
+    "cta": {
+      "start": "Try it free for 14 days",
+      "pricing": "See pricing"
+    }
   }
 }

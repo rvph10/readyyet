@@ -38,6 +38,12 @@ export default defineConfig(
     settings: { next: { rootDir: ["web/", "site/"] } },
   },
   {
+    // The templates' artwork is sized and placed by their own CSS, which
+    // next/image's wrapper and generated sizes would fight (ADR 0133).
+    files: ["site/src/components/home/**/*.tsx"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
+  {
     files: ["**/*.mjs"],
     extends: [tseslint.configs.disableTypeChecked],
   },

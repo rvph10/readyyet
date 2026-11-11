@@ -222,3 +222,5 @@ jobs:
 
       - run: pnpm --filter @readyyet/site run typecheck
       - run: pnpm --filter @readyyet/site run build
+        env:
+          NEXT_PUBLIC_APP_URL: https://app.readyyet.app

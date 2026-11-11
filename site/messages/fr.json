@@ -4,8 +4,19 @@
     "description": "Vos clients suivent leur réparation ou leur commande en ligne, sans appeler le magasin et sans créer de compte."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Vos clients savent quand leur article est prêt, sans appeler le magasin.",
-    "languages": "Langue"
+    "nav": {
+      "label": "Principale",
+      "signIn": "Se connecter"
+    },
+    "hero": {
+      "label": "/ Le suivi en magasin",
+      "title": "Vos clients savent quand c'est prêt",
+      "lede": "Déposé, en cours, prêt : ils suivent leur article en ligne, sans appeler le magasin et sans créer de compte.",
+      "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
+    },
+    "cta": {
+      "start": "Essai gratuit de 14 jours",
+      "pricing": "Voir les tarifs"
+    }
   }
 }

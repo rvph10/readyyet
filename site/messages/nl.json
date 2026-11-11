@@ -4,8 +4,19 @@
     "description": "Uw klanten volgen hun herstelling of bestelling online, zonder de winkel te bellen en zonder account aan te maken."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Uw klanten weten wanneer hun artikel klaar is, zonder de winkel te bellen.",
-    "languages": "Taal"
+    "nav": {
+      "label": "Hoofdmenu",
+      "signIn": "Aanmelden"
+    },
+    "hero": {
+      "label": "/ Opvolging in de winkel",
+      "title": "Uw klanten weten wanneer het klaar is",
+      "lede": "Binnengebracht, in behandeling, klaar: ze volgen hun spullen online, zonder naar de winkel te bellen en zonder account.",
+      "artLabel": "Een telefoon die de opvolging toont van iets dat in de winkel is binnengebracht"
+    },
+    "cta": {
+      "start": "14 dagen gratis proberen",
+      "pricing": "Bekijk de prijzen"
+    }
   }
 }
