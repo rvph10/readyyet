@@ -43,6 +43,8 @@ export function HomeMotion() {
         "/temlis/payable-626/animations.js",
         "/temlis/ledger-782/animations.js",
         "/temlis/ledger-782/script.js",
+        "/temlis/lumoras-699/animations.js",
+        "/temlis/lumoras-699/slider.js",
       ]);
     }
 

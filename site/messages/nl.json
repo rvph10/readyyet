@@ -75,6 +75,45 @@
         "title": "De stappen van uw vak",
         "text": "Schoenmaker, droogkuis, herstelling: elk vak vertrekt van zijn eigen stappen. Met Pro kiest u ze en bepaalt u de volgorde."
       }
+    },
+    "trades": {
+      "title": "Gemaakt voor vakken waar klanten iets achterlaten",
+      "cta": "14 dagen gratis proberen",
+      "label": "Vakken",
+      "previous": "Vorig vak",
+      "next": "Volgend vak",
+      "shoe": {
+        "title": "Schoenmaker en lederwaren",
+        "text": "Zolen, hakken, tassen die genaaid moeten worden: de klant weet wanneer langs te komen."
+      },
+      "pressing": {
+        "title": "Droogkuis",
+        "text": "Kostuums, jurken, donsdekens: elk stuk wordt gevolgd, van afgifte tot ophaling."
+      },
+      "tailoring": {
+        "title": "Retouches en maatwerk",
+        "text": "Zomen, passen, aanpassen: de klant ziet hoe ver de retouche staat."
+      },
+      "electronics": {
+        "title": "Telefoons en computers",
+        "text": "Diagnose, onderdeel besteld, herstelling: geen telefoontjes meer om te vragen of het klaar is."
+      },
+      "watch": {
+        "title": "Uurwerken en juwelen",
+        "text": "Batterijen, onderhoud, op maat maken: duidelijke opvolging, ook als het weken duurt."
+      },
+      "garage": {
+        "title": "Garages",
+        "text": "Diagnose, herstelling, controle: de klant volgt zijn wagen zonder naar de werkplaats te bellen."
+      },
+      "appliance": {
+        "title": "Huishoudtoestellen",
+        "text": "Onderdelen besteld, test, herstelling: de klant weet wanneer terug te komen."
+      },
+      "framing": {
+        "title": "Inlijsten",
+        "text": "Van de keuze van de lijst tot het inlijsten: de klant weet wanneer zijn kader klaarstaat."
+      }
     }
   }
 }

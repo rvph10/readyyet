@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { APP_URL } from "@/lib/app-url";
+import { ChipButton } from "./ChipButton";
 import { FillButton } from "./FillButton";
 
 export async function CtaPair() {
@@ -7,12 +8,7 @@ export async function CtaPair() {
 
   return (
     <div className="cta">
-      <a className="btn btn--dark btn--chip" href={`${APP_URL}/sign-in`}>
-        <span className="btn__label">{t("start")}</span>
-        <span className="btn__chip" aria-hidden="true">
-          <img src="/home/icon-arrow-right.svg" alt="" width="24" height="24" />
-        </span>
-      </a>
+      <ChipButton href={`${APP_URL}/sign-in`}>{t("start")}</ChipButton>
       <FillButton href="#pricing" className="btn--muted">
         {t("pricing")}
       </FillButton>

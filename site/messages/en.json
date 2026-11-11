@@ -75,6 +75,45 @@
         "title": "Your trade's steps",
         "text": "Shoe repair, dry cleaning, electronics: each trade starts from its own steps. On Pro, you pick them and set their order."
       }
+    },
+    "trades": {
+      "title": "Made for trades where people leave something behind",
+      "cta": "Try it free for 14 days",
+      "label": "Trades",
+      "previous": "Previous trade",
+      "next": "Next trade",
+      "shoe": {
+        "title": "Shoe repair and leather goods",
+        "text": "Resoling, heels, bags to restitch: customers know when to come by."
+      },
+      "pressing": {
+        "title": "Dry cleaning",
+        "text": "Suits, dresses, duvets: every piece is tracked from drop-off to pickup."
+      },
+      "tailoring": {
+        "title": "Alterations and tailoring",
+        "text": "Hems, fittings, adjustments: customers see how their alteration is going."
+      },
+      "electronics": {
+        "title": "Phones and computers",
+        "text": "Diagnosis, part ordered, repair: no more calls to ask if it's done."
+      },
+      "watch": {
+        "title": "Watches and jewellery",
+        "text": "Batteries, servicing, resizing: clear tracking, even when it takes weeks."
+      },
+      "garage": {
+        "title": "Garages",
+        "text": "Diagnosis, repair, inspection: customers follow their car without calling the workshop."
+      },
+      "appliance": {
+        "title": "Appliance repair",
+        "text": "Parts on order, testing, repair: customers know when to come back."
+      },
+      "framing": {
+        "title": "Picture framing",
+        "text": "From picking the moulding to fitting: customers know when their frame is waiting."
+      }
     }
   }
 }

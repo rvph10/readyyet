@@ -1,0 +1,51 @@
+/* Lumoras' trade slider in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/lumoras-699. */
+
+[data-temlis="lumoras-699"] {
+  --_typography---font-family--body: var(--font-inter), system-ui, sans-serif;
+  --_typography---font-family--headers: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --base--black: #1e1e1e;
+  --base--yellow: #d6ff53;
+  --bg-color--bg-secondary: var(--color-bg-page);
+  --bg-color--bg-dark: var(--color-bg-dark);
+  --text-color--text-secondary: var(--color-text-secondary);
+}
+
+[data-temlis="lumoras-699"] h2 {
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="lumoras-699"] .h5 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+/* The template set these heights inline. */
+[data-temlis="lumoras-699"] .spacer-desktop {
+  height: 3.75rem;
+}
+
+[data-temlis="lumoras-699"] .spacer-tablet {
+  height: 2.75rem;
+}
+
+[data-temlis="lumoras-699"] .spacer-mobile {
+  height: 2rem;
+}
+
+/* Lumoras resets every link to a transparent background, which would strip
+   Ledger's button of its pine. */
+[data-temlis="lumoras-699"] .btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  [data-temlis="lumoras-699"] .btn--dark.btn--chip:hover {
+    color: var(--color-ink);
+  }
+}

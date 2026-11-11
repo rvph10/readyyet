@@ -75,6 +75,45 @@
         "title": "Les étapes de votre métier",
         "text": "Cordonnerie, pressing, réparation : chaque métier part de ses propres étapes. En Pro, vous les choisissez et les mettez dans votre ordre."
       }
+    },
+    "trades": {
+      "title": "Pensé pour les métiers où l'on dépose quelque chose",
+      "cta": "Essai gratuit de 14 jours",
+      "label": "Métiers",
+      "previous": "Métier précédent",
+      "next": "Métier suivant",
+      "shoe": {
+        "title": "Cordonnerie et maroquinerie",
+        "text": "Ressemelage, talons, sacs à recoudre : le client sait quand passer."
+      },
+      "pressing": {
+        "title": "Pressing",
+        "text": "Costumes, robes, couettes : chaque pièce a son suivi, du dépôt au retrait."
+      },
+      "tailoring": {
+        "title": "Retouches et couture",
+        "text": "Ourlets, ajustements, essayages : le client voit où en est sa retouche."
+      },
+      "electronics": {
+        "title": "Téléphones et ordinateurs",
+        "text": "Diagnostic, pièce commandée, réparation : plus d'appels pour savoir si c'est fait."
+      },
+      "watch": {
+        "title": "Horlogerie et bijouterie",
+        "text": "Piles, révisions, mises à taille : un suivi clair, même quand ça prend des semaines."
+      },
+      "garage": {
+        "title": "Garage",
+        "text": "Diagnostic, réparation, contrôle : le client suit sa voiture sans appeler l'atelier."
+      },
+      "appliance": {
+        "title": "Électroménager",
+        "text": "Pièces en commande, test, réparation : le client sait quand revenir."
+      },
+      "framing": {
+        "title": "Encadrement",
+        "text": "Du choix de la baguette à la pose : le client sait quand son cadre l'attend."
+      }
     }
   }
 }
