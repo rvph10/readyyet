@@ -17,8 +17,8 @@ export async function Nav() {
   return (
     <nav className="nav" aria-label={t("label")}>
       <Link className="nav__brand" href="/">
-        <img src="/home/logo.svg" alt="" width="28" height="28" />
-        <span className="nav__wordmark t-wordmark">ReadyYet</span>
+        <img src="/home/logo.svg" alt="" width="32" height="32" />
+        <span className="nav__wordmark">ReadyYet</span>
       </Link>
       <ul className="nav__links">
         {SECTIONS.map(([label, anchor]) => (
@@ -30,9 +30,9 @@ export async function Nav() {
         ))}
       </ul>
       <div className="nav__actions">
-        <FillButton href={`${APP_URL}/sign-in`} className="btn--muted btn--sm nav__signin">
+        <a className="nav__link nav__signin" href={`${APP_URL}/sign-in`}>
           {t("signIn")}
-        </FillButton>
+        </a>
         <FillButton href={`${APP_URL}/sign-in`} className="btn--dark btn--sm">
           {t("start")}
         </FillButton>
