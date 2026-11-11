@@ -176,6 +176,19 @@
         "q": "Puis-je gérer plusieurs magasins ?",
         "a": "Oui. Chaque magasin a son abonnement, son équipe et ses étapes, et vous passez de l'un à l'autre depuis le même compte."
       }
+    },
+    "finalCta": {
+      "sideStart": "/ ReadyYet",
+      "sideEnd": "/ Essai gratuit",
+      "title": "Moins de coups de fil, dès cette semaine",
+      "lede": "Créez votre magasin en quelques minutes et essayez tout pendant 14 jours, sans carte bancaire.",
+      "start": "Essai gratuit de 14 jours",
+      "signIn": "Se connecter",
+      "art": {
+        "ticket": "Ticket #128",
+        "item": "Veste en cuir",
+        "status": "Prêt"
+      }
     }
   }
 }

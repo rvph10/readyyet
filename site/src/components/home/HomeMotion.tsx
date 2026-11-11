@@ -48,6 +48,7 @@ export function HomeMotion() {
         "/temlis/ledger-781/animations.js",
         "/temlis/miros-681/animations.js",
         "/temlis/strivo-833/animations.js",
+        "/temlis/ledger-783/animations.js",
       ]);
     }
 

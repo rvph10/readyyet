@@ -176,6 +176,19 @@
         "q": "Can I run several shops?",
         "a": "Yes. Each shop has its own subscription, team and steps, and you switch between them from the same account."
       }
+    },
+    "finalCta": {
+      "sideStart": "/ ReadyYet",
+      "sideEnd": "/ Free trial",
+      "title": "Fewer phone calls, starting this week",
+      "lede": "Set up your shop in minutes and try everything for 14 days, no card needed.",
+      "start": "Try it free for 14 days",
+      "signIn": "Sign in",
+      "art": {
+        "ticket": "Ticket #128",
+        "item": "Leather jacket",
+        "status": "Ready"
+      }
     }
   }
 }

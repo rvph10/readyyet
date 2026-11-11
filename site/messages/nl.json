@@ -176,6 +176,19 @@
         "q": "Kan ik meerdere winkels beheren?",
         "a": "Ja. Elke winkel heeft een eigen abonnement, team en stappen, en u wisselt ertussen vanuit hetzelfde account."
       }
+    },
+    "finalCta": {
+      "sideStart": "/ ReadyYet",
+      "sideEnd": "/ Gratis proberen",
+      "title": "Minder telefoontjes, vanaf deze week",
+      "lede": "Maak uw winkel aan in enkele minuten en probeer alles 14 dagen uit, zonder bankkaart.",
+      "start": "14 dagen gratis proberen",
+      "signIn": "Aanmelden",
+      "art": {
+        "ticket": "Ticket #128",
+        "item": "Leren jas",
+        "status": "Klaar"
+      }
     }
   }
 }

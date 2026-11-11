@@ -1,0 +1,28 @@
+/* Ledger's closing call to action in ReadyYet's colours (ADR 0133),
+   overridden on its wrapper. Its own rules stay as bought, in
+   src/temlis/ledger-783. */
+
+[data-temlis="ledger-783"] {
+  --color-ink: #1e1e1e;
+  --color-bg-dark: #17423a;
+  --color-bg-accent: #d6ff53;
+  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+}
+
+[data-temlis="ledger-783"] .final-cta-art {
+  font-family: var(--font-body);
+}
+
+/* As the hero's entrances (globals.css). */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-enter] [data-temlis="ledger-783"] :is(.endpoints__title, .endpoints__media):not(.is-revealed) {
+    animation: enter-fallback 0s 4s forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-enter] [data-temlis="ledger-783"] :is(.endpoints__title, .endpoints__media) {
+    visibility: visible;
+  }
+}
