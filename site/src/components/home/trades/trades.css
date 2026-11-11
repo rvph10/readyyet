@@ -11,7 +11,32 @@
   --text-color--text-secondary: var(--color-text-secondary);
 }
 
+/* The page's rhythm (globals.css): the features above end on their own
+   section space, so the slider starts without one, and its header lines up
+   with the other sections. */
+[data-temlis="lumoras-699"] .section_solutions > .padding-section-medium:first-child {
+  display: none;
+}
+
+[data-temlis="lumoras-699"] .section_solutions > .padding-section-medium:last-child {
+  padding-top: var(--section-space);
+}
+
+[data-temlis="lumoras-699"] .padding-global {
+  padding-inline: var(--section-gutter);
+}
+
+[data-temlis="lumoras-699"] .container-large {
+  max-width: var(--section-max);
+}
+
+/* Room for the heading on two lines at the page's heading size. */
+[data-temlis="lumoras-699"] .max-heading.is-38rem {
+  max-width: 48rem;
+}
+
 [data-temlis="lumoras-699"] h2 {
+  font-size: var(--section-heading);
   font-weight: 400;
   line-height: 1;
   letter-spacing: -0.03em;

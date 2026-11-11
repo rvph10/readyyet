@@ -28,8 +28,27 @@
 }
 
 [data-temlis="strivo-833"] .faq__title.t-display {
-  font-size: 3rem !important;
+  font-size: var(--section-heading) !important;
   line-height: 1 !important;
+}
+
+/* The page's rhythm (globals.css): the pricing above ends on its own section
+   space, and the questions line up with the other sections. */
+[data-temlis="strivo-833"] .faq__inner[data-astro-cid-z6gx6xcw] {
+  max-width: calc(var(--section-max) + 2 * var(--section-gutter));
+  padding: 0 var(--section-gutter) var(--section-space);
+}
+
+@media (min-width: 992px) {
+  [data-temlis="strivo-833"] .faq__inner[data-astro-cid-z6gx6xcw] {
+    grid-template-columns: 26rem minmax(0, 1fr);
+  }
+}
+
+/* A title word never breaks inside, at the page's heading size. */
+[data-temlis="strivo-833"] .faq__title[data-astro-cid-z6gx6xcw] {
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 [data-temlis="strivo-833"] .faq__q .t-display {
@@ -37,17 +56,7 @@
   line-height: 1.3333 !important;
 }
 
-@media (max-width: 991px) {
-  [data-temlis="strivo-833"] .faq__title.t-display {
-    font-size: 2.5rem !important;
-  }
-}
-
 @media (max-width: 767px) {
-  [data-temlis="strivo-833"] .faq__title.t-display {
-    font-size: 2.125rem !important;
-  }
-
   [data-temlis="strivo-833"] .faq__q .t-display {
     font-size: 1.25rem !important;
   }
