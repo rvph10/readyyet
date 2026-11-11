@@ -1,28 +1,68 @@
-/* Ledger's closing call to action in ReadyYet's colours (ADR 0133),
-   overridden on its wrapper. Its own rules stay as bought, in
-   src/temlis/ledger-783. */
+/* Hirely's closing call to action in Ledger's look (ADR 0133), overridden on
+   its wrapper. Its own rules stay as bought, in src/temlis/hirely-325. A
+   lime panel inset like the hero's, so it doesn't run into the pine footer. */
 
-[data-temlis="ledger-783"] {
-  --color-ink: #1e1e1e;
-  --color-bg-dark: #17423a;
-  --color-bg-accent: #d6ff53;
-  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
-}
+[data-temlis="hirely-325"] {
+  --bg-color--bg-dark: var(--color-bg-accent);
+  --text-color--text-white: var(--color-bg-dark);
+  --_typography---h1--font-family: var(--font-display);
+  --_typography---h1--line-height: 1;
+  --_typography---h1--letter-spacing: -0.03em;
 
-[data-temlis="ledger-783"] .final-cta-art {
   font-family: var(--font-body);
+  background-color: transparent;
 }
 
-/* As the hero's entrances (globals.css). */
-@media (prefers-reduced-motion: no-preference) {
-  html[data-enter] [data-temlis="ledger-783"] :is(.endpoints__title, .endpoints__media):not(.is-revealed) {
-    animation: enter-fallback 0s 4s forwards;
-  }
+[data-temlis="hirely-325"] .page-wrapper {
+  padding-inline: var(--container-bleed);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html[data-enter] [data-temlis="ledger-783"] :is(.endpoints__title, .endpoints__media) {
-    visibility: visible;
+[data-temlis="hirely-325"] .section_cta {
+  border-radius: var(--radius-container);
+}
+
+[data-temlis="hirely-325"] .padding-section-medium {
+  padding-top: var(--section-space);
+}
+
+[data-temlis="hirely-325"] h2.cta_header {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+[data-temlis="hirely-325"] .cta_header {
+  max-width: 50rem;
+}
+
+/* The template set these heights inline. */
+[data-temlis="hirely-325"] .spacer-desktop {
+  height: 4.75rem;
+}
+
+[data-temlis="hirely-325"] .spacer-tablet {
+  height: 3.75rem;
+}
+
+[data-temlis="hirely-325"] .spacer-mobile {
+  height: 2.75rem;
+}
+
+/* Hirely resets every link to a transparent background, which would strip
+   Ledger's button of its pine. */
+[data-temlis="hirely-325"] .btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}
+
+/* On the lime panel, the button's own lime fill would vanish: it fills white
+   there. */
+[data-temlis="hirely-325"] .btn--chip::before {
+  background-color: var(--color-bg-white);
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  [data-temlis="hirely-325"] .btn--dark.btn--chip:hover {
+    color: var(--color-ink);
   }
 }

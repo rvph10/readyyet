@@ -208,17 +208,10 @@
       }
     },
     "finalCta": {
-      "sideStart": "/ ReadyYet",
-      "sideEnd": "/ Gratis proberen",
-      "title": "Minder telefoontjes, vanaf deze week",
-      "lede": "Maak uw winkel aan in enkele minuten en probeer alles 14 dagen uit, zonder bankkaart.",
-      "start": "14 dagen gratis proberen",
-      "signIn": "Aanmelden",
-      "art": {
-        "ticket": "Ticket #128",
-        "item": "Leren jas",
-        "status": "Klaar"
-      }
+      "row1": ["Minder", "telefoons,"],
+      "row2": ["meer", "tijd", "voor"],
+      "row3": "uw werk.",
+      "start": "14 dagen gratis proberen"
     },
     "footer": {
       "tagline": "Online opvolging voor alles wat klanten in de winkel achterlaten.",

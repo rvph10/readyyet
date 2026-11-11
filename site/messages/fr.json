@@ -208,17 +208,10 @@
       }
     },
     "finalCta": {
-      "sideStart": "/ ReadyYet",
-      "sideEnd": "/ Essai gratuit",
-      "title": "Moins de coups de fil, dès cette semaine",
-      "lede": "Créez votre magasin en quelques minutes et essayez tout pendant 14 jours, sans carte bancaire.",
-      "start": "Essai gratuit de 14 jours",
-      "signIn": "Se connecter",
-      "art": {
-        "ticket": "Ticket #128",
-        "item": "Veste en cuir",
-        "status": "Prêt"
-      }
+      "row1": ["Moins", "d'appels,"],
+      "row2": ["plus", "de", "temps"],
+      "row3": "pour travailler.",
+      "start": "Essai gratuit de 14 jours"
     },
     "footer": {
       "tagline": "Le suivi en ligne pour tout ce qu'on dépose en magasin.",

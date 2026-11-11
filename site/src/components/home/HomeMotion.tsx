@@ -47,7 +47,7 @@ export function HomeMotion() {
         "/temlis/serenium-587/motion.js",
         "/temlis/contelas-518/animations.js",
         "/temlis/strivo-833/animations.js",
-        "/temlis/ledger-783/animations.js",
+        "/temlis/hirely-325/scroll-reveal.js",
       ]);
     }
 

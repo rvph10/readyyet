@@ -208,17 +208,10 @@
       }
     },
     "finalCta": {
-      "sideStart": "/ ReadyYet",
-      "sideEnd": "/ Free trial",
-      "title": "Fewer phone calls, starting this week",
-      "lede": "Set up your shop in minutes and try everything for 14 days, no card needed.",
-      "start": "Try it free for 14 days",
-      "signIn": "Sign in",
-      "art": {
-        "ticket": "Ticket #128",
-        "item": "Leather jacket",
-        "status": "Ready"
-      }
+      "row1": ["Fewer", "calls,"],
+      "row2": ["more", "time", "for"],
+      "row3": "the work.",
+      "start": "Try it free for 14 days"
     },
     "footer": {
       "tagline": "Online tracking for everything people leave at a shop.",
