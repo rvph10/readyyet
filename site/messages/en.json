@@ -74,6 +74,28 @@
       "workflow": {
         "title": "Your trade's steps",
         "text": "Shoe repair, dry cleaning, electronics: each trade starts from its own steps. On Pro, you pick them and set their order."
+      },
+      "reviews": {
+        "title": "More Google reviews",
+        "text": "On Pro, once they've picked up their item, your customer gets an email to rate their visit. They can leave a Google review or write to you privately."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Leather jacket",
+        "status": "Being repaired",
+        "dropped": "Dropped off",
+        "repairing": "Being repaired",
+        "ready": "Ready",
+        "due": "Due Nov 14",
+        "emailReady": "Your jacket is ready",
+        "emailLogged": "Item logged",
+        "now": "just now",
+        "yesterday": "yesterday",
+        "received": "Received",
+        "cleaning": "Cleaning",
+        "alteration": "Alteration",
+        "reviewAsk": "How was your visit?",
+        "reviewCta": "Leave a review"
       }
     },
     "trades": {

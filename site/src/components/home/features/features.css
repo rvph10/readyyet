@@ -1,67 +1,171 @@
-/* Ledger's feature stack in ReadyYet's colours (ADR 0133), overridden on its
-   wrapper. Its own rules stay as bought, in src/temlis/ledger-782. */
+/* Wilun's bento in Ledger's look (ADR 0133), overridden on its wrapper. Its
+   own rules stay as bought, in src/temlis/wilun-559. */
 
-[data-temlis="ledger-782"] {
-  --color-ink: #1e1e1e;
-  --color-ink-soft: #1e1e1e;
-  --color-bg-dark: #17423a;
-  --color-bg-accent: #d6ff53;
+[data-temlis="wilun-559"] {
+  /* Ledger's fixed rem instead of Wilun's size that grows with the window. */
+  --temlis-rem: 1rem;
+  --c-ink: var(--color-ink);
+  --c-ink-soft: var(--color-text-secondary);
+  --c-white: var(--color-bg-page);
+  --c-orange: var(--color-bg-dark);
   --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
-  --gradient-card-payments: linear-gradient(180deg, #0f332c 0%, #17423a 100%);
-  --gradient-card-teams: linear-gradient(180deg, #d6ff53 0%, #d6ff53 100%);
-  --gradient-card-cards: linear-gradient(180deg, #1e1e1e 0%, #3a3a3a 100%);
-  --color-badge-pink: #1e1e1e;
-  --color-badge-blue: #17423a;
+  --fs-hero: var(--section-heading);
+  --fs-card-sm: 1.75rem;
+  --lh-display: 1;
+  --tracking-tight: -0.03em;
+  --r-card: var(--radius-panel);
+  --gap-grid: 1.5rem;
+
+  /* The four cards, in ReadyYet's colours, each with its stroke a shade deeper. */
+  --t-peach-deep: var(--color-bg-dark);
+  --t-lilac: var(--color-bg-accent);
+  --t-blue-deep: var(--color-bg-white);
+  --t-lemon: #e2eee9;
 }
 
-/* The size, tilt and padding of each card, which the template set inline. */
-[data-temlis="ledger-782"] .features__slot:nth-child(1) {
-  --slot-h: 20.0684rem;
-  --rot: -5deg;
+/* The steps above end on their own section space on the same grey, so the
+   gap isn't doubled. */
+[data-temlis="wilun-559"] .section_features {
+  padding: 0 var(--section-gutter) var(--section-space);
 }
 
-[data-temlis="ledger-782"] .features__slot:nth-child(2) {
-  --slot-h: 19.457rem;
-  --rot: 2deg;
+[data-temlis="wilun-559"] .features_intro {
+  margin-bottom: 4rem;
 }
 
-[data-temlis="ledger-782"] .features__slot:nth-child(3) {
-  --slot-h: 20.2028rem;
-  --rot: -4deg;
+[data-temlis="wilun-559"] .features_grid {
+  max-width: var(--section-max);
 }
 
-[data-temlis="ledger-782"] .fcard {
-  --pad: 1.25rem;
+/* ReadyYet's copy is longer than the template's, so on wide screens the
+   cards take the height their words need instead of a fixed ratio: words on
+   top, artwork anchored to the bottom, as Wilun does below 1024px. */
+@media (min-width: 1024px) {
+  [data-temlis="wilun-559"] .features_card[data-card] {
+    aspect-ratio: auto;
+    container-type: inline-size;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="security"] {
+    min-height: 20rem;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="automated"],
+  [data-temlis="wilun-559"] .features_card[data-card="transactions"] {
+    min-height: 30rem;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card] .features_copy {
+    left: 2rem;
+    top: 2rem;
+    width: calc(100% - 4rem);
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="security"] .features_copy {
+    width: 42%;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card] .features_body {
+    width: 100%;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="interface"] .features_phone {
+    top: auto;
+    bottom: 0;
+    width: 80%;
+    height: auto;
+    left: 10%;
+  }
+
+  /* On the phone's top right corner: the phone stands 80% x 1071/708 =
+     121% of the card's width tall, and the badge is pulled up by its
+     translate, half of its 19%. */
+  [data-temlis="wilun-559"] .features_badge {
+    top: auto;
+    bottom: 96cqw;
+    left: 84%;
+    width: 19%;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="automated"] .features_art,
+  [data-temlis="wilun-559"] .features_card[data-card="transactions"] .features_art {
+    left: auto;
+    top: auto;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 58%;
+    height: auto;
+  }
+
+  [data-temlis="wilun-559"] .features_card[data-card="security"] .features_art {
+    top: 50%;
+    height: auto;
+    width: 44%;
+    translate: 0 -50%;
+  }
 }
 
-[data-temlis="ledger-782"] .features__slot:nth-child(1) .fcard {
-  --pad: 1rem;
+[data-temlis="wilun-559"] .display {
+  text-transform: none;
 }
 
-/* The lime card carries ink text, white would be unreadable on it. */
-[data-temlis="ledger-782"] .fcard--teams[data-astro-cid-cognygiv],
-[data-temlis="ledger-782"] .fcard--teams .fcard__title[data-astro-cid-cognygiv] {
+[data-temlis="wilun-559"] .eyebrow {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="interface"] .features_deco {
+  color: #215a4f;
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="security"] .features_deco {
+  color: #c6f03a;
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="automated"] .features_deco {
+  color: #e2eee9;
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="transactions"] .features_deco {
+  color: #c9e0d6;
+}
+
+/* The pine card carries white text. */
+[data-temlis="wilun-559"] .features_card[data-card="interface"] .features_copy {
+  color: var(--color-text-white);
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="interface"] .features_body {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-temlis="wilun-559"] .features_card[data-card="security"] .features_body {
   color: var(--color-ink);
 }
 
-/* In the template this card's icon had no badge of its own. */
-[data-temlis="ledger-782"] .fcard--teams .fcard__badge[data-astro-cid-cognygiv] {
-  background-color: var(--color-bg-dark);
+[data-temlis="wilun-559"] .features_badge {
+  background-color: var(--color-bg-accent);
 }
 
-/* As the hero's entrances: without scripts the heading and cards show after
+[data-temlis="wilun-559"] .features_card svg text {
+  font-family: var(--font-body);
+  letter-spacing: -0.02em;
+}
+
+/* As the hero's entrances: without scripts the header and cards show after
    4 s, and reduced motion holds nothing back (globals.css). */
 @media (prefers-reduced-motion: no-preference) {
-  html[data-enter] [data-temlis="ledger-782"] .features__heading:not(.is-revealed),
-  html[data-enter] [data-temlis="ledger-782"] .fcard:not(.is-revealed) {
+  [data-temlis="wilun-559"] [data-motion] .reveal-lines:not(.is-in),
+  [data-temlis="wilun-559"] [data-motion] .reveal-build:not(.is-in) {
     animation: enter-fallback 0s 4s forwards;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-enter] [data-temlis="ledger-782"] .features__heading,
-  html[data-enter] [data-temlis="ledger-782"] .fcard {
+  [data-temlis="wilun-559"] [data-motion] .reveal-lines,
+  [data-temlis="wilun-559"] [data-motion] .reveal-build {
     visibility: visible;
   }
 }

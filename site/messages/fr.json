@@ -74,6 +74,28 @@
       "workflow": {
         "title": "Les étapes de votre métier",
         "text": "Cordonnerie, pressing, réparation : chaque métier part de ses propres étapes. En Pro, vous les choisissez et les mettez dans votre ordre."
+      },
+      "reviews": {
+        "title": "Plus d'avis Google",
+        "text": "En Pro, après la récupération, votre client reçoit un email pour noter son passage. Il peut laisser un avis Google ou vous écrire en privé."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Veste en cuir",
+        "status": "En réparation",
+        "dropped": "Déposé",
+        "repairing": "En réparation",
+        "ready": "Prêt",
+        "due": "Prévu le 14 nov.",
+        "emailReady": "Votre veste est prête",
+        "emailLogged": "Article enregistré",
+        "now": "à l'instant",
+        "yesterday": "hier",
+        "received": "Reçu",
+        "cleaning": "Nettoyage",
+        "alteration": "Retouche",
+        "reviewAsk": "Comment s'est passé votre passage ?",
+        "reviewCta": "Laisser un avis"
       }
     },
     "trades": {

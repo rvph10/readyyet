@@ -13,12 +13,22 @@
   --radius-container: 1.5rem;
   --radius-card: 1.25rem;
   --radius-panel: 2rem;
+
+  /* The rhythm every home section follows, whatever template it comes from:
+     Payable's spacing and Ledger's display size (.t-display), brought to each
+     section on its wrapper. */
+  --section-space: 6.5rem;
+  --section-max: 71.25rem;
+  --section-gutter: 2.5rem;
+  --section-heading: 4rem;
 }
 
 @media (max-width: 991px) {
   :root {
     --container-padding: 2.5rem;
     --radius-panel: 1.5rem;
+    --section-space: 4rem;
+    --section-heading: 3rem;
   }
 }
 
@@ -29,6 +39,9 @@
     --radius-container: 1.25rem;
     --radius-card: 1rem;
     --radius-panel: 1.25rem;
+    --section-space: 3rem;
+    --section-gutter: 1rem;
+    --section-heading: 2.5rem;
   }
 }
 
@@ -38,6 +51,7 @@
     --radius-container: 1.25rem;
     --radius-card: 1rem;
     --radius-panel: 1rem;
+    --section-heading: 2rem;
   }
 }
 

@@ -74,6 +74,28 @@
       "workflow": {
         "title": "De stappen van uw vak",
         "text": "Schoenmaker, droogkuis, herstelling: elk vak vertrekt van zijn eigen stappen. Met Pro kiest u ze en bepaalt u de volgorde."
+      },
+      "reviews": {
+        "title": "Meer Google-reviews",
+        "text": "Met Pro krijgt uw klant na het ophalen een e-mail om zijn bezoek te beoordelen. Hij kan een Google-review achterlaten of u privé schrijven."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Leren jas",
+        "status": "In herstelling",
+        "dropped": "Afgegeven",
+        "repairing": "In herstelling",
+        "ready": "Klaar",
+        "due": "Verwacht op 14 nov.",
+        "emailReady": "Uw jas is klaar",
+        "emailLogged": "Stuk geregistreerd",
+        "now": "zonet",
+        "yesterday": "gisteren",
+        "received": "Ontvangen",
+        "cleaning": "Reiniging",
+        "alteration": "Aanpassing",
+        "reviewAsk": "Hoe was uw bezoek?",
+        "reviewCta": "Review schrijven"
       }
     },
     "trades": {

@@ -41,8 +41,7 @@ export function HomeMotion() {
       }
       void startTemlisSections([
         "/temlis/payable-626/animations.js",
-        "/temlis/ledger-782/animations.js",
-        "/temlis/ledger-782/script.js",
+        "/temlis/wilun-559/motion.js",
         "/temlis/lumoras-699/animations.js",
         "/temlis/lumoras-699/slider.js",
         "/temlis/ledger-781/animations.js",

@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
+import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Swiper from "swiper";
@@ -24,6 +25,11 @@ export async function startTemlisSections(scripts: string[]) {
   // Swiper too, with the modules its bundle build would have registered.
   // eslint-disable-next-line react-hooks/rules-of-hooks -- Swiper's module registry, not a React hook.
   Swiper.use([Navigation, A11y]);
-  Object.assign(window, { gsap, ScrollTrigger, SplitText, CustomEase, Swiper });
+  Object.assign(window, { gsap, ScrollTrigger, SplitText, CustomEase, DrawSVGPlugin, Swiper });
+  // Wilun's script plays its entrances only when <html> carries data-motion,
+  // which its template set from an inline head script.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.setAttribute("data-motion", "");
+  }
   for (const src of ["/temlis/temlis-scope.js", ...scripts]) await load(src);
 }
