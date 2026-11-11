@@ -48,6 +48,7 @@ export function HomeMotion() {
         "/temlis/contelas-518/animations.js",
         "/temlis/strivo-833/animations.js",
         "/temlis/hirely-325/scroll-reveal.js",
+        "/temlis/atniily-923/animations.js",
       ]);
     }
 

@@ -26,10 +26,12 @@ export async function startTemlisSections(scripts: string[]) {
   // eslint-disable-next-line react-hooks/rules-of-hooks -- Swiper's module registry, not a React hook.
   Swiper.use([Navigation, A11y]);
   Object.assign(window, { gsap, ScrollTrigger, SplitText, CustomEase, DrawSVGPlugin, Swiper });
-  // Wilun's script plays its entrances only when <html> carries data-motion,
-  // which its template set from an inline head script.
+  // Wilun's and Atniily's scripts play their entrances only when <html>
+  // carries data-motion or .motion, which their templates set from an inline
+  // head script.
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
     document.documentElement.setAttribute("data-motion", "");
+    document.documentElement.classList.add("motion");
   }
   for (const src of ["/temlis/temlis-scope.js", ...scripts]) await load(src);
 }
