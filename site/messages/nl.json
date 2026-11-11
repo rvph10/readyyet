@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "ReadyYet, het opvolgen van herstellingen en diensten voor uw klanten",
-    "description": "Uw klanten volgen hun herstelling of bestelling online, zonder de winkel te bellen en zonder account aan te maken."
+    "title": "Online opvolging van herstellingen voor uw klanten | ReadyYet",
+    "description": "Uw klanten volgen hun herstelling online, van afgifte tot ophaling, zonder de winkel te bellen of een account aan te maken. 14 dagen gratis proberen."
   },
   "home": {
     "nav": {
@@ -14,7 +14,7 @@
       "start": "Gratis proberen"
     },
     "hero": {
-      "label": "/ Opvolging in de winkel",
+      "label": "/ Online opvolging van herstellingen",
       "title": "Uw klanten weten wanneer het klaar is",
       "lede": "Binnengebracht, in behandeling, klaar: ze volgen hun spullen online, zonder naar de winkel te bellen en zonder account.",
       "artLabel": "Een telefoon die de opvolging toont van iets dat in de winkel is binnengebracht"
@@ -38,7 +38,7 @@
       },
       "step3": {
         "title": "Terugkomen als het klaar is",
-        "text": "Zodra u het Ticket op Klaar zet, krijgt uw klant een e-mail. Ophalen zonder een vergeefse rit."
+        "text": "Zodra u het als klaar markeert, krijgt uw klant een e-mail. Ophalen zonder een vergeefse rit."
       },
       "art": {
         "customer": "Klant",
@@ -99,13 +99,13 @@
       }
     },
     "trades": {
-      "title": "Gemaakt voor vakken waar klanten iets achterlaten",
+      "title": "Voor elke zaak waar klanten iets binnenbrengen",
       "cta": "14 dagen gratis proberen",
-      "label": "Vakken",
-      "previous": "Vorig vak",
-      "next": "Volgend vak",
+      "label": "Beroepen",
+      "previous": "Vorig beroep",
+      "next": "Volgend beroep",
       "shoe": {
-        "title": "Schoenmaker en lederwaren",
+        "title": "Schoenherstelling en lederwaren",
         "text": "Zolen, hakken, tassen die genaaid moeten worden: de klant weet wanneer langs te komen."
       },
       "pressing": {
@@ -164,24 +164,24 @@
       "intro": "14 dagen om alles te proberen, zonder bankkaart. Daarna één abonnement per winkel, per maand of per jaar, opzegbaar aan het einde van de periode.",
       "perMonth": "/maand",
       "popular": "Populair",
-      "start": "Start de proefperiode",
+      "start": "14 dagen gratis proberen",
       "essentiel": {
         "name": "Essentiel",
         "price": "€ 29",
         "yearly": "of € 290 per jaar, 2 maanden gratis",
         "pitch": "Voor een winkel met een klein team die wil dat klanten stoppen met bellen.",
-        "items": ["Opvolgpagina en QR-code", "Automatische e-mails", "2 teamleden", "De stappen van uw vak"]
+        "items": ["Opvolgpagina en QR-code", "Automatische e-mails", "2 teamleden", "Kant-en-klare stappen voor uw vak"]
       },
       "pro": {
         "name": "Pro",
         "price": "€ 49",
         "yearly": "of € 490 per jaar, 2 maanden gratis",
         "pitch": "Voor ateliers met hun eigen werkwijze die meer reviews willen.",
-        "items": ["Alles van Essentiel", "Onbeperkt team", "Uw eigen stappen", "Privéfeedback en Google-reviews"]
+        "items": ["Alles van Essentiel", "Onbeperkt team", "Kies en orden uw eigen stappen", "Privéfeedback en Google-reviews"]
       }
     },
     "faq": {
-      "title": "Uw vragen, onze antwoorden",
+      "title": "Vragen over de opvolging",
       "app": {
         "q": "Moeten mijn klanten een app installeren?",
         "a": "Nee. Ze krijgen een link per e-mail, of scannen de QR-code die u hen geeft, en volgen hun stuk in de browser. Geen account, geen app."
@@ -208,7 +208,7 @@
       }
     },
     "finalCta": {
-      "row1": ["Minder", "telefoons,"],
+      "row1": ["Minder", "telefoontjes,"],
       "row2": ["meer", "tijd", "voor"],
       "row3": "uw werk.",
       "start": "14 dagen gratis proberen"

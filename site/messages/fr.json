@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "ReadyYet, le suivi des réparations et services pour vos clients",
-    "description": "Vos clients suivent leur réparation ou leur commande en ligne, sans appeler le magasin et sans créer de compte."
+    "title": "Suivi de réparation en ligne pour vos clients | ReadyYet",
+    "description": "Vos clients suivent leur réparation en ligne, du dépôt au retrait, sans appeler le magasin ni créer de compte. Essai gratuit de 14 jours."
   },
   "home": {
     "nav": {
@@ -14,7 +14,7 @@
       "start": "Essai gratuit"
     },
     "hero": {
-      "label": "/ Le suivi en magasin",
+      "label": "/ Suivi de réparation en ligne",
       "title": "Vos clients savent quand c'est prêt",
       "lede": "Déposé, en cours, prêt : ils suivent leur article en ligne, sans appeler le magasin et sans créer de compte.",
       "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
@@ -30,7 +30,7 @@
       "stepLabel": "Étape {n}",
       "step1": {
         "title": "Vous enregistrez l'article",
-        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par email ou par QR code."
+        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par e-mail ou par QR code."
       },
       "step2": {
         "title": "Votre client suit l'avancement",
@@ -38,7 +38,7 @@
       },
       "step3": {
         "title": "Il revient quand c'est prêt",
-        "text": "Dès que vous passez le Ticket à Prêt, il est prévenu par email. Il vient le chercher, sans déplacement pour rien."
+        "text": "Dès que vous le marquez comme prêt, il est prévenu par e-mail. Il vient le chercher, sans se déplacer pour rien."
       },
       "art": {
         "customer": "Cliente",
@@ -56,7 +56,7 @@
         "inProgress": "En cours",
         "readyAt": "Aujourd'hui à 16:28",
         "readyTitle": "C'est prêt !",
-        "emailSent": "Email envoyé à l'instant"
+        "emailSent": "E-mail envoyé à l'instant"
       }
     },
     "features": {
@@ -68,7 +68,7 @@
         "text": "Chaque article a sa page, avec ses étapes et la date prévue. Un lien ou un QR code suffit, sans compte ni application."
       },
       "emails": {
-        "title": "Emails automatiques",
+        "title": "E-mails automatiques",
         "text": "Votre client est prévenu quand l'article est enregistré et quand il est prêt. Vous n'avez rien à écrire."
       },
       "workflow": {
@@ -77,7 +77,7 @@
       },
       "reviews": {
         "title": "Plus d'avis Google",
-        "text": "En Pro, après la récupération, votre client reçoit un email pour noter son passage. Il peut laisser un avis Google ou vous écrire en privé."
+        "text": "En Pro, après la récupération, votre client reçoit un e-mail pour noter son passage. Il peut laisser un avis Google ou vous écrire en privé."
       },
       "art": {
         "shop": "Atelier Sofie",
@@ -99,7 +99,7 @@
       }
     },
     "trades": {
-      "title": "Pensé pour les métiers où l'on dépose quelque chose",
+      "title": "Pour tous les métiers où le client dépose, puis revient chercher",
       "cta": "Essai gratuit de 14 jours",
       "label": "Métiers",
       "previous": "Métier précédent",
@@ -164,35 +164,35 @@
       "intro": "14 jours pour tout essayer, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
       "perMonth": "/mois",
       "popular": "Populaire",
-      "start": "Commencer l'essai",
+      "start": "Essai gratuit de 14 jours",
       "essentiel": {
         "name": "Essentiel",
         "price": "29 €",
         "yearly": "ou 290 € par an, 2 mois offerts",
         "pitch": "Pour un magasin avec une petite équipe, qui veut que ses clients arrêtent d'appeler.",
-        "items": ["Page de suivi et QR code", "Emails automatiques", "2 membres d'équipe", "Les étapes de votre métier"]
+        "items": ["Page de suivi et QR code", "E-mails automatiques", "2 membres d'équipe", "Étapes prêtes pour votre métier"]
       },
       "pro": {
         "name": "Pro",
         "price": "49 €",
         "yearly": "ou 490 € par an, 2 mois offerts",
         "pitch": "Pour les ateliers qui ont leur façon de travailler et veulent plus d'avis.",
-        "items": ["Tout Essentiel", "Équipe illimitée", "Vos propres étapes", "Retours privés et avis Google"]
+        "items": ["Tout Essentiel", "Équipe illimitée", "Étapes à choisir et à ordonner", "Retours privés et avis Google"]
       }
     },
     "faq": {
-      "title": "Vos questions, nos réponses",
+      "title": "Questions sur le suivi des réparations",
       "app": {
         "q": "Mes clients doivent-ils installer une application ?",
-        "a": "Non. Ils reçoivent un lien par email, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
+        "a": "Non. Ils reçoivent un lien par e-mail, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
       },
       "notified": {
         "q": "Comment mon client est-il prévenu ?",
-        "a": "Par email : quand l'article est enregistré, quand la date prévue est repoussée et quand il est prêt. Il peut aussi ouvrir sa page de suivi quand il le veut."
+        "a": "Par e-mail : quand l'article est enregistré, quand la date prévue est repoussée et quand il est prêt. Il peut aussi ouvrir sa page de suivi quand il le veut."
       },
       "sms": {
         "q": "Est-ce que ReadyYet envoie des SMS ?",
-        "a": "Non. Le suivi passe par email et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients."
+        "a": "Non. Le suivi passe par e-mail et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients."
       },
       "start": {
         "q": "Combien de temps faut-il pour démarrer ?",

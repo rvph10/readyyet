@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "ReadyYet, repair and service tracking for your customers",
-    "description": "Let your customers follow their repair or order online, without calling the shop and without creating an account."
+    "title": "Online repair tracking for your customers | ReadyYet",
+    "description": "Your customers follow their repair online, from drop-off to pickup, without calling the shop or creating an account. Free 14-day trial."
   },
   "home": {
     "nav": {
@@ -14,7 +14,7 @@
       "start": "Start free trial"
     },
     "hero": {
-      "label": "/ Tracking for shops",
+      "label": "/ Online repair tracking",
       "title": "Your customers know when it's ready",
       "lede": "Dropped off, in progress, ready: they follow their item online, with no call to the shop and no account to create.",
       "artLabel": "A phone showing the tracking of an item left at a shop"
@@ -38,7 +38,7 @@
       },
       "step3": {
         "title": "They come back when it's ready",
-        "text": "The moment you set the Ticket to Ready, they get an email. They come to collect it, no wasted trip."
+        "text": "The moment you mark it ready, they get an email. They come to collect it, no wasted trip."
       },
       "art": {
         "customer": "Customer",
@@ -99,7 +99,7 @@
       }
     },
     "trades": {
-      "title": "Made for trades where people leave something behind",
+      "title": "For every trade where customers drop off and come back",
       "cta": "Try it free for 14 days",
       "label": "Trades",
       "previous": "Previous trade",
@@ -164,24 +164,24 @@
       "intro": "14 days to try everything, no card needed. After that, one subscription per shop, monthly or yearly, cancel at the end of any period.",
       "perMonth": "/month",
       "popular": "Popular",
-      "start": "Start the trial",
+      "start": "Try it free for 14 days",
       "essentiel": {
         "name": "Essentiel",
         "price": "€29",
         "yearly": "or €290 a year, 2 months free",
         "pitch": "For a shop with a small team that wants customers to stop calling.",
-        "items": ["Tracking page and QR code", "Automatic emails", "2 team members", "Your trade's steps"]
+        "items": ["Tracking page and QR code", "Automatic emails", "2 team members", "Ready-made steps for your trade"]
       },
       "pro": {
         "name": "Pro",
         "price": "€49",
         "yearly": "or €490 a year, 2 months free",
         "pitch": "For workshops with their own way of working that want more reviews.",
-        "items": ["Everything in Essentiel", "Unlimited team", "Your own steps", "Private feedback and Google reviews"]
+        "items": ["Everything in Essentiel", "Unlimited team", "Pick and order your own steps", "Private feedback and Google reviews"]
       }
     },
     "faq": {
-      "title": "Questions, answered",
+      "title": "Questions about repair tracking",
       "app": {
         "q": "Do my customers need to install an app?",
         "a": "No. They get a link by email, or scan the QR code you hand them, and follow their item in their browser. No account, no app."
@@ -222,7 +222,7 @@
       "features": "Features",
       "pricing": "Pricing",
       "faq": "FAQ",
-      "start": "Free trial",
+      "start": "Start free trial",
       "signIn": "Sign in",
       "language": "Language",
       "rights": "© {year} ReadyYet. All rights reserved."
