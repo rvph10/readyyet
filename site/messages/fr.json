@@ -58,6 +58,23 @@
         "readyTitle": "C'est prêt !",
         "emailSent": "Email envoyé à l'instant"
       }
+    },
+    "features": {
+      "label": "/ Fonctionnalités",
+      "headingStart": "Un suivi qui tourne",
+      "headingEnd": "tout seul",
+      "tracking": {
+        "title": "Page de suivi",
+        "text": "Chaque article a sa page, avec ses étapes et la date prévue. Un lien ou un QR code suffit, sans compte ni application."
+      },
+      "emails": {
+        "title": "Emails automatiques",
+        "text": "Votre client est prévenu quand l'article est enregistré et quand il est prêt. Vous n'avez rien à écrire."
+      },
+      "workflow": {
+        "title": "Les étapes de votre métier",
+        "text": "Cordonnerie, pressing, réparation : chaque métier part de ses propres étapes. En Pro, vous les choisissez et les mettez dans votre ordre."
+      }
     }
   }
 }

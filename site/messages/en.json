@@ -58,6 +58,23 @@
         "readyTitle": "It's ready!",
         "emailSent": "Email sent just now"
       }
+    },
+    "features": {
+      "label": "/ Features",
+      "headingStart": "Tracking that",
+      "headingEnd": "runs itself",
+      "tracking": {
+        "title": "Tracking page",
+        "text": "Every item gets its own page with its steps and expected date. A link or a QR code is all it takes, no account, no app."
+      },
+      "emails": {
+        "title": "Automatic emails",
+        "text": "Your customer hears from you when the item is logged and when it's ready. You don't write a thing."
+      },
+      "workflow": {
+        "title": "Your trade's steps",
+        "text": "Shoe repair, dry cleaning, electronics: each trade starts from its own steps. On Pro, you pick them and set their order."
+      }
     }
   }
 }

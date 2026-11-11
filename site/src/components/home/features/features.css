@@ -1,0 +1,67 @@
+/* Ledger's feature stack in ReadyYet's colours (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/ledger-782. */
+
+[data-temlis="ledger-782"] {
+  --color-ink: #1e1e1e;
+  --color-ink-soft: #1e1e1e;
+  --color-bg-dark: #17423a;
+  --color-bg-accent: #d6ff53;
+  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --gradient-card-payments: linear-gradient(180deg, #0f332c 0%, #17423a 100%);
+  --gradient-card-teams: linear-gradient(180deg, #d6ff53 0%, #d6ff53 100%);
+  --gradient-card-cards: linear-gradient(180deg, #1e1e1e 0%, #3a3a3a 100%);
+  --color-badge-pink: #1e1e1e;
+  --color-badge-blue: #17423a;
+}
+
+/* The size, tilt and padding of each card, which the template set inline. */
+[data-temlis="ledger-782"] .features__slot:nth-child(1) {
+  --slot-h: 20.0684rem;
+  --rot: -5deg;
+}
+
+[data-temlis="ledger-782"] .features__slot:nth-child(2) {
+  --slot-h: 19.457rem;
+  --rot: 2deg;
+}
+
+[data-temlis="ledger-782"] .features__slot:nth-child(3) {
+  --slot-h: 20.2028rem;
+  --rot: -4deg;
+}
+
+[data-temlis="ledger-782"] .fcard {
+  --pad: 1.25rem;
+}
+
+[data-temlis="ledger-782"] .features__slot:nth-child(1) .fcard {
+  --pad: 1rem;
+}
+
+/* The lime card carries ink text, white would be unreadable on it. */
+[data-temlis="ledger-782"] .fcard--teams[data-astro-cid-cognygiv],
+[data-temlis="ledger-782"] .fcard--teams .fcard__title[data-astro-cid-cognygiv] {
+  color: var(--color-ink);
+}
+
+/* In the template this card's icon had no badge of its own. */
+[data-temlis="ledger-782"] .fcard--teams .fcard__badge[data-astro-cid-cognygiv] {
+  background-color: var(--color-bg-dark);
+}
+
+/* As the hero's entrances: without scripts the heading and cards show after
+   4 s, and reduced motion holds nothing back (globals.css). */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-enter] [data-temlis="ledger-782"] .features__heading:not(.is-revealed),
+  html[data-enter] [data-temlis="ledger-782"] .fcard:not(.is-revealed) {
+    animation: enter-fallback 0s 4s forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-enter] [data-temlis="ledger-782"] .features__heading,
+  html[data-enter] [data-temlis="ledger-782"] .fcard {
+    visibility: visible;
+  }
+}

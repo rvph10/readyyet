@@ -34,7 +34,16 @@ export function HomeMotion() {
       startSmoothScroll();
       startFillButtons();
       void startEntrances();
-      void startTemlisSections(["/temlis/payable-626/animations.js"]);
+      // Ledger's scripts play their entrances whenever data-enter is set,
+      // the page serves it to everyone.
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.removeAttribute("data-enter");
+      }
+      void startTemlisSections([
+        "/temlis/payable-626/animations.js",
+        "/temlis/ledger-782/animations.js",
+        "/temlis/ledger-782/script.js",
+      ]);
     }
 
     return () => {

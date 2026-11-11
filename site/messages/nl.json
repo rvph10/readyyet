@@ -58,6 +58,23 @@
         "readyTitle": "Het is klaar!",
         "emailSent": "E-mail net verstuurd"
       }
+    },
+    "features": {
+      "label": "/ Functies",
+      "headingStart": "Opvolging die",
+      "headingEnd": "vanzelf loopt",
+      "tracking": {
+        "title": "Opvolgpagina",
+        "text": "Elk stuk krijgt een eigen pagina met de stappen en de verwachte datum. Een link of QR-code volstaat, zonder account of app."
+      },
+      "emails": {
+        "title": "Automatische e-mails",
+        "text": "Uw klant krijgt bericht wanneer het stuk geregistreerd is en wanneer het klaar is. U hoeft niets te schrijven."
+      },
+      "workflow": {
+        "title": "De stappen van uw vak",
+        "text": "Schoenmaker, droogkuis, herstelling: elk vak vertrekt van zijn eigen stappen. Met Pro kiest u ze en bepaalt u de volgorde."
+      }
     }
   }
 }
