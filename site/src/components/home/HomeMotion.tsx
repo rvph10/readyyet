@@ -6,7 +6,7 @@ import { startFillButtons } from "@/lib/motion/fill-buttons";
 import { startHeroScroll } from "@/lib/motion/hero-scroll";
 import { startSmoothScroll } from "@/lib/motion/smooth-scroll";
 import { startTemlisSections } from "@/lib/motion/temlis";
-import { startTradesScroll } from "@/lib/motion/trades-scroll";
+import { startTradesAutoplay } from "@/lib/motion/trades-autoplay";
 
 // The entrances split and hide elements as they run, so they must only ever
 // start once per page, even when React mounts this twice in development.
@@ -27,7 +27,7 @@ export function HomeMotion() {
     resize.observe(intro);
 
     const stopHero = startHeroScroll(hero);
-    const stopTrades = startTradesScroll();
+    const stopTrades = startTradesAutoplay();
 
     if (!started) {
       started = true;
