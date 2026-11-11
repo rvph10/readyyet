@@ -14,9 +14,9 @@
       "start": "Essai gratuit"
     },
     "hero": {
-      "label": "/ Suivi de réparation en ligne",
-      "title": "Vos clients savent quand c'est prêt",
-      "lede": "Déposé, en cours, prêt : ils suivent leur article en ligne, sans appeler le magasin et sans créer de compte.",
+      "label": "/ Pour les cordonniers, pressings et réparateurs",
+      "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",
+      "lede": "Déposé, en réparation, prêt : chaque étape s'affiche sur leur téléphone, sans appeler le magasin et sans créer de compte.",
       "artLabel": "Un téléphone qui affiche le suivi d'un article déposé en magasin"
     },
     "cta": {

@@ -36,16 +36,16 @@
    size; its !important is matched here. */
 .hero__title.t-display {
   margin-top: 0.75rem;
-  font-size: clamp(2.75rem, 7.2vw, 6.75rem) !important;
-  line-height: 0.92 !important;
-  letter-spacing: -0.045em !important;
+  font-size: clamp(2.5rem, 5.2vw, 4.75rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -0.035em !important;
   color: var(--color-ink);
 }
 
 .hero__lede {
   max-width: 36rem;
   margin-top: 0.75rem;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.45;
   color: var(--color-ink);
 }
