@@ -189,6 +189,20 @@
         "item": "Leather jacket",
         "status": "Ready"
       }
+    },
+    "footer": {
+      "tagline": "Online tracking for everything people leave at a shop.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "howItWorks": "How it works",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "start": "Free trial",
+      "signIn": "Sign in",
+      "language": "Language",
+      "rights": "© {year} ReadyYet. All rights reserved."
     }
   }
 }

@@ -189,6 +189,20 @@
         "item": "Leren jas",
         "status": "Klaar"
       }
+    },
+    "footer": {
+      "tagline": "Online opvolging voor alles wat klanten in de winkel achterlaten.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "howItWorks": "Hoe het werkt",
+      "features": "Functies",
+      "pricing": "Prijzen",
+      "faq": "FAQ",
+      "start": "Gratis proberen",
+      "signIn": "Aanmelden",
+      "language": "Taal",
+      "rights": "© {year} ReadyYet. Alle rechten voorbehouden."
     }
   }
 }

@@ -189,6 +189,20 @@
         "item": "Veste en cuir",
         "status": "Prêt"
       }
+    },
+    "footer": {
+      "tagline": "Le suivi en ligne pour tout ce qu'on dépose en magasin.",
+      "product": "Produit",
+      "account": "Compte",
+      "contact": "Contact",
+      "howItWorks": "Comment ça marche",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "start": "Essai gratuit",
+      "signIn": "Se connecter",
+      "language": "Langue",
+      "rights": "© {year} ReadyYet. Tous droits réservés."
     }
   }
 }
