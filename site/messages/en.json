@@ -79,6 +79,10 @@
         "title": "More Google reviews",
         "text": "On Pro, after pickup, each customer rates their visit and chooses: a Google review, or a private message you answer from ReadyYet."
       },
+      "today": {
+        "title": "Your day at a glance",
+        "text": "Open ReadyYet and see what's ready to hand over, what's running late and what's due today. Customer feedback and pickups to confirm wait for you under “Needs you”."
+      },
       "art": {
         "shop": "Atelier Sofie",
         "item": "Leather jacket",
@@ -95,7 +99,17 @@
         "cleaning": "Cleaning",
         "alteration": "Alteration",
         "reviewAsk": "How was your visit?",
-        "reviewCta": "Leave a review"
+        "reviewCta": "Leave a review",
+        "hello": "Good morning, Sofie",
+        "todayReady": "Ready for pickup",
+        "todayLate": "Running late",
+        "todayDue": "Due today",
+        "needsYou": "Needs you",
+        "saysCollected": "Says they collected",
+        "newFeedback": "New feedback",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
       }
     },
     "trades": {

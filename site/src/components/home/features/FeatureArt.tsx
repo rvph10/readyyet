@@ -1,4 +1,4 @@
-// The artwork of the four cards, drawn at the size of the template's images
+// The artwork of the five cards, drawn at the size of the template's images
 // they replace, so the cards place and animate them the same way.
 
 const PINE = "#17423a";
@@ -23,7 +23,17 @@ export type FeatureArtText = Record<
   | "cleaning"
   | "alteration"
   | "reviewAsk"
-  | "reviewCta",
+  | "reviewCta"
+  | "hello"
+  | "todayReady"
+  | "todayLate"
+  | "todayDue"
+  | "needsYou"
+  | "saysCollected"
+  | "newFeedback"
+  | "customerA"
+  | "customerB"
+  | "customerC",
   string
 >;
 
@@ -199,6 +209,79 @@ export function ReviewCard({ t, className }: { t: FeatureArtText; className: str
       <rect x="148" y="388" width="320" height="84" rx="42" fill={LIME} />
       <text x="308" y="441" textAnchor="middle" fontSize="28" fontWeight="600" fill={PINE}>
         {t.reviewCta}
+      </text>
+    </svg>
+  );
+}
+
+// An excerpt of Today, the page a shop opens on: the counts it acts on, at
+// different sizes as in the app, Needs you, and the next Ticket to move.
+export function TodayBoard({ t, className }: { t: FeatureArtText; className: string }) {
+  const stat = (x: number, y: number, value: string, label: string) => (
+    <g>
+      <rect x={x} y={y} width="210" height="98" rx="24" fill="#f3f3f3" />
+      <text x={x + 22} y={y + 52} fontSize="40" fontWeight="600" fill={INK}>
+        {value}
+      </text>
+      <text x={x + 22} y={y + 80} fontSize="18" fill={GREY}>
+        {label}
+      </text>
+    </g>
+  );
+  const person = (y: number, name: string, what: string) => (
+    <g>
+      <rect x="584" y={y} width="168" height="72" rx="18" fill="#215a4f" />
+      <text x="602" y={y + 30} fontSize="18" fontWeight="600" fill="#fff">
+        {name}
+      </text>
+      <text x="602" y={y + 54} fontSize="15" fill="rgba(255,255,255,0.75)">
+        {what}
+      </text>
+    </g>
+  );
+  return (
+    <svg className={className} viewBox="0 0 780 470" aria-hidden="true">
+      <rect x="0" y="0" width="780" height="470" rx="36" fill="#fff" />
+      <text x="28" y="62" fontSize="30" fontWeight="600" fill={INK}>
+        {t.hello}
+      </text>
+      <rect x="28" y="92" width="300" height="214" rx="28" fill={LIME} />
+      <text x="54" y="204" fontSize="104" fontWeight="600" fill={PINE}>
+        6
+      </text>
+      <text x="56" y="272" fontSize="22" fontWeight="600" fill={PINE}>
+        {t.todayReady}
+      </text>
+      {stat(344, 92, "2", t.todayLate)}
+      {stat(344, 208, "4", t.todayDue)}
+      <rect x="570" y="92" width="196" height="214" rx="28" fill={PINE} />
+      <text x="590" y="128" fontSize="18" fontWeight="600" fill="#fff">
+        {t.needsYou}
+      </text>
+      <circle cx="740" cy="122" r="14" fill={LIME} />
+      <text x="740" y="128" textAnchor="middle" fontSize="16" fontWeight="700" fill={PINE}>
+        2
+      </text>
+      {person(146, t.customerA, t.saysCollected)}
+      {person(226, t.customerB, t.newFeedback)}
+      <rect x="28" y="326" width="738" height="120" rx="28" fill="#fff" stroke={LINE} strokeWidth="2" />
+      <rect x="52" y="356" width="60" height="60" rx="16" fill="#e2eee9" />
+      <text x="82" y="394" textAnchor="middle" fontSize="20" fontWeight="600" fill={PINE}>
+        LS
+      </text>
+      <text x="132" y="380" fontSize="22" fontWeight="600" fill={INK}>
+        {t.item}
+      </text>
+      <text x="132" y="408" fontSize="18" fill={GREY}>
+        {t.customerC}
+      </text>
+      <rect x="400" y="366" width="170" height="40" rx="20" fill="#e2eee9" />
+      <text x="485" y="392" textAnchor="middle" fontSize="17" fontWeight="600" fill={PINE}>
+        {t.repairing}
+      </text>
+      <rect x="590" y="358" width="152" height="56" rx="28" fill={PINE} />
+      <text x="666" y="393" textAnchor="middle" fontSize="19" fontWeight="600" fill={LIME}>
+        {t.ready} →
       </text>
     </svg>
   );

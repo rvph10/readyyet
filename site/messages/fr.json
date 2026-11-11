@@ -79,6 +79,10 @@
         "title": "Plus d'avis Google",
         "text": "En Pro, après le retrait, chaque client note son passage et choisit : un avis sur Google, ou un message privé auquel vous répondez depuis ReadyYet."
       },
+      "today": {
+        "title": "Votre journée en un coup d'œil",
+        "text": "En ouvrant ReadyYet, vous voyez ce qui est prêt à remettre, ce qui est en retard et ce qui est prévu aujourd'hui. Les retours clients et les retraits à confirmer vous attendent dans « À traiter »."
+      },
       "art": {
         "shop": "Atelier Sofie",
         "item": "Veste en cuir",
@@ -95,7 +99,17 @@
         "cleaning": "Nettoyage",
         "alteration": "Retouche",
         "reviewAsk": "Comment s'est passé votre passage ?",
-        "reviewCta": "Laisser un avis"
+        "reviewCta": "Laisser un avis",
+        "hello": "Bonjour, Sofie",
+        "todayReady": "Prêts à être retirés",
+        "todayLate": "En retard",
+        "todayDue": "Pour aujourd'hui",
+        "needsYou": "À traiter",
+        "saysCollected": "Dit avoir retiré",
+        "newFeedback": "Nouveau retour",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
       }
     },
     "trades": {

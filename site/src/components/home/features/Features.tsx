@@ -1,7 +1,15 @@
 import { getTranslations } from "next-intl/server";
 import { noOrphan } from "@/lib/typography";
 import "@/temlis/wilun-559/styles.css";
-import { EmailStack, type FeatureArtText, QrGlyph, ReviewCard, TrackingPhone, WorkflowList } from "./FeatureArt";
+import {
+  EmailStack,
+  type FeatureArtText,
+  QrGlyph,
+  ReviewCard,
+  TodayBoard,
+  TrackingPhone,
+  WorkflowList,
+} from "./FeatureArt";
 import "./features.css";
 
 const ART_KEYS = [
@@ -21,6 +29,16 @@ const ART_KEYS = [
   "alteration",
   "reviewAsk",
   "reviewCta",
+  "hello",
+  "todayReady",
+  "todayLate",
+  "todayDue",
+  "needsYou",
+  "saysCollected",
+  "newFeedback",
+  "customerA",
+  "customerB",
+  "customerC",
 ] as const;
 
 // Wilun's "Tinted Bento Feature Cards" (Temlis), markup as bought, with
@@ -29,7 +47,7 @@ const ART_KEYS = [
 export async function Features() {
   const t = await getTranslations("home.features");
   const art = Object.fromEntries(ART_KEYS.map((key) => [key, t(`art.${key}`)])) as FeatureArtText;
-  const copy = (key: "tracking" | "emails" | "workflow" | "reviews") => (
+  const copy = (key: "tracking" | "emails" | "workflow" | "reviews" | "today") => (
     <div className="features_copy">
       <h3 className="display display--card-sm display--left">
         <span className="display_line">
@@ -150,6 +168,26 @@ export async function Features() {
                 </article>
               </div>
             </div>
+            <article className="features_card reveal-build tint--peach-deep" data-card="today">
+              <svg
+                className="features_deco"
+                aria-hidden="true"
+                preserveAspectRatio="none"
+                overflow="visible"
+                viewBox="0 0 695.591 403.627"
+                fill="none"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21.8942 81.457C350.159 -129.93 -16.5189 556.92 682.02 308.074"
+                  stroke="currentColor"
+                  strokeWidth="80.8786"
+                />
+              </svg>
+              {copy("today")}
+              <TodayBoard t={art} className="features_art" />
+            </article>
           </div>
         </section>
       </div>

@@ -79,6 +79,10 @@
         "title": "Meer Google-reviews",
         "text": "Met Pro beoordeelt elke klant na het ophalen zijn bezoek en kiest: een Google-review, of een privébericht dat u vanuit ReadyYet beantwoordt."
       },
+      "today": {
+        "title": "Uw dag in één oogopslag",
+        "text": "Open ReadyYet en u ziet wat klaar is om mee te geven, wat te laat is en wat vandaag gepland staat. Feedback van klanten en ophalingen om te bevestigen wachten op u onder „Te doen”."
+      },
       "art": {
         "shop": "Atelier Sofie",
         "item": "Leren jas",
@@ -95,7 +99,17 @@
         "cleaning": "Reiniging",
         "alteration": "Aanpassing",
         "reviewAsk": "Hoe was uw bezoek?",
-        "reviewCta": "Review schrijven"
+        "reviewCta": "Review schrijven",
+        "hello": "Goedemorgen, Sofie",
+        "todayReady": "Klaar om op te halen",
+        "todayLate": "Te laat",
+        "todayDue": "Voor vandaag",
+        "needsYou": "Te doen",
+        "saysCollected": "Zegt opgehaald",
+        "newFeedback": "Nieuwe feedback",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
       }
     },
     "trades": {
