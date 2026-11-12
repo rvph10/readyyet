@@ -84,7 +84,7 @@ describe("Email limits", () => {
     const over = await statusEmail(ticketId);
 
     expect(last?.status).toBe("SENT");
-    expect(over).toMatchObject({ status: "LIMITED", resendId: null });
+    expect(over).toMatchObject({ status: "LIMITED", resendId: null, html: null });
     expect(over?.gaveUpAt).toBeTruthy();
     const ticket = await request(app.getHttpServer())
       .get(`/locations/${locationId}/tickets/${ticketId}`)
@@ -118,18 +118,25 @@ describe("Email limits", () => {
     expect(overview.body.customerEmailsLimited).toBe(false);
   });
 
-  it("sends an address no more sign-in codes than the hourly limit", async () => {
+  it("refuses an address more sign-in codes than the hourly limit, and keeps the last one valid", async () => {
     const address = `delivered+limits-codes-${stamp}@resend.dev`;
-    for (let i = 0; i < SIGN_IN_CODES_PER_HOUR + 2; i++) {
-      await request(app.getHttpServer())
+    const ask = (i: number) =>
+      request(app.getHttpServer())
         .post("/api/auth/email-otp/send-verification-otp")
         .set("X-Real-IP", `198.19.0.${i + 1}`)
-        .send({ email: address, type: "sign-in" })
-        .expect(200);
+        .send({ email: address, type: "sign-in" });
+    for (let i = 0; i < SIGN_IN_CODES_PER_HOUR; i++) {
+      await ask(i).expect(200);
     }
+    const code = await prisma.verification.findFirstOrThrow({ where: { identifier: `sign-in-otp-${address}` } });
+
+    await ask(SIGN_IN_CODES_PER_HOUR).expect(429);
 
     await expect(prisma.emailLog.count({ where: { to: address, type: "auth_otp" } })).resolves.toBe(
       SIGN_IN_CODES_PER_HOUR,
     );
+    await expect(
+      prisma.verification.findFirstOrThrow({ where: { identifier: `sign-in-otp-${address}` } }),
+    ).resolves.toMatchObject({ value: code.value });
   });
 });

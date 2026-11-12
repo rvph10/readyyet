@@ -278,15 +278,15 @@ async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) 
   );
 }
 
-// After Checkout. The webhook can still be on its way, but the trial's end
-// doesn't change with it. Only Checkout knows if the trial was kept: too near
-// its end, the card is charged at once.
 // ADR 0140: the day's emails to Customers stopped, nothing else did.
 function EmailLimitBanner() {
   const t = useTranslations("today");
   return <Banner tone="error">{t("emailLimit")}</Banner>;
 }
 
+// After Checkout. The webhook can still be on its way, but the trial's end
+// doesn't change with it. Only Checkout knows if the trial was kept: too near
+// its end, the card is charged at once.
 async function Celebration({ page }: { page: Today }) {
   if (!page.manager || page.search.checkout !== "success") return null;
   const [location, billing, locale] = await Promise.all([

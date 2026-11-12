@@ -99,6 +99,24 @@ export const auth: Auth<any> = betterAuth({
           message: "Disposable email addresses can't be used to sign in.",
         });
       }
+      // ADR 0140: the form can't be used to flood an inbox. Checked before
+      // the plugin stores a new code, which would void the one already sent.
+      if (
+        ctx.path === "/email-otp/send-verification-otp" &&
+        typeof email === "string" &&
+        (await prisma.emailLog.count({
+          where: {
+            to: email.toLowerCase(),
+            type: "auth_otp",
+            createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+          },
+        })) >= SIGN_IN_CODES_PER_HOUR
+      ) {
+        throw new APIError("TOO_MANY_REQUESTS", {
+          code: "TOO_MANY_CODES",
+          message: "Too many codes for this address.",
+        });
+      }
     }),
   },
   // No password auth: sign-in is by emailed OTP, which confirms the
@@ -113,18 +131,6 @@ export const auth: Auth<any> = betterAuth({
         // regardless), nothing in this app calls them, forget-password
         // is meaningless with no password to reset.
         if (type !== "sign-in") {
-          return;
-        }
-        // ADR 0140: the form can't be used to flood an inbox. The page says
-        // the code was sent either way, like for an address it doesn't know.
-        const sentLastHour = await prisma.emailLog.count({
-          where: {
-            to: email,
-            type: "auth_otp",
-            createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
-          },
-        });
-        if (sentLastHour >= SIGN_IN_CODES_PER_HOUR) {
           return;
         }
         const { subject, react } = buildSignInCodeEmail({

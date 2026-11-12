@@ -107,8 +107,9 @@ export class EmailRetryService {
     if (latest.status === EmailStatus.BOUNCED) {
       return "GAVE_UP";
     }
+    // The limit starts again the next day, staff can resend the link then.
     if (latest.status === EmailStatus.LIMITED) {
-      return "LIMITED";
+      return latest.createdAt.getTime() > Date.now() - 24 * 60 * 60 * 1000 ? "LIMITED" : null;
     }
     if (latest.status !== EmailStatus.FAILED) {
       return null;

@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nestjs";
 import { render } from "react-email";
 import { Inject, Injectable } from "@nestjs/common";
-import { EmailStatus, Prisma, type SubscriptionStatus } from "@readyyet/db";
+import { EmailStatus, Prisma } from "@readyyet/db";
 import type { EmailLog, PrismaClient } from "@readyyet/db";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
@@ -97,8 +97,8 @@ export class EmailService {
       // Locks the Customer against an erasure running now, which either waits
       // and then clears this row too, or has finished and this isn't written.
       if (input.ticketId) {
-        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null }[]>`
-          SELECT c.deleted_at FROM customer c
+        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null; location_id: string }[]>`
+          SELECT c.deleted_at, t.location_id FROM customer c
           JOIN ticket t ON t.customer_id = c.id
           WHERE t.id = ${input.ticketId}
           FOR SHARE OF c`;
@@ -108,13 +108,14 @@ export class EmailService {
         // ADR 0140: over its daily limit, a Location's email to a Customer is
         // recorded but not sent, nor sent later, when it would be stale.
         if (CUSTOMER_EMAIL_TYPES.includes(input.type)) {
-          const [{ location_id: locationId, status }] = await tx.$queryRaw<
-            { location_id: string; status: SubscriptionStatus | null }[]
-          >`SELECT t.location_id, s.status FROM ticket t
-            LEFT JOIN subscription s ON s.location_id = t.location_id
-            WHERE t.id = ${input.ticketId}`;
-          const [today] = await tx.$queryRaw<{ sent: number; limited: number }[]>(customerEmailsToday(locationId));
-          limited = today.sent >= dailyCustomerEmails(status ?? undefined);
+          const subscription = await tx.subscription.findUnique({
+            where: { locationId: customer.location_id },
+            select: { status: true },
+          });
+          const [today] = await tx.$queryRaw<{ sent: number; limited: number }[]>(
+            customerEmailsToday(customer.location_id),
+          );
+          limited = today.sent >= dailyCustomerEmails(subscription?.status ?? null);
           firstLimitedToday = limited && today.limited === 0;
         }
       }
@@ -132,8 +133,16 @@ export class EmailService {
           ticketId: input.ticketId,
           invitationId: input.invitationId,
           dedupeKey: input.dedupeKey,
+          // Never sent, so nothing of the Customer's is kept with it.
           ...(limited
-            ? { status: EmailStatus.LIMITED, gaveUpAt: new Date(), lastError: "daily_limit: Location's daily limit" }
+            ? {
+                status: EmailStatus.LIMITED,
+                gaveUpAt: new Date(),
+                lastError: "daily_limit: Location's daily limit",
+                html: null,
+                text: null,
+                attachments: undefined,
+              }
             : { status: EmailStatus.QUEUED }),
         },
       });
