@@ -1,4 +1,4 @@
-/* The legal pages: a pine panel like the hero's, then the text on white
+/* The legal pages: a plain heading under the nav, then the text on white
    beside a contents list that stays in view. */
 
 .legal-hero,
@@ -16,11 +16,8 @@
   flex-direction: column;
   align-items: flex-start;
   /* The same column as the text below it. */
-  padding: 9rem max(var(--container-padding), (100% - var(--legal-width)) / 2) 3rem;
-  background-color: var(--color-bg-dark);
-  border-radius: var(--radius-panel);
-  color: var(--color-text-white);
-  overflow: clip;
+  padding: 9rem max(var(--container-padding), (100% - var(--legal-width)) / 2) 0;
+  color: var(--color-ink);
 }
 
 .legal-hero__label {
@@ -38,7 +35,7 @@
 .legal-hero__title {
   position: relative;
   max-width: 14em;
-  color: var(--color-text-white);
+  color: var(--color-ink);
 }
 
 .legal-hero__since {
@@ -61,19 +58,19 @@
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--color-text-white);
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-ink);
+  background-color: var(--color-bg-white);
   border-radius: var(--radius-btn);
   transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .legal-hero__doc:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-surface-muted);
 }
 
 .legal-hero__doc[aria-current] {
-  color: var(--color-ink);
-  background-color: var(--color-text-white);
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
 }
 
 .legal {
@@ -319,7 +316,6 @@
 @media (max-width: 767px) {
   .legal-hero__panel {
     padding-top: 7rem;
-    padding-bottom: 2rem;
   }
 
   /* One row that scrolls sideways, instead of four rows of pills. */
@@ -338,7 +334,7 @@
   }
 
   .legal {
-    padding-top: 1rem;
+    padding-top: 1.5rem;
   }
 
   .legal__body {
