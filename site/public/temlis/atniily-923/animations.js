@@ -29,7 +29,9 @@
     if (root.classList.contains('motion')) {
       gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 
-      const EASE_ROLL = CustomEase.create('atnRoll', 'M0,0 C0.22,1 0.36,1 1,1');
+      // ReadyYet: the home page's shared "reveal" curve and trigger line
+      // (lib/motion/reveal.ts) in place of the template's own.
+      const EASE_ROLL = 'reveal';
       const EASE_SOFT = CustomEase.create('atnSoft', 'M0,0 C0.4,0.15 0.2,1 1,1');
 
       ScrollTrigger.config({ ignoreMobileResize: true });
@@ -100,7 +102,7 @@
           gsap.timeline({ delay: o.delay }).from(els, {
             y: (_, target) => num(target, 'animY', 24),
             opacity: 0,
-            duration: 0.7,
+            duration: 0.9,
             ease: EASE_ROLL,
             stagger: spread(o),
           }),
@@ -268,7 +270,7 @@
 
         ScrollTrigger.create({
           trigger,
-          start: trigger.dataset.animStart ?? 'top 88%',
+          start: trigger.dataset.animStart ?? 'top 85%',
           once: true,
           onEnter: () => {
             reveal();
@@ -323,7 +325,7 @@
 
           ScrollTrigger.create({
             trigger: group,
-            start: group.dataset.animStart ?? 'top 88%',
+            start: group.dataset.animStart ?? 'top 85%',
             once: true,
             onEnter: () => {
               group.removeAttribute('data-anim-scene');
