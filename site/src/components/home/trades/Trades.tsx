@@ -65,7 +65,13 @@ export async function Trades() {
                       ))}
                     </div>
                   </div>
-                  <button type="button" className="arrow" data-entrance="" data-slider-prev="" aria-label={t("previous")}>
+                  <button
+                    type="button"
+                    className="arrow"
+                    data-entrance=""
+                    data-slider-prev=""
+                    aria-label={t("previous")}
+                  >
                     <svg viewBox="0 0 24 24" fill="none" className="icon-1x1-main" aria-hidden="true">
                       <path
                         d="M10.5 19.5L11.5575 18.4425L5.8725 12.75H21V11.25H5.8725L11.5575 5.5575L10.5 4.5L3 12L10.5 19.5Z"
@@ -73,7 +79,13 @@ export async function Trades() {
                       />
                     </svg>
                   </button>
-                  <button type="button" className="arrow is-right" data-entrance="" data-slider-next="" aria-label={t("next")}>
+                  <button
+                    type="button"
+                    className="arrow is-right"
+                    data-entrance=""
+                    data-slider-next=""
+                    aria-label={t("next")}
+                  >
                     <svg viewBox="0 0 24 24" fill="none" className="icon-1x1-main" aria-hidden="true">
                       <path
                         d="M13.5 19.5L12.4425 18.4425L18.1275 12.75H3V11.25H18.1275L12.4425 5.5575L13.5 4.5L21 12L13.5 19.5Z"

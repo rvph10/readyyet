@@ -12,7 +12,7 @@ const PLANS = [
 // Contelas' "Two Plan Pricing Cards" (Temlis), markup as bought, with
 // Ledger's button in place of its own and the tag's word written out so it
 // can be translated. Prices are the app's (plan-prices.ts in web, ADR 0031).
-// Its script is /temlis/contelas-518/animations.js.
+// It enters like every section, through data-entrance (lib/motion/reveal.ts).
 export async function Pricing() {
   const t = await getTranslations("home.pricing");
   const signUp = `${APP_URL}/sign-in`;
@@ -24,15 +24,17 @@ export async function Pricing() {
           <div className="padding-section-medium"></div>
           <div className="padding-global">
             <div className="container-small">
-              <div className="header">
-                <h2 className="animation">{t("title")}</h2>
+              <div className="header" data-entrance-group="">
+                <h2 data-entrance="title">{t("title")}</h2>
                 <div className="spacer-small"></div>
-                <div className="text-color-secondary animation">{t("intro")}</div>
+                <div className="text-color-secondary" data-entrance="">
+                  {t("intro")}
+                </div>
               </div>
               <div className="gap-section-medium"></div>
-              <div className="w-layout-grid grid_pricing" role="list">
+              <div className="w-layout-grid grid_pricing" role="list" data-entrance-group="">
                 {PLANS.map(({ key, frame }) => (
-                  <div key={key} className={`box ${frame} animation`} role="listitem">
+                  <div key={key} className={`box ${frame}`} role="listitem" data-entrance="">
                     <div className="padding-small is-top">
                       <div className="padding-medium">
                         <div className={key === "pro" ? "text-lg text-color-on-primary" : "text-lg"}>
