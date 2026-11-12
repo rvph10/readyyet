@@ -60,7 +60,7 @@ export class MeService {
                 id: true,
                 name: true,
                 logoKey: true,
-                termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true } },
+                termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true }, take: 1 },
               },
             },
           },

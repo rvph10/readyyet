@@ -87,6 +87,16 @@ describe("Accepting the terms", () => {
     expect((await myBusiness("owner", businessId)).termsAccepted).toBe(true);
   });
 
+  it("says on the Business itself whether its terms are accepted, with or without a Location", async () => {
+    const created = await create({ termsVersion: TERMS_VERSION, name: "No shop left", location });
+    const businessId = created.body.id as string;
+    await prisma.termsAcceptance.deleteMany({ where: { businessId } });
+    await prisma.location.updateMany({ where: { businessId }, data: { deletedAt: new Date() } });
+
+    const business = await request(app.getHttpServer()).get(`/businesses/${businessId}`).set("Cookie", cookies.owner);
+    expect(business.body.termsAccepted).toBe(false);
+  });
+
   it("is the Owner's to accept, not an Admin's", async () => {
     const created = await create({ termsVersion: TERMS_VERSION, name: "Admin Tries", location });
     await prisma.membership.create({

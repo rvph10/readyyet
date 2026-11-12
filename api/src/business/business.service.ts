@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Role, type Prisma } from "@readyyet/db";
-import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
+import { OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
@@ -139,9 +139,11 @@ export class BusinessService {
           orderBy: { createdAt: "asc" },
           select: { id: true, name: true, createdAt: true },
         },
+        termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true }, take: 1 },
       },
     });
-    return toBusinessResponse(business);
+    const { termsAcceptances, ...rest } = business;
+    return { ...toBusinessResponse(rest), termsAccepted: termsAcceptances.length > 0 };
   }
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {

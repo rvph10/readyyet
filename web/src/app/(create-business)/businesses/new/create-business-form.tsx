@@ -175,7 +175,15 @@ export function CreateBusinessForm({ header, businessTypes, email, legal }: Prop
         {progress}
         <div className="flex flex-col gap-6">
           {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
-            <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
+            <FormAlert>
+              {t(
+                failure.fields?.termsVersion
+                  ? "termsChanged"
+                  : failure.code === "RATE_LIMITED"
+                    ? "rateLimited"
+                    : "unexpected",
+              )}
+            </FormAlert>
           )}
           <Field
             label={t("locationName")}
@@ -225,7 +233,7 @@ export function CreateBusinessForm({ header, businessTypes, email, legal }: Prop
                 <a
                   href={legal.terms}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   className="font-semibold underline underline-offset-2"
                 >
                   {chunks}
@@ -235,7 +243,7 @@ export function CreateBusinessForm({ header, businessTypes, email, legal }: Prop
                 <a
                   href={legal.dpa}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   className="font-semibold underline underline-offset-2"
                 >
                   {chunks}

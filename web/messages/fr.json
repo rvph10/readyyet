@@ -235,6 +235,7 @@
     "submit": "Créer",
     "invalid": "Vérifiez ce champ.",
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+    "termsChanged": "Nos conditions ont changé pendant que cette page était ouverte. Rechargez la page pour les lire.",
     "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
     "stepOf": "Étape {step} sur {steps}",
     "stepBusiness": "Entreprise",
@@ -1424,6 +1425,7 @@
     "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
     "accept": "J'accepte",
     "accepting": "Enregistrement…",
-    "failed": "Votre acceptation n'a pas été enregistrée. Réessayez."
+    "failed": "Votre acceptation n'a pas été enregistrée. Réessayez.",
+    "changed": "Les conditions ont changé pendant que cette page était ouverte. Rechargez-la pour les lire, puis acceptez."
   }
 }

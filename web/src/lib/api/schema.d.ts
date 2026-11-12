@@ -1153,6 +1153,7 @@ export interface components {
         };
         BusinessWithLocationsDto: {
             locations: components["schemas"]["BusinessLocationSummaryDto"][];
+            termsAccepted: boolean;
             id: string;
             name: string;
             ownerId: string;

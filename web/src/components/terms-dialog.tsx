@@ -1,5 +1,6 @@
 "use client";
 
+import { TERMS_VERSION } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { acceptTerms } from "@/app/(dashboard)/terms-actions";
@@ -28,8 +29,8 @@ export function TermsDialog({
 
   function accept() {
     startTransition(async () => {
-      const result = await orFailure(acceptTerms(businessId));
-      if (!result.ok) toast({ tone: "error", message: t("failed") });
+      const result = await orFailure(acceptTerms(businessId, TERMS_VERSION));
+      if (!result.ok) toast({ tone: "error", message: t(result.fields?.termsVersion ? "changed" : "failed") });
     });
   }
 
@@ -39,12 +40,12 @@ export function TermsDialog({
         {t.rich("ask", {
           name: businessName,
           terms: (chunks) => (
-            <a href={legal.terms} target="_blank" rel="noopener" className={link}>
+            <a href={legal.terms} target="_blank" rel="noopener noreferrer" className={link}>
               {chunks}
             </a>
           ),
           dpa: (chunks) => (
-            <a href={legal.dpa} target="_blank" rel="noopener" className={link}>
+            <a href={legal.dpa} target="_blank" rel="noopener noreferrer" className={link}>
               {chunks}
             </a>
           ),

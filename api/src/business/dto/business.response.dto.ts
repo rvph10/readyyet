@@ -26,4 +26,7 @@ export class BusinessLocationSummaryDto {
 
 export class BusinessWithLocationsDto extends BusinessDto {
   locations!: BusinessLocationSummaryDto[];
+  // Whether the Owner accepted the current terms (ADR 0130), read here so a
+  // Business with no Location left is asked too.
+  termsAccepted!: boolean;
 }

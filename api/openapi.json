@@ -9530,6 +9530,9 @@
               "$ref": "#/components/schemas/BusinessLocationSummaryDto"
             }
           },
+          "termsAccepted": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -9561,6 +9564,7 @@
         },
         "required": [
           "locations",
+          "termsAccepted",
           "id",
           "name",
           "ownerId",

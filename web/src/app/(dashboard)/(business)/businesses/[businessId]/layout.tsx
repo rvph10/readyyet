@@ -25,9 +25,6 @@ export default async function BusinessLayout({ children, params }: LayoutProps<"
     cookies(),
     getLocale(),
   ]);
-  // A Business with no Location left isn't in /me, nothing runs to accept for.
-  const termsAccepted =
-    me.memberships.find(({ location }) => location.business.id === businessId)?.location.business.termsAccepted ?? true;
   return (
     <div className="flex min-h-dvh flex-col">
       <BusinessNav
@@ -39,7 +36,7 @@ export default async function BusinessLayout({ children, params }: LayoutProps<"
         inviteLink={await referralLink(business.referralCode)}
         collapsed={cookieStore.get(SIDEBAR_COOKIE)?.value === "collapsed"}
       >
-        {!termsAccepted && (
+        {!business.termsAccepted && (
           <TermsDialog businessId={businessId} businessName={business.name} legal={legalLinks(locale)} />
         )}
         {children}
