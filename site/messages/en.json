@@ -231,8 +231,7 @@
       "monthly": "Monthly",
       "yearly": "Yearly",
       "twoMonthsFree": "2 months free",
-      "perYear": "/year",
-      "compare": "Compare the plans in detail"
+      "perYear": "/year"
     },
     "faq": {
       "title": "Good to know before you start",
@@ -312,7 +311,7 @@
     "tag": "Offer",
     "text": "Pay yearly and get 2 months free, for every shop.",
     "action": "See pricing",
-    "href": "/pricing"
+    "href": "#pricing"
   },
   "tradePage": {
     "page": {
@@ -616,34 +615,6 @@
           "a": "No. A link is enough, with no account."
         }
       ]
-    }
-  },
-  "pricingPage": {
-    "metaTitle": "Pricing | ReadyYet",
-    "metaDescription": "Essentiel at €29 or Pro at €49 a month per shop, cancel any time. Compare everything each plan includes. 14-day free trial.",
-    "tableTitle": "Compare everything",
-    "feature": "Feature",
-    "included": "Included",
-    "notIncluded": "Not included",
-    "values": {
-      "unlimited": "Unlimited",
-      "two": "2 members",
-      "tradeSteps": "Your trade's",
-      "yourSteps": "Yours, in your order"
-    },
-    "rows": {
-      "tickets": "Tickets",
-      "tracking": "Tracking page, no account or app",
-      "handover": "Link by email, WhatsApp or QR code",
-      "emails": "Emails at every step that matters",
-      "reminders": "Reminders after 3 and 10 days",
-      "photos": "Item photos",
-      "team": "Team members",
-      "profiles": "Team profiles and activity",
-      "steps": "Ticket steps",
-      "copySteps": "Steps copied from one shop to the next",
-      "reviews": "Private feedback and Google review requests",
-      "export": "Export of all your data"
     }
   }
 }

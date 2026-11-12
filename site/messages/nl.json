@@ -231,8 +231,7 @@
       "monthly": "Maandelijks",
       "yearly": "Jaarlijks",
       "twoMonthsFree": "2 maanden gratis",
-      "perYear": "/jaar",
-      "compare": "Vergelijk de plannen in detail"
+      "perYear": "/jaar"
     },
     "faq": {
       "title": "Goed om te weten voor u start",
@@ -312,7 +311,7 @@
     "tag": "Aanbod",
     "text": "Betaal per jaar en krijg 2 maanden gratis, voor elke winkel.",
     "action": "Bekijk de prijzen",
-    "href": "/pricing"
+    "href": "#pricing"
   },
   "tradePage": {
     "page": {
@@ -616,34 +615,6 @@
           "a": "Nee. Een link volstaat, zonder account."
         }
       ]
-    }
-  },
-  "pricingPage": {
-    "metaTitle": "Prijzen | ReadyYet",
-    "metaDescription": "Essentiel aan 29 € of Pro aan 49 € per maand en per winkel, zonder verbintenis. Vergelijk alles wat elk plan bevat. 14 dagen gratis.",
-    "tableTitle": "Alles vergelijken",
-    "feature": "Functie",
-    "included": "Inbegrepen",
-    "notIncluded": "Niet inbegrepen",
-    "values": {
-      "unlimited": "Onbeperkt",
-      "two": "2 leden",
-      "tradeSteps": "Die van uw vak",
-      "yourSteps": "Uw eigen, in uw volgorde"
-    },
-    "rows": {
-      "tickets": "Tickets",
-      "tracking": "Opvolgingspagina, zonder account of app",
-      "handover": "Link via e-mail, WhatsApp of QR-code",
-      "emails": "E-mails bij elke stap die telt",
-      "reminders": "Herinneringen na 3 en 10 dagen",
-      "photos": "Foto's van de artikels",
-      "team": "Teamleden",
-      "profiles": "Profielen en activiteit van het team",
-      "steps": "Stappen van de tickets",
-      "copySteps": "Stappen overgenomen van winkel naar winkel",
-      "reviews": "Privéfeedback en Google-reviewverzoeken",
-      "export": "Export van al uw gegevens"
     }
   }
 }

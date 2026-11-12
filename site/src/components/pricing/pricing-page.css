@@ -1,6 +1,0 @@
-/* The pricing page: the nav on its own above the cards, as the home's hero
-   isn't there to hold it. */
-.pricing-page__top {
-  position: relative;
-  height: 5.5rem;
-}

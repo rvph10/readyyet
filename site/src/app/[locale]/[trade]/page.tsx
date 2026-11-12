@@ -94,7 +94,7 @@ export default async function TradePage({ params }: Props) {
           </p>
           <div className="cta trade-hero__cta" data-entrance="">
             <ChipButton href={signIn}>{page("start")}</ChipButton>
-            <FillButton href={`/${locale}/pricing`} className="btn--muted">
+            <FillButton href={`/${locale}#pricing`} className="btn--muted">
               {page("pricing")}
             </FillButton>
           </div>
