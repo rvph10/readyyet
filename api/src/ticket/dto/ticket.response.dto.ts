@@ -113,6 +113,11 @@ export class TicketOverviewDto {
   // An email to a Customer was held back today, the Location reached its
   // daily limit (ADR 0140).
   customerEmailsLimited!: boolean;
+  // Every member sees it, not only those who can read the billing: an
+  // Employee learns before filling a Ticket in that it can't be created.
+  frozen!: boolean;
+  // The last payment failed, Stripe is retrying it.
+  pastDue!: boolean;
 }
 
 export class TicketPageDto {

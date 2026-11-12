@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EmailStatus, Locale, Prisma, Role } from "@readyyet/db";
+import { EmailStatus, Locale, Prisma, Role, SubscriptionStatus } from "@readyyet/db";
 import {
   calendarDateIn,
   ENDED_STATUS_CODES,
@@ -18,6 +18,7 @@ import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
+import { isFrozen } from "../billing/plans";
 import { EmailRetryService } from "../email/email-retry.service";
 import { isTrackingLinkExpired, trackingUrl } from "../tracking/tracking-link";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
@@ -260,9 +261,9 @@ export class TicketService {
   // Open Tickets are what's physically in the shop, so there are few enough to
   // read whole, which is what lets them sort by urgency (ADR 0088).
   async overview(locationId: string) {
-    const { timeZone } = await this.prisma.location.findUniqueOrThrow({
+    const { timeZone, subscription } = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
-      select: { timeZone: true },
+      select: { timeZone: true, subscription: true },
     });
     const [emailsToday] = await this.prisma.$queryRaw<{ limited: number }[]>(customerEmailsToday(locationId));
     const now = new Date();
@@ -329,6 +330,8 @@ export class TicketService {
         ),
       },
       customerEmailsLimited: emailsToday.limited > 0,
+      frozen: isFrozen(subscription!),
+      pastDue: subscription!.status === SubscriptionStatus.PAST_DUE,
     };
   }
 

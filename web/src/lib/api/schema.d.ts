@@ -1454,6 +1454,8 @@ export interface components {
             tickets: components["schemas"]["OverviewTicketDto"][];
             needsYou: components["schemas"]["OverviewNeedsYouDto"];
             customerEmailsLimited: boolean;
+            frozen: boolean;
+            pastDue: boolean;
         };
         TicketStatusEventDto: {
             id: string;

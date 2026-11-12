@@ -10749,13 +10749,21 @@
           },
           "customerEmailsLimited": {
             "type": "boolean"
+          },
+          "frozen": {
+            "type": "boolean"
+          },
+          "pastDue": {
+            "type": "boolean"
           }
         },
         "required": [
           "counts",
           "tickets",
           "needsYou",
-          "customerEmailsLimited"
+          "customerEmailsLimited",
+          "frozen",
+          "pastDue"
         ]
       },
       "TicketStatusEventDto": {

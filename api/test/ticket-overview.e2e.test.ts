@@ -202,6 +202,21 @@ describe("Ticket overview", () => {
     });
   });
 
+  it("says when the Location is frozen or its payment failed", async () => {
+    expect(await overview()).toMatchObject({ frozen: false, pastDue: false });
+
+    await prisma.subscription.update({ where: { locationId }, data: { trialEndsAt: new Date(Date.now() - 1000) } });
+    expect(await overview()).toMatchObject({ frozen: true, pastDue: false });
+
+    await prisma.subscription.update({ where: { locationId }, data: { status: "PAST_DUE", plan: "PRO" } });
+    expect(await overview()).toMatchObject({ frozen: false, pastDue: true });
+
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "TRIAL", trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) },
+    });
+  });
+
   it("is refused to someone with no Membership", async () => {
     const stranger = await signInViaOtp(app, prisma, `delivered+overview-stranger-${stamp}@resend.dev`);
     await request(app.getHttpServer())
