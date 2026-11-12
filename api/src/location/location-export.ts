@@ -1,6 +1,6 @@
 import { Readable } from "node:stream";
 import { Injectable } from "@nestjs/common";
-import { Locale } from "@readyyet/db";
+import { Locale, Prisma } from "@readyyet/db";
 import { ZipFile } from "yazl";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
@@ -44,7 +44,7 @@ export class LocationExportService {
     private readonly storage: StorageService,
   ) {}
 
-  async zip(locationId: string): Promise<Readable> {
+  async zip(locationId: string): Promise<{ stream: Readable; filename: string }> {
     const location = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
       include: {
@@ -53,32 +53,45 @@ export class LocationExportService {
         memberships: { include: { user: { select: { name: true, email: true } } }, orderBy: { createdAt: "asc" } },
       },
     });
-    const [customers, tickets, workflows, labels] = await Promise.all([
-      this.prisma.customer.findMany({ where: { locationId }, orderBy: { id: "asc" } }),
-      this.prisma.ticket.findMany({
-        where: { locationId },
-        orderBy: { id: "asc" },
-        include: {
-          currentStatus: { select: { code: true } },
-          creator: { select: { name: true } },
-          statusEvents: {
-            orderBy: { createdAt: "asc" },
-            include: { status: { select: { code: true } }, changer: { select: { name: true } } },
-          },
-          feedback: { include: { handler: { select: { name: true } } } },
-          photos: { orderBy: { createdAt: "asc" }, include: { uploader: { select: { name: true } } } },
-        },
-      }),
-      this.prisma.workflow.findMany({
-        where: { OR: [{ locationId }, { tickets: { some: { locationId } } }] },
-        orderBy: { id: "asc" },
-        include: { steps: { orderBy: { position: "asc" }, include: { status: { select: { code: true } } } } },
-      }),
-      this.prisma.statusTranslation.findMany({
-        where: { locale: location.locale },
-        include: { status: { select: { code: true } } },
-      }),
-    ]);
+    // One snapshot, so every Ticket's customer_id is in customers.csv even
+    // when a Ticket is created during the export.
+    const [customers, tickets, workflows, labels] = await this.prisma.$transaction(
+      (tx) =>
+        Promise.all([
+          tx.customer.findMany({ where: { locationId }, orderBy: { id: "asc" } }),
+          tx.ticket.findMany({
+            where: { locationId },
+            orderBy: { id: "asc" },
+            include: {
+              currentStatus: { select: { code: true } },
+              creator: { select: { name: true } },
+              statusEvents: {
+                orderBy: { createdAt: "asc" },
+                include: { status: { select: { code: true } }, changer: { select: { name: true } } },
+              },
+              feedback: { include: { handler: { select: { name: true } } } },
+              photos: { orderBy: { createdAt: "asc" }, include: { uploader: { select: { name: true } } } },
+            },
+          }),
+          tx.workflow.findMany({
+            // The one it runs too, its Business type's while it has none of its own.
+            where: {
+              OR: [
+                { locationId },
+                { tickets: { some: { locationId } } },
+                { businessTypeId: location.businessTypeId, isActive: true },
+              ],
+            },
+            orderBy: { id: "asc" },
+            include: { steps: { orderBy: { position: "asc" }, include: { status: { select: { code: true } } } } },
+          }),
+          tx.statusTranslation.findMany({
+            where: { locale: location.locale },
+            include: { status: { select: { code: true } } },
+          }),
+        ]),
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+    );
     const label = new Map(labels.map((translation) => [translation.status.code, translation.label]));
     const separator = SEPARATORS[location.locale];
     const photoFile = (ticketId: bigint, photo: { id: bigint; objectKey: string }) =>
@@ -290,20 +303,40 @@ export class LocationExportService {
     };
     add("readyyet.json", Buffer.from(JSON.stringify(json, null, 2), "utf8"));
 
+    const output = zip.outputStream as Readable;
+    // A photo that fails to load ends the download, not the API: yazl
+    // reports it on the ZipFile, and nothing would listen there otherwise.
+    zip.on("error", (error: Error) => output.destroy(error));
+    // A download stopped halfway lets go of the photo being read.
+    let reading: Readable | undefined;
+    output.on("close", () => reading?.destroy());
+
     // Fetched one at a time as the archive is written, not all held open.
     for (const ticket of tickets) {
       for (const photo of ticket.photos) {
         // Already compressed, a second pass only costs time.
         zip.addReadStreamLazy(photoFile(ticket.id, photo), { compress: false }, (done) => {
           this.storage.stream(photo.objectKey).then(
-            // Deleted since the query: an empty file rather than a broken archive.
-            (object) => done(null, object?.body ?? Readable.from([])),
+            (object) => {
+              // Deleted since the query: an empty file rather than a broken archive.
+              reading = object?.body ?? Readable.from([]);
+              reading.on("error", (error) => output.destroy(error));
+              done(null, reading);
+            },
             (error: unknown) => done(error, Readable.from([])),
           );
         });
       }
     }
     zip.end();
-    return zip.outputStream as Readable;
+    // Which Location and which day, on its own clock: an Owner of several
+    // gets files that say whose they are.
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: location.timeZone }).format(new Date());
+    const slug = location.name
+      .normalize("NFKD")
+      .replace(/[^A-Za-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+    return { stream: output, filename: `readyyet-${slug ? `${slug}-` : ""}${today}.zip` };
   }
 }

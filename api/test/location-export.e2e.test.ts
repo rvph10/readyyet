@@ -114,7 +114,9 @@ describe("Exporting a Location", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers["content-type"]).toBe("application/zip");
-    expect(response.headers["content-disposition"]).toMatch(/^attachment; filename="readyyet-\d{4}-\d{2}-\d{2}\.zip"$/);
+    expect(response.headers["content-disposition"]).toMatch(
+      /^attachment; filename="readyyet-atelier-export-\d{4}-\d{2}-\d{2}\.zip"$/,
+    );
     const files = await unzip(response.body as Buffer);
     expect([...files.keys()].filter((name) => !name.startsWith("photos/"))).toEqual([
       "customers.csv",

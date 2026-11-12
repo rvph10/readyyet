@@ -10,12 +10,14 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   StreamableFile,
   UseGuards,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
+import type { Response } from "express";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
@@ -95,11 +97,14 @@ export class LocationController {
   @ApiParam({ name: "locationId" })
   @ApiOperation({ summary: "Download everything the Location holds, CSV and JSON in a ZIP, owner only (ADR 0129)" })
   @ApiOkResponse({ content: { "application/zip": { schema: { type: "string", format: "binary" } } } })
-  async export(@Param("locationId") locationId: string): Promise<StreamableFile> {
-    return new StreamableFile(await this.locationExport.zip(locationId), {
-      type: "application/zip",
-      disposition: `attachment; filename="readyyet-${new Date().toISOString().slice(0, 10)}.zip"`,
-    });
+  async export(
+    @Param("locationId") locationId: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const { stream, filename } = await this.locationExport.zip(locationId);
+    // Nest doesn't stop the archive when the Owner cancels the download.
+    response.on("close", () => stream.destroy());
+    return new StreamableFile(stream, { type: "application/zip", disposition: `attachment; filename="${filename}"` });
   }
 
   @Delete(":locationId")

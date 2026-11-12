@@ -11,6 +11,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/location
     parseAs: "stream",
   });
   if (!response.ok || !response.body) {
+    // Read or not, an answer holds its connection to the API until dropped.
+    await response.body?.cancel();
     redirect(`/locations/${locationId}/settings?section=export&failed=1`);
   }
   return new Response(response.body, {
