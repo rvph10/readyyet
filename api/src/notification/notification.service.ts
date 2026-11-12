@@ -8,7 +8,7 @@ import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { GIVE_UP_AFTER_MS } from "../email/email-status";
 import { EmailService } from "../email/email.service";
-import { asksForFeedback } from "../feedback/asks-for-feedback";
+import { emailsForFeedback } from "../feedback/asks-for-feedback";
 import { toPostalAddress } from "../location/location-info";
 import { publicImageUrl } from "../storage/image";
 import {
@@ -180,10 +180,10 @@ export class NotificationService {
     }
   }
 
-  // ADR 0039: decided when due, with the Location's plan and link then.
+  // ADR 0131: decided when due, with the Location's plan and switch then.
   // Claimed first, a Ticket completed again never gets a second one.
   private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
-    if (!asksForFeedback(ticket.location)) {
+    if (!emailsForFeedback(ticket.location, ticket.createdAt)) {
       return;
     }
     const { count } = await this.prisma.ticket.updateMany({
@@ -366,7 +366,7 @@ export class NotificationService {
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
       ratingUrl: ratingUrl(ticket.trackingCode),
-      asksForFeedback: asksForFeedback(ticket.location),
+      asksForFeedback: emailsForFeedback(ticket.location, ticket.createdAt),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
       reply,
     });

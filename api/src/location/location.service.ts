@@ -64,11 +64,18 @@ export class LocationService {
   }
 
   async update(locationId: string, dto: UpdateLocationDto) {
-    if (dto.googleReviewUrl) {
+    if (dto.googleReviewUrl || dto.feedbackEmails) {
       const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
       if (!hasPro(subscription)) {
         throw new PlanRequiredError("Review requests");
       }
+    }
+    // Turned on again, it keeps its date: the Tickets since were told.
+    if (dto.feedbackEmails) {
+      await this.prisma.location.updateMany({
+        where: { id: locationId, feedbackEmailsSince: null },
+        data: { feedbackEmailsSince: new Date() },
+      });
     }
     const location = await this.prisma.location.update({
       where: { id: locationId },
@@ -83,6 +90,7 @@ export class LocationService {
         ...(dto.openingHours !== undefined && { openingHours: toOpeningHoursJson(dto.openingHours) }),
         ...(dto.turnaroundDays !== undefined && { turnaroundDays: dto.turnaroundDays }),
         ...(dto.googleReviewUrl !== undefined && { googleReviewUrl: dto.googleReviewUrl }),
+        ...(dto.feedbackEmails === false && { feedbackEmailsSince: null }),
       },
     });
     return toLocationResponse(location);

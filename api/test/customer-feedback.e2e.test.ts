@@ -137,14 +137,18 @@ describe("Customer feedback", () => {
     employeeCookie = await join(address("employee"), "EMPLOYEE");
   });
 
-  // A first Location starts on a Pro trial, each test sets the link again.
+  // A first Location starts on a Pro trial, each test sets the link and the
+  // feedback email again.
   beforeEach(async () => {
     await setSubscription({
       status: SubscriptionStatus.TRIAL,
       plan: Plan.PRO,
       trialEndsAt: new Date(Date.now() + 10 * DAY_MS),
     });
-    await prisma.location.update({ where: { id: locationId }, data: { googleReviewUrl: REVIEW_URL } });
+    await prisma.location.update({
+      where: { id: locationId },
+      data: { googleReviewUrl: REVIEW_URL, feedbackEmailsSince: new Date() },
+    });
   });
 
   afterAll(async () => {
@@ -216,6 +220,45 @@ describe("Customer feedback", () => {
   });
 
   describe("the feedback email", () => {
+    // ADR 0131.
+    it("is off until the shop turns it on, with nothing said at drop-off", async () => {
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
+      const ticket = await createTicket("not-chosen");
+      await complete(ticket.id);
+
+      await makeDueAndSweep(ticket.id);
+
+      const [created] = await emailsTo("not-chosen", "ticket_tracking_link");
+      expect(created.html).not.toContain("asking how it went");
+      expect(await emailsTo("not-chosen", "ticket_feedback_request")).toHaveLength(0);
+    });
+
+    // ADR 0139: its drop-off email didn't announce it.
+    it("isn't sent for a Ticket created before it was turned on", async () => {
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
+      const ticket = await createTicket("before-on");
+      await patchLocation({ feedbackEmails: true });
+      await complete(ticket.id);
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await emailsTo("before-on", "ticket_feedback_request")).toHaveLength(0);
+    });
+
+    it("is turned on with Pro only, and off on any plan", async () => {
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
+      const on = await patchLocation({ feedbackEmails: true });
+      await setSubscription({ status: SubscriptionStatus.ACTIVE, plan: Plan.ESSENTIEL, trialEndsAt: null });
+
+      const refused = await patchLocation({ feedbackEmails: true });
+      const off = await patchLocation({ feedbackEmails: false });
+
+      expect(on.body.feedbackEmails).toBe(true);
+      expect(refused.status).toBe(402);
+      expect(off.status).toBe(200);
+      expect(off.body.feedbackEmails).toBe(false);
+    });
+
     it("asks how it went once the Ticket is COMPLETED, without the Google link", async () => {
       const ticket = await createTicket("sent");
       await complete(ticket.id);
@@ -325,6 +368,17 @@ describe("Customer feedback", () => {
       const response = await client().get(`/tracking/${ticket.trackingCode}`);
 
       expect(response.body).toMatchObject({ asksForFeedback: true, reviewUrl: null });
+    });
+
+    // ADR 0131: offered, not sent, so it isn't the email's choice.
+    it("takes feedback when the shop doesn't email for it", async () => {
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
+      const ticket = await createTicket("page-no-email");
+      await complete(ticket.id);
+
+      const response = await client().get(`/tracking/${ticket.trackingCode}`);
+
+      expect(response.body).toMatchObject({ asksForFeedback: true });
     });
 
     it("offers nothing on Essentiel", async () => {

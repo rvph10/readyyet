@@ -93,7 +93,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   );
 }
 
-// Said in the menu while Customers aren't being asked.
+// Said in the menu while Customers aren't emailed for feedback (ADR 0131).
 async function ReviewsOff({ locationId }: { locationId: string }) {
   const [location, billing, t] = await Promise.all([
     getLocation(locationId),
@@ -101,7 +101,7 @@ async function ReviewsOff({ locationId }: { locationId: string }) {
     getTranslations("settings"),
   ]);
   const hasPro = billing.plan === "PRO" && !billing.frozen;
-  return hasPro && !location.googleReviewUrl ? <MenuBadge>{t("off")}</MenuBadge> : null;
+  return hasPro && !location.feedbackEmails ? <MenuBadge>{t("off")}</MenuBadge> : null;
 }
 
 async function ShopSection({ locationId }: { locationId: string }) {
