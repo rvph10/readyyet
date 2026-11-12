@@ -1223,7 +1223,8 @@
       "when": "Your credit arrives 14 days after their first payment.",
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
-    }
+    },
+    "createAnother": "New business"
   },
   "profile": {
     "title": "Your profile",

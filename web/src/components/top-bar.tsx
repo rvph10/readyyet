@@ -68,18 +68,28 @@ function PanelLink({
 export function BusinessPanel({ business, memberships }: { business: Business; memberships: Membership[] }) {
   const t = useTranslations("business");
   return (
-    <div className={list}>
-      {groupByBusiness(memberships).map((group) => (
-        <PanelLink
-          key={group.business.id}
-          href={businessHref(group)}
-          current={group.business.id === business.id}
-          avatar={group.business}
-          name={group.business.name}
-          detail={t("locationCount", { count: group.memberships.length })}
-        />
-      ))}
-    </div>
+    <>
+      <div className={list}>
+        {groupByBusiness(memberships).map((group) => (
+          <PanelLink
+            key={group.business.id}
+            href={businessHref(group)}
+            current={group.business.id === business.id}
+            avatar={group.business}
+            name={group.business.name}
+            detail={t("locationCount", { count: group.memberships.length })}
+          />
+        ))}
+      </div>
+      <div className="mx-1 my-2 border-t border-border" />
+      {/* A Business of its own, with its own Locations and billing (ADR 0040). */}
+      <Link href="/businesses/new" className={panelRow}>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-subtle">
+          <Icon name="add" className="size-3" />
+        </span>
+        {t("createAnother")}
+      </Link>
+    </>
   );
 }
 
