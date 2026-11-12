@@ -1154,7 +1154,10 @@
       "stepPlan": "Plan",
       "planTitle": "Which plan for this shop?",
       "planHint": "Each shop has its own plan. There's no trial for another shop: Tickets start as soon as it's paid.",
-      "planLegend": "Plan"
+      "planLegend": "Plan",
+      "sameType": "The same as your other shops",
+      "sameTypeHint": "Its Tickets follow this trade's steps. Change it only if this shop does something else.",
+      "otherType": "It does something else"
     },
     "settings": {
       "name": "Business name",

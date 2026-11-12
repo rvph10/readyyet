@@ -18,13 +18,15 @@ export async function addShopData(businessId: string) {
     getMe(),
     getBusinessTypeOptions(),
   ]);
-  // A second shop is most likely in the same country as the first.
+  // A second shop is most likely in the same country as the first, and in the
+  // same trade: a chain's shops share one.
   const [first] = business.locations;
-  const country = first && (await getLocation(first.id)).address?.addressCountry;
+  const shop = first && (await getLocation(first.id));
   return {
     businessName: business.name,
     email: me.email,
-    country: country as Country | undefined,
+    country: shop?.address?.addressCountry as Country | undefined,
+    businessType: shop && { code: shop.businessTypeCode, detail: shop.businessTypeDetail ?? "" },
     businessTypes: businessTypes.map(({ code, label }) => ({ code, label })),
   };
 }

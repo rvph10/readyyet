@@ -1154,7 +1154,10 @@
       "stepPlan": "Plan",
       "planTitle": "Quel plan pour ce magasin ?",
       "planHint": "Chaque magasin a son propre plan. Il n'y a pas d'essai pour un magasin de plus : les tickets démarrent dès le paiement.",
-      "planLegend": "Plan"
+      "planLegend": "Plan",
+      "sameType": "Le même que vos autres magasins",
+      "sameTypeHint": "Ses tickets suivent les étapes de ce métier. Changez-le seulement si ce magasin en fait un autre.",
+      "otherType": "Il fait un autre métier"
     },
     "settings": {
       "name": "Nom de l'entreprise",

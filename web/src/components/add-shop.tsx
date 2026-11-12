@@ -65,8 +65,10 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
   const locale = useLocale();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
-  const [businessTypeCode, setBusinessTypeCode] = useState("");
-  const [businessTypeDetail, setBusinessTypeDetail] = useState("");
+  const [businessTypeCode, setBusinessTypeCode] = useState(data.businessType?.code ?? "");
+  const [businessTypeDetail, setBusinessTypeDetail] = useState(data.businessType?.detail ?? "");
+  // The other shops' trade is kept folded, opened only for a shop doing another.
+  const [choosingType, setChoosingType] = useState(!data.businessType);
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState(data.email);
   const [plan, setPlan] = useState<Plan>("PRO");
@@ -158,31 +160,47 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
           <>
             <div>
               <p className="text-title-h6">{tNew("typeTitle")}</p>
-              <p className="mt-1 text-p-sm text-muted">{tNew("typeHint")}</p>
+              <p className="mt-1 text-p-sm text-muted">{tNew(choosingType ? "typeHint" : "sameTypeHint")}</p>
             </div>
-            <RadioCards
-              legend={t("businessType")}
-              name="businessTypeCode"
-              options={data.businessTypes
-                .filter(({ code }) => code !== OTHER_BUSINESS_TYPE)
-                .map(({ code, label }) => ({ value: code, label }))}
-              other={
-                otherType && {
-                  value: otherType.code,
-                  label: otherType.label,
-                  placeholder: t("businessTypeDetail"),
-                  text: businessTypeDetail,
-                  onTextChange: setBusinessTypeDetail,
-                  maxLength: NAME_MAX_LENGTH,
+            {choosingType ? (
+              <RadioCards
+                legend={t("businessType")}
+                name="businessTypeCode"
+                options={data.businessTypes
+                  .filter(({ code }) => code !== OTHER_BUSINESS_TYPE)
+                  .map(({ code, label }) => ({ value: code, label }))}
+                other={
+                  otherType && {
+                    value: otherType.code,
+                    label: otherType.label,
+                    placeholder: t("businessTypeDetail"),
+                    text: businessTypeDetail,
+                    onTextChange: setBusinessTypeDetail,
+                    maxLength: NAME_MAX_LENGTH,
+                  }
                 }
-              }
-              value={businessTypeCode}
-              onChange={(code) => {
-                setBusinessTypeCode(code);
-                edited("businessTypeCode");
-              }}
-              error={errors.businessTypeCode}
-            />
+                value={businessTypeCode}
+                onChange={(code) => {
+                  setBusinessTypeCode(code);
+                  edited("businessTypeCode");
+                }}
+                error={errors.businessTypeCode}
+              />
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-strong p-4">
+                <div className="min-w-0">
+                  <p className="text-label-xs text-muted">{tNew("sameType")}</p>
+                  <p className="mt-0.5 text-title-h6 wrap-anywhere">
+                    {isOther
+                      ? businessTypeDetail
+                      : data.businessTypes.find(({ code }) => code === businessTypeCode)?.label}
+                  </p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => setChoosingType(true)}>
+                  {tNew("otherType")}
+                </Button>
+              </div>
+            )}
           </>
         )}
         {step === 2 && (
