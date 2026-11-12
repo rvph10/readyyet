@@ -16,7 +16,13 @@ interface Insights {
   setup: Record<string, boolean>;
   received: { months: { month: string; received: number }[]; lastMonthSoFar: number };
   customers: { new: number; returning: number };
-  activity: { ticketTitle: string; changedByName: string; status: { code: string } }[];
+  activity: {
+    ticketTitle: string;
+    changedByName: string;
+    changedBy: string;
+    changedByMember: boolean;
+    status: { code: string };
+  }[];
 }
 
 // ADR 0116.
@@ -115,7 +121,7 @@ describe("Insights", () => {
     const { activity, setup } = await insights();
     expect(activity.map(({ status }) => status.code).slice(0, 3)).toEqual(["COMPLETED", "READY", "RECEIVED"]);
     expect(activity[0]).toMatchObject({ ticketTitle: "Handed over" });
-    expect(activity[0].changedByName).toBeTruthy();
+    expect(activity[0]).toMatchObject({ changedByName: expect.any(String), changedByMember: true });
     expect(setup.firstHandover).toBe(true);
   });
 
@@ -164,6 +170,25 @@ describe("Insights", () => {
       .get(`/locations/${locationId}/insights/members/${outsider.id}`)
       .set("Cookie", cookie)
       .expect(404);
+  });
+
+  it("says who in the activity has left, as they have no profile here", async () => {
+    const formerMember = await prisma.user.findFirstOrThrow({
+      where: { memberships: { none: { locationId } } },
+      select: { id: true },
+    });
+    const ticket = await prisma.ticket.findFirstOrThrow({
+      where: { locationId },
+      select: { id: true, workflowId: true },
+    });
+    const ready = await prisma.status.findUniqueOrThrow({ where: { code: "READY" } });
+    await prisma.ticketStatusEvent.create({
+      data: { ticketId: ticket.id, workflowId: ticket.workflowId, statusId: ready.id, changedBy: formerMember.id },
+    });
+
+    const { activity } = await insights();
+    expect(activity[0]).toMatchObject({ changedBy: formerMember.id, changedByMember: false });
+    expect(activity.slice(1).every(({ changedByMember }) => changedByMember)).toBe(true);
   });
 
   it("is refused to someone outside the Location", async () => {

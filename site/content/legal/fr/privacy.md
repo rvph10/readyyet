@@ -63,13 +63,14 @@ Nous utilisons le moins de cookies possible.
 
 **Toujours actifs, sans consentement** (strictement nécessaires ou déposés à votre demande) :
 
-| Nom                                  | Déposé par                                               | Finalité                                    | Durée                                                |
-| ------------------------------------ | -------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------- |
-| `__Secure-better-auth.session_token` | api.readyyet.app, pour readyyet.app et ses sous-domaines | Vous garder connecté                        | 7 jours, prolongés tant que vous utilisez le service |
-| `locale`                             | app.readyyet.app                                         | La langue que vous avez choisie             | 6 mois                                               |
-| `sidebar`                            | app.readyyet.app                                         | Menu latéral replié ou non                  | 6 mois                                               |
-| `setup-guide-folded-…`               | app.readyyet.app                                         | Guide de démarrage replié ou non            | 6 mois                                               |
-| `cookie-consent`                     | readyyet.app, app.readyyet.app                           | Votre choix sur les cookies de statistiques | 6 mois                                               |
+| Nom                                  | Déposé par                                               | Finalité                                                                                      | Durée                                                |
+| ------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `__Secure-better-auth.session_token` | api.readyyet.app, pour readyyet.app et ses sous-domaines | Vous garder connecté                                                                          | 7 jours, prolongés tant que vous utilisez le service |
+| `locale`                             | app.readyyet.app                                         | La langue que vous avez choisie                                                               | 6 mois                                               |
+| `sidebar`                            | app.readyyet.app                                         | Menu latéral replié ou non                                                                    | 6 mois                                               |
+| `setup-guide-folded-…`               | app.readyyet.app                                         | Guide de démarrage replié ou non                                                              | 6 mois                                               |
+| `cookie-consent`                     | readyyet.app, app.readyyet.app                           | Votre choix sur les cookies de statistiques                                                   | 6 mois                                               |
+| `signed-in`                          | app.readyyet.app, pour readyyet.app                      | Afficher « Tableau de bord » au lieu de « Se connecter » sur le site quand vous êtes connecté | 7 jours                                              |
 
 **Uniquement avec votre accord :**
 

@@ -56,7 +56,9 @@ export class InsightsService {
           id: true,
           createdAt: true,
           changedBy: true,
-          changer: { select: { name: true, image: true } },
+          changer: {
+            select: { name: true, image: true, memberships: { where: { locationId }, select: { role: true } } },
+          },
           status: statusSelect,
           ticket: { select: { id: true, title: true, customer: { select: { fullName: true } } } },
         },
@@ -122,6 +124,7 @@ export class InsightsService {
         changedBy: event.changedBy,
         changedByName: event.changer.name,
         changedByAvatarUrl: publicImageUrl(event.changer.image),
+        changedByMember: event.changer.memberships.length > 0,
         createdAt: event.createdAt,
       })),
     };
@@ -137,32 +140,39 @@ export class InsightsService {
     if (!membership) {
       throw new NotFoundError("Member not found");
     }
-    const [created, events] = await Promise.all([
-      this.prisma.ticket.findMany({ where: { locationId, createdBy: userId }, select: { createdAt: true } }),
+    const { timeZone } = membership.location;
+    const monthStart = `${calendarDateIn(new Date(), timeZone).slice(0, 7)}-01`;
+    // A day early, as the Location's clock can be behind UTC, then each row is
+    // placed on that clock. Older rows are only counted, never loaded.
+    const sinceMonth = { gte: fromCalendarDate(addDays(monthStart, -1)) };
+    const created = { locationId, createdBy: userId };
+    const moves = { changedBy: userId, ticket: { locationId }, status: { code: { not: CREATED_STATUS_CODE } } };
+    const [createdTotal, movedTotal, readyTotal, completedTotal, createdRecently, movedRecently] = await Promise.all([
+      this.prisma.ticket.count({ where: created }),
+      this.prisma.ticketStatusEvent.count({ where: moves }),
+      this.prisma.ticketStatusEvent.count({ where: { ...moves, status: { code: "READY" } } }),
+      this.prisma.ticketStatusEvent.count({ where: { ...moves, status: { code: "COMPLETED" } } }),
+      this.prisma.ticket.findMany({ where: { ...created, createdAt: sinceMonth }, select: { createdAt: true } }),
       this.prisma.ticketStatusEvent.findMany({
-        where: { changedBy: userId, ticket: { locationId } },
+        where: { ...moves, createdAt: sinceMonth },
         select: { createdAt: true, status: { select: { code: true } } },
       }),
     ]);
-    const { timeZone } = membership.location;
-    const monthStart = `${calendarDateIn(new Date(), timeZone).slice(0, 7)}-01`;
-    const counts = (keep: (instant: Date) => boolean) => {
-      const moves = events.filter((event) => event.status.code !== CREATED_STATUS_CODE && keep(event.createdAt));
-      return {
-        created: created.filter((ticket) => keep(ticket.createdAt)).length,
-        moved: moves.length,
-        ready: moves.filter((event) => event.status.code === "READY").length,
-        completed: moves.filter((event) => event.status.code === "COMPLETED").length,
-      };
-    };
+    const thisMonth = ({ createdAt }: { createdAt: Date }) => calendarDateIn(createdAt, timeZone) >= monthStart;
+    const monthMoves = movedRecently.filter(thisMonth);
     return {
       userId,
       name: membership.user.name,
       avatarUrl: publicImageUrl(membership.user.image),
       role: membership.role,
       memberSince: membership.createdAt,
-      month: counts((instant) => calendarDateIn(instant, timeZone) >= monthStart),
-      total: counts(() => true),
+      month: {
+        created: createdRecently.filter(thisMonth).length,
+        moved: monthMoves.length,
+        ready: monthMoves.filter((event) => event.status.code === "READY").length,
+        completed: monthMoves.filter((event) => event.status.code === "COMPLETED").length,
+      },
+      total: { created: createdTotal, moved: movedTotal, ready: readyTotal, completed: completedTotal },
     };
   }
 }

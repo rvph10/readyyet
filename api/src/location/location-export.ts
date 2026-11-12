@@ -1,5 +1,6 @@
 import { Readable } from "node:stream";
 import { Injectable } from "@nestjs/common";
+import { ThrottlerException } from "@nestjs/throttler";
 import { Locale, Prisma } from "@readyyet/db";
 import { ZipFile } from "yazl";
 import { PrismaService } from "../database/prisma.service";
@@ -32,6 +33,10 @@ function csv(header: string[], rows: Cell[][], separator: string) {
   return Buffer.from(`\uFEFF${lines.join("\r\n")}\r\n`, "utf8");
 }
 
+// ADR 0143: five an hour per Location, whoever asks and from wherever.
+const EXPORTS_AN_HOUR = 5;
+const HOUR_MS = 60 * 60_000;
+
 const iso = (date: Date | null) => date?.toISOString() ?? null;
 const day = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null;
 
@@ -44,7 +49,19 @@ export class LocationExportService {
     private readonly storage: StorageService,
   ) {}
 
+  // Counted here rather than by the route's throttler, which runs before the
+  // Owner check: a colleague's refused requests would use up the Owner's
+  // exports. In memory, as the API runs as one instance.
+  private readonly started = new Map<string, number[]>();
+
   async zip(locationId: string): Promise<{ stream: Readable; filename: string }> {
+    const now = Date.now();
+    const lastHour = (this.started.get(locationId) ?? []).filter((at) => now - at < HOUR_MS);
+    if (lastHour.length >= EXPORTS_AN_HOUR) {
+      throw new ThrottlerException();
+    }
+    this.started.set(locationId, [...lastHour, now]);
+
     const location = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
       include: {

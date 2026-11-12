@@ -1,5 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { APP_URL } from "@/lib/app-url";
 import { signInUrl } from "@/lib/sign-in-url";
+import { AccountLink } from "./AccountLink";
 import { FillButton } from "./FillButton";
 import "./nav.css";
 
@@ -23,16 +25,15 @@ export async function Nav() {
       <ul className="nav__links">
         {SECTIONS.map(([label, anchor]) => (
           <li key={anchor}>
-            <a className="nav__link" href={`/${locale}#${anchor}`}>
+            {/* Pricing has a page of its own, the rest are parts of the home. */}
+            <a className="nav__link" href={anchor === "pricing" ? `/${locale}/pricing` : `/${locale}#${anchor}`}>
               {t(label)}
             </a>
           </li>
         ))}
       </ul>
       <div className="nav__actions">
-        <a className="nav__link nav__signin" href={signIn}>
-          {t("signIn")}
-        </a>
+        <AccountLink signIn={signIn} dashboard={APP_URL} signInLabel={t("signIn")} dashboardLabel={t("dashboard")} />
         <FillButton href={signIn} className="btn--dark btn--sm">
           {t("start")}
         </FillButton>

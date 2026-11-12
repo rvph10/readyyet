@@ -63,13 +63,14 @@ We use as few cookies as possible.
 
 **Always on, no consent needed** (strictly necessary or set at your request):
 
-| Name                                 | Set by                                                | What for                            | Lasts                                     |
-| ------------------------------------ | ----------------------------------------------------- | ----------------------------------- | ----------------------------------------- |
-| `__Secure-better-auth.session_token` | api.readyyet.app, for readyyet.app and its subdomains | Keeps you signed in                 | 7 days, renewed while you use the service |
-| `locale`                             | app.readyyet.app                                      | The language you chose              | 6 months                                  |
-| `sidebar`                            | app.readyyet.app                                      | Whether you folded the side menu    | 6 months                                  |
-| `setup-guide-folded-…`               | app.readyyet.app                                      | Whether you folded the setup guide  | 6 months                                  |
-| `cookie-consent`                     | readyyet.app, app.readyyet.app                        | Your choice about analytics cookies | 6 months                                  |
+| Name                                 | Set by                                                | What for                                                                  | Lasts                                     |
+| ------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------- |
+| `__Secure-better-auth.session_token` | api.readyyet.app, for readyyet.app and its subdomains | Keeps you signed in                                                       | 7 days, renewed while you use the service |
+| `locale`                             | app.readyyet.app                                      | The language you chose                                                    | 6 months                                  |
+| `sidebar`                            | app.readyyet.app                                      | Whether you folded the side menu                                          | 6 months                                  |
+| `setup-guide-folded-…`               | app.readyyet.app                                      | Whether you folded the setup guide                                        | 6 months                                  |
+| `cookie-consent`                     | readyyet.app, app.readyyet.app                        | Your choice about analytics cookies                                       | 6 months                                  |
+| `signed-in`                          | app.readyyet.app, for readyyet.app                    | Shows "Dashboard" instead of "Sign in" on the site while you're signed in | 7 days                                    |
 
 **Only with your consent:**
 

@@ -17,6 +17,12 @@ export function readConsent(cookies: string): Consent | null {
   return value === "granted" || value === "denied" ? value : null;
 }
 
+// Only says a session exists, for the sales site on the parent domain to offer
+// the dashboard rather than signing in (ADR 0144). Nothing trusts it; the same
+// name is in site/src/lib/signed-in.ts.
+export const SIGNED_IN_COOKIE = "signed-in";
+export const SIGNED_IN_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
+
 // The parent domain, so readyyet.app and app.readyyet.app share the answer.
 // localhost and an IP address have none.
 export function cookieDomain(hostname: string) {

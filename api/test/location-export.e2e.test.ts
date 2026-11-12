@@ -191,4 +191,14 @@ describe("Exporting a Location", () => {
     expect((await exportFrom("198.18.7.99")).status).toBe(429);
     expect((await download(await createLocation("FR"))).status).toBe(200);
   });
+
+  it("doesn't count a colleague's refused exports against the Owner's", async () => {
+    const locationId = await createLocation("FR");
+    await prisma.membership.create({ data: { userId: userIds.employee, locationId, role: Role.EMPLOYEE } });
+
+    for (let n = 0; n < 6; n++) {
+      expect((await download(locationId, cookies.employee)).status).toBe(403);
+    }
+    expect((await download(locationId)).status).toBe(200);
+  });
 });

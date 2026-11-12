@@ -1,6 +1,12 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
-import { COOKIE_MAX_AGE_SECONDS, POSTHOG_HOST } from "@/lib/consent";
+import {
+  COOKIE_MAX_AGE_SECONDS,
+  cookieDomain,
+  POSTHOG_HOST,
+  SIGNED_IN_COOKIE,
+  SIGNED_IN_MAX_AGE_SECONDS,
+} from "@/lib/consent";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
@@ -23,6 +29,18 @@ function keepChoices(request: NextRequest, response: NextResponse) {
   // Left by the referral cookie ADR 0135 replaced, which nothing reads now.
   if (request.cookies.has("ref")) {
     response.cookies.delete("ref");
+  }
+  // Follows the session, set or taken away only when it changed.
+  const signedIn = Boolean(getSessionCookie(request));
+  if (signedIn !== request.cookies.has(SIGNED_IN_COOKIE)) {
+    const domain = cookieDomain(request.nextUrl.hostname) ?? undefined;
+    response.cookies.set(SIGNED_IN_COOKIE, signedIn ? "1" : "", {
+      domain,
+      path: "/",
+      sameSite: "lax",
+      secure,
+      maxAge: signedIn ? SIGNED_IN_MAX_AGE_SECONDS : 0,
+    });
   }
   return response;
 }

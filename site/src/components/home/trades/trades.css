@@ -84,3 +84,31 @@
 [data-temlis="lumoras-699"] .solutions_card {
   flex: 1;
 }
+
+/* Each card leads to its trade's page, its title's link stretched over it. */
+[data-temlis="lumoras-699"] .solutions_card {
+  position: relative;
+  transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-temlis="lumoras-699"] .solutions_card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+[data-temlis="lumoras-699"] .solutions_card-link:focus-visible {
+  outline: none;
+}
+
+[data-temlis="lumoras-699"] .solutions_card:has(.solutions_card-link:focus-visible) {
+  outline: 2px solid var(--color-bg-dark);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-temlis="lumoras-699"] .solutions_card:hover {
+    background-color: var(--color-bg-accent);
+  }
+}
