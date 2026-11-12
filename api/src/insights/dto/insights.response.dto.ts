@@ -43,6 +43,8 @@ export class InsightsActivityDto {
   changedBy!: string;
   changedByName!: string;
   changedByAvatarUrl!: string | null;
+  // Still on the team, so with a profile here (ADR 0142).
+  changedByMember!: boolean;
   createdAt!: Date;
 }
 

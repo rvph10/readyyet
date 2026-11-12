@@ -11244,6 +11244,9 @@
             "type": "string",
             "nullable": true
           },
+          "changedByMember": {
+            "type": "boolean"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -11258,6 +11261,7 @@
           "changedBy",
           "changedByName",
           "changedByAvatarUrl",
+          "changedByMember",
           "createdAt"
         ]
       },

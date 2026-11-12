@@ -56,7 +56,9 @@ export class InsightsService {
           id: true,
           createdAt: true,
           changedBy: true,
-          changer: { select: { name: true, image: true } },
+          changer: {
+            select: { name: true, image: true, memberships: { where: { locationId }, select: { role: true } } },
+          },
           status: statusSelect,
           ticket: { select: { id: true, title: true, customer: { select: { fullName: true } } } },
         },
@@ -122,6 +124,7 @@ export class InsightsService {
         changedBy: event.changedBy,
         changedByName: event.changer.name,
         changedByAvatarUrl: publicImageUrl(event.changer.image),
+        changedByMember: event.changer.memberships.length > 0,
         createdAt: event.createdAt,
       })),
     };

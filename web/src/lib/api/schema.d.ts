@@ -1572,6 +1572,7 @@ export interface components {
             changedBy: string;
             changedByName: string;
             changedByAvatarUrl: string | null;
+            changedByMember: boolean;
             /** Format: date-time */
             createdAt: string;
         };

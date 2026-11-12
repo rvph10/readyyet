@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { StatusPill } from "@/components/status-pill";
 import { MemberAvatar } from "@/components/member-card";
+import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
@@ -62,10 +63,21 @@ export function ActivityTile({
                 key={event.id}
                 className="relative flex gap-3 rounded-card px-2 py-3 transition-colors hover:bg-subtle"
               >
-                <MemberAvatar
-                  locationId={locationId}
-                  member={{ id: event.changedBy, name: event.changedByName, avatarUrl: event.changedByAvatarUrl }}
-                />
+                {/* Someone who left has no profile here any more. */}
+                {event.changedByMember ? (
+                  <MemberAvatar
+                    locationId={locationId}
+                    member={{ id: event.changedBy, name: event.changedByName, avatarUrl: event.changedByAvatarUrl }}
+                  />
+                ) : (
+                  <Avatar
+                    id={event.changedBy}
+                    name={event.changedByName}
+                    src={event.changedByAvatarUrl}
+                    size="sm"
+                    className="self-start"
+                  />
+                )}
                 <Link
                   href={`/locations/${locationId}/tickets/${event.ticketId}`}
                   className="flex min-w-0 flex-1 flex-col gap-1.5 after:absolute after:inset-0 after:rounded-card"
