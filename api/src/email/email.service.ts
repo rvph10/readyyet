@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
 import { CUSTOMER_EMAIL_TYPES, customerEmailsToday, dailyCustomerEmails } from "./email-limits";
 import { NON_RETRYABLE_RESEND_ERRORS } from "./email-status";
-import { getResendClient, waitForResendSlot } from "./resend-client";
+import { getResendClient, RESEND_TIMEOUT_MS, waitForResendSlot } from "./resend-client";
 
 // Immediate, in-process retries for transient failures (rate limit, a
 // blip in Resend's API). EmailRetryService's cron sweep re-runs this same
@@ -209,7 +209,7 @@ export class EmailService {
             // whole message (ADR 0127).
             ...(html ? { html, ...(text && { text }) } : { text: text! }),
           },
-          { idempotencyKey: logId },
+          { idempotencyKey: logId, signal: AbortSignal.timeout(RESEND_TIMEOUT_MS) },
         );
 
         if (!error) {

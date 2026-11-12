@@ -32,6 +32,8 @@ export class StorageService {
     // S3-compatible stores don't all accept.
     requestChecksumCalculation: "WHEN_REQUIRED",
     responseChecksumValidation: "WHEN_REQUIRED",
+    // The SDK sets none, a stalled bucket would hold the upload request.
+    requestHandler: { connectionTimeout: 5_000, requestTimeout: 30_000 },
   });
 
   async put(key: string, body: Buffer, contentType: string): Promise<void> {

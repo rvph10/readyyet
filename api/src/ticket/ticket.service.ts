@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EmailStatus, Locale, Prisma, Role } from "@readyyet/db";
+import { EmailStatus, Locale, Prisma, Role, SubscriptionStatus } from "@readyyet/db";
 import {
   calendarDateIn,
   ENDED_STATUS_CODES,
@@ -18,6 +18,7 @@ import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
+import { isFrozen } from "../billing/plans";
 import { EmailRetryService } from "../email/email-retry.service";
 import { isTrackingLinkExpired, trackingUrl } from "../tracking/tracking-link";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
@@ -29,6 +30,7 @@ import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-ru
 import { generateTrackingCode } from "./tracking-code";
 import { NEEDS_FOLLOW_UP } from "../feedback/asks-for-feedback";
 import { customerEmailsToday } from "../email/email-limits";
+import { escapeLike } from "../common/like-pattern";
 
 const DEFAULT_LIST_TAKE = 50;
 const OVERVIEW_TICKETS = 100;
@@ -259,9 +261,9 @@ export class TicketService {
   // Open Tickets are what's physically in the shop, so there are few enough to
   // read whole, which is what lets them sort by urgency (ADR 0088).
   async overview(locationId: string) {
-    const { timeZone } = await this.prisma.location.findUniqueOrThrow({
+    const { timeZone, subscription } = await this.prisma.location.findUniqueOrThrow({
       where: { id: locationId },
-      select: { timeZone: true },
+      select: { timeZone: true, subscription: true },
     });
     const [emailsToday] = await this.prisma.$queryRaw<{ limited: number }[]>(customerEmailsToday(locationId));
     const now = new Date();
@@ -328,6 +330,8 @@ export class TicketService {
         ),
       },
       customerEmailsLimited: emailsToday.limited > 0,
+      frozen: isFrozen(subscription!),
+      pastDue: subscription!.status === SubscriptionStatus.PAST_DUE,
     };
   }
 
@@ -350,10 +354,7 @@ export class TicketService {
     const filters: Prisma.TicketWhereInput[] = [];
 
     if (query.q) {
-      // Prisma passes contains through to ILIKE as-is, so a typed % or _
-      // would otherwise act as a wildcard instead of a literal character.
-      const escape = (text: string) => text.replace(/[\\%_]/g, "\\$&");
-      const contains = { contains: escape(query.q), mode: "insensitive" } as const;
+      const contains = { contains: escapeLike(query.q), mode: "insensitive" } as const;
       const digits = phoneDigits(query.q);
       filters.push({
         OR: [
@@ -361,7 +362,7 @@ export class TicketService {
           { title: contains, customer: { deletedAt: null } },
           { description: contains },
           // Read off a slip, the code comes in groups of four (ADR 0124).
-          { trackingCode: { contains: escape(query.q.replace(/\s/g, "")), mode: "insensitive" } },
+          { trackingCode: { contains: escapeLike(query.q.replace(/\s/g, "")), mode: "insensitive" } },
           // An erased customer's fields are placeholders, not searchable data.
           {
             customer: {

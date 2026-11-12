@@ -3,6 +3,8 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
+import { randomUUID } from "node:crypto";
+import { captureMessage } from "@sentry/nestjs";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { trialSubscription } from "../src/billing/plans";
@@ -15,6 +17,11 @@ import { signInViaOtp } from "./support/sign-in-via-otp";
 import { TERMS_VERSION } from "@readyyet/shared";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+vi.mock("@sentry/nestjs", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@sentry/nestjs")>()),
+  captureMessage: vi.fn(),
+}));
 
 // ADR 0026: pictures are deleted with what they belong to, rows first and
 // objects after, and two sweeps delete what no request does.
@@ -206,6 +213,27 @@ describe("Deleting pictures", () => {
       expect(await exists(orphan)).toBe(false);
       for (const key of [logo, photo, avatar]) {
         expect(await exists(key)).toBe(true);
+      }
+    });
+
+    it("deletes nothing when far more objects have no row than failed deletes leave", async () => {
+      const unknown = Array.from({ length: 60 }, () => `tickets/${randomUUID()}.webp`);
+      const file = await imageFile("webp");
+      try {
+        await Promise.all(unknown.map((key) => storage.put(key, file, "image/webp")));
+
+        vi.useFakeTimers({ toFake: ["Date"], now: Date.now() + 2 * DAY_MS });
+        await sweep.deleteOrphans();
+
+        // Listed rather than opened one by one, an unread body holds its connection.
+        const stored = new Set<string>();
+        for await (const object of storage.list()) {
+          stored.add(object.key);
+        }
+        expect(unknown.filter((key) => !stored.has(key))).toEqual([]);
+        expect(captureMessage).toHaveBeenCalledWith("The orphan image sweep found too many to delete", "error");
+      } finally {
+        await storage.delete(unknown);
       }
     });
 

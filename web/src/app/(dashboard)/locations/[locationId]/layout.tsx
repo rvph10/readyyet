@@ -79,6 +79,8 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
       locationLocale={location.locale}
       country={location.address?.addressCountry}
       trialDaysLeft={trialDaysLeft}
+      frozen={overview.frozen}
+      canChoosePlan={manager}
     >
       <div className="flex min-h-dvh flex-col">
         <LocationNav
@@ -90,6 +92,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
           unhandledFeedback={overview.counts.unhandledFeedback}
           trialDaysLeft={trialDaysLeft}
           inviteLink={owned && (await referralLink(owned.referralCode))}
+          pastDue={manager && overview.pastDue}
           needsYou={{
             trialDaysLeft: trialDaysLeft !== null && trialDaysLeft <= 3 ? trialDaysLeft : null,
             feedback: feedback.map(({ id, customer: { fullName }, message, stars, createdAt }) => ({
