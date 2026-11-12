@@ -30,7 +30,8 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   const search = useSearchParams();
   const box = useRef<HTMLDivElement>(null);
   const [q, setQ] = useState("");
-  const [found, setFound] = useState<{ query: string; tickets: Ticket[] } | null>(null);
+  // Null Tickets when the search failed.
+  const [found, setFound] = useState<{ query: string; tickets: Ticket[] | null } | null>(null);
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [active, setActive] = useState(0);
@@ -38,7 +39,8 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   const [recent, setRecent] = useState<Ticket[] | null>(null);
   const query = q.trim();
   const searching = query !== "" && found?.query !== query;
-  const results = query ? (found?.query === query ? found.tickets : []) : (recent ?? []);
+  const answer = found?.query === query ? found.tickets : undefined;
+  const results = query ? (answer ?? []) : (recent ?? []);
 
   function fetchRecent() {
     if (recent) return;
@@ -56,7 +58,9 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
           if (current) setFound({ query, tickets });
         },
         // Only a shortcut, Enter still opens the Tickets page.
-        () => undefined,
+        () => {
+          if (current) setFound({ query, tickets: null });
+        },
       );
     }, DEBOUNCE_MS);
     return () => {
@@ -184,7 +188,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
       )}
     </>
   );
-  const showsList = query !== "" || results.length > 0;
+  const showsList = query ? answer !== null : results.length > 0;
 
   if (compact) {
     return (
