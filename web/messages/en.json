@@ -592,7 +592,7 @@
       },
       "reviewLink": {
         "title": "Add your Google review link",
-        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "body": "Customers who leave good feedback are offered your Google page. Without this link, they can only leave it here.",
         "action": "Add review link",
         "short": "Google reviews"
       },

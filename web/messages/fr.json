@@ -592,7 +592,7 @@
       },
       "reviewLink": {
         "title": "Ajoutez votre lien d'avis Google",
-        "body": "Une fois l'article récupéré, les clients sont invités à laisser un avis. Sans ce lien, personne n'est invité.",
+        "body": "Les clients satisfaits se voient proposer votre page Google. Sans ce lien, leur avis reste ici.",
         "action": "Ajouter le lien",
         "short": "Avis Google"
       },

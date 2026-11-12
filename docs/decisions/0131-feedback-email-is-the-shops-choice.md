@@ -10,7 +10,7 @@ Replaces the part of ADR 0039 and ADR 0125 where every Location on Pro emails it
 
 **The tracking page still offers feedback** to every Pro Location's Customers once the Ticket is completed: they come to it themselves, it asks nothing of them.
 
-The settings say what turning it on means: the Customer gets one email asking how it went, so the shop should tell them at drop-off, and it's the shop's decision. The menu marks the section "Off" while the email is off on Pro, instead of while the Google link is missing. The review link no longer reads as what turns requests on.
+The settings say what turning it on means: the Customer gets one email asking how it went, so the shop should tell them at drop-off, and it's the shop's decision. The menu marks the section "Off" while the email is off on Pro, instead of while the Google link is missing. The review link no longer reads as what turns requests on, and its setup shows whether the email is on or off, as the tracking page offers it too.
 
 ## Why
 

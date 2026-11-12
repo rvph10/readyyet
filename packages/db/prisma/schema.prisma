@@ -229,8 +229,8 @@ model Location {
   // Open days to a new Ticket's estimated ready date, null leaves it
   // empty. 1 to 60, a CHECK enforces it (ADR 0036).
   turnaroundDays     Int?      @map("turnaround_days")
-  // Google's "write a review" link, it turns review requests on (ADR 0027,
-  // ADR 0039).
+  // Google's "write a review" link, offered after good feedback (ADR 0027).
+  // The feedback email is feedbackEmails' choice, not this link's (ADR 0131).
   googleReviewUrl    String?   @map("google_review_url")
   // Emails a Customer for feedback once their Ticket is done, the shop's
   // choice and off until it makes it (ADR 0131).

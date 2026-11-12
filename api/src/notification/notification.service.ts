@@ -180,7 +180,7 @@ export class NotificationService {
     }
   }
 
-  // ADR 0039: decided when due, with the Location's plan and link then.
+  // ADR 0131: decided when due, with the Location's plan and switch then.
   // Claimed first, a Ticket completed again never gets a second one.
   private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
     if (!emailsForFeedback(ticket.location)) {
