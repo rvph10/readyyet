@@ -4,6 +4,7 @@ import { ConflictError, NotFoundError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { CommissionService } from "./commission.service";
 import { SalesPartnerDto } from "./dto/sales-partner.dto";
+import { escapeLike } from "../common/like-pattern";
 
 const salesPartnerSelect = { id: true, name: true, email: true, salesPartnerSince: true, referralCode: true } as const;
 
@@ -29,7 +30,7 @@ export class SalesPartnerService {
   }
 
   async mark(email: string): Promise<SalesPartnerDto> {
-    const user = await this.prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
+    const user = await this.prisma.user.findFirst({ where: { email: { equals: escapeLike(email), mode: "insensitive" } } });
     if (!user || user.deletedAt) {
       throw new NotFoundError("No account uses this email");
     }

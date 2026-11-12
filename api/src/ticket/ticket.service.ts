@@ -29,6 +29,7 @@ import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-ru
 import { generateTrackingCode } from "./tracking-code";
 import { NEEDS_FOLLOW_UP } from "../feedback/asks-for-feedback";
 import { customerEmailsToday } from "../email/email-limits";
+import { escapeLike } from "../common/like-pattern";
 
 const DEFAULT_LIST_TAKE = 50;
 const OVERVIEW_TICKETS = 100;
@@ -350,10 +351,7 @@ export class TicketService {
     const filters: Prisma.TicketWhereInput[] = [];
 
     if (query.q) {
-      // Prisma passes contains through to ILIKE as-is, so a typed % or _
-      // would otherwise act as a wildcard instead of a literal character.
-      const escape = (text: string) => text.replace(/[\\%_]/g, "\\$&");
-      const contains = { contains: escape(query.q), mode: "insensitive" } as const;
+      const contains = { contains: escapeLike(query.q), mode: "insensitive" } as const;
       const digits = phoneDigits(query.q);
       filters.push({
         OR: [
@@ -361,7 +359,7 @@ export class TicketService {
           { title: contains, customer: { deletedAt: null } },
           { description: contains },
           // Read off a slip, the code comes in groups of four (ADR 0124).
-          { trackingCode: { contains: escape(query.q.replace(/\s/g, "")), mode: "insensitive" } },
+          { trackingCode: { contains: escapeLike(query.q.replace(/\s/g, "")), mode: "insensitive" } },
           // An erased customer's fields are placeholders, not searchable data.
           {
             customer: {

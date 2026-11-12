@@ -14,6 +14,7 @@ import {
 } from "../notification/staff-email/staff-email";
 import { publicImageUrl } from "../storage/image";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
+import { escapeLike } from "../common/like-pattern";
 
 // Who sent it, for the dashboard, rather than a bare user id.
 const INVITATION_INCLUDE = { include: { inviter: { select: { id: true, name: true } } } } as const;
@@ -62,7 +63,7 @@ export class InvitationService {
     await this.prisma.invitation.updateMany({
       where: {
         locationId,
-        email: { equals: dto.email, mode: "insensitive" },
+        email: { equals: escapeLike(dto.email), mode: "insensitive" },
         status: InvitationStatus.PENDING,
         expiresAt: { lt: new Date() },
       },
@@ -306,7 +307,7 @@ export class InvitationService {
     // The invitee's own language when they already have an account, the
     // Location's otherwise (ADR 0018).
     const invitee = await this.prisma.user.findFirst({
-      where: { email: { equals: invitation.email, mode: "insensitive" } },
+      where: { email: { equals: escapeLike(invitation.email), mode: "insensitive" } },
     });
     const { subject, react } = buildInvitationEmail({
       locale: invitee?.locale ?? location.locale,
