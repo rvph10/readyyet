@@ -41,9 +41,24 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
           className="aspect-[3/1] w-full rounded-sheet object-cover lg:aspect-auto lg:h-64"
         />
       )}
-      <header className="flex items-center gap-3 px-1">
-        <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="xl" fill />
-        <p className="min-w-0 text-label-md text-balance wrap-anywhere">{location.name}</p>
+      {/* Over the banner's lower edge like a profile picture, ringed in the
+          page's colour; the name sits beside it, below the banner. The pull
+          up is half the logo plus the grid's gap. */}
+      <header
+        className={`flex gap-3 px-1 ${location.bannerUrl ? "-mt-14 items-end pl-5 lg:-mt-15 lg:pl-7" : "items-center"}`}
+      >
+        <Avatar
+          id={location.name}
+          name={location.name}
+          src={location.logoUrl}
+          shape="square"
+          size="xl"
+          fill
+          className={location.bannerUrl ? "relative ring-4 ring-canvas" : undefined}
+        />
+        <p className={`min-w-0 text-label-md text-balance wrap-anywhere ${location.bannerUrl ? "pb-2" : ""}`}>
+          {location.name}
+        </p>
       </header>
       <TrackingBento photos={photos.length > 0}>
         <StatusHero tracking={tracking} locale={locale} now={now} demo={demo} className="order-1 lg:order-none" />
