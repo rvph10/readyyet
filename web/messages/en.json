@@ -223,7 +223,8 @@
       "qrLabel": "QR code of the tracking link for {name}",
       "done": "Done",
       "open": "Open Ticket"
-    }
+    },
+    "recent": "Latest Tickets"
   },
   "createBusiness": {
     "title": "Create your Business",

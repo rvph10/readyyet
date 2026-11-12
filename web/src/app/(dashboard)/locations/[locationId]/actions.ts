@@ -9,11 +9,12 @@ import type { components } from "@/lib/api/schema";
 const SEARCH_RESULTS = 5;
 
 // Only a shortcut to a Ticket: without an answer, the Tickets page still searches.
+// Without words, the newest Tickets.
 export async function searchTickets(locationId: string, q: string) {
   const { data } = await (
     await api()
   ).GET("/locations/{locationId}/tickets", {
-    params: { path: { locationId }, query: { q, take: SEARCH_RESULTS } },
+    params: { path: { locationId }, query: { q: q || undefined, take: SEARCH_RESULTS } },
   });
   return data?.items ?? [];
 }

@@ -223,7 +223,8 @@
       "qrLabel": "Code QR du lien de suivi pour {name}",
       "done": "Terminé",
       "open": "Ouvrir le ticket"
-    }
+    },
+    "recent": "Derniers tickets"
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
