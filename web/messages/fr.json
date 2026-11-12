@@ -1455,5 +1455,19 @@
     "PRICE": "Plus cher que prévu",
     "NOT_FIXED": "Problème pas entièrement réglé",
     "HARD_TO_REACH": "Difficile à joindre"
+  },
+  "demo": {
+    "title": "Démo de la page de suivi",
+    "label": "Démo",
+    "intro": "La page que vos clients ouvrent depuis leur e-mail ou le QR code. Choisissez un moment pour la voir évoluer.",
+    "moments": "Moments du suivi",
+    "steps": {
+      "received": "Reçu",
+      "approval": "Devis à accepter",
+      "repair": "En réparation",
+      "ready": "Prêt"
+    },
+    "item": "Montre automatique, remplacement du verre",
+    "start": "Commencer l'essai gratuit"
   }
 }

@@ -1455,5 +1455,19 @@
     "PRICE": "Higher price than expected",
     "NOT_FIXED": "Problem not fully fixed",
     "HARD_TO_REACH": "Hard to reach"
+  },
+  "demo": {
+    "title": "Tracking page demo",
+    "label": "Demo",
+    "intro": "The page your customers open from their email or the QR code. Pick a moment to see it change.",
+    "moments": "Tracking moments",
+    "steps": {
+      "received": "Received",
+      "approval": "Quote to approve",
+      "repair": "In repair",
+      "ready": "Ready"
+    },
+    "item": "Automatic watch, new glass",
+    "start": "Start free trial"
   }
 }
