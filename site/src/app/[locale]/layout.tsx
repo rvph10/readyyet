@@ -17,7 +17,10 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata" });
+  const [t, hero] = await Promise.all([
+    getTranslations({ locale, namespace: "metadata" }),
+    getTranslations({ locale, namespace: "home.hero" }),
+  ]);
   return {
     metadataBase: new URL(SITE_URL),
     title: t("title"),
@@ -34,7 +37,9 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
       title: t("title"),
       description: t("description"),
       locale: OG_LOCALES[locale],
+      images: [{ url: `/og/home-${locale}.jpg`, width: 1200, height: 630, alt: hero("title") }],
     },
+    twitter: { card: "summary_large_image" },
     robots: INDEXABLE ? undefined : { index: false, follow: false },
   };
 }
