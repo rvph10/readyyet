@@ -7,8 +7,9 @@ import "./trades.css";
 const TRADES = ["shoe", "pressing", "tailoring", "electronics", "watch", "garage", "appliance", "framing"] as const;
 
 // Lumoras' "Use Case Card Slider" (Temlis), markup as bought, with Ledger's
-// button in place of its own. Its scripts are /temlis/lumoras-699/
-// animations.js (reveals) and slider.js (Swiper).
+// button in place of its own. Its slider is /temlis/lumoras-699/slider.js
+// (Swiper); it enters like every section, through data-entrance
+// (lib/motion/reveal.ts).
 export async function Trades() {
   const t = await getTranslations("home.trades");
 
@@ -20,11 +21,11 @@ export async function Trades() {
           <div className="padding-global">
             <div className="container-large">
               <div>
-                <div className="header_one">
-                  <div className="max-heading is-38rem" data-reveal="">
-                    <h2>{t("title")}</h2>
+                <div className="header_one" data-entrance-group="">
+                  <div className="max-heading is-38rem">
+                    <h2 data-entrance="title">{t("title")}</h2>
                   </div>
-                  <div data-reveal="" data-reveal-delay="200">
+                  <div data-entrance="">
                     <ChipButton href={`${APP_URL}/sign-in`}>{t("cta")}</ChipButton>
                   </div>
                 </div>
@@ -39,13 +40,13 @@ export async function Trades() {
                   aria-roledescription="carousel"
                   aria-label={t("label")}
                   data-slider=""
-                  data-reveal=""
+                  data-entrance-group=""
                 >
                   <div className="slider-mask is-solutions w-slider-mask swiper">
                     <div className="swiper-wrapper">
                       {TRADES.map((trade) => (
                         <div key={trade} className="slide-item w-slide swiper-slide">
-                          <div className="solutions_card">
+                          <div className="solutions_card" data-entrance="">
                             <div className="icon-wrapper w-variant-8b30cf3b-98bc-9c9f-e71b-20d4e9e8b609">
                               <img
                                 src={`/home/trade-${trade}.svg`}
@@ -64,7 +65,7 @@ export async function Trades() {
                       ))}
                     </div>
                   </div>
-                  <button type="button" className="arrow" data-slider-prev="" aria-label={t("previous")}>
+                  <button type="button" className="arrow" data-entrance="" data-slider-prev="" aria-label={t("previous")}>
                     <svg viewBox="0 0 24 24" fill="none" className="icon-1x1-main" aria-hidden="true">
                       <path
                         d="M10.5 19.5L11.5575 18.4425L5.8725 12.75H21V11.25H5.8725L11.5575 5.5575L10.5 4.5L3 12L10.5 19.5Z"
@@ -72,7 +73,7 @@ export async function Trades() {
                       />
                     </svg>
                   </button>
-                  <button type="button" className="arrow is-right" data-slider-next="" aria-label={t("next")}>
+                  <button type="button" className="arrow is-right" data-entrance="" data-slider-next="" aria-label={t("next")}>
                     <svg viewBox="0 0 24 24" fill="none" className="icon-1x1-main" aria-hidden="true">
                       <path
                         d="M13.5 19.5L12.4425 18.4425L18.1275 12.75H3V11.25H18.1275L12.4425 5.5575L13.5 4.5L21 12L13.5 19.5Z"
