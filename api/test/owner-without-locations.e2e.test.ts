@@ -7,6 +7,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("An Owner who deleted their last Location", () => {
   let app: INestApplication;
@@ -29,6 +30,7 @@ describe("An Owner who deleted their last Location", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Emptied Co",
         location: {
           name: "Only shop",

@@ -20,6 +20,9 @@ export class MyBusinessDto {
   id!: string;
   name!: string;
   logoUrl!: string | null;
+  // Whether the terms in force were accepted for it, the Owner is asked
+  // until they are (ADR 0130).
+  termsAccepted!: boolean;
 }
 
 export class MyLocationDto {

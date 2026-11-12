@@ -9,6 +9,7 @@ import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0017: only the Owner deletes a Location, a soft delete that's final.
 describe("Deleting a location", () => {
@@ -29,6 +30,7 @@ describe("Deleting a location", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Delete Test",
         location: {
           name: "Shop",

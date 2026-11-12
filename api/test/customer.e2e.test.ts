@@ -8,6 +8,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 async function createTicketWithCustomer(app: INestApplication, cookie: string, locationId: string, fullName: string) {
   const response = await request(app.getHttpServer())
@@ -38,6 +39,7 @@ describe("Customers", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Customer Test Garage",
         location: {
           name: "Main Shop",
@@ -393,6 +395,7 @@ describe("Customers", () => {
       .post("/businesses")
       .set("Cookie", otherCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Other Garage",
         location: {
           name: "Other Shop",

@@ -2,6 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
+import { TERMS_VERSION } from "@readyyet/shared";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { trialSubscription } from "../src/billing/plans";
@@ -31,6 +32,7 @@ describe("Retention", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Retention",
         location: {
           name: "Retention",

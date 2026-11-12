@@ -7,7 +7,7 @@ function membership(role: Membership["role"], businessName: string, locationName
     location: {
       id: `${businessName}-${locationName}`,
       name: locationName,
-      business: { id: businessName, name: businessName, logoUrl: null },
+      business: { id: businessName, name: businessName, logoUrl: null, termsAccepted: true },
     },
   };
 }

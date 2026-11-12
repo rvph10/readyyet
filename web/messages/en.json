@@ -232,9 +232,11 @@
     "businessTypeDetail": "What do you do? e.g. Scooter repair",
     "contactPhone": "Phone number",
     "contactEmail": "Contact email",
+    "terms": "By clicking Create, you accept ReadyYet's <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
     "submit": "Create",
     "invalid": "Check this field.",
     "rateLimited": "Too many attempts. Wait a minute, then try again.",
+    "termsChanged": "Our terms changed while this page was open. Reload the page to read them.",
     "unexpected": "Something went wrong. Please try again.",
     "stepOf": "Step {step} of {steps}",
     "stepBusiness": "Business",
@@ -1460,6 +1462,14 @@
     "PRICE": "Higher price than expected",
     "NOT_FIXED": "Problem not fully fixed",
     "HARD_TO_REACH": "Hard to reach"
+  },
+  "terms": {
+    "title": "Our terms of service",
+    "ask": "To keep using ReadyYet for {name}, please accept our <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
+    "accept": "I accept",
+    "accepting": "Saving…",
+    "failed": "Your acceptance wasn't saved. Please try again.",
+    "changed": "The terms changed while this page was open. Reload it to read them, then accept."
   },
   "demo": {
     "title": "Tracking page demo",

@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { User } from "@readyyet/db";
+import { TERMS_VERSION } from "@readyyet/shared";
 import { isPlatformAdmin } from "../admin/platform-admin";
 import { ConflictError, ReauthenticationRequiredError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -8,6 +9,7 @@ import { buildAccountDeletedEmail } from "../notification/staff-email/staff-emai
 import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { UpdateMeDto } from "./dto/update-me.dto";
+import { acceptedByOwner } from "../business/terms-accepted";
 
 // Deleting an account is refused past this long after signing in, so an
 // unlocked shop computer isn't enough to wipe someone's account.
@@ -54,7 +56,15 @@ export class MeService {
           select: {
             id: true,
             name: true,
-            business: { select: { id: true, name: true, logoKey: true } },
+            business: {
+              select: {
+                id: true,
+                name: true,
+                logoKey: true,
+                ownerId: true,
+                termsAcceptances: { where: { version: TERMS_VERSION }, select: { userId: true } },
+              },
+            },
           },
         },
       },
@@ -63,7 +73,12 @@ export class MeService {
       role,
       location: {
         ...location,
-        business: { id: business.id, name: business.name, logoUrl: publicImageUrl(business.logoKey) },
+        business: {
+          id: business.id,
+          name: business.name,
+          logoUrl: publicImageUrl(business.logoKey),
+          termsAccepted: acceptedByOwner(business.termsAcceptances, business.ownerId),
+        },
       },
     }));
   }

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Role, type Prisma } from "@readyyet/db";
-import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
+import { OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
@@ -18,6 +18,7 @@ import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { generateReferralCode } from "./referral-code";
+import { acceptedByOwner } from "./terms-accepted";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
@@ -65,6 +66,8 @@ export class BusinessService {
         name: dto.name,
         referralCode: generateReferralCode(),
         ...(await this.findReferrer(dto.referralCode, ownerId)),
+        // Creating it is accepting the terms shown above the button (ADR 0130).
+        termsAcceptances: { create: { userId: ownerId, version: dto.termsVersion } },
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
@@ -81,6 +84,16 @@ export class BusinessService {
       });
     }
     return { ...toBusinessResponse(business), locations: business.locations.map(toLocationResponse) };
+  }
+
+  // An Owner from before the terms, or from before a version they must
+  // accept again (ADR 0130). Accepting twice changes nothing.
+  async acceptTerms(businessId: string, userId: string, version: string) {
+    await this.prisma.termsAcceptance.upsert({
+      where: { businessId_version_userId: { businessId, version, userId } },
+      create: { businessId, userId, version },
+      update: {},
+    });
   }
 
   // ADR 0127: once, with an Owner's first shop and its trial.
@@ -127,9 +140,11 @@ export class BusinessService {
           orderBy: { createdAt: "asc" },
           select: { id: true, name: true, createdAt: true },
         },
+        termsAcceptances: { where: { version: TERMS_VERSION }, select: { userId: true } },
       },
     });
-    return toBusinessResponse(business);
+    const { termsAcceptances, ...rest } = business;
+    return { ...toBusinessResponse(rest), termsAccepted: acceptedByOwner(termsAcceptances, business.ownerId) };
   }
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {

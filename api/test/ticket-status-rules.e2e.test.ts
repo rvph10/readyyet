@@ -8,6 +8,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // Rules from docs/decisions/0016-ticket-status-change-rules.md. The GARAGE
 // default workflow is RECEIVED, DIAGNOSING, REPAIRING, READY, then the
@@ -65,6 +66,7 @@ describe("Ticket status change rules", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Rules Test Garage",
         location: {
           name: "Rules Shop",
