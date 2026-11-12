@@ -43,7 +43,9 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
       )}
       {/* Over the banner's lower edge like a profile picture, ringed in the
           page's colour; the name sits beside it, below the banner. The pull
-          up is half the logo plus the grid's gap. */}
+          up is half the logo plus the grid's gap. A shop's logo comes in any
+          shape, so it sits whole on white (ADR 0065); only the demo's, made
+          square, fills its square. */}
       <header
         className={`flex gap-3 px-1 ${location.bannerUrl ? "-mt-14 items-end pl-5 lg:-mt-15 lg:pl-7" : "items-center"}`}
       >
@@ -53,7 +55,7 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
           src={location.logoUrl}
           shape="square"
           size="xl"
-          fill
+          fill={demo}
           className={location.bannerUrl ? "relative ring-4 ring-canvas" : undefined}
         />
         <p

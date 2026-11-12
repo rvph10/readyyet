@@ -67,8 +67,8 @@ interface Props {
   src: string | null;
   size?: AvatarSize;
   shape?: "circle" | "square";
-  // A logo that fills its square edge to edge, where it stands for the shop
-  // on its own, as at the top of a tracking page.
+  // A logo known to be square, like the demo shop's, filling its square edge
+  // to edge.
   fill?: boolean;
   // For placing it, like a ring or overlap in a stack, not resizing it.
   className?: string;
