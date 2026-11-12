@@ -26,13 +26,14 @@ interface Props {
   location: Tracking["location"];
   locale: string;
   now: Date;
+  demo?: boolean;
   // For placing it in the page's columns.
   className: string;
 }
 
 // Where, when and how to reach the Location, the questions a Customer would
 // otherwise phone about (ADR 0029).
-export async function LocationPanel({ location, locale, now, className }: Props) {
+export async function LocationPanel({ location, locale, now, demo = false, className }: Props) {
   const t = await getTranslations("tracking");
   const { address, mapsUrl, contactPhone, contactEmail, openingHours, timeZone } = location;
   const state = openingState(openingHours, timeZone, locale, now);
@@ -104,7 +105,7 @@ export async function LocationPanel({ location, locale, now, className }: Props)
         <div className="flex flex-col gap-1 lg:mt-auto">
           {address && mapsUrl && (
             <a
-              href={mapsUrl}
+              href={demo ? undefined : mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={`${ROW} transition-colors hover:bg-subtle`}
@@ -117,12 +118,12 @@ export async function LocationPanel({ location, locale, now, className }: Props)
               </RowText>
             </a>
           )}
-          <a href={`tel:${contactPhone}`} className={`${ROW} transition-colors hover:bg-subtle`}>
+          <a href={demo ? undefined : `tel:${contactPhone}`} className={`${ROW} transition-colors hover:bg-subtle`}>
             <RowText icon="phone">
               <span className="tabular-nums">{formatPhoneNumberIntl(contactPhone) || contactPhone}</span>
             </RowText>
           </a>
-          <a href={`mailto:${contactEmail}`} className={`${ROW} transition-colors hover:bg-subtle`}>
+          <a href={demo ? undefined : `mailto:${contactEmail}`} className={`${ROW} transition-colors hover:bg-subtle`}>
             <RowText icon="message">{contactEmail}</RowText>
           </a>
         </div>
