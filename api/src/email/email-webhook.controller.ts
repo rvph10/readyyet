@@ -1,4 +1,5 @@
-import { Controller, Post, Req, Res } from "@nestjs/common";
+import { Controller, Logger, Post, Req, Res } from "@nestjs/common";
+import * as Sentry from "@sentry/nestjs";
 import { ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { EmailStatus } from "@readyyet/db";
@@ -8,6 +9,7 @@ import type { WebhookEventPayload } from "resend";
 import { PrismaService } from "../database/prisma.service";
 import { WEBHOOK_EVENT_TO_STATUS } from "./email-status";
 import { getResendClient } from "./resend-client";
+import { escapeLike } from "../common/like-pattern";
 
 @ApiTags("Email")
 @AllowAnonymous()
@@ -16,6 +18,8 @@ import { getResendClient } from "./resend-client";
 @SkipThrottle()
 @Controller("webhooks/resend")
 export class EmailWebhookController {
+  private readonly logger = new Logger(EmailWebhookController.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   @Post()
@@ -40,6 +44,10 @@ export class EmailWebhookController {
         webhookSecret: process.env.RESEND_WEBHOOK_SECRET as string,
       });
     } catch {
+      // A wrong or rotated secret rejects every event, and the sender only
+      // emails about it days later. Nothing of the payload is sent.
+      this.logger.warn("Resend webhook signature rejected");
+      Sentry.captureMessage("Resend webhook signature rejected", "warning");
       res.status(400).send();
       return;
     }
@@ -83,7 +91,7 @@ export class EmailWebhookController {
     return this.prisma.customer.updateMany({
       where: {
         deletedAt: null,
-        OR: addresses.map((address) => ({ email: { equals: address, mode: "insensitive" as const } })),
+        OR: addresses.map((address) => ({ email: { equals: escapeLike(address), mode: "insensitive" as const } })),
       },
       data,
     });

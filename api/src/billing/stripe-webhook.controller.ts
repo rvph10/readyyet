@@ -1,4 +1,5 @@
-import { Controller, Post, Req, Res } from "@nestjs/common";
+import { Controller, Logger, Post, Req, Res } from "@nestjs/common";
+import * as Sentry from "@sentry/nestjs";
 import { ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
@@ -14,6 +15,8 @@ import { ReferralRewardService } from "./referral-reward.service";
 @SkipThrottle()
 @Controller("webhooks/stripe")
 export class StripeWebhookController {
+  private readonly logger = new Logger(StripeWebhookController.name);
+
   constructor(
     private readonly billing: BillingService,
     private readonly referralRewards: ReferralRewardService,
@@ -33,6 +36,10 @@ export class StripeWebhookController {
         process.env.STRIPE_WEBHOOK_SECRET as string,
       );
     } catch {
+      // A wrong or rotated secret rejects every event, and the sender only
+      // emails about it days later. Nothing of the payload is sent.
+      this.logger.warn("Stripe webhook signature rejected");
+      Sentry.captureMessage("Stripe webhook signature rejected", "warning");
       res.status(400).send();
       return;
     }

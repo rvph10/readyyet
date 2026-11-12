@@ -5,6 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import Stripe from "stripe";
+import { captureMessage } from "@sentry/nestjs";
 import { PrismaService } from "../src/database/prisma.service";
 import { createBusiness, stripe } from "./support/billing";
 import { createTestApp } from "./support/create-test-app";
@@ -15,6 +16,10 @@ vi.mock("../src/billing/stripe-client", async () => {
   const { stripe } = await import("./support/billing");
   return { getStripeClient: () => stripe };
 });
+vi.mock("@sentry/nestjs", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@sentry/nestjs")>()),
+  captureMessage: vi.fn(),
+}));
 
 describe("GET /locations/:locationId/billing", () => {
   let app: INestApplication;
@@ -353,6 +358,7 @@ describe("POST /webhooks/stripe", () => {
 
     expect(response.status).toBe(400);
     expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
+    expect(captureMessage).toHaveBeenCalledWith("Stripe webhook signature rejected", "warning");
   });
 });
 

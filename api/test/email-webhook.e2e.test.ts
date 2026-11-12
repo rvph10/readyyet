@@ -2,13 +2,20 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { captureMessage } from "@sentry/nestjs";
 import request from "supertest";
 import { randomUUID } from "node:crypto";
 import { Webhook } from "standardwebhooks";
 import { EmailService } from "../src/email/email.service";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
+
+// Spied on to see what reaches Sentry, the rest of it as it is.
+vi.mock("@sentry/nestjs", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@sentry/nestjs")>()),
+  captureMessage: vi.fn(),
+}));
 
 // standardwebhooks requires whsec_<base64>, matching the shape Resend's
 // dashboard actually issues, a non-base64 fake string fails to decode
@@ -60,6 +67,7 @@ describe("POST /webhooks/resend", () => {
       .send(payload);
 
     expect(response.status).toBe(400);
+    expect(captureMessage).toHaveBeenCalledWith("Resend webhook signature rejected", "warning");
   });
 
   it("updates the matching EmailLog to DELIVERED on a validly-signed email.delivered event", async () => {
@@ -169,6 +177,18 @@ describe("POST /webhooks/resend", () => {
       expect((await reload(first.id)).emailBouncedAt).not.toBeNull();
       expect((await reload(second.id)).emailBouncedAt).not.toBeNull();
       expect((await reload(other.id)).emailBouncedAt).toBeNull();
+    });
+
+    it("takes a _ in the address as itself, not as any character", async () => {
+      const bounced = await customerWith(`jean_dupont-${stamp}@example.test`);
+      const lookalike = await customerWith(`jean.dupont-${stamp}@example.test`);
+
+      await send("email.bounced", `jean_dupont-${stamp}@example.test`, {
+        bounce: { type: "Permanent", subType: "General", message: "Mailbox does not exist" },
+      });
+
+      expect((await reload(bounced.id)).emailBouncedAt).not.toBeNull();
+      expect((await reload(lookalike.id)).emailBouncedAt).toBeNull();
     });
 
     it("ignores a temporary bounce", async () => {
