@@ -206,23 +206,33 @@
       "start": "Start uw gratis proefperiode",
       "essentiel": {
         "name": "Essentiel",
-        "price": "€ 29",
-        "yearly": "of € 290 per jaar, 2 maanden gratis",
         "pitch": "Voor een winkel met een klein team die heldere opvolging wil, zonder iets in te stellen.",
-        "items": ["Opvolgpagina en QR-code", "Automatische e-mails", "2 teamleden", "Kant-en-klare stappen voor uw vak"]
+        "items": [
+          "Opvolgpagina en QR-code",
+          "Automatische e-mails",
+          "2 teamleden",
+          "Kant-en-klare stappen voor uw vak",
+          "Herinneringen na 3 en 10 dagen"
+        ]
       },
       "pro": {
         "name": "Pro",
-        "price": "€ 49",
-        "yearly": "of € 490 per jaar, 2 maanden gratis",
         "pitch": "Voor ateliers met hun eigen werkwijze die meer reviews willen.",
         "items": [
           "Alles van Essentiel",
           "Onbeperkt team",
           "Kies en orden uw eigen stappen",
-          "Privéfeedback en Google-reviews"
+          "Privéfeedback en Google-reviews",
+          "De stappen van een winkel overgenomen in de volgende"
         ]
-      }
+      },
+      "label": "Prijzen",
+      "billedEvery": "Betalingsfrequentie",
+      "monthly": "Maandelijks",
+      "yearly": "Jaarlijks",
+      "twoMonthsFree": "2 maanden gratis",
+      "perYear": "/jaar",
+      "compare": "Vergelijk de plannen in detail"
     },
     "faq": {
       "title": "Goed om te weten voor u start",

@@ -206,23 +206,33 @@
       "start": "Start free trial",
       "essentiel": {
         "name": "Essentiel",
-        "price": "€29",
-        "yearly": "or €290 a year, 2 months free",
         "pitch": "For a shop with a small team that wants clear tracking with nothing to set up.",
-        "items": ["Tracking page and QR code", "Automatic emails", "2 team members", "Ready-made steps for your trade"]
+        "items": [
+          "Tracking page and QR code",
+          "Automatic emails",
+          "2 team members",
+          "Ready-made steps for your trade",
+          "Reminders after 3 and 10 days"
+        ]
       },
       "pro": {
         "name": "Pro",
-        "price": "€49",
-        "yearly": "or €490 a year, 2 months free",
         "pitch": "For workshops with their own way of working that want more reviews.",
         "items": [
           "Everything in Essentiel",
           "Unlimited team",
           "Pick and order your own steps",
-          "Private feedback and Google reviews"
+          "Private feedback and Google reviews",
+          "One shop's steps copied into the next"
         ]
-      }
+      },
+      "label": "Pricing",
+      "billedEvery": "Billing period",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "twoMonthsFree": "2 months free",
+      "perYear": "/year",
+      "compare": "Compare the plans in detail"
     },
     "faq": {
       "title": "Good to know before you start",

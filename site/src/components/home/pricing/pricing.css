@@ -1,78 +1,173 @@
-/* Contelas' pricing in Ledger's look (ADR 0133), overridden on its wrapper.
-   Its own rules stay as bought, in src/temlis/contelas-518. Essentiel sits in
-   a grey frame, Pro in a pine one. */
+/* Nexio's pricing switch in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/nexio-641. Nexio is
+   drawn on near-black: here it sits on a pine panel, with lime where it was
+   white, for two plans instead of three. */
 
-[data-temlis="contelas-518"] {
-  --base--black: var(--color-ink);
-  --base--yellow: var(--color-bg-accent);
-  --bg-color--bg-default: var(--color-bg-page);
-  --bg-color--bg-primary: var(--color-surface-muted);
-  --bg-color--bg-dark: var(--color-bg-dark);
-  --grey--grey-400: var(--color-text-secondary);
-  --_typography---font-family--headers: var(--font-display);
-  --_typography---font-family--body: var(--font-body);
-  --_sizes---padding-section--medium: var(--section-space);
-
-  font-family: var(--font-body);
+.pricing-frame {
+  padding-top: var(--section-space);
 }
 
-[data-temlis="contelas-518"] .padding-global {
+[data-temlis="nexio-641"] {
+  --brand--brand: var(--color-bg-dark);
+  --brand--dark-black: var(--color-bg-dark);
+  --brand--white: var(--color-text-white);
+  --text-color--text-tertiary: rgba(255, 255, 255, 0.72);
+  --border-color--border-primary: rgba(255, 255, 255, 0.18);
+
+  font-family: var(--font-body);
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+  border-radius: var(--radius-panel);
+  overflow: clip;
+}
+
+[data-temlis="nexio-641"] .section_hero {
+  padding-block: var(--section-space);
+}
+
+[data-temlis="nexio-641"] .padding-global {
   padding-inline: var(--section-gutter);
 }
 
-[data-temlis="contelas-518"] .container-small {
-  max-width: 56rem;
+[data-temlis="nexio-641"] .container-large {
+  max-width: 60rem;
 }
 
-[data-temlis="contelas-518"] h2 {
+[data-temlis="nexio-641"] .heading-style-h1 {
+  margin: 0;
+  font-family: var(--font-display);
   font-size: var(--section-heading);
-  font-weight: 400;
-  line-height: 1;
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
-[data-temlis="contelas-518"] .header .text-color-secondary {
+[data-temlis="nexio-641"] .description {
   max-width: 36rem;
   font-size: 1.125rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-[data-temlis="contelas-518"] .text-5xl {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: -0.03em;
+/* The chosen period in lime, as the app's own switch is. */
+[data-temlis="nexio-641"] [data-tabs][data-pill-ready] .tabs_pill,
+[data-temlis="nexio-641"] .tab.w--current {
+  background-color: var(--color-bg-accent);
+  color: var(--color-ink);
 }
 
-[data-temlis="contelas-518"] .text-lg {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 400;
-  letter-spacing: -0.03em;
+[data-temlis="nexio-641"] .tab > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-[data-temlis="contelas-518"] .text-sm {
-  font-size: 1rem;
+.pricing-saving {
+  padding: 0.125rem 0.5rem;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background-color: var(--color-bg-accent);
+  border-radius: 999px;
 }
 
-/* Contelas resets every link to a transparent background, which would strip
-   Ledger's button of its pine. It spans the card, as Contelas' did. */
-[data-temlis="contelas-518"] .btn--dark {
-  width: 100%;
-  justify-content: space-between;
+[data-temlis="nexio-641"] .tab.w--current .pricing-saving {
+  color: var(--color-bg-accent);
   background-color: var(--color-bg-dark);
-  color: var(--color-text-white);
 }
 
-@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
-  [data-temlis="contelas-518"] .btn--dark.btn--chip:hover {
-    color: var(--color-ink);
+[data-temlis="nexio-641"] .pricing_grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  [data-temlis="nexio-641"] .pricing_grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-[data-temlis="contelas-518"] .tag {
-  width: 8rem;
-  height: auto;
+/* Both periods and the saving on one line of a phone. */
+@media (max-width: 479px) {
+  [data-temlis="nexio-641"] .tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
 }
 
-[data-temlis="contelas-518"] .tag text {
-  font-family: var(--font-body);
+/* Pro is what the trial runs, so it's the one drawn out. */
+[data-temlis="nexio-641"] .pricing_card.is-pro {
+  border-color: var(--color-bg-accent);
+}
+
+[data-temlis="nexio-641"] .icon-wrap:where(.w-variant-fff49c35-5622-4259-199c-6d9d85dc0e51) {
+  background-image: linear-gradient(var(--color-bg-accent), rgba(214, 255, 83, 0.16));
+}
+
+[data-temlis="nexio-641"] .icon-wrap:where(.w-variant-fff49c35-5622-4259-199c-6d9d85dc0e51) .icon-1x1-medium {
+  filter: brightness(0);
+}
+
+[data-temlis="nexio-641"] .text-xl {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.pricing-popular {
+  margin-left: auto;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background-color: var(--color-bg-accent);
+  border-radius: 999px;
+}
+
+[data-temlis="nexio-641"] .text-price {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+/* Ledger's buttons, on pine: white for Essentiel, lime for Pro, both filling
+   pine from the pointer. Nexio resets links to a transparent background. */
+[data-temlis="nexio-641"] .btn--white {
+  width: 100%;
+  background-color: var(--color-bg-white);
+  color: var(--color-ink);
+}
+
+[data-temlis="nexio-641"] .btn--lime {
+  width: 100%;
+  background-color: var(--color-bg-accent);
+  color: var(--color-ink);
+}
+
+[data-temlis="nexio-641"] .btn--white .btn__overlay,
+[data-temlis="nexio-641"] .btn--lime .btn__overlay {
+  background-color: var(--color-ink);
+  color: var(--color-text-white);
+}
+
+[data-temlis="nexio-641"] .pricing-compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-bg-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.pricing-compare svg {
+  width: 1rem;
+  height: 1rem;
+  transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pricing-compare:hover svg {
+    translate: 0.25rem 0;
+  }
 }
