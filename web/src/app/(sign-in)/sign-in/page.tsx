@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getOptionalMe } from "@/lib/me";
 import { safeNextPath } from "@/lib/next-path";
+import { referralCode, withReferral } from "@/lib/referral";
 import { SignInForm } from "./sign-in-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,8 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {
-  const { next, sentTo } = await searchParams;
-  const nextPath = safeNextPath(typeof next === "string" ? next : undefined);
+  const { next, sentTo, ref } = await searchParams;
+  // A referral link (/sign-in?ref=) carries its code on to the Business the
+  // User creates next (ADR 0135).
+  const nextPath = typeof next === "string" ? safeNextPath(next) : withReferral("/", referralCode(ref));
 
   // The page checks the session itself, not the proxy: a User who signed in
   // but never gave their name comes back here for it (ADR 0046).

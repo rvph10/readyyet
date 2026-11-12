@@ -6,6 +6,7 @@ import { api } from "@/lib/api/client";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
 import { chooseBusiness, groupByBusiness } from "@/lib/memberships";
+import { referralCode, withReferral } from "@/lib/referral";
 import { LocationPicker } from "./location-picker";
 import { Reveal } from "@/components/reveal";
 
@@ -24,7 +25,13 @@ export default async function ChooseLocationPage({ searchParams }: PageProps<"/"
     // An Owner who deleted their last Location still has their Business, and
     // a sales partner may have no shop of their own (ADR 0121).
     const [owned] = me.ownedBusinessIds;
-    redirect(owned ? `/businesses/${owned}` : me.salesPartnerPage ? "/partner" : "/businesses/new");
+    redirect(
+      owned
+        ? `/businesses/${owned}`
+        : me.salesPartnerPage
+          ? "/partner"
+          : withReferral("/businesses/new", referralCode(search.ref)),
+    );
   }
   if (memberships.length === 1) {
     redirect(`/locations/${memberships[0].location.id}`);

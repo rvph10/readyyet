@@ -29,13 +29,14 @@ interface Props {
   header: ReactNode;
   businessTypes: { code: string; label: string; steps: WorkflowStep[] }[];
   email: string;
+  referralCode: string | undefined;
 }
 
 // Two steps: the Business, then its first Location. Each is checked by its
 // schema before going on, with the errors under their fields in the page's
 // language (ADR 0049 and 0073), then again by the API, whose refusals land
 // in the same places.
-export function CreateBusinessForm({ header, businessTypes, email }: Props) {
+export function CreateBusinessForm({ header, businessTypes, email, referralCode }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
   const [step, setStep] = useState<1 | 2>(1);
@@ -95,6 +96,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
       const result = await orFailure(
         createBusiness({
           name: business.data.name,
+          referralCode,
           location: {
             ...business.data.location,
             ...location.data.location,

@@ -1,7 +1,14 @@
-// A referral link's code, kept by the proxy and sent when the User creates a
-// Business (ADR 0047). The first link wins, for 60 days (ADR 0032).
-export const REF_COOKIE = "ref";
-export const REF_MAX_AGE_SECONDS = 60 * 24 * 60 * 60;
+// A referral link's code travels in the URL from /sign-in to the Business it
+// leads to, instead of a cookie that would need consent (ADR 0135).
 // The API refuses a longer referralCode, which would block creating the
 // Business, where an unknown code is only ignored (ADR 0040).
-export const REF_MAX_LENGTH = 64;
+const REF_MAX_LENGTH = 64;
+
+export function referralCode(value: string | string[] | undefined): string | undefined {
+  return typeof value === "string" && value.length > 0 && value.length <= REF_MAX_LENGTH ? value : undefined;
+}
+
+// Where a path goes with the referral code still on it.
+export function withReferral(path: string, ref: string | undefined) {
+  return ref ? `${path}?${new URLSearchParams({ ref })}` : path;
+}

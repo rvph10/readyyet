@@ -2,7 +2,6 @@ import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_MAX_AGE_SECONDS, POSTHOG_HOST } from "@/lib/consent";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
-import { REF_COOKIE, REF_MAX_AGE_SECONDS, REF_MAX_LENGTH } from "@/lib/referral";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
 // check, this only spares a signed-out visitor a round trip (ADR 0045). An
@@ -13,28 +12,13 @@ function needsSession(pathname: string) {
   return pathname === "/" || DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix));
 }
 
-// ?lang= works on any page (ADR 0047). ?ref= only on /sign-in, where referral
-// links lead, so the cookie is part of the sign-up it starts (ADR 0132).
+// ?lang= works on any page (ADR 0047).
 function keepChoices(request: NextRequest, response: NextResponse) {
   const { searchParams } = request.nextUrl;
   const secure = process.env.NODE_ENV === "production";
   const locale = parseLocale(searchParams.get("lang"));
   if (locale) {
     response.cookies.set(LOCALE_COOKIE, locale, { maxAge: COOKIE_MAX_AGE_SECONDS, sameSite: "lax", secure });
-  }
-  const ref = searchParams.get("ref");
-  if (
-    request.nextUrl.pathname === "/sign-in" &&
-    ref &&
-    ref.length <= REF_MAX_LENGTH &&
-    !request.cookies.has(REF_COOKIE)
-  ) {
-    response.cookies.set(REF_COOKIE, ref, {
-      maxAge: REF_MAX_AGE_SECONDS,
-      sameSite: "lax",
-      httpOnly: true,
-      secure,
-    });
   }
   return response;
 }
