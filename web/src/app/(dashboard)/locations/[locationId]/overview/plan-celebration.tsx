@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Illustration } from "@/components/illustration";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
+import { track } from "@/lib/analytics";
 import { PLAN_FEATURES, PLAN_NAMES, type Plan } from "../plan-prices";
 
 const CONFETTI_PIECES = 18;
@@ -26,6 +27,10 @@ export function PlanCelebration({ locationId, locationName, plan, firstPayment }
   const tBilling = useTranslations("billing");
   const router = useRouter();
   const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    track("plan_chosen", plan ? { plan } : undefined);
+  }, [plan]);
 
   function close() {
     setOpen(false);

@@ -50,7 +50,7 @@ export function withoutQuery(url: string) {
 
 export const POSTHOG_HOST = "https://eu.i.posthog.com";
 
-// Anonymous page views and nothing more: clicks would send the text of what
+// Anonymous page views and the few steps of ADR 0136: clicks would send the text of what
 // was clicked, a Customer's name included, and PostHog may not fetch more code.
 export const POSTHOG_OPTIONS: Partial<PostHogConfig> = {
   api_host: POSTHOG_HOST,

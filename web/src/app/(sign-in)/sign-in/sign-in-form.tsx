@@ -13,6 +13,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
 import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
+import { track } from "@/lib/analytics";
 
 type Step = "email" | "code" | "name";
 
@@ -197,6 +198,8 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
 
   async function saveName(name: string) {
     if (await call("saveName", () => authClient.updateUser({ name }))) {
+      // Only a first sign-in asks for the name (ADR 0011), so this is the sign-up.
+      track("signed_up");
       router.replace(next);
     }
   }
