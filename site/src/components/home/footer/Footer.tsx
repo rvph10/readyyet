@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { signInUrl } from "@/lib/sign-in-url";
 import { Fragment } from "react";
-import { APP_URL } from "@/lib/app-url";
 import { noOrphan } from "@/lib/typography";
 import "@/temlis/atniily-923/styles.css";
 import { LanguageSwitch } from "./LanguageSwitch";
@@ -42,6 +42,7 @@ function Roll({ label }: { label: string }) {
 // package. Its script is /temlis/atniily-923/animations.js.
 export async function Footer() {
   const t = await getTranslations("home.footer");
+  const signIn = await signInUrl();
   const columns = [
     {
       title: t("product"),
@@ -55,8 +56,8 @@ export async function Footer() {
     {
       title: t("account"),
       links: [
-        { label: t("start"), href: `${APP_URL}/sign-in` },
-        { label: t("signIn"), href: `${APP_URL}/sign-in` },
+        { label: t("start"), href: signIn },
+        { label: t("signIn"), href: signIn },
       ],
     },
     {

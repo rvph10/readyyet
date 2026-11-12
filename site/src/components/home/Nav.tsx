@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { APP_URL } from "@/lib/app-url";
+import { signInUrl } from "@/lib/sign-in-url";
 import { FillButton } from "./FillButton";
 import "./nav.css";
 
@@ -12,7 +12,7 @@ const SECTIONS = [
 ] as const;
 
 export async function Nav() {
-  const t = await getTranslations("home.nav");
+  const [t, signIn] = await Promise.all([getTranslations("home.nav"), signInUrl()]);
 
   return (
     <nav className="nav" aria-label={t("label")}>
@@ -30,10 +30,10 @@ export async function Nav() {
         ))}
       </ul>
       <div className="nav__actions">
-        <a className="nav__link nav__signin" href={`${APP_URL}/sign-in`}>
+        <a className="nav__link nav__signin" href={signIn}>
           {t("signIn")}
         </a>
-        <FillButton href={`${APP_URL}/sign-in`} className="btn--dark btn--sm">
+        <FillButton href={signIn} className="btn--dark btn--sm">
           {t("start")}
         </FillButton>
       </div>

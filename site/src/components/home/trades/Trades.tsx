@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { APP_URL } from "@/lib/app-url";
+import { signInUrl } from "@/lib/sign-in-url";
 import "@/temlis/lumoras-699/styles.css";
 import { ChipButton } from "../ChipButton";
 import "./trades.css";
@@ -12,6 +12,7 @@ const TRADES = ["shoe", "pressing", "tailoring", "electronics", "watch", "garage
 // (lib/motion/reveal.ts).
 export async function Trades() {
   const t = await getTranslations("home.trades");
+  const signIn = await signInUrl();
 
   return (
     <div data-tmls="tmfp_ngj73s52iqhloxrc" data-temlis="lumoras-699">
@@ -26,7 +27,7 @@ export async function Trades() {
                     <h2 data-entrance="title">{t("title")}</h2>
                   </div>
                   <div data-entrance="">
-                    <ChipButton href={`${APP_URL}/sign-in`}>{t("cta")}</ChipButton>
+                    <ChipButton href={signIn}>{t("cta")}</ChipButton>
                   </div>
                 </div>
                 <div className="spacer">

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { APP_URL } from "@/lib/app-url";
+import { signInUrl } from "@/lib/sign-in-url";
 import "@/temlis/contelas-518/styles.css";
 import { ChipButton } from "../ChipButton";
 import "./pricing.css";
@@ -15,7 +15,7 @@ const PLANS = [
 // It enters like every section, through data-entrance (lib/motion/reveal.ts).
 export async function Pricing() {
   const t = await getTranslations("home.pricing");
-  const signUp = `${APP_URL}/sign-in`;
+  const signUp = await signInUrl();
 
   return (
     <div data-tmls="tmfp_todrbqozfsyjmpf6" data-temlis="contelas-518">

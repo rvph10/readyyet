@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { APP_URL } from "@/lib/app-url";
+import { appLanguage } from "@/lib/sign-in-url";
 import { noOrphan } from "@/lib/typography";
 import { FillButton } from "../FillButton";
 import "@/temlis/payable-626/styles.css";
@@ -60,7 +61,7 @@ export async function Steps() {
                     {/* The app's demo of the page Customers get, in the visitor's
                         language where the app has it; it has no Dutch yet. */}
                     <div data-entrance="">
-                      <FillButton href={`${APP_URL}/demo?lang=${locale === "fr" ? "fr" : "en"}`} className="btn--muted">
+                      <FillButton href={`${APP_URL}/demo?lang=${appLanguage(locale)}`} className="btn--muted">
                         {t("demo")}
                       </FillButton>
                     </div>

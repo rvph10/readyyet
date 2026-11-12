@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { APP_URL } from "@/lib/app-url";
+import { signInUrl } from "@/lib/sign-in-url";
 import "@/temlis/hirely-325/styles.css";
 import { ChipButton } from "../ChipButton";
 import "./final-cta.css";
@@ -10,6 +10,7 @@ import "./final-cta.css";
 // like every section, through data-entrance (lib/motion/reveal.ts).
 export async function FinalCta() {
   const t = await getTranslations("home.finalCta");
+  const signIn = await signInUrl();
   const [a, b] = [t("row1.0"), t("row1.1")];
   const [c, d, e] = [t("row2.0"), t("row2.1"), t("row2.2")];
 
@@ -40,7 +41,7 @@ export async function FinalCta() {
                 <div className="spacer-mobile"></div>
               </div>
               <div data-entrance="">
-                <ChipButton href={`${APP_URL}/sign-in`}>{t("start")}</ChipButton>
+                <ChipButton href={signIn}>{t("start")}</ChipButton>
               </div>
             </div>
           </div>

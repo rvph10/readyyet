@@ -7,6 +7,6 @@ api/openapi.json
 docs/decisions/
 # Written by pnpm run api-types from api/openapi.json, CI compares it byte for byte.
 web/src/lib/api/schema.d.ts
-# Temlis sections, kept byte for byte as bought (ADR 0133).
+# Temlis sections, kept as bought apart from the `ReadyYet:` edits (ADR 0133).
 site/public/temlis/
 site/src/temlis/
