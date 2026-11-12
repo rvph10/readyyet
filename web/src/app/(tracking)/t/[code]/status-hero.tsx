@@ -96,8 +96,9 @@ export async function StatusHero({ tracking, locale, now, demo = false, classNam
           </p>
         )}
 
+        {/* The demo's buttons lead nowhere, so they don't answer the pointer. */}
         {ready && (
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className={`mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap ${demo ? "pointer-events-none" : ""}`}>
             {location.mapsUrl && (
               <a
                 href={demo ? undefined : location.mapsUrl}
@@ -127,7 +128,7 @@ export async function StatusHero({ tracking, locale, now, demo = false, classNam
         )}
 
         {NEEDS_CUSTOMER.includes(code) && (
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className={`mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap ${demo ? "pointer-events-none" : ""}`}>
             <a href={demo ? undefined : `tel:${location.contactPhone}`} className={buttonClass()}>
               <Icon name="phone" className="size-3.5" />
               {t("callLocation")}

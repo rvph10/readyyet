@@ -93,7 +93,8 @@ export async function LocationPanel({ location, locale, now, demo = false, class
         {/* Without hours the tile would be a tall blank between its title and
             the contact rows. */}
         {!state && <Illustration name="helping" className="m-auto hidden h-56 w-auto max-w-full lg:block" />}
-        <div className="flex flex-col gap-1">
+        {/* The demo's rows lead nowhere, so they don't answer the pointer. */}
+        <div className={`flex flex-col gap-1 ${demo ? "pointer-events-none" : ""}`}>
           {address && mapsUrl && (
             <a
               href={demo ? undefined : mapsUrl}
