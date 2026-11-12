@@ -5,9 +5,16 @@ import { Marked, Renderer, type Tokens } from "marked";
 export const LEGAL_DOCS = ["terms", "privacy", "legal-notice", "customer-data"] as const;
 export type LegalDoc = (typeof LEGAL_DOCS)[number];
 
-// The date the texts took effect, the same as TERMS_VERSION in the app
-// (ADR 0130): a change to the terms means a new date in both.
-export const LEGAL_DATE = "2026-11-10";
+// When each text took effect. The terms' date is TERMS_VERSION in the app
+// (ADR 0130): a change to the terms means a new date in both, and every Owner
+// accepting them again. The privacy notice changed alone on 2026-11-12, with
+// the signed-in cookie (ADR 0144).
+export const LEGAL_DATES: Record<LegalDoc, string> = {
+  terms: "2026-11-10",
+  privacy: "2026-11-12",
+  "legal-notice": "2026-11-10",
+  "customer-data": "2026-11-10",
+};
 
 type Section = { id: string; label: string; number?: string; part: boolean };
 

@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Nav } from "@/components/home/Nav";
 import { Footer } from "@/components/home/footer/Footer";
 import { routing } from "@/i18n/routing";
-import { LEGAL_DATE, LEGAL_DOCS, type LegalDoc, readLegal } from "@/lib/legal";
+import { LEGAL_DATES, LEGAL_DOCS, type LegalDoc, readLegal } from "@/lib/legal";
 import "./legal.css";
 
 const SUPPORT_EMAIL = "support@readyyet.app";
@@ -33,7 +33,9 @@ export async function LegalPage({ legal, params }: Props & { legal: LegalDoc }) 
   const { locale } = await params;
   setRequestLocale(locale);
   const [t, { title, html, sections }] = await Promise.all([getTranslations("legal"), readLegal(locale, legal)]);
-  const since = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(LEGAL_DATE));
+  const since = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(
+    new Date(LEGAL_DATES[legal]),
+  );
 
   return (
     <>
