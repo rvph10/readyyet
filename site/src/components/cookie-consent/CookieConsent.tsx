@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useSyncExternalStore, type ComponentProps } from "react";
 import { deletePostHogStorage, POSTHOG_OPTIONS, readConsent, saveConsent, type Consent } from "@/lib/consent";
 import "./cookie-consent.css";
 
@@ -21,12 +21,12 @@ function changed() {
   for (const listener of listeners) listener();
 }
 
-export function CookieSettingsButton({ className, children }: { className: string; children: ReactNode }) {
+export function CookieSettingsButton({ children, ...attributes }: ComponentProps<"button">) {
   if (!POSTHOG_KEY) return null;
   return (
     <button
       type="button"
-      className={className}
+      {...attributes}
       onClick={() => {
         reopened = true;
         changed();

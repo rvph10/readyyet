@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Plan, type Locale } from "@readyyet/db";
 import { SYSTEM_STATUS_CODES } from "@readyyet/shared";
+import { hasPro } from "../billing/plans";
 import { PrismaService } from "../database/prisma.service";
 import { NotFoundError, PlanRequiredError, ValidationError } from "../common/errors/app-error";
 import { statusSelect } from "../common/status-select";
@@ -52,7 +53,7 @@ export class WorkflowService {
   // a new version replaces the active one, open Tickets keep theirs.
   async replaceCustomWorkflow(locationId: string, dto: UpdateWorkflowDto) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({ where: { locationId } });
-    if (subscription.plan !== Plan.PRO) {
+    if (!hasPro(subscription)) {
       throw new PlanRequiredError("A custom workflow");
     }
 

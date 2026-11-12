@@ -257,4 +257,17 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
     expect(reset.status).toBe(204);
     expect(await activeCustom()).toEqual([]);
   });
+
+  // A trial keeps plan PRO once it ended, the plan alone let it through.
+  it.each([
+    ["a trial that ended", { status: "TRIAL" as const, trialEndsAt: new Date(Date.now() - 60_000) }],
+    ["a subscription that ended", { status: "ENDED" as const, trialEndsAt: null }],
+  ])("is refused with PLAN_REQUIRED on %s", async (_, subscription) => {
+    await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO", ...subscription } });
+
+    const response = await replace(["REPAIRING"]);
+
+    expect(response.status).toBe(402);
+    expect(response.body.error.code).toBe("PLAN_REQUIRED");
+  });
 });

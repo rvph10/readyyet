@@ -37,8 +37,8 @@ function Roll({ label }: { label: string }) {
 }
 
 // Atniily's "Dark Footer with Giant Wordmark" (Temlis), markup as bought,
-// with ReadyYet's logo and name, its links, and the language picker in place
-// of the template's policies line, and the legal pages beside the rights.
+// with ReadyYet's logo and name, its links, the legal pages as the fourth
+// column, and the language picker in place of the template's policies line.
 // Its stylesheet is as bought but for its Geist @font-face rules, removed:
 // the page sets its own fonts, and their fallback files weren't in the
 // package. Its script is /temlis/atniily-923/animations.js.
@@ -102,20 +102,25 @@ export async function Footer() {
                   ))}
                 </nav>
               ))}
+              <nav className="footer__col" aria-label={t("legal")} {...CID}>
+                <p className="footer__col-title" {...CID}>
+                  {t("legal")}
+                </p>
+                {LEGAL_DOCS.map((doc) => (
+                  <a key={doc} className="footer__link" href={`/${locale}/${doc}`} {...CID}>
+                    <Roll label={legal(doc)} />
+                  </a>
+                ))}
+                <CookieSettingsButton className="footer__link footer__cookies" {...CID}>
+                  <Roll label={cookies("settings")} />
+                </CookieSettingsButton>
+              </nav>
             </div>
           </div>
           <div className="footer__bottom" data-anim="rise" data-anim-y="0" {...CID}>
             <span className="footer__divider" aria-hidden="true" {...CID}></span>
             <div className="footer__legal" {...CID}>
               <p {...CID}>{t("rights", { year: new Date().getFullYear() })}</p>
-              <nav className="footer__policies" aria-label={t("legal")}>
-                {LEGAL_DOCS.map((doc) => (
-                  <a key={doc} href={`/${locale}/${doc}`} {...CID}>
-                    {legal(doc)}
-                  </a>
-                ))}
-                <CookieSettingsButton className="footer__cookies">{cookies("settings")}</CookieSettingsButton>
-              </nav>
               <LanguageSwitch label={t("language")} />
             </div>
           </div>
