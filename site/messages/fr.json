@@ -277,7 +277,28 @@
       "start": "Essai gratuit",
       "signIn": "Se connecter",
       "language": "Langue",
-      "rights": "© {year} ReadyYet. Tous droits réservés."
+      "rights": "© {year} ReadyYet. Tous droits réservés.",
+      "legal": "Juridique"
     }
+  },
+  "legal": {
+    "label": "Juridique",
+    "docs": {
+      "terms": "Conditions générales",
+      "privacy": "Politique de confidentialité",
+      "legal-notice": "Mentions légales",
+      "customer-data": "Vos données de client"
+    },
+    "since": "En vigueur depuis le {date}",
+    "contents": "Sur cette page",
+    "others": "Documents juridiques",
+    "questions": "Une question sur ces textes ?"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "Nous utilisons des cookies de mesure d'audience pour améliorer ReadyYet, uniquement avec votre accord. Refuser ne change rien pour vous. <link>En savoir plus</link>",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "settings": "Paramètres des cookies"
   }
 }

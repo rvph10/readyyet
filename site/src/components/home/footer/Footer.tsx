@@ -1,6 +1,8 @@
-import { getTranslations } from "next-intl/server";
-import { signInUrl } from "@/lib/sign-in-url";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { CookieSettingsButton } from "@/components/cookie-consent/CookieConsent";
+import { signInUrl } from "@/lib/sign-in-url";
+import { LEGAL_DOCS } from "@/lib/legal";
 import { noOrphan } from "@/lib/typography";
 import "@/temlis/atniily-923/styles.css";
 import { LanguageSwitch } from "./LanguageSwitch";
@@ -36,21 +38,26 @@ function Roll({ label }: { label: string }) {
 
 // Atniily's "Dark Footer with Giant Wordmark" (Temlis), markup as bought,
 // with ReadyYet's logo and name, its links, and the language picker in place
-// of the template's policies line. Legal links come with the legal pages.
+// of the template's policies line, and the legal pages beside the rights.
 // Its stylesheet is as bought but for its Geist @font-face rules, removed:
 // the page sets its own fonts, and their fallback files weren't in the
 // package. Its script is /temlis/atniily-923/animations.js.
 export async function Footer() {
-  const t = await getTranslations("home.footer");
-  const signIn = await signInUrl();
+  const [t, legal, cookies, locale, signIn] = await Promise.all([
+    getTranslations("home.footer"),
+    getTranslations("legal.docs"),
+    getTranslations("cookies"),
+    getLocale(),
+    signInUrl(),
+  ]);
   const columns = [
     {
       title: t("product"),
       links: [
-        { label: t("howItWorks"), href: "#how-it-works" },
-        { label: t("features"), href: "#features" },
-        { label: t("pricing"), href: "#pricing" },
-        { label: t("faq"), href: "#faq" },
+        { label: t("howItWorks"), href: `/${locale}#how-it-works` },
+        { label: t("features"), href: `/${locale}#features` },
+        { label: t("pricing"), href: `/${locale}#pricing` },
+        { label: t("faq"), href: `/${locale}#faq` },
       ],
     },
     {
@@ -101,6 +108,14 @@ export async function Footer() {
             <span className="footer__divider" aria-hidden="true" {...CID}></span>
             <div className="footer__legal" {...CID}>
               <p {...CID}>{t("rights", { year: new Date().getFullYear() })}</p>
+              <nav className="footer__policies" aria-label={t("legal")}>
+                {LEGAL_DOCS.map((doc) => (
+                  <a key={doc} href={`/${locale}/${doc}`} {...CID}>
+                    {legal(doc)}
+                  </a>
+                ))}
+                <CookieSettingsButton className="footer__cookies">{cookies("settings")}</CookieSettingsButton>
+              </nav>
               <LanguageSwitch label={t("language")} />
             </div>
           </div>

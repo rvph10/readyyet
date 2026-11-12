@@ -3,6 +3,7 @@ import { Inter, Momo_Trust_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, type Locale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { CookieConsent } from "@/components/cookie-consent/CookieConsent";
 import { routing } from "@/i18n/routing";
 import { INDEXABLE, SITE_URL } from "@/lib/site-url";
 import "../globals.css";
@@ -52,7 +53,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   return (
     <html lang={locale} className={`${inter.variable} ${momo.variable}`} data-enter="">
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          {children}
+          <CookieConsent />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
