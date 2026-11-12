@@ -735,6 +735,7 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
+    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -931,6 +932,39 @@
     "turnaroundTitle": "Usual turnaround",
     "turnaroundUnit": "{count, plural, one {open day} other {open days}}",
     "turnaroundPreviewBody": "A Ticket created today is ready by",
+    "export": {
+      "title": "Export your data",
+      "hint": "Everything this shop holds, to keep or to take to another tool. Download it whenever you like, free of charge.",
+      "contents": {
+        "customers": {
+          "title": "Customers",
+          "detail": "Name, email, phone, language"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Item, notes, status, expected date, tracking link"
+        },
+        "history": {
+          "title": "History",
+          "detail": "Every status change, who made it and when"
+        },
+        "feedback": {
+          "title": "Feedback",
+          "detail": "Ratings, tags, messages and your replies"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Those still kept, up to 30 days after the Ticket ends"
+        },
+        "team": {
+          "title": "Team and settings",
+          "detail": "Members, roles, opening hours and Workflows"
+        }
+      },
+      "format": "One ZIP file: a CSV for each kind of data, which opens in Excel, and everything as JSON.",
+      "download": "Download the export",
+      "failed": "The export couldn't be prepared. Try again in a few minutes."
+    },
     "deleteTitle": "Delete this shop",
     "deleteAction": "Delete this shop",
     "deleteConfirmTitle": "Delete {name}?",
@@ -945,6 +979,7 @@
       "hours": "Opening hours",
       "tickets": "Tickets",
       "reviews": "Google reviews",
+      "export": "Export",
       "delete": "Delete"
     },
     "off": "Off",
@@ -993,6 +1028,7 @@
     "deleteLoses": {
       "tracking": "Tracking links stop working",
       "photos": "Ticket photos are deleted",
+      "customers": "Its Customers are erased",
       "plan": "Its plan is cancelled at once",
       "team": "Everyone loses access"
     },
@@ -1025,7 +1061,9 @@
       "change": "Change",
       "keep": "Keep this link",
       "noPublicAddress": "Goes to its customers, no public address"
-    }
+    },
+    "exportFirst": "Keep a copy of your Customers and Tickets before deleting:",
+    "exportFirstLink": "export your data"
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",
@@ -1417,5 +1455,19 @@
     "PRICE": "Higher price than expected",
     "NOT_FIXED": "Problem not fully fixed",
     "HARD_TO_REACH": "Hard to reach"
+  },
+  "demo": {
+    "title": "Tracking page demo",
+    "label": "Demo",
+    "intro": "The page your customers open from their email or the QR code. Pick a moment to see it change.",
+    "moments": "Tracking moments",
+    "steps": {
+      "received": "Received",
+      "approval": "Quote to approve",
+      "repair": "In repair",
+      "ready": "Ready"
+    },
+    "item": "Automatic watch, new glass",
+    "start": "Start free trial"
   }
 }
