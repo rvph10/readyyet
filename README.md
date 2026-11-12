@@ -32,7 +32,7 @@ Fill in `api/.env`. The API checks these when it starts and refuses to start if 
 - `DATABASE_URL`, `PORT` — already correct for the `docker compose` setup above, no change needed.
 - `BETTER_AUTH_SECRET` — generate with `pnpm exec better-auth secret`.
 - `BETTER_AUTH_URL` — `http://localhost:3000` locally. It's the API's own public URL, also used for the one-click stop link in customer emails.
-- `RESEND_API_KEY` — from [resend.com/api-keys](https://resend.com/api-keys). The email e2e tests hit the real Resend API using its test-mode addresses (`delivered@resend.dev`, `bounced@resend.dev`), a real key is required for `pnpm test` to pass, not optional.
+- `RESEND_API_KEY` — from [resend.com/api-keys](https://resend.com/api-keys), for the running app. `pnpm test` doesn't need it: the tests never send a real email (ADR 0137).
 - `RESEND_WEBHOOK_SECRET` — only needed to receive real delivery-status webhooks (see `docs/decisions/0010-resend-mail-infrastructure.md`), not needed for local dev or tests.
 - `EMAIL_FROM` — a sender address on a domain verified in Resend.
 - `SUPPORT_EMAIL`: a monitored inbox. Security emails (an ownership transfer, a deleted account) tell the User to reply if it wasn't them, and replies go here.
@@ -62,7 +62,7 @@ pnpm lint
 pnpm format:check   # or pnpm format to fix
 ```
 
-Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite also sends real (test-mode) emails through Resend, `RESEND_API_KEY` has to be set. Its test files run one at a time to stay under Resend's rate limit, see ADR 0012. Any address a test sends to must be one of Resend's test addresses (`delivered+<label>@resend.dev`, `bounced@resend.dev`): they go through the real API but are never delivered, so they can't bounce and hurt the sending domain's reputation.
+Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite sends no real email: `api/test/support/resend-setup.ts` stands in for Resend's sending, as every send counts against the plan (ADR 0137). Its test files run one at a time, as they share one database. Addresses in tests stay Resend's test addresses (`delivered+<label>@resend.dev`), so a send that slipped through would never be delivered.
 
 ## CI
 
@@ -70,7 +70,7 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 - An advisory that can't reach the running API can be ignored in `pnpm-workspace.yaml`'s `auditConfig`, with the reason next to it. Dependabot (`.github/dependabot.yml`) proposes updates weekly, a week after each release.
 
-- The `api` job needs `RESEND_API_KEY` set as a GitHub Actions repo secret (Settings → Secrets and variables → Actions), for the same reason `pnpm test` needs it locally. Without it, that job fails with a "missing API key" error.
+- The `api` job needs no Resend key: the workflow sets a placeholder, as the tests never send (ADR 0137).
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.
 
 ## Deploy
