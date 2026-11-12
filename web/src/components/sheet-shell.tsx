@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 
@@ -44,6 +44,7 @@ export function SheetShell({
   const requested = useSearchParams().get("section");
   const chosen = sections.some(({ name }) => name === requested) ? requested : null;
   const active = chosen ?? start;
+  const openedFromList = useRef(false);
 
   return (
     <Panel padding="none" className="flex min-h-0 flex-1 flex-col overflow-clip lg:flex-row">
@@ -61,6 +62,7 @@ export function SheetShell({
                   event.preventDefault();
                   // On a phone, the back gesture returns to the list.
                   const wide = window.matchMedia(WIDE).matches;
+                  openedFromList.current = !wide;
                   window.history[wide ? "replaceState" : "pushState"](null, "", `?section=${name}`);
                 }}
                 className={`flex h-14 items-center gap-3 rounded-xl px-3 text-label-md whitespace-nowrap transition-colors lg:h-11 lg:text-label-sm ${
@@ -89,7 +91,14 @@ export function SheetShell({
           href="?"
           onClick={(event) => {
             event.preventDefault();
-            window.history.replaceState(null, "", window.location.pathname);
+            // Back to the list's own entry, or the back gesture would show the
+            // list a second time before leaving.
+            if (openedFromList.current) {
+              openedFromList.current = false;
+              window.history.back();
+            } else {
+              window.history.replaceState(null, "", window.location.pathname);
+            }
           }}
           className="-ml-2 mb-3 flex h-11 items-center gap-2 self-start rounded-full px-2 text-label-sm lg:hidden"
         >
