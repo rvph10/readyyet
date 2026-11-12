@@ -9,6 +9,10 @@ import { Resend } from "resend";
 // here since nothing but EmailService actually needs this client.
 let client: Resend | undefined;
 
+// Without it a stalled Resend holds a sign-in request for minutes. A send that
+// times out is retried under the same idempotency key, so it can't go twice.
+export const RESEND_TIMEOUT_MS = 10_000;
+
 export function getResendClient(): Resend {
   client ??= new Resend(process.env.RESEND_API_KEY);
   return client;
