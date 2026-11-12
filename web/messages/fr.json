@@ -451,6 +451,7 @@
       "unexpected": "L'e-mail n'a pas été envoyé. Veuillez réessayer."
     },
     "linkExpired": "Le lien de suivi de ce ticket a expiré.",
+    "emailLimited": "Le dernier e-mail à {name} n'est pas parti : ce magasin a atteint sa limite d'e-mails du jour. Montrez-lui le QR code, les e-mails reprennent demain.",
     "emailGaveUp": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer. Montrez-lui le QR code ou vérifiez son adresse.",
     "emailRetrying": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée. Si cette personne est encore là, montrez-lui le QR code.",
     "emailFails": "Les e-mails à {email} échouent, {name} n'en reçoit donc aucun. Vérifiez l'adresse avec cette personne.",
@@ -485,6 +486,7 @@
     "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article."
   },
   "today": {
+    "emailLimit": "La limite d'e-mails du jour est atteinte pour ce magasin : les e-mails à vos clients reprennent demain. Les Tickets et les pages de suivi fonctionnent normalement. Si cela vous surprend, écrivez à support@readyyet.app.",
     "greeting": {
       "morning": "Bonjour, {name}",
       "afternoon": "Bonjour, {name}",

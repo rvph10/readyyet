@@ -126,6 +126,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
       {ticket.emailProblem === "GAVE_UP" && (
         <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>
       )}
+      {ticket.emailProblem === "LIMITED" && <Banner tone="error">{t("emailLimited", { name })}</Banner>}
       {ticket.emailProblem === "RETRYING" && (
         <Banner>{t(ended ? "emailRetryingEnded" : "emailRetrying", { name })}</Banner>
       )}

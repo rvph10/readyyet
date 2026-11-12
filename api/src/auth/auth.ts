@@ -10,6 +10,7 @@ import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
 import { isDisposableEmail } from "./disposable-email";
+import { SIGN_IN_CODES_PER_HOUR } from "../email/email-limits";
 
 // Given to the plugin and quoted in the email, so the two can't disagree.
 const OTP_EXPIRES_IN_MINUTES = 5;
@@ -96,6 +97,24 @@ export const auth: Auth<any> = betterAuth({
         throw new APIError("BAD_REQUEST", {
           code: "DISPOSABLE_EMAIL",
           message: "Disposable email addresses can't be used to sign in.",
+        });
+      }
+      // ADR 0140: the form can't be used to flood an inbox. Checked before
+      // the plugin stores a new code, which would void the one already sent.
+      if (
+        ctx.path === "/email-otp/send-verification-otp" &&
+        typeof email === "string" &&
+        (await prisma.emailLog.count({
+          where: {
+            to: email.toLowerCase(),
+            type: "auth_otp",
+            createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+          },
+        })) >= SIGN_IN_CODES_PER_HOUR
+      ) {
+        throw new APIError("TOO_MANY_REQUESTS", {
+          code: "TOO_MANY_CODES",
+          message: "Too many codes for this address.",
         });
       }
     }),

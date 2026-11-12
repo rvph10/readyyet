@@ -10746,12 +10746,16 @@
           },
           "needsYou": {
             "$ref": "#/components/schemas/OverviewNeedsYouDto"
+          },
+          "customerEmailsLimited": {
+            "type": "boolean"
           }
         },
         "required": [
           "counts",
           "tickets",
-          "needsYou"
+          "needsYou",
+          "customerEmailsLimited"
         ]
       },
       "TicketStatusEventDto": {
@@ -10818,7 +10822,8 @@
             "nullable": true,
             "enum": [
               "RETRYING",
-              "GAVE_UP"
+              "GAVE_UP",
+              "LIMITED"
             ],
             "type": "string"
           },

@@ -5,6 +5,7 @@ import { EmailStatus, Prisma } from "@readyyet/db";
 import type { EmailLog, PrismaClient } from "@readyyet/db";
 import type { ReactElement } from "react";
 import { PrismaService } from "../database/prisma.service";
+import { CUSTOMER_EMAIL_TYPES, customerEmailsToday, dailyCustomerEmails } from "./email-limits";
 import { NON_RETRYABLE_RESEND_ERRORS } from "./email-status";
 import { getResendClient, waitForResendSlot } from "./resend-client";
 
@@ -90,17 +91,32 @@ export class EmailService {
     }
     const { html, text } = await this.resolveContent(input);
 
+    let firstLimitedToday = false;
     const log = await this.prisma.$transaction(async (tx) => {
+      let limited = false;
       // Locks the Customer against an erasure running now, which either waits
       // and then clears this row too, or has finished and this isn't written.
       if (input.ticketId) {
-        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null }[]>`
-          SELECT c.deleted_at FROM customer c
+        const [customer] = await tx.$queryRaw<{ deleted_at: Date | null; location_id: string }[]>`
+          SELECT c.deleted_at, t.location_id FROM customer c
           JOIN ticket t ON t.customer_id = c.id
           WHERE t.id = ${input.ticketId}
           FOR SHARE OF c`;
         if (customer.deleted_at) {
           return null;
+        }
+        // ADR 0140: over its daily limit, a Location's email to a Customer is
+        // recorded but not sent, nor sent later, when it would be stale.
+        if (CUSTOMER_EMAIL_TYPES.includes(input.type)) {
+          const subscription = await tx.subscription.findUnique({
+            where: { locationId: customer.location_id },
+            select: { status: true },
+          });
+          const [today] = await tx.$queryRaw<{ sent: number; limited: number }[]>(
+            customerEmailsToday(customer.location_id),
+          );
+          limited = today.sent >= dailyCustomerEmails(subscription?.status ?? null);
+          firstLimitedToday = limited && today.limited === 0;
         }
       }
       return tx.emailLog.create({
@@ -117,11 +133,26 @@ export class EmailService {
           ticketId: input.ticketId,
           invitationId: input.invitationId,
           dedupeKey: input.dedupeKey,
-          status: EmailStatus.QUEUED,
+          // Never sent, so nothing of the Customer's is kept with it.
+          ...(limited
+            ? {
+                status: EmailStatus.LIMITED,
+                gaveUpAt: new Date(),
+                lastError: "daily_limit: Location's daily limit",
+                html: null,
+                text: null,
+                attachments: undefined,
+              }
+            : { status: EmailStatus.QUEUED }),
         },
       });
     });
 
+    if (log?.status === EmailStatus.LIMITED) {
+      // Once a day per Location: at these volumes it's abuse or a bug.
+      if (firstLimitedToday) report("A Location reached its daily Customer email limit", log.id, log.lastError);
+      return log;
+    }
     return log && this.attempt(log);
   }
 

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { Reveal } from "@/components/reveal";
+import { Banner } from "@/components/ui/banner";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
@@ -125,6 +126,7 @@ function Running({ page, overview }: { page: Today; overview: Overview | null })
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
       {overview && <Celebration page={page} />}
+      {overview?.customerEmailsLimited && page.manager && <EmailLimitBanner />}
       <Hero page={page} overview={overview} />
       {overview && page.manager && (
         <Suspense>
@@ -274,6 +276,12 @@ async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) 
       folded={(page.folded ?? (setup.firstTicket ? "1" : "0")) === "1"}
     />
   );
+}
+
+// ADR 0140: the day's emails to Customers stopped, nothing else did.
+function EmailLimitBanner() {
+  const t = useTranslations("today");
+  return <Banner tone="error">{t("emailLimit")}</Banner>;
 }
 
 // After Checkout. The webhook can still be on its way, but the trial's end

@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nestjs";
 import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { EmailStatus } from "@readyyet/db";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { GIVE_UP_AFTER_MS } from "../email/email-status";
@@ -125,7 +126,10 @@ export class NotificationService {
     if (isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)) {
       throw new ConflictError("This ticket's tracking link has expired");
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    const log = await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    if (log?.status === EmailStatus.LIMITED) {
+      throw new ConflictError("This shop reached its daily email limit, show the customer the QR code");
+    }
     return { sentTo: ticket.customer.email };
   }
 
@@ -370,7 +374,7 @@ export class NotificationService {
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
       reply,
     });
-    await this.email.send({
+    const log = await this.email.send({
       to,
       subject,
       react,
@@ -400,11 +404,13 @@ export class NotificationService {
     });
     // What a later date is compared to. Only the emails that state the date
     // tell it, a status email doesn't.
-    if (statesDate) {
+    // Held back by the daily limit (ADR 0140), it told the Customer nothing.
+    if (statesDate && log?.status !== EmailStatus.LIMITED) {
       await this.prisma.ticket.update({
         where: { id: ticket.id },
         data: { customerToldReadyDate: ticket.estimatedReadyDate },
       });
     }
+    return log;
   }
 }

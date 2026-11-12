@@ -451,6 +451,7 @@
       "unexpected": "The email wasn't sent. Please try again."
     },
     "linkExpired": "This Ticket's tracking link has expired.",
+    "emailLimited": "The last email to {name} wasn't sent: this shop reached its daily email limit. Show them the QR code, emails start again tomorrow.",
     "emailGaveUp": "The last email to {name} couldn't be delivered, and we've stopped trying. Show them the QR code, or check their address.",
     "emailRetrying": "The last email to {name} hasn't gone out yet. We keep trying for a day. If they're still here, show them the QR code.",
     "emailFails": "Emails to {email} fail, so {name} gets none. Check the address with them.",
@@ -485,6 +486,7 @@
     "scanToFollow": "Scan this with your phone's camera to follow your item."
   },
   "today": {
+    "emailLimit": "Today's email limit for this shop is reached: emails to your customers start again tomorrow. Tickets and tracking pages work as usual. If this surprises you, write to support@readyyet.app.",
     "greeting": {
       "morning": "Good morning, {name}",
       "afternoon": "Good afternoon, {name}",
