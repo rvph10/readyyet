@@ -295,5 +295,11 @@
     "accept": "Accepteren",
     "refuse": "Weigeren",
     "settings": "Cookie-instellingen"
+  },
+  "announcement": {
+    "label": "Aankondiging",
+    "tag": "Gratis proberen",
+    "text": "14 dagen om ReadyYet in uw winkel te testen, zonder bankkaart.",
+    "action": "Beginnen"
   }
 }

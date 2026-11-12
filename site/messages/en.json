@@ -295,5 +295,11 @@
     "accept": "Accept",
     "refuse": "Refuse",
     "settings": "Cookie settings"
+  },
+  "announcement": {
+    "label": "Announcement",
+    "tag": "Free trial",
+    "text": "14 days to try ReadyYet in your shop, no card needed.",
+    "action": "Get started"
   }
 }

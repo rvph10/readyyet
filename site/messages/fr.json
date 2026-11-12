@@ -300,5 +300,11 @@
     "accept": "Accepter",
     "refuse": "Refuser",
     "settings": "Paramètres des cookies"
+  },
+  "announcement": {
+    "label": "Annonce",
+    "tag": "Essai gratuit",
+    "text": "14 jours pour tester ReadyYet dans votre magasin, sans carte bancaire.",
+    "action": "Commencer"
   }
 }

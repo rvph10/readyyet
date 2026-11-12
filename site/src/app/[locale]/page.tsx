@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SITE_URL } from "@/lib/site-url";
+import { AnnouncementBar } from "@/components/announcement/AnnouncementBar";
 import { Hero } from "@/components/home/hero/Hero";
 import { Faq } from "@/components/home/faq/Faq";
 import { Features } from "@/components/home/features/Features";
@@ -39,6 +40,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(product).replace(/</g, "\\u003c") }}
       />
+      <AnnouncementBar />
       <main id="main-content">
         <Hero />
         <Steps />
