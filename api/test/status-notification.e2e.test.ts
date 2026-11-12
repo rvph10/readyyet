@@ -202,6 +202,23 @@ describe("Customer status emails", () => {
     expect(await statusEmailsTo("concurrent")).toHaveLength(1);
   });
 
+  it("doesn't send it again when the process stopped before forgetting it", async () => {
+    const ticket = await createTicket("crashed");
+    await setStatus(ticket.id, "READY");
+    const [pending] = await pendingFor(ticket.id);
+    await makeDueAndSweep(ticket.id);
+    // As if the process had died after the send, before deleting the row: the
+    // lease expires and the next sweep claims it again.
+    await prisma.pendingStatusNotification.create({
+      data: { statusEventId: pending.statusEventId, sendAfter: new Date(Date.now() - 1000) },
+    });
+
+    await notification.sendDueStatusEmails();
+
+    expect(await statusEmailsTo("crashed")).toHaveLength(1);
+    expect(await pendingFor(ticket.id)).toHaveLength(0);
+  });
+
   it("sends to an email address added while the change was waiting", async () => {
     const ticket = (
       await request(app.getHttpServer())

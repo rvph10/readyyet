@@ -187,6 +187,20 @@ describe("Uncollected item reminders", () => {
       const row = await ticketRow(ticket.id);
       expect(row.readyRemindersSent).toBe(0);
       expect(row.nextReadyReminderAt).toEqual(new Date((await readyAt(ticket.id)).getTime() + 3 * DAY_MS));
+
+      await makeDueAndSweep(ticket.id);
+      expect(await remindersTo("again")).toHaveLength(2);
+    });
+
+    it("doesn't send a reminder again when the process stopped before counting it", async () => {
+      const ticket = await readyTicket("crashed");
+      await makeDueAndSweep(ticket.id);
+      await prisma.ticket.update({ where: { id: BigInt(ticket.id) }, data: { readyRemindersSent: 0 } });
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await remindersTo("crashed")).toHaveLength(1);
+      expect((await ticketRow(ticket.id)).readyRemindersSent).toBe(1);
     });
 
     it("picks up where it was when a move away from READY is undone", async () => {

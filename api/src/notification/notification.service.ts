@@ -155,7 +155,9 @@ export class NotificationService {
       // Claimed by pushing sendAfter out, conditional on the value just
       // read: a concurrent sweep (an overlapping run, another instance)
       // claims nothing and skips it. If this process dies mid-send, the
-      // lease simply expires and the email is retried, never dropped.
+      // lease simply expires and the email is retried, never dropped. Its
+      // dedupe key keeps that retry from being a second email when the first
+      // one had gone out.
       const { count } = await this.prisma.pendingStatusNotification.updateMany({
         where: { statusEventId: statusEvent.id, sendAfter },
         data: { sendAfter: new Date(Date.now() + CLAIM_LEASE_MS) },
@@ -180,7 +182,13 @@ export class NotificationService {
     if (event.status.code === "COMPLETED") {
       await this.sendFeedbackRequest(ticket, ticket.customer.email);
     } else if (isNotifyingStatus(event.status.code)) {
-      await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        event.status.code,
+        "ticket_status_update",
+        `status-event:${event.id}`,
+      );
     }
   }
 
@@ -249,7 +257,13 @@ export class NotificationService {
     ) {
       return;
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_DATE_CHANGED", "ticket_ready_date_changed");
+    await this.sendCustomerEmail(
+      ticket,
+      ticket.customer.email,
+      "READY_DATE_CHANGED",
+      "ticket_ready_date_changed",
+      `ready-date:${ticketId}:${date}`,
+    );
   }
 
   // Reminders for items still waiting at READY (ADR 0028, ADR 0037).
@@ -299,13 +313,21 @@ export class NotificationService {
         });
         continue;
       }
+      const sent = ticket.readyRemindersSent + 1;
       if (canEmail(ticket.customer)) {
-        await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_REMINDER", "ticket_ready_reminder");
+        // Keyed on the READY event, as a Ticket that is READY again counts its
+        // reminders from zero.
+        await this.sendCustomerEmail(
+          ticket,
+          ticket.customer.email,
+          "READY_REMINDER",
+          "ticket_ready_reminder",
+          `ready-reminder:${ticket.statusEvents[0].id}:${sent}`,
+        );
       }
       // Counted even when there was no one to email, so the next one is
       // scheduled rather than retried every sweep. A READY reached during
       // the send rescheduled it already, and wins.
-      const sent = ticket.readyRemindersSent + 1;
       await this.prisma.ticket.updateMany({
         where: { id, nextReadyReminderAt: lease },
         data: {
