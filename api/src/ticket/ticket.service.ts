@@ -446,10 +446,18 @@ export class TicketService {
     const id = parseBigIntId(ticketId, "Ticket");
     const ticket = await this.prisma.ticket.findFirst({
       where: { id, locationId },
-      include: { currentStatus: true, location: { select: READY_DATE_LOCATION_SELECT } },
+      include: {
+        currentStatus: true,
+        location: { select: READY_DATE_LOCATION_SELECT },
+        customer: { select: { deletedAt: true } },
+      },
     });
     if (!ticket) {
       throw new NotFoundError("Ticket not found");
+    }
+    // Its words were erased with the Customer, they'd come back with an edit.
+    if (ticket.customer.deletedAt && (dto.title !== undefined || dto.description !== undefined)) {
+      throw new ConflictError("An erased Customer's Ticket can't be described again");
     }
 
     const updated = await this.prisma.ticket.update({

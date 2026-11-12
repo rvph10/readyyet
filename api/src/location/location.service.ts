@@ -102,17 +102,11 @@ export class LocationService {
       where: { ticket: { locationId } },
       select: { objectKey: true },
     });
-    const customers = await this.prisma.customer.findMany({
-      where: { locationId, deletedAt: null },
-      select: { id: true },
-    });
     await this.prisma.$transaction([
       this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { locationId } } }),
-      ...customerErasure(
-        this.prisma,
-        customers.map((customer) => customer.id),
-      ),
+      // Every one, even one added while this runs.
+      ...customerErasure(this.prisma, { locationId }),
       this.prisma.invitation.updateMany({
         where: { locationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.REVOKED },

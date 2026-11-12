@@ -165,7 +165,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
               <TicketDetails
                 locationId={locationId}
                 ticketId={ticketId}
-                title={ticket.title}
+                title={title}
                 notes={ticket.description}
                 date={ticket.estimatedReadyDate}
                 dateShown={ticket.estimatedReadyDate && formatDay(ticket.estimatedReadyDate, today, locale)}
@@ -174,6 +174,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
                 today={today}
                 dateEditable={!ended}
                 dateLate={late}
+                erased={erased}
               />
             </Panel>
 

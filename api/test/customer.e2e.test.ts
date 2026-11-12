@@ -331,6 +331,13 @@ describe("Customers", () => {
       description: null,
     });
     await request(app.getHttpServer()).get(`/tracking/${created.body.trackingCode}`).expect(404);
+    // Nothing new comes in from them, and staff can't write the words back.
+    await request(app.getHttpServer()).post(`/tracking/${created.body.trackingCode}/collected`).expect(404);
+    await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Robe de Julie" })
+      .expect(409);
   });
 
   it("finds a customer by part of their email or phone, however the number is written", async () => {

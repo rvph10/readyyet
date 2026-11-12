@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { Prisma } from "@readyyet/db";
 import { ENDED_STATUS_CODES } from "@readyyet/shared";
@@ -17,6 +17,8 @@ const BATCH_SIZE = 500;
 // The retention periods of ADR 0128 that no request triggers.
 @Injectable()
 export class RetentionService {
+  private readonly logger = new Logger(RetentionService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
@@ -28,12 +30,27 @@ export class RetentionService {
     checkinMargin: 15,
     maxRuntime: 30,
   })
+  // One step failing doesn't hold the others back. The run still fails, for
+  // the monitor and Sentry.
   async run() {
-    await this.clearOldEmailContent();
-    await this.deleteExpiredSignIns();
-    await this.eraseInactiveCustomers();
-    await this.deleteOldInvitations();
-    await this.deleteOldEmailRecords();
+    const failures: unknown[] = [];
+    for (const step of [
+      () => this.clearOldEmailContent(),
+      () => this.deleteExpiredSignIns(),
+      () => this.eraseInactiveCustomers(),
+      () => this.deleteOldInvitations(),
+      () => this.deleteOldEmailRecords(),
+    ]) {
+      try {
+        await step();
+      } catch (error) {
+        this.logger.error("A retention step failed", error);
+        failures.push(error);
+      }
+    }
+    if (failures.length > 0) {
+      throw new AggregateError(failures, "Retention steps failed");
+    }
   }
 
   // Long past any retry, the sweep gives up after a day (ADR 0081). That
@@ -102,7 +119,7 @@ export class RetentionService {
       }
       const ids = customers.map((customer) => customer.id);
       const photoKeys = await photoKeysOfCustomers(this.prisma, ids);
-      await this.prisma.$transaction(customerErasure(this.prisma, ids));
+      await this.prisma.$transaction(customerErasure(this.prisma, { id: { in: ids } }));
       await this.storage.delete(photoKeys);
     }
   }

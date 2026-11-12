@@ -73,7 +73,7 @@ export class CustomerService {
   async remove(locationId: string, customerId: string) {
     const customer = await this.loadActive(locationId, customerId);
     const photoKeys = await photoKeysOfCustomers(this.prisma, [customer.id]);
-    await this.prisma.$transaction(customerErasure(this.prisma, [customer.id]));
+    await this.prisma.$transaction(customerErasure(this.prisma, { id: customer.id }));
     await this.storage.delete(photoKeys);
   }
 

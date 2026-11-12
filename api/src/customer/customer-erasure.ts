@@ -8,16 +8,13 @@ const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 // (onDelete: Restrict), so the rows stay and what's personal in them goes.
 // See docs/architecture/data-model.md#gdpr-erasure. The writes go in the
 // caller's transaction, the photos' objects are the caller's to delete after.
-export function customerErasure(prisma: PrismaService, customerIds: bigint[]) {
-  const theirTickets = { ticket: { customerId: { in: customerIds } } };
+// `customers` must still match them once erased: the Customers go last.
+export function customerErasure(prisma: PrismaService, customers: Prisma.CustomerWhereInput) {
+  const theirTickets = { ticket: { customer: customers } };
   return [
-    prisma.customer.updateMany({
-      where: { id: { in: customerIds } },
-      data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
-    }),
     // Staff describe the item in their own words, which can name its owner.
     prisma.ticket.updateMany({
-      where: { customerId: { in: customerIds } },
+      where: { customer: customers },
       data: { title: ERASED_TICKET_TITLE, description: null },
     }),
     // A photo can show them too: a face, a number plate.
@@ -40,6 +37,10 @@ export function customerErasure(prisma: PrismaService, customerIds: bigint[]) {
         attachments: Prisma.DbNull,
         gaveUpAt: new Date(),
       },
+    }),
+    prisma.customer.updateMany({
+      where: customers,
+      data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
     }),
   ];
 }
