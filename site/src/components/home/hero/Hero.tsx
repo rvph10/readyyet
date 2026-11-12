@@ -8,8 +8,8 @@ import { HeroFloats } from "./HeroFloats";
 import { PhoneScreen } from "./PhoneScreen";
 import "./hero.css";
 
-// Inlined rather than linked: the scroll timeline animates the shapes inside
-// them. Read at build time, the pages are static.
+// The device's frame is inlined, as Ledger has it. Read at build time, the
+// pages are static.
 const svg = (name: string) => readFileSync(path.join(process.cwd(), "src/components/home/hero", name), "utf8");
 
 export async function Hero() {
@@ -34,13 +34,12 @@ export async function Hero() {
               <div className="hero__camera">
                 <img
                   className="hero__mat"
-                  src="/home/hero-mat.webp"
+                  src="/home/hero-backdrop.webp"
                   alt=""
                   width="2655"
                   height="3391"
                   fetchPriority="high"
                 />
-                <div className="hero__mat-lines" dangerouslySetInnerHTML={{ __html: svg("hero-mat-lines.svg") }} />
                 <div className="hero__mat-grain" />
               </div>
               <div className="hero__props">
