@@ -2,6 +2,7 @@
 
 import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import type { Country } from "react-phone-number-input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { RadioCards } from "@/components/ui/radio-cards";
 import { Steps } from "@/components/ui/steps";
 import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
+import { track } from "@/lib/analytics";
 import { browserCountry, browserTimeZone, FALLBACK_COUNTRY } from "@/lib/browser-region";
 import { fieldErrors } from "@/lib/validation";
 import { createBusiness } from "./actions";
@@ -40,6 +42,7 @@ interface Props {
 export function CreateBusinessForm({ header, businessTypes, email, referralCode, legal }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [businessTypeCode, setBusinessTypeCode] = useState("");
@@ -108,11 +111,14 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
           },
         }),
       );
-      if (!result.ok) {
-        setFailure(result);
-        if (STEP_ONE_FIELDS.some((field) => result.fields?.[field])) {
-          setStep(1);
-        }
+      if (result.ok) {
+        track("business_created", { businessType: business.data.location.businessTypeCode });
+        router.push(`/locations/${result.locationId}`);
+        return;
+      }
+      setFailure(result);
+      if (STEP_ONE_FIELDS.some((field) => result.fields?.[field])) {
+        setStep(1);
       }
     });
   }

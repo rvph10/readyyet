@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Illustration } from "@/components/illustration";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon } from "@/components/ui/icon";
+import { track } from "@/lib/analytics";
 import { PLAN_FEATURES, PLAN_NAMES, type Plan } from "../plan-prices";
 
 const CONFETTI_PIECES = 18;
@@ -19,13 +20,18 @@ interface Props {
   firstPayment: string | null;
 }
 
-// ADR 0094: paying deserves a moment. Closing it drops ?checkout from the URL,
-// so a refresh doesn't celebrate twice.
+// ADR 0094: paying deserves a moment. ?checkout leaves the URL as soon as it
+// shows, so a refresh neither celebrates nor counts it twice (ADR 0136).
 export function PlanCelebration({ locationId, locationName, plan, firstPayment }: Props) {
   const t = useTranslations("today.celebration");
   const tBilling = useTranslations("billing");
   const router = useRouter();
   const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    track("plan_chosen", plan ? { plan } : undefined);
+    window.history.replaceState(null, "", `/locations/${locationId}`);
+  }, [plan, locationId]);
 
   function close() {
     setOpen(false);

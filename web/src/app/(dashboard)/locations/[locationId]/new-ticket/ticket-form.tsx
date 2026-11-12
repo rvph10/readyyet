@@ -14,6 +14,7 @@ import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
+import { track } from "@/lib/analytics";
 import { createTicket } from "./actions";
 import type { CreatedTicket, NewTicketProps } from "./new-ticket-panel";
 import { newCustomerSchema, ticketSchema } from "./schema";
@@ -178,6 +179,7 @@ export function TicketForm({
         }),
       );
       if (result.ok) {
+        track("ticket_created");
         onCreated(result);
         return;
       }
