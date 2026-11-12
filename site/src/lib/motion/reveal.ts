@@ -41,10 +41,12 @@ function keepBindings(el: HTMLElement) {
 }
 
 // A display face set solid (line-height 1) draws its accents and descenders
-// outside the line box, which a line's mask would cut while it rises.
+// outside the line box, which a line's mask would cut while it rises. Masks
+// only clip upright: a long word may run past its column.
 function fitMasks(lines: HTMLElement[]) {
   const ctx = document.createElement("canvas").getContext("2d")!;
   lines.forEach((line) => {
+    line.parentElement!.style.overflowX = "visible";
     const style = getComputedStyle(line);
     ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
     const m = ctx.measureText(line.textContent ?? "");

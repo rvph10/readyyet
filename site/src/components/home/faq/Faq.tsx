@@ -6,16 +6,16 @@ import "./faq.css";
 const QUESTIONS = ["app", "notified", "sms", "start", "afterTrial", "shops"] as const;
 
 // Strivo's "Two-Column Accordion FAQ" (Temlis), markup as bought: native
-// <details> sharing one name, so opening one closes the others. Its script
-// is /temlis/strivo-833/animations.js.
+// <details> sharing one name, so opening one closes the others. It enters
+// like every section, through data-entrance (lib/motion/reveal.ts).
 export async function Faq() {
   const t = await getTranslations("home.faq");
 
   return (
     <div data-tmls="tmfp_mknnhtwkzzko32vs" data-temlis="strivo-833">
       <section className="faq" id="faq" aria-labelledby="faq-title" data-astro-cid-z6gx6xcw="">
-        <div className="container faq__inner" data-astro-cid-z6gx6xcw="">
-          <h2 id="faq-title" className="faq__title t-display" data-reveal="lines" data-astro-cid-z6gx6xcw="">
+        <div className="container faq__inner" data-entrance-group="" data-astro-cid-z6gx6xcw="">
+          <h2 id="faq-title" className="faq__title t-display" data-entrance="title" data-astro-cid-z6gx6xcw="">
             {noOrphan(t("title"))}
           </h2>
           <div className="faq__list" data-astro-cid-z6gx6xcw="">
@@ -25,7 +25,7 @@ export async function Faq() {
                 className="faq__item"
                 name="faq"
                 open={i === 0}
-                data-reveal=""
+                data-entrance=""
                 data-astro-cid-z6gx6xcw=""
               >
                 <summary className="faq__q" data-astro-cid-z6gx6xcw="">
