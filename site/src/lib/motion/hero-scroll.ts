@@ -92,12 +92,14 @@ export function startHeroScroll(hero: HTMLElement) {
     tl.fromTo($(".phone__expected"), { opacity: 1 }, { opacity: 0, duration: 8 }, at(ready));
     tl.fromTo($(".phone__open"), { opacity: 0 }, { opacity: 1, duration: 12 }, at(ready + 6));
 
+    // The photos row sits below the window until the camera has panned down
+    // the phone, so the photos come in once it shows, the last with its card.
     all(".phone__photo").forEach((photo, i) => {
       tl.fromTo(
         photo,
         { opacity: 0, scale: 0.5, ...origin },
         { opacity: 1, scale: 1, duration: 20, ease: RISE },
-        at([244, 258, 310][i]),
+        at([380, 394, 435][i]),
       );
     });
 
@@ -111,7 +113,7 @@ export function startHeroScroll(hero: HTMLElement) {
     const enter = { "--s": 1, duration: 30, ease: "back.out(1.4)" };
 
     tl.fromTo(quote, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(140));
-    tl.fromTo(photo, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(230));
+    tl.fromTo(photo, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(360));
     tl.fromTo(readyCard, { autoAlpha: 1, "--s": 0 }, { ...enter }, at(ready + 4));
     tl.fromTo(
       readyCard.querySelector(".float__ready"),
@@ -131,7 +133,7 @@ export function startHeroScroll(hero: HTMLElement) {
     (
       [
         { card: quote, u: 184, fx: 0.5, fy: 0.257 },
-        { card: photo, u: 270, fx: 0.736, fy: 0.781 },
+        { card: photo, u: 395, fx: 0.736, fy: 0.781 },
       ] as const
     ).forEach(({ card, u, fx, fy }) => {
       tl.to(card, { "--fx": fx, duration: 40, ease: "power2.inOut" }, at(u));

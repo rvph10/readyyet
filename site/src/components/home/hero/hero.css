@@ -293,7 +293,7 @@
 
   .hero__float--photo {
     --fx: 1.17;
-    --fy: 0.47;
+    --fy: 0.62;
 
     background-color: var(--color-bg-dark);
   }
