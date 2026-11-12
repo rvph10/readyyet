@@ -104,13 +104,24 @@ async function ReviewsOff({ locationId }: { locationId: string }) {
   return hasPro && !location.feedbackEmails ? <MenuBadge>{t("off")}</MenuBadge> : null;
 }
 
+// Both forms start from what is saved. Finding the shop on Google saves an
+// address and hours from another section, so a change remounts them, or they
+// would keep showing what they first loaded.
 async function ShopSection({ locationId }: { locationId: string }) {
-  return <ShopDetails location={await getLocation(locationId)} />;
+  const location = await getLocation(locationId);
+  return <ShopDetails key={JSON.stringify(location.address)} location={location} />;
 }
 
 async function HoursSection({ locationId }: { locationId: string }) {
   const location = await getLocation(locationId);
-  return <OpeningHours locationId={locationId} hours={location.openingHours} timeZone={location.timeZone} />;
+  return (
+    <OpeningHours
+      key={JSON.stringify(location.openingHours)}
+      locationId={locationId}
+      hours={location.openingHours}
+      timeZone={location.timeZone}
+    />
+  );
 }
 
 async function TicketsSection({ locationId }: { locationId: string }) {
