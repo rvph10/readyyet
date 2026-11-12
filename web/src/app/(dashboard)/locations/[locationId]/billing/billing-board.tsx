@@ -381,10 +381,11 @@ function PlansTile({
           ))}
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">{PLANS.map(cardFor)}</div>
-      {/* Said before any yearly payment, as the terms (section 6) and the
-          Data Act ask for a cost of leaving early to be known beforehand. */}
+      {/* Said before any yearly payment, as the terms and the Data Act ask
+          for a cost of leaving early to be known beforehand. Above the plans,
+          so it's read before their buttons on a phone too. */}
       {interval === "YEAR" && <p className="text-p-sm font-semibold">{t("yearlyNoRefund")}</p>}
+      <div className="grid gap-3 sm:grid-cols-2">{PLANS.map(cardFor)}</div>
       <p className="text-p-sm text-muted">{t("bothPlans")}</p>
 
       <Dialog open={move !== null} onClose={() => setMove(null)} title={moveTitle}>
