@@ -9,7 +9,9 @@ import tseslint from "typescript-eslint";
 // run on: typescript-eslint doesn't support TypeScript 7 yet, which
 // packages/* build with.
 export default defineConfig(
-  { ignores: ["**/dist/", "**/generated/", "**/node_modules/", "**/.next/", "**/next-env.d.ts"] },
+  {
+    ignores: ["**/dist/", "**/generated/", "**/node_modules/", "**/.next/", "**/next-env.d.ts", "site/public/temlis/"],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
@@ -36,6 +38,12 @@ export default defineConfig(
     files: ["{web,site}/**/*.{ts,tsx}"],
     extends: [nextPlugin.configs["core-web-vitals"], reactHooks.configs.flat.recommended],
     settings: { next: { rootDir: ["web/", "site/"] } },
+  },
+  {
+    // The templates' artwork is sized and placed by their own CSS, which
+    // next/image's wrapper and generated sizes would fight (ADR 0133).
+    files: ["site/src/components/home/**/*.tsx"],
+    rules: { "@next/next/no-img-element": "off" },
   },
   {
     files: ["**/*.mjs"],

@@ -737,6 +737,7 @@
       "alreadyPaying": "Ce site a déjà un plan. Actualisez la page dans un instant."
     },
     "startPro": "Démarrer Pro, 49 €/mois",
+    "yearlyNoRefund": "Un abonnement annuel se paie un an d'avance et n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
@@ -933,6 +934,39 @@
     "turnaroundTitle": "Délai habituel",
     "turnaroundUnit": "{count, plural, one {jour d'ouverture} other {jours d'ouverture}}",
     "turnaroundPreviewBody": "Un Ticket créé aujourd'hui est prêt pour le",
+    "export": {
+      "title": "Exporter vos données",
+      "hint": "Tout ce que ce magasin contient, à garder ou à reprendre dans un autre outil. Vous pouvez le télécharger quand vous voulez, gratuitement.",
+      "contents": {
+        "customers": {
+          "title": "Clients",
+          "detail": "Nom, e-mail, téléphone, langue"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Objet, notes, statut, date prévue, lien de suivi"
+        },
+        "history": {
+          "title": "Historique",
+          "detail": "Chaque changement de statut, par qui et quand"
+        },
+        "feedback": {
+          "title": "Avis",
+          "detail": "Notes, étiquettes, messages et vos réponses"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Celles encore gardées, 30 jours après la fin du Ticket"
+        },
+        "team": {
+          "title": "Équipe et réglages",
+          "detail": "Membres, rôles, horaires et Workflows"
+        }
+      },
+      "format": "Un fichier ZIP : un CSV par type de données, qui s'ouvre dans Excel, et tout en JSON.",
+      "download": "Télécharger l'export",
+      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes."
+    },
     "deleteTitle": "Supprimer ce magasin",
     "deleteAction": "Supprimer ce magasin",
     "deleteConfirmTitle": "Supprimer {name} ?",
@@ -947,6 +981,7 @@
       "hours": "Horaires d'ouverture",
       "tickets": "Tickets",
       "reviews": "Avis Google",
+      "export": "Exporter",
       "delete": "Supprimer"
     },
     "off": "Désactivé",
@@ -995,6 +1030,7 @@
     "deleteLoses": {
       "tracking": "Les liens de suivi cessent de fonctionner",
       "photos": "Les photos des Tickets sont supprimées",
+      "customers": "Ses clients sont effacés",
       "plan": "Sa formule est annulée immédiatement",
       "team": "Plus personne n'y a accès"
     },
@@ -1027,7 +1063,9 @@
       "change": "Modifier",
       "keep": "Garder ce lien",
       "noPublicAddress": "Se déplace chez ses clients, sans adresse publique"
-    }
+    },
+    "exportFirst": "Gardez une copie de vos clients et de vos Tickets avant de supprimer :",
+    "exportFirstLink": "exporter vos données"
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",
@@ -1427,5 +1465,19 @@
     "accepting": "Enregistrement…",
     "failed": "Votre acceptation n'a pas été enregistrée. Réessayez.",
     "changed": "Les conditions ont changé pendant que cette page était ouverte. Rechargez-la pour les lire, puis acceptez."
+  },
+  "demo": {
+    "title": "Démo de la page de suivi",
+    "label": "Démo",
+    "intro": "La page que vos clients ouvrent depuis leur e-mail ou le QR code. Choisissez un moment pour la voir évoluer.",
+    "moments": "Moments du suivi",
+    "steps": {
+      "received": "Reçu",
+      "approval": "Devis à accepter",
+      "repair": "En réparation",
+      "ready": "Prêt"
+    },
+    "item": "Montre automatique, remplacement du verre",
+    "start": "Commencer l'essai gratuit"
   }
 }

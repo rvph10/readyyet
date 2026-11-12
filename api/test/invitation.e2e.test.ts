@@ -212,10 +212,11 @@ describe("Invitations", () => {
     it("drops a failed invitation email once the invitation is revoked", async () => {
       const email = `delivered+invite-late-${Date.now()}@resend.dev`;
       const id = await invite(email);
-      const log = await vi.waitFor(() => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id } }), {
-        timeout: 10_000,
-        interval: 200,
-      });
+      // Once its send is over, or the send would mark it SENT after this does.
+      const log = await vi.waitFor(
+        () => prisma.emailLog.findFirstOrThrow({ where: { invitationId: id, status: "SENT" } }),
+        { timeout: 10_000, interval: 200 },
+      );
       await prisma.emailLog.update({
         where: { id: log.id },
         data: { status: "FAILED", resendId: null, attempts: 3, lastAttemptAt: new Date(Date.now() - 60 * 60_000) },
