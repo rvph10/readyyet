@@ -154,17 +154,15 @@
   letter-spacing: -0.02em;
 }
 
-/* As the hero's entrances: without scripts the header and cards show after
+/* As the hero's entrances: without scripts the cards show after
    4 s, and reduced motion holds nothing back (globals.css). */
 @media (prefers-reduced-motion: no-preference) {
-  [data-temlis="wilun-559"] [data-motion] .reveal-lines:not(.is-in),
   [data-temlis="wilun-559"] [data-motion] .reveal-build:not(.is-in) {
     animation: enter-fallback 0s 4s forwards;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-temlis="wilun-559"] [data-motion] .reveal-lines,
   [data-temlis="wilun-559"] [data-motion] .reveal-build {
     visibility: visible;
   }

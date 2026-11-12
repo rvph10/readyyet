@@ -68,9 +68,11 @@ export async function Features() {
             <img className="features_backdrop features_backdrop--outer" src="/home/features-arc-outer.svg" alt="" />
             <img className="features_backdrop features_backdrop--inner" src="/home/features-arc-inner.svg" alt="" />
           </div>
-          <div className="features_intro reveal-lines">
-            <p className="eyebrow">{t("label")}</p>
-            <h2 className="display display--hero display--center">
+          <div className="features_intro" data-entrance-group="">
+            <p className="eyebrow" data-entrance="">
+              {t("label")}
+            </p>
+            <h2 className="display display--hero display--center" data-entrance="title">
               <span className="display_line">
                 <span>{t("headingStart")} </span>
                 <span className="tone--orange">{t("headingEnd")}</span>

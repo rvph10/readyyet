@@ -29,10 +29,12 @@
 (function () {
   const ROOT = document.documentElement;
 
+  // ReadyYet: timings and curves brought to the home page's shared entrance
+  // (lib/motion/reveal.ts): "reveal" ease, 24px rise, no overshoot.
   const TILT = 20; // degrees a letter is turned either way before it lands
   const POP = 0.022; // seconds between one letter setting off and the next
-  const START = "top 84%";
-  const RISE = 0.7; // seconds for a line of the eyebrow to clear its mask
+  const START = "top 85%";
+  const RISE = 0.6; // seconds for a line of the eyebrow to clear its mask
 
   const gsapOf = () => window.gsap;
 
@@ -110,9 +112,9 @@
         gsap.to(batch, {
           y: 0,
           opacity: 1,
-          duration: 0.7,
+          duration: 0.9,
           stagger: 0.08,
-          ease: "power3.out",
+          ease: "reveal",
           onComplete: () => settle(batch),
         }),
     });
@@ -153,9 +155,9 @@
             settle([block, ...rest]);
           },
         })
-        .to(eyebrows, { yPercent: 0, duration: RISE, stagger: 0.09, ease: "power4.out" })
+        .to(eyebrows, { yPercent: 0, duration: RISE, stagger: 0.08, ease: "reveal" })
         .to(glyphs, popTo, 0.15)
-        .to(rest, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+        .to(rest, { y: 0, opacity: 1, duration: 0.9, ease: "reveal" }, 0.5);
     };
 
     scope.querySelectorAll(".reveal-lines").forEach((block) => {
@@ -174,8 +176,8 @@
       const copy = card.querySelector(".features_copy");
 
       gsap.set(card, { visibility: "visible" });
-      stage(art, { opacity: 0, scale: 0.88 });
-      if (copy) stage(copy, { opacity: 0, y: 16 });
+      stage(art, { opacity: 0, scale: 0.94 });
+      if (copy) stage(copy, { opacity: 0, y: 24 });
       if (badge) gsap.set(badge, { opacity: 0 });
 
       const tl = gsap.timeline({
@@ -190,9 +192,9 @@
         tl.to(stroke, { drawSVG: "0% 100%", duration: 1.9, ease: "power2.out" }, 0.55);
       }
 
-      tl.to(art, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.1)", stagger: 0.1 }, 0.25)
-        .to(badge, { opacity: 1, duration: 0.5, ease: "back.out(2)" }, 0.5)
-        .to(copy, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.4);
+      tl.to(art, { scale: 1, opacity: 1, duration: 0.9, ease: "reveal", stagger: 0.08 }, 0.25)
+        .to(badge, { opacity: 1, duration: 0.6, ease: "reveal" }, 0.5)
+        .to(copy, { y: 0, opacity: 1, duration: 0.9, ease: "reveal" }, 0.4);
     });
 
     // The plans sit side by side, so their shapes would all be drawn at the same moment.
