@@ -33,7 +33,7 @@ function keepBindings(el: HTMLElement) {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
   const nodes: Text[] = [];
   while (walker.nextNode()) nodes.push(walker.currentNode as Text);
-  nodes.forEach((node) => (node.nodeValue = (node.nodeValue ?? "").replace(/[^\S ]+/g, " ")));
+  nodes.forEach((node) => (node.nodeValue = (node.nodeValue ?? "").replace(/[^\S\u00a0]+/g, " ")));
   const first = nodes[0];
   const last = nodes[nodes.length - 1];
   if (first) first.nodeValue = (first.nodeValue ?? "").replace(/^ /, "");
@@ -119,9 +119,9 @@ export async function startReveals() {
         // and the clones carry the hidden state they were copied in.
         const rest = others(group);
         const tl = gsap.timeline({ defaults: { ease: REVEAL.ease, clearProps: CLEAR } });
-        titles.forEach(({ lines, to, revert }) =>
-          tl.to(lines, { ...to, duration: REVEAL.duration, stagger: REVEAL.stagger, onComplete: revert }, 0),
-        );
+        titles.forEach(({ lines, to, revert }) => {
+          tl.to(lines, { ...to, duration: REVEAL.duration, stagger: REVEAL.stagger, onComplete: revert }, 0);
+        });
         tl.to(
           rest,
           { autoAlpha: 1, y: 0, duration: REVEAL.duration, stagger: readingOrder(rest) },
