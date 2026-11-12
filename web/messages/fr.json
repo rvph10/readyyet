@@ -232,7 +232,7 @@
     "businessTypeDetail": "Précisez votre activité, ex. : trottinettes",
     "contactPhone": "Numéro de téléphone",
     "contactEmail": "E-mail de contact",
-    "terms": "En cliquant sur « Créer », vous acceptez les <terms>conditions générales</terms> de ReadyYet, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
+    "terms": "En cliquant sur « Créer », vous acceptez les <terms>conditions générales</terms> de ReadyYet, y compris l''<dpa>accord de traitement des données</dpa> de vos clients.",
     "submit": "Créer",
     "invalid": "Vérifiez ce champ.",
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
@@ -1474,7 +1474,7 @@
   },
   "terms": {
     "title": "Nos conditions générales",
-    "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
+    "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l''<dpa>accord de traitement des données</dpa> de vos clients.",
     "accept": "J'accepte",
     "accepting": "Enregistrement…",
     "failed": "Votre acceptation n'a pas été enregistrée. Réessayez.",
