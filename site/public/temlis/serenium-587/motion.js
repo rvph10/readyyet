@@ -47,8 +47,8 @@ function boot() {
       card: 0.5,
       /** A card with no inner sequence to clear the way for. */
       cardSoft: 1,
-      /** The stats band, which travels further and takes longer. */
-      slideUp: 1,
+      /** The stats band. ReadyYet: the shared entrance's length. */
+      slideUp: 0.9,
       /** Images settling out of their own overscale. */
       image: 1.2,
       /** Headline lines rising from behind their masks. */
@@ -63,11 +63,13 @@ function boot() {
      * wellness template from every other template. `back`, `elastic` and `bounce`
      * are not part of the vocabulary here.
      */
+    // ReadyYet: entrances on the home page's shared "reveal" curve
+    // (lib/motion/reveal.ts); counters and hairlines keep their own.
     const EASE = {
       /** Long decelerating travel — images, headline lines, the collage. */
-      out: 'expo.out',
+      out: 'reveal',
       /** The general entrance. Softer landing than expo, less theatrical. */
-      settle: 'power3.out',
+      settle: 'reveal',
       /** Counters and hairlines, where the end matters more than the arc. */
       even: 'power2.out',
       /** Two-way changes. */
@@ -442,9 +444,9 @@ function boot() {
         from: { opacity: 0, yPercent: 15 },
         to: { opacity: 1, yPercent: 0, duration: DUR.reveal, ease: EASE.settle },
       },
-      // The stats band, which travels a fixed distance over a full second.
+      // The stats band. ReadyYet: the shared entrance's 24px, not 100.
       'slide-up': {
-        from: { opacity: 0, y: 100 },
+        from: { opacity: 0, y: 24 },
         to: { opacity: 1, y: 0, duration: DUR.slideUp, ease: EASE.out },
       },
       fade: {

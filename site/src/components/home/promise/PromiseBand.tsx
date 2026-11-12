@@ -38,7 +38,7 @@ export async function PromiseBand() {
                   </Fragment>
                 ))}
               </div>
-              <div className="description_wrapper">
+              <div className="description_wrapper" data-reveal-children="" data-reveal-delay="400">
                 <p className="section-label">{t("label")}</p>
                 <div className="text-base">{noOrphan(t("statement"))}</div>
                 <a href="#how-it-works" className="link">
