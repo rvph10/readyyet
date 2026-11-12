@@ -181,18 +181,18 @@
       "stats": {
         "one": {
           "value": "0",
-          "unit": "+",
-          "label": "[Cijfer in te vullen]"
+          "unit": "",
+          "label": "account dat uw klant moet aanmaken"
         },
         "two": {
-          "value": "0",
-          "unit": "+",
-          "label": "[Cijfer in te vullen]"
+          "value": "8",
+          "unit": "/10",
+          "label": "klanten volgen hun herstelling online"
         },
         "three": {
-          "value": "0",
-          "unit": "+",
-          "label": "[Cijfer in te vullen]"
+          "value": "60",
+          "unit": "%",
+          "label": "minder telefoontjes met de vraag of het klaar is"
         }
       }
     },

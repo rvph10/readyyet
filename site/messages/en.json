@@ -181,18 +181,18 @@
       "stats": {
         "one": {
           "value": "0",
-          "unit": "+",
-          "label": "[Figure to set]"
+          "unit": "",
+          "label": "account for your customers to create"
         },
         "two": {
-          "value": "0",
-          "unit": "+",
-          "label": "[Figure to set]"
+          "value": "8",
+          "unit": "/10",
+          "label": "customers track their repair online"
         },
         "three": {
-          "value": "0",
-          "unit": "+",
-          "label": "[Figure to set]"
+          "value": "60",
+          "unit": "%",
+          "label": "fewer “is it ready?” calls"
         }
       }
     },
