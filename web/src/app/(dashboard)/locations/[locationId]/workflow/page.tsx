@@ -53,7 +53,7 @@ async function WorkflowContent({ locationId }: { locationId: string }) {
       saved={chosenCodes(workflow.steps)}
       defaults={chosenCodes(businessType.defaultWorkflow.steps)}
       businessTypeName={statusLabel(businessType, locale)}
-      canEdit={billing.plan === "PRO"}
+      canEdit={billing.plan === "PRO" && !billing.frozen}
     />
   );
 }
