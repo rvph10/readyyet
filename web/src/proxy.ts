@@ -20,6 +20,10 @@ function keepChoices(request: NextRequest, response: NextResponse) {
   if (locale) {
     response.cookies.set(LOCALE_COOKIE, locale, { maxAge: COOKIE_MAX_AGE_SECONDS, sameSite: "lax", secure });
   }
+  // Left by the referral cookie ADR 0135 replaced, which nothing reads now.
+  if (request.cookies.has("ref")) {
+    response.cookies.delete("ref");
+  }
   return response;
 }
 
@@ -30,8 +34,12 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   if (needsSession(pathname) && !getSessionCookie(request)) {
     const signIn = new URL("/sign-in", request.url);
+    const ref = request.nextUrl.searchParams.get("ref");
     if (pathname !== "/") {
       signIn.searchParams.set("next", `${pathname}${search}`);
+    } else if (ref) {
+      // The sign-in page sends it back to /?ref= (ADR 0135).
+      signIn.searchParams.set("ref", ref);
     }
     return keepChoices(request, NextResponse.redirect(signIn));
   }

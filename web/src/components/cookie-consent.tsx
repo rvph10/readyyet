@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  consentCookie,
   deletePostHogStorage,
   isCustomerPage,
   POSTHOG_OPTIONS,
   readConsent,
+  saveConsent,
   type Consent,
 } from "@/lib/consent";
 
@@ -72,12 +72,17 @@ export function CookieConsent({ privacyUrl }: { privacyUrl: string }) {
   if (!POSTHOG_KEY || customerPage || consent === "unknown" || (consent !== null && !open)) return null;
 
   function choose(next: Consent) {
-    document.cookie = consentCookie(next, location.hostname, location.protocol === "https:");
+    saveConsent(next);
     reopened = false;
-    // A PostHog already running can't be unloaded, so the page starts again without it.
+    // A PostHog already running can't be unloaded, so the page starts again
+    // without it. Stopped first, or leaving the page would send an event and
+    // write its cookie again.
     if (consent === "granted" && next === "denied") {
-      deletePostHogStorage(location.hostname);
-      location.reload();
+      void import("posthog-js").then(({ default: posthog }) => {
+        posthog.set_config({ disable_persistence: true, capture_pageleave: false });
+        deletePostHogStorage(location.hostname);
+        location.reload();
+      });
       return;
     }
     changed();

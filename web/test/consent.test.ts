@@ -28,22 +28,24 @@ describe("cookieDomain", () => {
 
 describe("consentCookie", () => {
   it("lasts 6 months on the parent domain", () => {
-    expect(consentCookie("granted", "app.readyyet.app", true)).toBe(
+    expect(consentCookie("granted", "readyyet.app", true)).toBe(
       "cookie-consent=granted; path=/; max-age=15724800; samesite=lax; domain=readyyet.app; secure",
     );
   });
 
   it("stays on the host locally", () => {
-    expect(consentCookie("denied", "localhost", false)).toBe(
-      "cookie-consent=denied; path=/; max-age=15724800; samesite=lax",
-    );
+    expect(consentCookie("denied", null, false)).toBe("cookie-consent=denied; path=/; max-age=15724800; samesite=lax");
   });
 });
 
 describe("what reaches PostHog", () => {
   const beforeSend = POSTHOG_OPTIONS.before_send as (event: CaptureResult) => CaptureResult | null;
   const pageview = (url: string) =>
-    ({ event: "$pageview", properties: { $current_url: url, $referrer: `${url}&from=x` } }) as unknown as CaptureResult;
+    ({
+      event: "$pageview",
+      properties: { $current_url: url, $referrer: `${url}&from=x`, $session_entry_url: url },
+      $set_once: { $initial_current_url: url },
+    }) as unknown as CaptureResult;
 
   it("drops the query, which can hold a search for a Customer", () => {
     vi.stubGlobal("location", { pathname: "/locations/1/tickets" });
@@ -51,7 +53,9 @@ describe("what reaches PostHog", () => {
     expect(sent?.properties).toMatchObject({
       $current_url: "https://app.readyyet.app/locations/1/tickets",
       $referrer: "https://app.readyyet.app/locations/1/tickets",
+      $session_entry_url: "https://app.readyyet.app/locations/1/tickets",
     });
+    expect(sent?.$set_once).toEqual({ $initial_current_url: "https://app.readyyet.app/locations/1/tickets" });
   });
 
   it("sends nothing from a Customer's tracking page", () => {
