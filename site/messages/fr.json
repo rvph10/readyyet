@@ -307,5 +307,309 @@
     "tag": "Essai gratuit",
     "text": "14 jours pour tester ReadyYet dans votre magasin, sans carte bancaire.",
     "action": "Commencer"
+  },
+  "tradePage": {
+    "page": {
+      "painsTitle": "Ce qui change au comptoir",
+      "stepsTitle": "Les étapes que suit votre client",
+      "stepsHint": "Prêtes dès l'inscription. En Pro, vous les choisissez et les mettez dans votre ordre.",
+      "faqTitle": "Questions fréquentes",
+      "start": "Commencer l'essai gratuit",
+      "pricing": "Voir les tarifs",
+      "others": "Les autres métiers",
+      "statuses": {
+        "RECEIVED": "Reçu",
+        "READY": "Prêt",
+        "COMPLETED": "Terminé",
+        "DIAGNOSING": "Diagnostic",
+        "AWAITING_PARTS": "En attente de pièces",
+        "IN_PROGRESS": "En cours",
+        "CLEANING": "Nettoyage",
+        "REPAIRING": "Réparation",
+        "ALTERATION": "Retouche",
+        "FITTING": "Essayage",
+        "QUALITY_CHECK": "Contrôle qualité"
+      }
+    },
+    "shoe": {
+      "label": "Cordonnerie et maroquinerie",
+      "metaTitle": "Suivi des réparations pour cordonnerie | ReadyYet",
+      "metaDescription": "Vos clients suivent le ressemelage de leurs chaussures ou la réparation de leur sac en ligne, et savent quand passer. Sans appel, sans compte. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne des réparations de votre cordonnerie",
+      "lead": "Un ressemelage, un talon, un sac à recoudre : votre client voit où en est sa paire depuis son téléphone et passe quand c'est prêt.",
+      "pains": [
+        {
+          "title": "Moins de « c'est prêt ? » au téléphone",
+          "text": "Le client reçoit son lien de suivi dès le dépôt. Il regarde sa page au lieu d'appeler pendant que vous avez la colle sur les doigts."
+        },
+        {
+          "title": "Les paires oubliées repartent",
+          "text": "Quand c'est prêt, un e-mail part tout seul, puis un rappel après 3 et 10 jours si personne ne passe."
+        },
+        {
+          "title": "Un ticket en quelques secondes",
+          "text": "Le nom, l'article, la date prévue, et c'est fait. Le client reçoit son lien par e-mail, par WhatsApp ou en scannant un QR code."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Puis-je montrer la paire au client ?",
+          "a": "Oui. Joignez des photos au ticket, à l'arrivée ou une fois le travail fini : elles s'affichent sur sa page de suivi."
+        },
+        {
+          "q": "Et pour un sac ou une ceinture ?",
+          "a": "C'est pareil. Pour une réparation plus longue, ajoutez en Pro une étape comme « Diagnostic » ou un devis à accepter, et le client est prévenu par e-mail."
+        },
+        {
+          "q": "Mes clients doivent-ils installer une application ?",
+          "a": "Non. Ils ouvrent leur lien dans le navigateur de leur téléphone, sans créer de compte."
+        }
+      ]
+    },
+    "pressing": {
+      "label": "Pressing",
+      "metaTitle": "Suivi des commandes pour pressing | ReadyYet",
+      "metaDescription": "Vos clients suivent le nettoyage de leurs vêtements en ligne et savent quand venir les chercher. Sans appel, sans compte. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne pour votre pressing",
+      "lead": "Costumes, robes, couettes : chaque dépôt a sa page de suivi, et votre client sait quand sa commande l'attend.",
+      "pains": [
+        {
+          "title": "Fini les « c'est pour quand ? »",
+          "text": "La date prévue est sur sa page dès le dépôt. Si elle change, le client reçoit un e-mail avec la nouvelle."
+        },
+        {
+          "title": "Un portant qui se vide",
+          "text": "Le client sait tout de suite quand c'est prêt. S'il tarde, un rappel part après 3 puis 10 jours."
+        },
+        {
+          "title": "Un comptoir qui reste rapide",
+          "text": "Un ticket se crée en quelques secondes, même un samedi matin avec la file à la porte."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Un client dépose plusieurs pièces, comment faire ?",
+          "a": "Un ticket par dépôt, avec les pièces dans la description. Chaque ticket a son propre lien de suivi."
+        },
+        {
+          "q": "Mes clients doivent-ils créer un compte ?",
+          "a": "Non. Ils ouvrent leur lien dans le navigateur, sans application ni mot de passe."
+        },
+        {
+          "q": "Combien ça coûte ?",
+          "a": "À partir de 29 € par mois et par magasin, sans engagement. Les 14 premiers jours sont gratuits, sans carte bancaire."
+        }
+      ]
+    },
+    "tailoring": {
+      "label": "Retouches et couture",
+      "metaTitle": "Suivi des retouches pour couturiers | ReadyYet",
+      "metaDescription": "Vos clients savent quand venir pour l'essayage et quand leur retouche est prête, sans appeler l'atelier. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne de vos retouches",
+      "lead": "Ourlet, ajustement, robe de cérémonie : votre client voit quand l'essayage l'attend, puis quand sa pièce est prête.",
+      "pains": [
+        {
+          "title": "L'essayage au bon moment",
+          "text": "L'étape « Essayage » s'affiche sur sa page : le client sait qu'il doit passer, sans que vous l'appeliez."
+        },
+        {
+          "title": "Moins d'appels pendant que vous cousez",
+          "text": "La date prévue et l'étape en cours sont sur sa page, à toute heure."
+        },
+        {
+          "title": "Les pièces finies ne restent pas",
+          "text": "Un e-mail quand c'est prêt, puis un rappel après 3 et 10 jours."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Puis-je repousser la date prévue ?",
+          "a": "Oui. Si une retouche prend plus de temps, vous changez la date et le client reçoit un e-mail avec la nouvelle."
+        },
+        {
+          "q": "Puis-je joindre une photo ?",
+          "a": "Oui, une photo de la pièce ou du travail fini s'affiche sur la page de suivi du client."
+        },
+        {
+          "q": "Mes clients doivent-ils installer quelque chose ?",
+          "a": "Non. Un lien dans le navigateur suffit, sans compte."
+        }
+      ]
+    },
+    "electronics": {
+      "label": "Téléphones et ordinateurs",
+      "metaTitle": "Suivi des réparations de téléphones et ordinateurs | ReadyYet",
+      "metaDescription": "Vos clients suivent la réparation de leur smartphone ou de leur ordinateur en ligne, du diagnostic au retrait. Sans appel, sans compte. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne pour votre atelier de réparation",
+      "lead": "Écran, batterie, carte mère : votre client suit son appareil du diagnostic au retrait, sans appeler la boutique.",
+      "pains": [
+        {
+          "title": "Un devis qui ne traîne pas",
+          "text": "Quand un devis attend sa réponse, le client reçoit un e-mail et le voit sur sa page."
+        },
+        {
+          "title": "Fini les « alors, c'est réparé ? »",
+          "text": "L'étape en cours et la date prévue sont sur sa page, et un e-mail part quand c'est prêt."
+        },
+        {
+          "title": "Le retard d'une pièce, expliqué",
+          "text": "En Pro, ajoutez l'étape « En attente de pièces » : le client comprend le délai sans coup de fil."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Le client voit-il les autres réparations ?",
+          "a": "Non. Son lien n'ouvre que son ticket, et il est impossible à deviner."
+        },
+        {
+          "q": "Puis-je ajouter mes propres étapes ?",
+          "a": "Oui, en Pro : contrôle qualité, attente de pièces et d'autres, dans l'ordre de votre atelier."
+        },
+        {
+          "q": "Faut-il changer de logiciel de caisse ?",
+          "a": "Non. ReadyYet s'occupe uniquement du suivi et fonctionne à côté de ce que vous utilisez déjà."
+        }
+      ]
+    },
+    "watch": {
+      "label": "Horlogerie et bijouterie",
+      "metaTitle": "Suivi des réparations pour horlogerie et bijouterie | ReadyYet",
+      "metaDescription": "Révision, pile, mise à taille : vos clients suivent chaque étape en ligne, jusqu'au contrôle final. Sans appel, sans compte. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne pour votre horlogerie",
+      "lead": "Une révision qui prend des semaines ? Votre client suit chaque étape, du diagnostic au contrôle final, et sait quand revenir.",
+      "pains": [
+        {
+          "title": "Les longues révisions, sans inquiétude",
+          "text": "Le client voit sa montre avancer étape par étape, au lieu d'appeler chaque semaine."
+        },
+        {
+          "title": "Un devis qui ne traîne pas",
+          "text": "Quand un devis attend sa réponse, le client est prévenu par e-mail."
+        },
+        {
+          "title": "Des photos qui rassurent",
+          "text": "Joignez une photo de la pièce à l'arrivée et une fois réparée : elle s'affiche sur sa page."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Et si la montre part chez le fabricant ?",
+          "a": "En Pro, ajoutez une étape comme « En attente de pièces » : le client sait pourquoi c'est plus long."
+        },
+        {
+          "q": "Puis-je changer la date prévue ?",
+          "a": "Oui, et le client reçoit un e-mail avec la nouvelle date."
+        },
+        {
+          "q": "Mes clients doivent-ils créer un compte ?",
+          "a": "Non. Ils ouvrent un lien dans leur navigateur, sans application."
+        }
+      ]
+    },
+    "garage": {
+      "label": "Garage",
+      "metaTitle": "Suivi des réparations pour garage | ReadyYet",
+      "metaDescription": "Vos clients suivent l'entretien ou la réparation de leur voiture en ligne et savent quand venir la chercher. Sans appel, sans compte. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne pour votre garage",
+      "lead": "Diagnostic, réparation, voiture prête : votre client suit son véhicule depuis son téléphone et sait quand venir le récupérer.",
+      "pains": [
+        {
+          "title": "Moins d'appels à l'atelier",
+          "text": "Le client regarde sa page au lieu de vous appeler pendant que vous êtes sous un capot."
+        },
+        {
+          "title": "La pièce qui tarde, dite clairement",
+          "text": "En Pro, l'étape « En attente de pièces » explique un retard sans un coup de fil."
+        },
+        {
+          "title": "Les voitures récupérées plus tôt",
+          "text": "Un e-mail part dès que c'est prêt, puis un rappel si personne ne passe."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Puis-je garder mon logiciel de garage ?",
+          "a": "Oui. ReadyYet ne remplace ni vos devis ni vos factures : il s'occupe seulement du suivi pour le client."
+        },
+        {
+          "q": "Un ticket par véhicule ?",
+          "a": "Oui, un ticket par passage, avec la plaque ou le modèle dans le titre."
+        },
+        {
+          "q": "Mes clients doivent-ils installer une application ?",
+          "a": "Non. Ils ouvrent un lien dans leur navigateur, sans compte."
+        }
+      ]
+    },
+    "appliance": {
+      "label": "Électroménager",
+      "metaTitle": "Suivi des réparations d'électroménager | ReadyYet",
+      "metaDescription": "Lave-linge, four, aspirateur : vos clients suivent la réparation en ligne, même quand une pièce est en commande. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne de vos réparations d'électroménager",
+      "lead": "Pièce en commande ? Votre client le voit sur sa page, et il est prévenu dès que son appareil est prêt.",
+      "pains": [
+        {
+          "title": "L'attente des pièces, expliquée",
+          "text": "« En attente de pièces » fait partie des étapes : le client comprend le délai sans vous appeler."
+        },
+        {
+          "title": "Une date qui bouge, annoncée",
+          "text": "Si la date prévue change, le client reçoit un e-mail avec la nouvelle."
+        },
+        {
+          "title": "Les appareils récupérés",
+          "text": "Un e-mail quand c'est prêt, puis un rappel après 3 et 10 jours."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Et les réparations à domicile ?",
+          "a": "ReadyYet est pensé pour les appareils déposés au magasin : le suivi commence au dépôt."
+        },
+        {
+          "q": "Puis-je retirer l'étape des pièces ?",
+          "a": "Oui. En Pro, vous choisissez les étapes et leur ordre."
+        },
+        {
+          "q": "Mes clients doivent-ils créer un compte ?",
+          "a": "Non. Un lien dans le navigateur suffit."
+        }
+      ]
+    },
+    "framing": {
+      "label": "Encadrement",
+      "metaTitle": "Suivi des commandes pour encadreurs | ReadyYet",
+      "metaDescription": "Du choix de la baguette à la pose, vos clients savent quand leur cadre est prêt, sans appeler l'atelier. Essai gratuit de 14 jours.",
+      "title": "Le suivi en ligne pour votre atelier d'encadrement",
+      "lead": "Du choix de la baguette à la pose, votre client sait où en est son cadre et quand venir le chercher.",
+      "pains": [
+        {
+          "title": "Les délais longs, sans inquiétude",
+          "text": "Le client voit l'étape en cours et la date prévue, à toute heure."
+        },
+        {
+          "title": "Une photo avant de venir",
+          "text": "Joignez une photo du cadre terminé : le client le découvre sur sa page."
+        },
+        {
+          "title": "Les cadres finis repartent",
+          "text": "Un e-mail dès que c'est prêt, puis un rappel s'il tarde."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Puis-je changer la date prévue ?",
+          "a": "Oui, et le client reçoit un e-mail avec la nouvelle date."
+        },
+        {
+          "q": "Et une commande de plusieurs cadres ?",
+          "a": "Un ticket par dépôt, avec le détail dans la description."
+        },
+        {
+          "q": "Mes clients doivent-ils installer une application ?",
+          "a": "Non. Un lien suffit, sans compte."
+        }
+      ]
+    }
   }
 }

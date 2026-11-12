@@ -8,18 +8,13 @@ import "./legal.css";
 
 const SUPPORT_EMAIL = "support@readyyet.app";
 
-export const dynamicParams = false;
+type Props = { params: Promise<{ locale: string }> };
 
-export function generateStaticParams() {
-  return LEGAL_DOCS.map((legal) => ({ legal }));
-}
-
-export async function generateMetadata(
-  { params }: PageProps<"/[locale]/[legal]">,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const { locale, legal } = await params;
-  const [{ title }, { openGraph }] = await Promise.all([readLegal(locale, legal as LegalDoc), parent]);
+// Each legal text has its own route (app/[locale]/terms and the rest), so the
+// trade pages can take the other one-word paths (ADR 0145).
+export async function legalMetadata(legal: LegalDoc, { params }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const { locale } = await params;
+  const [{ title }, { openGraph }] = await Promise.all([readLegal(locale, legal), parent]);
   return {
     title: `${title} | ReadyYet`,
     alternates: {
@@ -34,13 +29,10 @@ export async function generateMetadata(
   };
 }
 
-export default async function LegalPage({ params }: PageProps<"/[locale]/[legal]">) {
-  const { locale, legal } = await params;
+export async function LegalPage({ legal, params }: Props & { legal: LegalDoc }) {
+  const { locale } = await params;
   setRequestLocale(locale);
-  const [t, { title, html, sections }] = await Promise.all([
-    getTranslations("legal"),
-    readLegal(locale, legal as LegalDoc),
-  ]);
+  const [t, { title, html, sections }] = await Promise.all([getTranslations("legal"), readLegal(locale, legal)]);
   const since = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(LEGAL_DATE));
 
   return (

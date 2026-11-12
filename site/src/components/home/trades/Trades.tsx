@@ -1,18 +1,16 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { signInUrl } from "@/lib/sign-in-url";
+import { TRADE_KEYS, tradePath, type SiteLocale } from "@/lib/trades";
 import "@/temlis/lumoras-699/styles.css";
 import { ChipButton } from "../ChipButton";
 import "./trades.css";
-
-const TRADES = ["shoe", "pressing", "tailoring", "electronics", "watch", "garage", "appliance", "framing"] as const;
 
 // Lumoras' "Use Case Card Slider" (Temlis), markup as bought, with Ledger's
 // button in place of its own. Its slider is /temlis/lumoras-699/slider.js
 // (Swiper); it enters like every section, through data-entrance
 // (lib/motion/reveal.ts).
 export async function Trades() {
-  const t = await getTranslations("home.trades");
-  const signIn = await signInUrl();
+  const [t, signIn, locale] = await Promise.all([getTranslations("home.trades"), signInUrl(), getLocale()]);
 
   return (
     <div data-tmls="tmfp_ngj73s52iqhloxrc" data-temlis="lumoras-699">
@@ -45,7 +43,7 @@ export async function Trades() {
                 >
                   <div className="slider-mask is-solutions w-slider-mask swiper">
                     <div className="swiper-wrapper">
-                      {TRADES.map((trade) => (
+                      {TRADE_KEYS.map((trade) => (
                         <div key={trade} className="slide-item w-slide swiper-slide">
                           <div className="solutions_card" data-entrance="">
                             <div className="icon-wrapper w-variant-8b30cf3b-98bc-9c9f-e71b-20d4e9e8b609">
@@ -58,7 +56,12 @@ export async function Trades() {
                               />
                             </div>
                             <div className="solutions_card-info">
-                              <h3 className="h5">{t(`${trade}.title`)}</h3>
+                              {/* The whole card leads to the trade's page (ADR 0145). */}
+                              <h3 className="h5">
+                                <a className="solutions_card-link" href={tradePath(locale as SiteLocale, trade)}>
+                                  {t(`${trade}.title`)}
+                                </a>
+                              </h3>
                               <div className="text-color-secondary">{t(`${trade}.text`)}</div>
                             </div>
                           </div>

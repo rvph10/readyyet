@@ -302,5 +302,309 @@
     "tag": "Free trial",
     "text": "14 days to try ReadyYet in your shop, no card needed.",
     "action": "Get started"
+  },
+  "tradePage": {
+    "page": {
+      "painsTitle": "What changes at the counter",
+      "stepsTitle": "The steps your customer follows",
+      "stepsHint": "Ready the day you sign up. On Pro, you choose them and put them in your own order.",
+      "faqTitle": "Common questions",
+      "start": "Start free trial",
+      "pricing": "See pricing",
+      "others": "Other trades",
+      "statuses": {
+        "RECEIVED": "Received",
+        "READY": "Ready",
+        "COMPLETED": "Completed",
+        "DIAGNOSING": "Diagnosing",
+        "AWAITING_PARTS": "Awaiting parts",
+        "IN_PROGRESS": "In progress",
+        "CLEANING": "Cleaning",
+        "REPAIRING": "Repairing",
+        "ALTERATION": "Alteration",
+        "FITTING": "Fitting",
+        "QUALITY_CHECK": "Quality check"
+      }
+    },
+    "shoe": {
+      "label": "Shoe and leather repair",
+      "metaTitle": "Repair tracking for shoe repair shops | ReadyYet",
+      "metaDescription": "Your customers follow their resole or bag repair online and know when to come by. No calls, no account. 14-day free trial.",
+      "title": "Online repair tracking for your shoe repair shop",
+      "lead": "A resole, a new heel, a bag to stitch: your customer checks on their pair from their phone and comes in when it's ready.",
+      "pains": [
+        {
+          "title": "Fewer \"is it done yet?\" calls",
+          "text": "Customers get their tracking link at drop-off and check their page instead of ringing while you've got glue on your hands."
+        },
+        {
+          "title": "Forgotten pairs go home",
+          "text": "When it's ready, an email goes out on its own, then a reminder after 3 and 10 days if nobody comes."
+        },
+        {
+          "title": "A Ticket in seconds",
+          "text": "Name, item, expected date, done. The customer gets their link by email, on WhatsApp or by scanning a QR code."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I show the customer their pair?",
+          "a": "Yes. Add photos to the Ticket, at drop-off or once the work is done, and they appear on the tracking page."
+        },
+        {
+          "q": "What about bags and belts?",
+          "a": "Same thing. For a longer repair, add a step like \"Diagnosing\" or a quote to approve on Pro, and the customer is told by email."
+        },
+        {
+          "q": "Do my customers need an app?",
+          "a": "No. They open their link in their phone's browser, with no account to create."
+        }
+      ]
+    },
+    "pressing": {
+      "label": "Dry cleaning",
+      "metaTitle": "Order tracking for dry cleaners | ReadyYet",
+      "metaDescription": "Your customers follow their dry cleaning online and know when to pick it up. No calls, no account. 14-day free trial.",
+      "title": "Online order tracking for your dry cleaner's",
+      "lead": "Suits, dresses, duvets: every drop-off gets its own tracking page, and your customer knows when their order is waiting.",
+      "pains": [
+        {
+          "title": "No more \"when will it be ready?\"",
+          "text": "The expected date is on their page from drop-off. If it changes, they get an email with the new one."
+        },
+        {
+          "title": "Rails that clear",
+          "text": "Customers know the moment it's ready. If they don't come, a reminder goes out after 3 and then 10 days."
+        },
+        {
+          "title": "A counter that keeps moving",
+          "text": "A Ticket takes seconds, even on a Saturday morning with a queue at the door."
+        }
+      ],
+      "faq": [
+        {
+          "q": "A customer drops off several items, what then?",
+          "a": "One Ticket per drop-off, with the items in the description. Each Ticket has its own tracking link."
+        },
+        {
+          "q": "Do my customers need an account?",
+          "a": "No. They open their link in their browser, with no app or password."
+        },
+        {
+          "q": "How much does it cost?",
+          "a": "From €29 a month per shop, cancel any time. The first 14 days are free, no card needed."
+        }
+      ]
+    },
+    "tailoring": {
+      "label": "Alterations and tailoring",
+      "metaTitle": "Alteration tracking for tailors | ReadyYet",
+      "metaDescription": "Your customers know when to come in for a fitting and when their alteration is ready, without calling. 14-day free trial.",
+      "title": "Online tracking for your alterations",
+      "lead": "Hems, take-ins, a wedding dress: your customer sees when the fitting is waiting for them, then when their piece is ready.",
+      "pains": [
+        {
+          "title": "Fittings at the right time",
+          "text": "The \"Fitting\" step shows on their page, so they know to come in without you calling."
+        },
+        {
+          "title": "Fewer calls while you sew",
+          "text": "The expected date and current step are on their page, day and night."
+        },
+        {
+          "title": "Finished pieces go home",
+          "text": "An email when it's ready, then a reminder after 3 and 10 days."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I push back the expected date?",
+          "a": "Yes. If an alteration takes longer, change the date and the customer gets an email with the new one."
+        },
+        {
+          "q": "Can I add a photo?",
+          "a": "Yes, a photo of the piece or the finished work shows on the customer's tracking page."
+        },
+        {
+          "q": "Do my customers need to install anything?",
+          "a": "No. A link in their browser is all it takes, with no account."
+        }
+      ]
+    },
+    "electronics": {
+      "label": "Phones and computers",
+      "metaTitle": "Repair tracking for phone and computer repair shops | ReadyYet",
+      "metaDescription": "Your customers follow their phone or computer repair online, from diagnosis to pick-up. No calls, no account. 14-day free trial.",
+      "title": "Online repair tracking for your repair shop",
+      "lead": "Screen, battery, motherboard: your customer follows their device from diagnosis to pick-up without calling the shop.",
+      "pains": [
+        {
+          "title": "Quotes answered sooner",
+          "text": "When a quote is waiting for an answer, the customer gets an email and sees it on their page."
+        },
+        {
+          "title": "No more \"so, is it fixed?\"",
+          "text": "The current step and expected date are on their page, and an email goes out when it's ready."
+        },
+        {
+          "title": "A late part, explained",
+          "text": "On Pro, add the \"Awaiting parts\" step and the customer understands the wait without a phone call."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can a customer see other repairs?",
+          "a": "No. Their link only opens their own Ticket, and it can't be guessed."
+        },
+        {
+          "q": "Can I add my own steps?",
+          "a": "Yes, on Pro: quality check, awaiting parts and more, in your workshop's order."
+        },
+        {
+          "q": "Do I have to change my till software?",
+          "a": "No. ReadyYet only does the tracking and works alongside whatever you already use."
+        }
+      ]
+    },
+    "watch": {
+      "label": "Watch and jewellery repair",
+      "metaTitle": "Repair tracking for watchmakers and jewellers | ReadyYet",
+      "metaDescription": "Services, batteries, resizing: your customers follow every step online, up to the final check. No calls, no account. 14-day free trial.",
+      "title": "Online repair tracking for your watch shop",
+      "lead": "A service that takes weeks? Your customer follows every step, from diagnosis to the final check, and knows when to come back.",
+      "pains": [
+        {
+          "title": "Long services, without the worry",
+          "text": "The customer sees their watch move step by step, instead of calling every week."
+        },
+        {
+          "title": "Quotes answered sooner",
+          "text": "When a quote is waiting for an answer, the customer is told by email."
+        },
+        {
+          "title": "Photos that reassure",
+          "text": "Add a photo of the piece when it comes in and once it's repaired: it shows on their page."
+        }
+      ],
+      "faq": [
+        {
+          "q": "What if the watch goes to the manufacturer?",
+          "a": "On Pro, add a step like \"Awaiting parts\" so the customer knows why it's taking longer."
+        },
+        {
+          "q": "Can I change the expected date?",
+          "a": "Yes, and the customer gets an email with the new date."
+        },
+        {
+          "q": "Do my customers need an account?",
+          "a": "No. They open a link in their browser, with no app."
+        }
+      ]
+    },
+    "garage": {
+      "label": "Garage",
+      "metaTitle": "Repair tracking for garages | ReadyYet",
+      "metaDescription": "Your customers follow their car's service or repair online and know when to collect it. No calls, no account. 14-day free trial.",
+      "title": "Online repair tracking for your garage",
+      "lead": "Diagnosis, repair, car ready: your customer follows their vehicle from their phone and knows when to collect it.",
+      "pains": [
+        {
+          "title": "Fewer calls to the workshop",
+          "text": "Customers check their page instead of calling while you're under a bonnet."
+        },
+        {
+          "title": "A late part, said plainly",
+          "text": "On Pro, the \"Awaiting parts\" step explains a delay without a phone call."
+        },
+        {
+          "title": "Cars collected sooner",
+          "text": "An email goes out as soon as it's ready, then a reminder if nobody comes."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I keep my garage software?",
+          "a": "Yes. ReadyYet doesn't replace your quotes or invoices, it only handles tracking for the customer."
+        },
+        {
+          "q": "One Ticket per vehicle?",
+          "a": "Yes, one Ticket per visit, with the plate or model in the title."
+        },
+        {
+          "q": "Do my customers need an app?",
+          "a": "No. They open a link in their browser, with no account."
+        }
+      ]
+    },
+    "appliance": {
+      "label": "Appliance repair",
+      "metaTitle": "Repair tracking for appliance repair shops | ReadyYet",
+      "metaDescription": "Washing machines, ovens, vacuums: your customers follow the repair online, even while a part is on order. 14-day free trial.",
+      "title": "Online tracking for your appliance repairs",
+      "lead": "Part on order? Your customer sees it on their page and hears from you the moment their appliance is ready.",
+      "pains": [
+        {
+          "title": "Waiting for parts, explained",
+          "text": "\"Awaiting parts\" is one of the steps, so the customer understands the wait without calling."
+        },
+        {
+          "title": "A date that moves, announced",
+          "text": "If the expected date changes, the customer gets an email with the new one."
+        },
+        {
+          "title": "Appliances collected",
+          "text": "An email when it's ready, then a reminder after 3 and 10 days."
+        }
+      ],
+      "faq": [
+        {
+          "q": "What about repairs at the customer's home?",
+          "a": "ReadyYet is made for appliances dropped off at the shop: tracking starts at drop-off."
+        },
+        {
+          "q": "Can I remove the parts step?",
+          "a": "Yes. On Pro, you choose the steps and their order."
+        },
+        {
+          "q": "Do my customers need an account?",
+          "a": "No. A link in their browser is enough."
+        }
+      ]
+    },
+    "framing": {
+      "label": "Picture framing",
+      "metaTitle": "Order tracking for picture framers | ReadyYet",
+      "metaDescription": "From choosing the moulding to fitting the glass, your customers know when their frame is ready, without calling. 14-day free trial.",
+      "title": "Online order tracking for your framing workshop",
+      "lead": "From choosing the moulding to fitting the glass, your customer knows where their frame is and when to collect it.",
+      "pains": [
+        {
+          "title": "Long lead times, without the worry",
+          "text": "The customer sees the current step and expected date, day and night."
+        },
+        {
+          "title": "A photo before they come",
+          "text": "Add a photo of the finished frame and the customer sees it on their page."
+        },
+        {
+          "title": "Finished frames go home",
+          "text": "An email as soon as it's ready, then a reminder if they don't come."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I change the expected date?",
+          "a": "Yes, and the customer gets an email with the new date."
+        },
+        {
+          "q": "What about an order with several frames?",
+          "a": "One Ticket per drop-off, with the details in the description."
+        },
+        {
+          "q": "Do my customers need an app?",
+          "a": "No. A link is enough, with no account."
+        }
+      ]
+    }
   }
 }
