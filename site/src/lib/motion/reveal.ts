@@ -78,35 +78,53 @@ function rowsOf(el: HTMLElement) {
   };
 }
 
+// The order a group's members arrive in: as read on screen, top to bottom
+// then left to right. What sits off to the side, a slider's hidden slides,
+// arrives with the first.
+function readingOrder(els: HTMLElement[]) {
+  const shown = els
+    .map((el) => ({ el, box: el.getBoundingClientRect() }))
+    .filter(({ box }) => box.right > 0 && box.left < window.innerWidth)
+    .sort((a, b) => (Math.abs(a.box.top - b.box.top) > 4 ? a.box.top - b.box.top : a.box.left - b.box.left))
+    .map(({ el }) => el);
+  return (_: number, el: HTMLElement) => Math.max(0, shown.indexOf(el)) * REVEAL.stagger;
+}
+
 // Section entrances. A [data-entrance-group] plays once when its top reaches
-// REVEAL.start, its [data-entrance] members in page order: titles
-// (data-entrance="title" or "rows") rise out of their lines, everything else
-// rises REVEAL.rise, REVEAL.follow after the title and REVEAL.stagger apart.
+// REVEAL.start: titles (data-entrance="title" or "rows") rise out of their
+// lines, its other [data-entrance] members rise REVEAL.rise, REVEAL.follow
+// after the title and REVEAL.stagger apart.
 export async function startReveals() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   // Lines are measured on the real face.
   await Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 800))]);
 
+  const isTitle = (el: HTMLElement) => el.dataset.entrance === "title" || el.dataset.entrance === "rows";
+  const others = (group: HTMLElement) =>
+    [...group.querySelectorAll<HTMLElement>("[data-entrance]")].filter((el) => !isTitle(el));
+
   document.querySelectorAll<HTMLElement>("[data-entrance-group]").forEach((group) => {
-    const members = [...group.querySelectorAll<HTMLElement>("[data-entrance]")];
-    const isTitle = (el: HTMLElement) => el.dataset.entrance === "title" || el.dataset.entrance === "rows";
-    const titles = members.filter(isTitle).map((el) => (el.dataset.entrance === "rows" ? rowsOf(el) : splitTitle(el)));
-    const rest = members.filter((el) => !isTitle(el));
-    gsap.set(rest, { autoAlpha: 0, y: REVEAL.rise });
+    const titles = [...group.querySelectorAll<HTMLElement>("[data-entrance]")]
+      .filter(isTitle)
+      .map((el) => (el.dataset.entrance === "rows" ? rowsOf(el) : splitTitle(el)));
+    gsap.set(others(group), { autoAlpha: 0, y: REVEAL.rise });
 
     ScrollTrigger.create({
       trigger: group,
       start: REVEAL.start,
       once: true,
       onEnter: () => {
+        // Gathered again: the trades slider clones its slides for its loop,
+        // and the clones carry the hidden state they were copied in.
+        const rest = others(group);
         const tl = gsap.timeline({ defaults: { ease: REVEAL.ease, clearProps: CLEAR } });
         titles.forEach(({ lines, to, revert }) =>
           tl.to(lines, { ...to, duration: REVEAL.duration, stagger: REVEAL.stagger, onComplete: revert }, 0),
         );
         tl.to(
           rest,
-          { autoAlpha: 1, y: 0, duration: REVEAL.duration, stagger: REVEAL.stagger },
+          { autoAlpha: 1, y: 0, duration: REVEAL.duration, stagger: readingOrder(rest) },
           titles.length ? REVEAL.follow : 0,
         );
       },
