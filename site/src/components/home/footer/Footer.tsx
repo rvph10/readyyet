@@ -43,13 +43,13 @@ function Roll({ label }: { label: string }) {
 // the page sets its own fonts, and their fallback files weren't in the
 // package. Its script is /temlis/atniily-923/animations.js.
 export async function Footer() {
-  const [t, legal, locale, signIn] = await Promise.all([
+  const [t, legal, cookies, locale, signIn] = await Promise.all([
     getTranslations("home.footer"),
     getTranslations("legal.docs"),
+    getTranslations("cookies"),
     getLocale(),
     signInUrl(),
   ]);
-  const cookies = await getTranslations("cookies");
   const columns = [
     {
       title: t("product"),

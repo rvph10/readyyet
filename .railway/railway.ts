@@ -12,6 +12,10 @@ const REGION = "europe-west4-drams3a";
 const PRODUCTION_ROOT = "readyyet.app";
 const STAGING_ROOT = "readyyet-staging.app";
 
+// Public by design, it ships in the browser bundle. One PostHog project for
+// both environments; its test-account filter drops staging (ADR 0132).
+const POSTHOG_KEY = "phc_B9xPi2tj7Ax7Q9vyuGgLBkWb7Fw8vtcc9FKMhQgJQhhi";
+
 export default defineRailway((ctx) => {
   const production = ctx.environment === "production";
   const root = production ? PRODUCTION_ROOT : STAGING_ROOT;
@@ -93,6 +97,8 @@ export default defineRailway((ctx) => {
       // The sign-in page can't render without them.
       SITE_URL: `https://${root}`,
       SUPPORT_EMAIL: "support@readyyet.app",
+      // Read at build time, like every NEXT_PUBLIC_ variable.
+      NEXT_PUBLIC_POSTHOG_KEY: POSTHOG_KEY,
       // Set in Railway. The DSN is the API's (ADR 0045), read at build time
       // too, for the browser. The rest let the build upload source maps.
       NEXT_PUBLIC_SENTRY_DSN: preserve(),
@@ -115,6 +121,7 @@ export default defineRailway((ctx) => {
       NODE_ENV: "production",
       NEXT_PUBLIC_APP_URL: `https://app.${root}`,
       SITE_URL: `https://${root}`,
+      NEXT_PUBLIC_POSTHOG_KEY: POSTHOG_KEY,
     },
   });
 
