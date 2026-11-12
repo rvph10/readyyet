@@ -138,8 +138,9 @@ export function demoTracking(moment: Moment, title: string, locale: string, now:
     feedback: null,
     location: {
       name: "Atelier Lemaire",
-      contactPhone: "+3221234567",
-      contactEmail: "bonjour@atelier-lemaire.be",
+      // A number nobody has and our own address, so the made-up shop leads to no real one.
+      contactPhone: "+3220000000",
+      contactEmail: "demo@readyyet.app",
       logoUrl: "/demo/logo.webp",
       bannerUrl: "/demo/banner.webp",
       address: {
