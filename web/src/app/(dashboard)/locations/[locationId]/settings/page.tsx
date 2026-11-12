@@ -100,8 +100,7 @@ async function ReviewsOff({ locationId }: { locationId: string }) {
     getBilling(locationId),
     getTranslations("settings"),
   ]);
-  const hasPro = billing.plan === "PRO" && !billing.frozen;
-  return hasPro && !location.feedbackEmails ? <MenuBadge>{t("off")}</MenuBadge> : null;
+  return billing.hasPro && !location.feedbackEmails ? <MenuBadge>{t("off")}</MenuBadge> : null;
 }
 
 // Both forms start from what is saved. Finding the shop on Google saves an
@@ -138,7 +137,7 @@ async function TicketsSection({ locationId }: { locationId: string }) {
 
 async function ReviewsSection({ locationId }: { locationId: string }) {
   const [location, billing] = await Promise.all([getLocation(locationId), getBilling(locationId)]);
-  return <ReviewLink location={location} hasPro={billing.plan === "PRO" && !billing.frozen} />;
+  return <ReviewLink location={location} hasPro={billing.hasPro} frozen={billing.frozen} />;
 }
 
 async function DeleteSection({ locationId, businessId }: { locationId: string; businessId: string }) {

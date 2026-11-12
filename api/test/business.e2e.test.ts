@@ -217,6 +217,7 @@ describe("POST /businesses/:businessId/locations", () => {
   let ownerCookie: string;
   let adminCookie: string;
   let businessId: string;
+  let firstLocationId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -243,7 +244,7 @@ describe("POST /businesses/:businessId/locations", () => {
         },
       });
     businessId = created.body.id;
-    const firstLocationId = created.body.locations[0].id;
+    firstLocationId = created.body.locations[0].id;
 
     const invitation = await request(app.getHttpServer())
       .post(`/locations/${firstLocationId}/invitations`)
@@ -291,6 +292,62 @@ describe("POST /businesses/:businessId/locations", () => {
 
     const subscription = await prisma.subscription.findUniqueOrThrow({ where: { locationId: response.body.id } });
     expect(subscription).toMatchObject({ status: "ENDED", plan: null, trialEndsAt: null });
+  });
+
+  const shop = (name: string, extra: Record<string, unknown> = {}) => ({
+    name,
+    businessTypeCode: "GARAGE",
+    timeZone: "Europe/Brussels",
+    contactPhone: "+12125550177",
+    contactEmail: "copy@multiloc.test",
+    locale: "EN",
+    ...extra,
+  });
+
+  it("starts from another location's custom workflow when asked", async () => {
+    await request(app.getHttpServer())
+      .put(`/locations/${firstLocationId}/workflow`)
+      .set("Cookie", ownerCookie)
+      .send({ statusCodes: ["DIAGNOSING", "QUALITY_CHECK"] })
+      .expect(200);
+
+    const response = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send(shop("Copied Shop", { copyWorkflowFrom: firstLocationId }));
+
+    expect(response.status).toBe(201);
+    const steps = (locationId: string) =>
+      prisma.workflowStep.findMany({
+        where: { workflow: { locationId, isActive: true } },
+        orderBy: { position: "asc" },
+        select: { position: true, statusId: true },
+      });
+    expect(await steps(response.body.id)).toEqual(await steps(firstLocationId));
+  });
+
+  it("refuses to copy from a location with no custom workflow, or from another business", async () => {
+    const plain = await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/locations`)
+      .set("Cookie", ownerCookie)
+      .send(shop("Plain Shop"));
+    const other = await request(app.getHttpServer())
+      .post("/businesses")
+      .set("Cookie", ownerCookie)
+      .send({ termsVersion: TERMS_VERSION, name: "Other Co", location: shop("Other Shop") });
+    const otherLocationId = other.body.locations[0].id;
+    await prisma.workflow.create({
+      data: { locationId: otherLocationId, name: "Custom", steps: { create: [{ position: 1, statusId: 1 }] } },
+    });
+
+    for (const source of [plain.body.id, otherLocationId]) {
+      const response = await request(app.getHttpServer())
+        .post(`/businesses/${businessId}/locations`)
+        .set("Cookie", ownerCookie)
+        .send(shop("Refused Shop", { copyWorkflowFrom: source }));
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    }
   });
 
   it("rejects a non-owner, even an admin at an existing location under that business", async () => {

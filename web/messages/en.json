@@ -196,7 +196,7 @@
       "notesTooLong": "Keep it to 5000 characters.",
       "datePast": "Choose today or a later date.",
       "invalid": "Check this field.",
-      "frozen": "New Tickets are paused at this shop because its plan has ended. An Owner or Admin can restart it under Billing.",
+      "frozen": "This shop has no active plan, so it can't create Tickets. An Owner or Admin can choose one under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
@@ -517,7 +517,7 @@
     "emailFailed": "Email didn't arrive",
     "waiting": "Waiting {days} days",
     "trialEnds": "{days, plural, one {Your trial ends tomorrow} other {Your trial ends in # days}}",
-    "trialEnded": "New Tickets are paused",
+    "trialEnded": "No active plan",
     "allTickets": "All Tickets",
     "first": {
       "title": "Create your first Ticket",
@@ -649,7 +649,7 @@
     "noReviews": "No private feedback or review requests",
     "title": "Keep ReadyYet running",
     "chargedLater": "{days, plural, one {Your card is charged when the trial ends, tomorrow. Cancel any time before then.} other {Your card is charged when the trial ends, in # days. Cancel any time before then.}}",
-    "resume": "Choose a plan to create new Tickets again. Nothing was lost.",
+    "resume": "Choose a plan to create Tickets at this shop. Nothing is lost.",
     "billedEvery": "How often you pay",
     "monthly": "Monthly",
     "yearly": "Yearly",
@@ -663,9 +663,9 @@
       "unexpected": "The payment page didn't open. Please try again."
     },
     "daysLeft": "{days, plural, one {# day left of Pro} other {# days left of Pro}}",
-    "ended": "New Tickets are paused",
+    "ended": "No active plan",
     "cardBody": "Keep your Workflow and reviews. You pay only when the trial ends.",
-    "endedBody": "Choose a plan and nothing is lost.",
+    "endedBody": "Choose a plan to create Tickets. Nothing is lost.",
     "keepPro": "Keep Pro, €49/month",
     "choosePlan": "Choose a plan",
     "daysShort": "{days}d",
@@ -675,8 +675,8 @@
   "billing": {
     "yourPlan": "Your plan",
     "trialBody": "Your trial ends on {date}. Choose a plan now and you keep the days left: your card is only charged when it ends.",
-    "pausedTitle": "New Tickets are paused",
-    "pausedBody": "Choose a plan to start again. Nothing is lost, open Tickets keep moving and tracking links keep working.",
+    "pausedTitle": "This shop has no active plan",
+    "pausedBody": "Choose a plan to create Tickets. Nothing is lost, open Tickets keep moving and tracking links keep working.",
     "pastDueTitle": "Your last payment failed",
     "pastDueBody": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Update the card so it doesn't stop.",
     "pastDueBodyAdmin": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Ask the Owner to update the card.",
@@ -777,7 +777,7 @@
       "title": "Customer feedback comes with Pro",
       "description": "On Pro, each Customer is asked how it went after collecting their item. You see their rating, what stood out, and anything they write.",
       "notice": "This shop is no longer on Pro, so Customers aren't asked any more. What they already sent stays here.",
-      "action": "See plans"
+      "noticeFrozen": "This shop has no active plan, so Customers aren't asked any more. What they already sent stays here."
     },
     "insights": {
       "label": "This month",
@@ -1116,7 +1116,7 @@
     },
     "plan": {
       "trial": "{days, plural, one {Trial, # day left} other {Trial, # days left}}",
-      "paused": "Paused",
+      "paused": "No plan",
       "failed": "Payment failed",
       "stopping": "Stopping",
       "changing": "Changing plan"
@@ -1134,16 +1134,15 @@
       "choosePlan": "Choose a plan",
       "fixPayment": "Fix payment",
       "manage": "Manage plan",
-      "pausedHint": "New Tickets paused",
+      "pausedHint": "No active plan",
       "failedHint": "Update the card",
       "price": "Price",
       "nothingDueHint": "No shop renews soon"
     },
     "newLocation": {
       "nameHint": "Customers see it on their tracking page.",
-      "planNotice": "Each shop has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
       "cancel": "Cancel",
-      "submit": "Create and choose a plan",
+      "submit": "Create and pay",
       "stepName": "Name",
       "stepType": "Trade",
       "stepContact": "Contact",
@@ -1151,7 +1150,17 @@
       "typeTitle": "What does it do?",
       "typeHint": "This sets the steps its Tickets follow. You can change them later.",
       "contactTitle": "How do Customers reach it?",
-      "contactHint": "Shown on tracking pages and in emails."
+      "contactHint": "Shown on tracking pages and in emails.",
+      "stepPlan": "Plan",
+      "planTitle": "Which plan for this shop?",
+      "planHint": "Each shop has its own plan. There's no trial for another shop: Tickets start as soon as it's paid.",
+      "planLegend": "Plan",
+      "sameType": "The same as your other shops",
+      "sameTypeHint": "Its Tickets follow this trade's steps. Change it only if this shop does something else.",
+      "otherType": "It does something else",
+      "workflowLegend": "Ticket steps",
+      "workflowDefault": "The trade's own, to make yours later",
+      "workflowCopy": "The same as {shop}"
     },
     "settings": {
       "name": "Business name",
@@ -1214,7 +1223,8 @@
       "when": "Your credit arrives 14 days after their first payment.",
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
-    }
+    },
+    "createAnother": "New business"
   },
   "profile": {
     "title": "Your profile",
@@ -1493,5 +1503,11 @@
     },
     "item": "Automatic watch, new glass",
     "start": "Start free trial"
+  },
+  "planLock": {
+    "badge": "Pro",
+    "upgrade": "Move to Pro",
+    "choose": "Choose a plan",
+    "frozen": "This shop has no active plan. Choose one to get this back, nothing you had is lost."
   }
 }

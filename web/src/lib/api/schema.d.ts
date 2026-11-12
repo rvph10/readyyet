@@ -1201,6 +1201,21 @@ export interface components {
         AcceptTermsDto: {
             termsVersion: string;
         };
+        AddLocationDto: {
+            name: string;
+            businessTypeCode: string;
+            businessTypeDetail?: string;
+            contactPhone: string;
+            /** Format: email */
+            contactEmail: string;
+            /** @enum {string} */
+            locale: "EN" | "FR";
+            timeZone: string;
+            address?: components["schemas"]["PostalAddressDto"];
+            openingHours?: components["schemas"]["OpeningHoursSpecificationDto"][];
+            /** Format: uuid */
+            copyWorkflowFrom?: string;
+        };
         TransferOwnershipDto: {
             userId: string;
         };
@@ -1224,6 +1239,7 @@ export interface components {
             currentPeriodEnd: string | null;
             cancelAtPeriodEnd: boolean;
             frozen: boolean;
+            hasPro: boolean;
             memberLimit: number | null;
             referralDiscount: boolean;
         };
@@ -1342,6 +1358,7 @@ export interface components {
         WorkflowDto: {
             id: string;
             name: string;
+            custom: boolean;
             steps: components["schemas"]["WorkflowStepDto"][];
         };
         UpdateWorkflowDto: {
@@ -2747,7 +2764,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateLocationDto"];
+                "application/json": components["schemas"]["AddLocationDto"];
             };
         };
         responses: {

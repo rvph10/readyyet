@@ -2,8 +2,8 @@
 
 import { ErrorCode } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { use, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { PlanLock } from "@/components/plan-lock";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Switch } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
@@ -22,6 +22,7 @@ interface Props {
   >;
   // Whether this Location's plan includes review requests (ADR 0039).
   hasPro: boolean;
+  frozen: boolean;
   // Called once saved, when the section opened in a panel (ADR 0117).
   onSaved?: () => void;
 }
@@ -95,8 +96,9 @@ function ManualLink({ children }: { children: ReactNode }) {
 // page then has no Google link to offer. Set up whatever the email switch says,
 // the tracking page uses it too (ADR 0131). ADR 0109: the app
 // follows the link itself, rather than opening it for the shop to judge.
-export function ReviewLink({ location, hasPro, onSaved }: Props) {
+export function ReviewLink({ location, hasPro, frozen, onSaved }: Props) {
   const t = useTranslations("settings");
+  const tFeedback = useTranslations("feedback");
   const { id: locationId, googleReviewUrl: url, feedbackEmails } = location;
   const toast = useToast();
   const saved = url ?? "";
@@ -130,13 +132,9 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
       <div className="@container">
         {!inPanel && <SectionHeading title={t("nav.reviews")} hint={t("reviewHint")} />}
         <div className="grid max-w-5xl gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
-          <div className="flex flex-col items-start gap-4 rounded-3xl bg-subtle p-6">
-            <p className="text-title-h6 text-balance">{t(url ? "reviewPaused" : "reviewNeedsPro")}</p>
-            <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
-              {t("seePlans")}
-              <Icon name="arrow-right" className="size-2.5" />
-            </Link>
-          </div>
+          <PlanLock locationId={locationId} frozen={frozen} title={t(url ? "reviewPaused" : "reviewNeedsPro")}>
+            {tFeedback("plan.description")}
+          </PlanLock>
           <CustomerPreview />
         </div>
       </div>
