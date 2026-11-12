@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { use, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
+import { Switch } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
@@ -15,7 +16,10 @@ import { GoogleFinder } from "./google-finder";
 import { InPanel, SectionForm, SectionHeading } from "./section-form";
 
 interface Props {
-  location: Pick<components["schemas"]["LocationDto"], "id" | "name" | "googleReviewUrl" | "address" | "openingHours">;
+  location: Pick<
+    components["schemas"]["LocationDto"],
+    "id" | "name" | "googleReviewUrl" | "feedbackEmails" | "address" | "openingHours"
+  >;
   // Whether this Location's plan includes review requests (ADR 0039).
   hasPro: boolean;
   // Called once saved, when the section opened in a panel (ADR 0117).
@@ -87,12 +91,13 @@ function ManualLink({ children }: { children: ReactNode }) {
   );
 }
 
-// ADR 0100: bold when it's missing on a plan that includes it, as nothing tells
-// a shop otherwise that its Customers are never being asked. ADR 0109: the app
+// ADR 0100: bold when it's missing on a plan that includes it, as the tracking
+// page then has no Google link to offer. Set up whatever the email switch says,
+// the tracking page uses it too (ADR 0131). ADR 0109: the app
 // follows the link itself, rather than opening it for the shop to judge.
 export function ReviewLink({ location, hasPro, onSaved }: Props) {
   const t = useTranslations("settings");
-  const { id: locationId, googleReviewUrl: url } = location;
+  const { id: locationId, googleReviewUrl: url, feedbackEmails } = location;
   const toast = useToast();
   const saved = url ?? "";
   const [value, setValue] = useState(saved);
@@ -105,11 +110,19 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     setValue(saved);
     setChanging(false);
   }
+  // ADR 0131: the shop's choice, saved as soon as it's flipped, as a switch reads as done.
+  const [emails, setEmails] = useState(feedbackEmails);
+  const [shownEmails, setShownEmails] = useState(feedbackEmails);
+  if (shownEmails !== feedbackEmails) {
+    setShownEmails(feedbackEmails);
+    setEmails(feedbackEmails);
+  }
   const [error, setError] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [check, setCheck] = useState<{ link: string; found: keyof typeof CHECKS | "invalid" } | null>(null);
   const [checking, startChecking] = useTransition();
   const [pending, startTransition] = useTransition();
+  const [switching, startSwitching] = useTransition();
   const inPanel = use(InPanel);
 
   if (!hasPro) {
@@ -141,6 +154,18 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     startChecking(async () => {
       const result = await orFailure(checkReviewLink(locationId, link).then((found) => ({ ok: true, found })));
       setCheck({ link, found: "found" in result ? result.found : "unknown" });
+    });
+  }
+
+  function toggleEmails(next: boolean) {
+    setEmails(next);
+    startSwitching(async () => {
+      const result = await orFailure(updateLocation(locationId, { feedbackEmails: next }));
+      if (result.ok) toast({ message: t(next ? "feedbackEmailsOn" : "feedbackEmailsOff") });
+      else {
+        setEmails(!next);
+        setFailure(t(result.code === ErrorCode.PLAN_REQUIRED ? "reviewNeedsPro" : "saveFailed"));
+      }
     });
   }
 
@@ -176,6 +201,14 @@ export function ReviewLink({ location, hasPro, onSaved }: Props) {
     >
       <div className="grid max-w-5xl gap-5 @3xl:grid-cols-[minmax(0,1fr)_19rem]">
         <div className="flex min-w-0 flex-col gap-5">
+          <Switch
+            className="rounded-2xl bg-subtle p-4"
+            label={t("feedbackEmailsSwitch")}
+            description={t("feedbackEmailsHint")}
+            checked={emails}
+            disabled={switching}
+            onChange={(event) => toggleEmails(event.target.checked)}
+          />
           {/* ADR 0126: a saved link reads as linked, never as the long Google address. */}
           <div
             className={`flex flex-wrap items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}

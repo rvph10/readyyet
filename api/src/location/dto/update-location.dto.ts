@@ -4,6 +4,7 @@ import { Transform, Type } from "class-transformer";
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsInt,
@@ -71,11 +72,16 @@ export class UpdateLocationDto {
   @Max(60)
   turnaroundDays?: number | null;
 
-  // Google's "write a review" link, Pro only. Setting it turns on the
-  // feedback email and the review choice on the tracking page, null turns
-  // them off (ADR 0039).
+  // Google's "write a review" link, Pro only, a choice on the review page
+  // whatever the rating (ADR 0114, ADR 0125).
   @IsOptional()
   @IsGoogleReviewUrl()
   @MaxLength(2048)
   googleReviewUrl?: string | null;
+
+  // The shop's choice to email Customers for feedback, Pro only to turn on
+  // (ADR 0131).
+  @OptionalNotNull()
+  @IsBoolean()
+  feedbackEmails?: boolean;
 }
