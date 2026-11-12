@@ -25,6 +25,10 @@ updates:
     ignore:
       - dependency-name: typescript
         versions: ["7.0.x"]
+      # Node's types follow the Node we run (.nvmrc), so they only offer what
+      # production has. Raise both together.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
