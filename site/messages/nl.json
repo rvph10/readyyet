@@ -309,9 +309,10 @@
   },
   "announcement": {
     "label": "Aankondiging",
-    "tag": "Gratis proberen",
-    "text": "14 dagen om ReadyYet in uw winkel te testen, zonder bankkaart.",
-    "action": "Beginnen"
+    "tag": "Aanbod",
+    "text": "Betaal per jaar en krijg 2 maanden gratis, voor elke winkel.",
+    "action": "Bekijk de prijzen",
+    "href": "/pricing"
   },
   "tradePage": {
     "page": {

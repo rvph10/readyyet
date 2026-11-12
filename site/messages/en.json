@@ -309,9 +309,10 @@
   },
   "announcement": {
     "label": "Announcement",
-    "tag": "Free trial",
-    "text": "14 days to try ReadyYet in your shop, no card needed.",
-    "action": "Get started"
+    "tag": "Offer",
+    "text": "Pay yearly and get 2 months free, for every shop.",
+    "action": "See pricing",
+    "href": "/pricing"
   },
   "tradePage": {
     "page": {

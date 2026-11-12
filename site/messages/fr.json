@@ -309,9 +309,10 @@
   },
   "announcement": {
     "label": "Annonce",
-    "tag": "Essai gratuit",
-    "text": "14 jours pour tester ReadyYet dans votre magasin, sans carte bancaire.",
-    "action": "Commencer"
+    "tag": "Offre",
+    "text": "Payez à l'année et recevez 2 mois offerts, sur chaque magasin.",
+    "action": "Voir les tarifs",
+    "href": "/pricing"
   },
   "tradePage": {
     "page": {
