@@ -20,8 +20,8 @@ interface Props {
   firstPayment: string | null;
 }
 
-// ADR 0094: paying deserves a moment. Closing it drops ?checkout from the URL,
-// so a refresh doesn't celebrate twice.
+// ADR 0094: paying deserves a moment. ?checkout leaves the URL as soon as it
+// shows, so a refresh neither celebrates nor counts it twice (ADR 0136).
 export function PlanCelebration({ locationId, locationName, plan, firstPayment }: Props) {
   const t = useTranslations("today.celebration");
   const tBilling = useTranslations("billing");
@@ -30,7 +30,8 @@ export function PlanCelebration({ locationId, locationName, plan, firstPayment }
 
   useEffect(() => {
     track("plan_chosen", plan ? { plan } : undefined);
-  }, [plan]);
+    window.history.replaceState(null, "", `/locations/${locationId}`);
+  }, [plan, locationId]);
 
   function close() {
     setOpen(false);
