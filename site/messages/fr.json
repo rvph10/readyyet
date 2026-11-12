@@ -11,7 +11,8 @@
       "features": "Fonctionnalités",
       "pricing": "Tarifs",
       "faq": "FAQ",
-      "start": "Essai gratuit"
+      "start": "Essai gratuit",
+      "dashboard": "Tableau de bord"
     },
     "hero": {
       "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",

@@ -1,5 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { APP_URL } from "@/lib/app-url";
 import { signInUrl } from "@/lib/sign-in-url";
+import { AccountLink } from "./AccountLink";
 import { FillButton } from "./FillButton";
 import "./nav.css";
 
@@ -30,9 +32,7 @@ export async function Nav() {
         ))}
       </ul>
       <div className="nav__actions">
-        <a className="nav__link nav__signin" href={signIn}>
-          {t("signIn")}
-        </a>
+        <AccountLink signIn={signIn} dashboard={APP_URL} signInLabel={t("signIn")} dashboardLabel={t("dashboard")} />
         <FillButton href={signIn} className="btn--dark btn--sm">
           {t("start")}
         </FillButton>

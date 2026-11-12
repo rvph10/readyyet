@@ -11,7 +11,8 @@
       "features": "Features",
       "pricing": "Pricing",
       "faq": "FAQ",
-      "start": "Start free trial"
+      "start": "Start free trial",
+      "dashboard": "Dashboard"
     },
     "hero": {
       "title": "Your customers track their repair online and know when it's ready",

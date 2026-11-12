@@ -63,13 +63,14 @@ We gebruiken zo weinig mogelijk cookies.
 
 **Altijd actief, geen toestemming nodig** (strikt noodzakelijk of op uw verzoek geplaatst):
 
-| Naam                                 | Geplaatst door                                          | Waarvoor                               | Duur                                          |
-| ------------------------------------ | ------------------------------------------------------- | -------------------------------------- | --------------------------------------------- |
-| `__Secure-better-auth.session_token` | api.readyyet.app, voor readyyet.app en zijn subdomeinen | Houdt u aangemeld                      | 7 dagen, verlengd zolang u de dienst gebruikt |
-| `locale`                             | app.readyyet.app                                        | De taal die u hebt gekozen             | 6 maanden                                     |
-| `sidebar`                            | app.readyyet.app                                        | Of u het zijmenu hebt ingeklapt        | 6 maanden                                     |
-| `setup-guide-folded-…`               | app.readyyet.app                                        | Of u de installatiegids hebt ingeklapt | 6 maanden                                     |
-| `cookie-consent`                     | readyyet.app, app.readyyet.app                          | Uw keuze over analysecookies           | 6 maanden                                     |
+| Naam                                 | Geplaatst door                                          | Waarvoor                                                                       | Duur                                          |
+| ------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------- |
+| `__Secure-better-auth.session_token` | api.readyyet.app, voor readyyet.app en zijn subdomeinen | Houdt u aangemeld                                                              | 7 dagen, verlengd zolang u de dienst gebruikt |
+| `locale`                             | app.readyyet.app                                        | De taal die u hebt gekozen                                                     | 6 maanden                                     |
+| `sidebar`                            | app.readyyet.app                                        | Of u het zijmenu hebt ingeklapt                                                | 6 maanden                                     |
+| `setup-guide-folded-…`               | app.readyyet.app                                        | Of u de installatiegids hebt ingeklapt                                         | 6 maanden                                     |
+| `cookie-consent`                     | readyyet.app, app.readyyet.app                          | Uw keuze over analysecookies                                                   | 6 maanden                                     |
+| `signed-in`                          | app.readyyet.app, voor readyyet.app                     | Toont "Dashboard" in plaats van "Aanmelden" op de site zolang u aangemeld bent | 7 dagen                                       |
 
 **Alleen met uw toestemming:**
 
