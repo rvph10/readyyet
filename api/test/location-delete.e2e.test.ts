@@ -110,6 +110,22 @@ describe("Deleting a location", () => {
     expect((await request(app.getHttpServer()).get(`/tracking/${ticket.trackingCode}`)).status).toBe(404);
   });
 
+  // ADR 0128.
+  it("erases its Customers and what its Tickets said about them", async () => {
+    const locationId = await createLocation();
+    const ticket = await createTicket(locationId);
+
+    await remove(locationId);
+
+    const kept = await prisma.ticket.findUniqueOrThrow({
+      where: { id: BigInt(ticket.id) },
+      include: { customer: true },
+    });
+    expect(kept).toMatchObject({ title: "[deleted]", description: null });
+    expect(kept.customer).toMatchObject({ fullName: "[deleted]", email: null, phone: null });
+    expect(kept.customer.deletedAt).not.toBeNull();
+  });
+
   it("drops status emails that were still waiting", async () => {
     const locationId = await createLocation();
     const ticket = await createTicket(locationId);

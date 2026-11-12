@@ -136,6 +136,7 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "erasedCustomer": "Erased Customer",
+    "erasedTicket": "Erased item",
     "empty": {
       "open": {
         "title": "No open Tickets",
@@ -594,7 +595,7 @@
       },
       "reviewLink": {
         "title": "Add your Google review link",
-        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "body": "Customers who leave good feedback are offered your Google page. Without this link, they can only leave it here.",
         "action": "Add review link",
         "short": "Google reviews"
       },
@@ -925,9 +926,9 @@
     "opensOn": "{day}, opens at",
     "closesOn": "{day}, closes at",
     "hoursInvalid": "Each time must open before it closes, and the two can't overlap.",
-    "reviewMissing": "Customers aren't being asked yet. Add your Google review link.",
-    "reviewOn": "Customers are being asked after pickup.",
-    "reviewPaused": "Your link is saved, but Customers are only asked on Pro.",
+    "reviewMissing": "Add your Google review link, so Customers can leave their review there too.",
+    "reviewOn": "Your Google review link is saved.",
+    "reviewPaused": "Your link is saved, but feedback is only asked for on Pro.",
     "reviewNeedsPro": "Asking Customers how it went comes with Pro.",
     "reviewLabel": "Google review link",
     "reviewInvalid": "That isn't a Google review link. It looks like https://g.page/r/.../review.",
@@ -996,7 +997,11 @@
     "to": "to",
     "ticketsHint": "How long your work usually takes.",
     "turnaroundRowHint": "You can always change it on a Ticket.",
-    "reviewHint": "Ask each Customer how it went once they have their item.",
+    "feedbackEmailsSwitch": "Ask for feedback by email",
+    "feedbackEmailsHint": "Once the work is done, your Customers get an email asking how it went. Tell them when they drop off their item: asking them is your decision.",
+    "feedbackEmailsOn": "Feedback emails turned on.",
+    "feedbackEmailsOff": "Feedback emails turned off.",
+    "reviewHint": "Ask your Customers how it went, and offer them your Google listing.",
     "deleteHint": "Permanent, for this shop only. Your other shops stay as they are.",
     "emailHint": "The address Customers write to. Their replies to our emails also come here.",
     "reviewStep1": "Open your Google Business Profile.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
+import { ERASED_CUSTOMER_NAME, ERASED_TICKET_TITLE } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
@@ -89,6 +89,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
   };
   const name = (ticket: Ticket) =>
     ticket.customer.fullName === ERASED_CUSTOMER_NAME ? t("erasedCustomer") : ticket.customer.fullName;
+  const title = (ticket: Ticket) => (ticket.title === ERASED_TICKET_TITLE ? t("erasedTicket") : ticket.title);
 
   const keys = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowDown") setActive((value) => Math.min(value + 1, results.length - 1));
@@ -137,7 +138,7 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
             <Avatar id={ticket.customer.fullName} name={name(ticket)} src={null} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-label-sm">{name(ticket)}</span>
-              <span className="block truncate text-p-xs text-muted">{ticket.title}</span>
+              <span className="block truncate text-p-xs text-muted">{title(ticket)}</span>
             </span>
             <span className="hidden shrink-0 text-p-xs text-muted sm:block">
               {statusLabel(ticket.currentStatus, locale)}

@@ -1,4 +1,4 @@
-import { calendarDateIn, ERASED_CUSTOMER_NAME, isEndedStatus } from "@readyyet/shared";
+import { calendarDateIn, ERASED_CUSTOMER_NAME, ERASED_TICKET_TITLE, isEndedStatus } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { PhoneNumber } from "@/components/phone-number";
@@ -94,6 +94,7 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
   const { customer, currentStatus } = ticket;
   const erased = customer.fullName === ERASED_CUSTOMER_NAME;
   const name = erased ? t("erasedCustomer") : customer.fullName;
+  const title = ticket.title === ERASED_TICKET_TITLE ? t("erasedTicket") : ticket.title;
   const next = "nextStatus" in ticket ? ticket.nextStatus : null;
   const finishes = next?.code === "COMPLETED";
   const day = (instant: string) => calendarDateIn(new Date(instant), timeZone);
@@ -104,7 +105,7 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
     >
       <Link
         href={`/locations/${locationId}/tickets/${ticket.id}`}
-        aria-label={ticket.title}
+        aria-label={title}
         className="absolute inset-0 outline-ink -outline-offset-2 focus-visible:outline-2"
       />
       {list && <span className="hidden text-label-sm text-muted lg:block">#{ticket.id}</span>}
@@ -112,8 +113,8 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
         <Avatar id={customer.fullName} name={name} src={null} className="lg:size-12! lg:text-base!" />
         <span className="min-w-0">
           <span className="block truncate text-label-md">{name}</span>
-          <span title={ticket.title} className={`block truncate text-p-xs text-muted ${list ? "lg:hidden" : ""}`}>
-            {ticket.title}
+          <span title={title} className={`block truncate text-p-xs text-muted ${list ? "lg:hidden" : ""}`}>
+            {title}
           </span>
           {list && (
             <span title={customer.email ?? undefined} className="hidden truncate text-p-xs text-muted lg:block">
@@ -123,8 +124,8 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
         </span>
       </div>
       {list && (
-        <span title={ticket.title} className="hidden truncate text-p-sm lg:block">
-          {ticket.title}
+        <span title={title} className="hidden truncate text-p-sm lg:block">
+          {title}
         </span>
       )}
       <span className="flex min-w-0">
