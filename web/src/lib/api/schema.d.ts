@@ -1453,6 +1453,7 @@ export interface components {
             counts: components["schemas"]["OverviewCountsDto"];
             tickets: components["schemas"]["OverviewTicketDto"][];
             needsYou: components["schemas"]["OverviewNeedsYouDto"];
+            customerEmailsLimited: boolean;
         };
         TicketStatusEventDto: {
             id: string;
@@ -1473,7 +1474,7 @@ export interface components {
             /** Format: date */
             estimatedReadyDate: string | null;
             /** @enum {string|null} */
-            emailProblem: "RETRYING" | "GAVE_UP" | null;
+            emailProblem: "RETRYING" | "GAVE_UP" | "LIMITED" | null;
             statusEvents: components["schemas"]["TicketStatusEventDto"][];
             photos: components["schemas"]["TicketPhotoDto"][];
             steps: components["schemas"]["WorkflowStepDto"][];
