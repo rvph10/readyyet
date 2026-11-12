@@ -287,11 +287,11 @@
     "since": "Van kracht sinds {date}",
     "contents": "Op deze pagina",
     "others": "Juridische documenten",
-    "questions": "Een vraag over deze teksten?"
+    "questions": "Vragen over deze teksten?"
   },
   "cookies": {
     "title": "Cookies",
-    "body": "We gebruiken analysecookies om ReadyYet te verbeteren, alleen met uw toestemming. Weigeren verandert niets voor u. <link>Meer weten</link>",
+    "body": "Met uw toestemming gebruiken we analysecookies om ReadyYet te verbeteren. Weigeren heeft geen gevolgen voor u. <link>Meer informatie</link>",
     "accept": "Accepteren",
     "refuse": "Weigeren",
     "settings": "Cookie-instellingen"
