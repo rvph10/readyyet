@@ -1,11 +1,278 @@
 {
   "metadata": {
-    "title": "ReadyYet, het opvolgen van herstellingen en diensten voor uw klanten",
-    "description": "Uw klanten volgen hun herstelling of bestelling online, zonder de winkel te bellen en zonder account aan te maken."
+    "title": "Online opvolging van herstellingen voor uw klanten | ReadyYet",
+    "description": "Uw klanten volgen hun herstelling online, van afgifte tot ophaling, zonder de winkel te bellen of een account aan te maken. 14 dagen gratis proberen."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Uw klanten weten wanneer hun artikel klaar is, zonder de winkel te bellen.",
-    "languages": "Taal"
+    "nav": {
+      "label": "Hoofdmenu",
+      "signIn": "Aanmelden",
+      "howItWorks": "Hoe het werkt",
+      "features": "Functies",
+      "pricing": "Prijzen",
+      "faq": "FAQ",
+      "start": "Gratis proberen"
+    },
+    "hero": {
+      "title": "Uw klanten volgen hun herstelling online en weten wanneer het klaar is",
+      "lede": "Binnengebracht, in herstelling, klaar: elke stap verschijnt op hun telefoon, zonder naar de winkel te bellen en zonder account.",
+      "assurances": ["Zonder bankkaart", "U houdt uw huidige software", "Niets te installeren voor uw klanten"],
+      "artLabel": "Een telefoon die de opvolgpagina toont van een horloge dat bij een horlogemaker is binnengebracht, van de afgifte tot het klaar is",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Horloge, nieuw glas",
+        "steps": {
+          "received": "Ontvangen",
+          "diagnosis": "Diagnose",
+          "approval": "Wacht op akkoord",
+          "repair": "In herstelling",
+          "ready": "Klaar"
+        },
+        "readyTitle": "Het is klaar!",
+        "expected": "Verwacht morgen",
+        "openUntil": "Nu open, tot 18:00",
+        "progress": "Voortgang",
+        "photos": "Foto's",
+        "pickedUp": "Ik heb het opgehaald",
+        "quoteTitle": "Offerte ter goedkeuring",
+        "quoteText": "E-mail van Atelier Lemaire",
+        "photoTitle": "Nieuwe foto",
+        "photoText": "Toegevoegd aan uw opvolgpagina",
+        "readyText": "E-mail: u kunt het ophalen",
+        "reviewTitle": "Bedankt!",
+        "reviewText": "Review geplaatst op Google"
+      }
+    },
+    "cta": {
+      "start": "Start uw gratis proefperiode",
+      "pricing": "Bekijk de prijzen"
+    },
+    "steps": {
+      "title": "Van afgifte tot ophaling",
+      "intro": "U registreert het stuk, ReadyYet houdt uw klant op de hoogte en die komt terug op het juiste moment.",
+      "demo": "Bekijk een voorbeeld van een opvolgpagina",
+      "stepLabel": "Stap {n}",
+      "step1": {
+        "title": "U registreert het stuk",
+        "text": "Aan de toonbank, in enkele seconden: de klant, het stuk, de verwachte datum. De klant krijgt een opvolglink per e-mail, via WhatsApp of met een QR-code die hij ter plaatse scant."
+      },
+      "step2": {
+        "title": "Uw klant volgt elke stap",
+        "text": "Elke stap die u afvinkt, verschijnt op de opvolgpagina, samen met de verwachte datum en uw foto's van het stuk."
+      },
+      "step3": {
+        "title": "Terugkomen als het klaar is",
+        "text": "Zodra u het als klaar markeert, krijgt uw klant een e-mail. Ophalen zonder een vergeefse rit."
+      },
+      "art": {
+        "customer": "Klant",
+        "qr": "QR-code",
+        "item": "Leren jas",
+        "due": "Morgen klaar",
+        "create": "Aanmaken",
+        "yourItem": "Uw stuk",
+        "dropped": "Binnengebracht",
+        "diagnosis": "Diagnose",
+        "repairing": "In herstelling",
+        "ready": "Klaar",
+        "scan": "Scan om te volgen",
+        "ticket": "Ticket #128",
+        "inProgress": "Bezig",
+        "readyAt": "Vandaag om 16:28",
+        "readyTitle": "Het is klaar!",
+        "emailSent": "E-mail net verstuurd"
+      }
+    },
+    "features": {
+      "label": "/ Functies",
+      "headingStart": "Opvolging die",
+      "headingEnd": "vanzelf loopt",
+      "tracking": {
+        "title": "Eén pagina met alle antwoorden",
+        "text": "Huidige stap, verwachte datum, foto's van het stuk, adres, openingsuren en routebeschrijving: uw klant vindt alles op één plek."
+      },
+      "emails": {
+        "title": "De juiste e-mail op het juiste moment",
+        "text": "Een offerte die op antwoord wacht, een latere datum, een stuk dat klaar is: uw klant krijgt bericht zonder dat u iets schrijft. Komt hij niet langs, dan volgt een herinnering na 3 en na 10 dagen."
+      },
+      "workflow": {
+        "title": "De stappen van uw vak",
+        "text": "Diagnose, reiniging, onderdeel besteld: ReadyYet vertrekt van de stappen van uw vak, klaar vanaf de inschrijving. Met Pro kiest u ze en bepaalt u de volgorde."
+      },
+      "reviews": {
+        "title": "Meer Google-reviews",
+        "text": "Met Pro beoordeelt elke klant na het ophalen zijn bezoek en kiest: een Google-review, of een privébericht dat u vanuit ReadyYet beantwoordt."
+      },
+      "today": {
+        "title": "Uw dag in één oogopslag",
+        "text": "Open ReadyYet en u ziet wat klaar is om mee te geven, wat te laat is en wat vandaag gepland staat. Feedback van klanten en ophalingen om te bevestigen wachten op u onder „Te doen”."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Leren jas",
+        "status": "In herstelling",
+        "dropped": "Afgegeven",
+        "repairing": "In herstelling",
+        "ready": "Klaar",
+        "due": "Verwacht morgen",
+        "emailReady": "Uw jas is klaar",
+        "emailLogged": "Stuk geregistreerd",
+        "now": "zonet",
+        "yesterday": "gisteren",
+        "received": "Ontvangen",
+        "cleaning": "Reiniging",
+        "alteration": "Aanpassing",
+        "reviewAsk": "Hoe was uw bezoek?",
+        "reviewCta": "Review schrijven",
+        "hello": "Goedemorgen, Sofie",
+        "todayReady": "Klaar om op te halen",
+        "todayLate": "Te laat",
+        "todayDue": "Voor vandaag",
+        "needsYou": "Te doen",
+        "saysCollected": "Zegt opgehaald",
+        "newFeedback": "Nieuwe feedback",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
+      }
+    },
+    "trades": {
+      "title": "Voor elke zaak waar klanten iets binnenbrengen",
+      "cta": "Start uw gratis proefperiode",
+      "label": "Beroepen",
+      "previous": "Vorig beroep",
+      "next": "Volgend beroep",
+      "shoe": {
+        "title": "Schoenherstelling en lederwaren",
+        "text": "Nieuwe zolen, een tas die genaaid moet worden: uw klant ziet hoe ver het staat en komt op het juiste moment langs."
+      },
+      "pressing": {
+        "title": "Droogkuis",
+        "text": "Kostuums, jurken, donsdekens: elk stuk krijgt een eigen opvolgpagina."
+      },
+      "tailoring": {
+        "title": "Retouches en maatwerk",
+        "text": "Uw klant ziet wanneer hij kan komen passen, en daarna wanneer het stuk klaar is."
+      },
+      "electronics": {
+        "title": "Telefoons en computers",
+        "text": "Scherm, batterij, moederbord: geen „en, is het al hersteld?” meer aan de toonbank."
+      },
+      "watch": {
+        "title": "Uurwerken en juwelen",
+        "text": "Een onderhoud dat weken duurt? Uw klant volgt elke stap, tot en met de eindcontrole."
+      },
+      "garage": {
+        "title": "Garages",
+        "text": "Diagnose, herstelling: uw klant volgt zijn wagen en weet wanneer hij hem kan ophalen."
+      },
+      "appliance": {
+        "title": "Huishoudtoestellen",
+        "text": "Onderdeel besteld? Uw klant ziet het op zijn pagina, u hoeft de vertraging niet uit te leggen."
+      },
+      "framing": {
+        "title": "Inlijsten",
+        "text": "Van de keuze van de lijst tot het inlijsten: uw klant weet wanneer zijn kader klaarstaat."
+      }
+    },
+    "promise": {
+      "label": "/ Waarom ReadyYet",
+      "statement": "Een voorbeeld: 10 telefoontjes per dag, telkens 3 minuten, 6 dagen per week. Dat is elke week 3 uur „nog niet klaar” zeggen. ReadyYet geeft uw klant het antwoord nog voor de vraag gesteld wordt.",
+      "cta": "Bekijk hoe het werkt",
+      "stats": {
+        "one": {
+          "value": "10",
+          "unit": "",
+          "label": "telefoontjes per dag met „is het klaar?”"
+        },
+        "two": {
+          "value": "3",
+          "unit": "min",
+          "label": "om het stuk op te zoeken en te antwoorden"
+        },
+        "three": {
+          "value": "3",
+          "unit": "u",
+          "label": "per week, over 6 openingsdagen"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Eenvoudige prijzen, per winkel",
+      "intro": "14 dagen om alles te proberen, zonder bankkaart. Daarna één abonnement per winkel, per maand of per jaar, opzegbaar aan het einde van de periode.",
+      "perMonth": "/maand",
+      "popular": "Populair",
+      "start": "Start uw gratis proefperiode",
+      "essentiel": {
+        "name": "Essentiel",
+        "price": "€ 29",
+        "yearly": "of € 290 per jaar, 2 maanden gratis",
+        "pitch": "Voor een winkel met een klein team die heldere opvolging wil, zonder iets in te stellen.",
+        "items": ["Opvolgpagina en QR-code", "Automatische e-mails", "2 teamleden", "Kant-en-klare stappen voor uw vak"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€ 49",
+        "yearly": "of € 490 per jaar, 2 maanden gratis",
+        "pitch": "Voor ateliers met hun eigen werkwijze die meer reviews willen.",
+        "items": [
+          "Alles van Essentiel",
+          "Onbeperkt team",
+          "Kies en orden uw eigen stappen",
+          "Privéfeedback en Google-reviews"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Goed om te weten voor u start",
+      "app": {
+        "q": "Moeten mijn klanten een app installeren?",
+        "a": "Nee. Ze krijgen een link per e-mail, of scannen de QR-code die u hen geeft, en volgen hun stuk in de browser. Geen account, geen app."
+      },
+      "software": {
+        "q": "Moet ik mijn kassa- of beheersoftware opgeven?",
+        "a": "Nee. ReadyYet vervangt uw kassa of beheersoftware niet, het voegt de opvolging voor uw klanten toe. U registreert het stuk in enkele seconden aan de toonbank en werkt verder zoals voorheen."
+      },
+      "notified": {
+        "q": "Hoe krijgt mijn klant bericht?",
+        "a": "Per e-mail: wanneer het stuk geregistreerd is, wanneer een offerte of informatie op antwoord wacht, wanneer de verwachte datum verschuift en wanneer het klaar is, met een herinnering als de klant niet langskomt. De klant kan de opvolgpagina ook altijd zelf openen."
+      },
+      "sms": {
+        "q": "Stuurt ReadyYet sms'jes?",
+        "a": "Nee. De opvolging verloopt via e-mail en QR-code, wat niets extra kost, voor u noch voor uw klanten. Wil een klant dat liever, dan stuurt u de link in één klik via WhatsApp."
+      },
+      "start": {
+        "q": "Hoe lang duurt het om te starten?",
+        "a": "Enkele minuten. U maakt uw winkel aan, de stappen van uw vak staan al klaar en u registreert meteen uw eerste Ticket."
+      },
+      "afterTrial": {
+        "q": "Wat gebeurt er na de gratis proefperiode?",
+        "a": "U kiest Essentiel of Pro voor elke winkel. Zonder abonnement blijven uw gegevens bewaard, maar kunt u geen nieuwe Tickets aanmaken."
+      },
+      "shops": {
+        "q": "Kan ik meerdere winkels beheren?",
+        "a": "Ja. Elke winkel heeft een eigen abonnement, team en stappen, en u wisselt ertussen vanuit hetzelfde account."
+      }
+    },
+    "finalCta": {
+      "row1": ["Minder", "telefoontjes,"],
+      "row2": ["meer", "tijd", "voor"],
+      "row3": "uw werk.",
+      "start": "Start uw gratis proefperiode"
+    },
+    "footer": {
+      "tagline": "Online opvolging voor alles wat klanten in de winkel achterlaten.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "howItWorks": "Hoe het werkt",
+      "features": "Functies",
+      "pricing": "Prijzen",
+      "faq": "FAQ",
+      "start": "Gratis proberen",
+      "signIn": "Aanmelden",
+      "language": "Taal",
+      "rights": "© {year} ReadyYet. Alle rechten voorbehouden."
+    }
   }
 }

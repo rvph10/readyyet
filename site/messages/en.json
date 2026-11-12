@@ -1,11 +1,278 @@
 {
   "metadata": {
-    "title": "ReadyYet, repair and service tracking for your customers",
-    "description": "Let your customers follow their repair or order online, without calling the shop and without creating an account."
+    "title": "Online repair tracking for your customers | ReadyYet",
+    "description": "Your customers follow their repair online, from drop-off to pickup, without calling the shop or creating an account. Free 14-day trial."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Your customers know when their item is ready, without calling the shop.",
-    "languages": "Language"
+    "nav": {
+      "label": "Main",
+      "signIn": "Sign in",
+      "howItWorks": "How it works",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "start": "Start free trial"
+    },
+    "hero": {
+      "title": "Your customers track their repair online and know when it's ready",
+      "lede": "Dropped off, being repaired, ready: every step shows up on their phone, with no call to the shop and no account to create.",
+      "assurances": ["No card needed", "Keep the software you already use", "Nothing for your customers to install"],
+      "artLabel": "A phone showing the tracking page of a watch left at a watchmaker's, from drop-off until it's ready",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Watch, new glass",
+        "steps": {
+          "received": "Received",
+          "diagnosis": "Diagnosis",
+          "approval": "Quote to approve",
+          "repair": "In repair",
+          "ready": "Ready"
+        },
+        "readyTitle": "It's ready!",
+        "expected": "Expected tomorrow",
+        "openUntil": "Open now, until 18:00",
+        "progress": "Progress",
+        "photos": "Photos",
+        "pickedUp": "I picked it up",
+        "quoteTitle": "Your approval needed",
+        "quoteText": "Email from Atelier Lemaire",
+        "photoTitle": "New photo",
+        "photoText": "Added to your tracking page",
+        "readyText": "Email: come and pick it up",
+        "reviewTitle": "Thank you!",
+        "reviewText": "Review posted on Google"
+      }
+    },
+    "cta": {
+      "start": "Start free trial",
+      "pricing": "See pricing"
+    },
+    "steps": {
+      "title": "From drop-off to pickup",
+      "intro": "You log the item, ReadyYet keeps your customer posted, and they come back at the right time.",
+      "demo": "See a sample tracking page",
+      "stepLabel": "Step {n}",
+      "step1": {
+        "title": "You log the item",
+        "text": "At the counter, in seconds: the customer, the item, the expected date. They get their tracking link by email, on WhatsApp or from a QR code they scan on the spot."
+      },
+      "step2": {
+        "title": "They follow every step",
+        "text": "Each step you tick off shows up on their tracking page, along with the expected date and your photos of the item."
+      },
+      "step3": {
+        "title": "They come back when it's ready",
+        "text": "The moment you mark it ready, they get an email. They come to collect it, no wasted trip."
+      },
+      "art": {
+        "customer": "Customer",
+        "qr": "QR code",
+        "item": "Leather jacket",
+        "due": "Ready tomorrow",
+        "create": "Create",
+        "yourItem": "Your item",
+        "dropped": "Dropped off",
+        "diagnosis": "Diagnosis",
+        "repairing": "Being repaired",
+        "ready": "Ready",
+        "scan": "Scan to follow",
+        "ticket": "Ticket #128",
+        "inProgress": "In progress",
+        "readyAt": "Today at 16:28",
+        "readyTitle": "It's ready!",
+        "emailSent": "Email sent just now"
+      }
+    },
+    "features": {
+      "label": "/ Features",
+      "headingStart": "Tracking that",
+      "headingEnd": "runs itself",
+      "tracking": {
+        "title": "One page with every answer",
+        "text": "Current step, expected date, photos of the item, address, opening hours and directions: your customer finds it all in one place."
+      },
+      "emails": {
+        "title": "The right email at the right time",
+        "text": "A quote waiting for an answer, a later date, an item ready: your customer hears about it without you writing a word. If they don't come by, a reminder goes out after 3 and then 10 days."
+      },
+      "workflow": {
+        "title": "Your trade's steps",
+        "text": "Diagnosis, cleaning, parts on order: ReadyYet starts from your trade's steps, set up the moment you sign up. On Pro, you pick them and set their order."
+      },
+      "reviews": {
+        "title": "More Google reviews",
+        "text": "On Pro, after pickup, each customer rates their visit and chooses: a Google review, or a private message you answer from ReadyYet."
+      },
+      "today": {
+        "title": "Your day at a glance",
+        "text": "Open ReadyYet and see what's ready to hand over, what's running late and what's due today. Customer feedback and pickups to confirm wait for you under “Needs you”."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Leather jacket",
+        "status": "Being repaired",
+        "dropped": "Dropped off",
+        "repairing": "Being repaired",
+        "ready": "Ready",
+        "due": "Due tomorrow",
+        "emailReady": "Your jacket is ready",
+        "emailLogged": "Item logged",
+        "now": "just now",
+        "yesterday": "yesterday",
+        "received": "Received",
+        "cleaning": "Cleaning",
+        "alteration": "Alteration",
+        "reviewAsk": "How was your visit?",
+        "reviewCta": "Leave a review",
+        "hello": "Good morning, Sofie",
+        "todayReady": "Ready for pickup",
+        "todayLate": "Running late",
+        "todayDue": "Due today",
+        "needsYou": "Needs you",
+        "saysCollected": "Says they collected",
+        "newFeedback": "New feedback",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
+      }
+    },
+    "trades": {
+      "title": "For every trade where customers drop off and come back",
+      "cta": "Start free trial",
+      "label": "Trades",
+      "previous": "Previous trade",
+      "next": "Next trade",
+      "shoe": {
+        "title": "Shoe repair and leather goods",
+        "text": "A resole, a bag to restitch: your customer sees the progress and drops by at the right time."
+      },
+      "pressing": {
+        "title": "Dry cleaning",
+        "text": "Suits, dresses, duvets: every piece gets its own tracking page."
+      },
+      "tailoring": {
+        "title": "Alterations and tailoring",
+        "text": "Your customer sees when the fitting is due, then when the garment is ready."
+      },
+      "electronics": {
+        "title": "Phones and computers",
+        "text": "Screen, battery, motherboard: no more “so, is it fixed?” at the counter."
+      },
+      "watch": {
+        "title": "Watches and jewellery",
+        "text": "A service that takes weeks? Your customer follows every step, right up to the final check."
+      },
+      "garage": {
+        "title": "Garages",
+        "text": "Diagnosis, repair: your customer follows their car and knows when to pick it up."
+      },
+      "appliance": {
+        "title": "Appliance repair",
+        "text": "Part on order? Your customer sees it on their page, no need to explain the delay."
+      },
+      "framing": {
+        "title": "Picture framing",
+        "text": "From picking the moulding to fitting, your customer knows when their frame is waiting."
+      }
+    },
+    "promise": {
+      "label": "/ Why ReadyYet",
+      "statement": "An example: 10 calls a day, 3 minutes each, 6 days a week, and that's 3 hours every week spent saying “not yet”. ReadyYet gives your customers the answer before they ask.",
+      "cta": "See how it works",
+      "stats": {
+        "one": {
+          "value": "10",
+          "unit": "",
+          "label": "“is it ready?” calls a day"
+        },
+        "two": {
+          "value": "3",
+          "unit": "min",
+          "label": "to find the item and answer"
+        },
+        "three": {
+          "value": "3",
+          "unit": "h",
+          "label": "a week, over 6 opening days"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Simple pricing, per shop",
+      "intro": "14 days to try everything, no card needed. After that, one subscription per shop, monthly or yearly, cancel at the end of any period.",
+      "perMonth": "/month",
+      "popular": "Popular",
+      "start": "Start free trial",
+      "essentiel": {
+        "name": "Essentiel",
+        "price": "€29",
+        "yearly": "or €290 a year, 2 months free",
+        "pitch": "For a shop with a small team that wants clear tracking with nothing to set up.",
+        "items": ["Tracking page and QR code", "Automatic emails", "2 team members", "Ready-made steps for your trade"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€49",
+        "yearly": "or €490 a year, 2 months free",
+        "pitch": "For workshops with their own way of working that want more reviews.",
+        "items": [
+          "Everything in Essentiel",
+          "Unlimited team",
+          "Pick and order your own steps",
+          "Private feedback and Google reviews"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Good to know before you start",
+      "app": {
+        "q": "Do my customers need to install an app?",
+        "a": "No. They get a link by email, or scan the QR code you hand them, and follow their item in their browser. No account, no app."
+      },
+      "software": {
+        "q": "Do I have to give up my till or shop software?",
+        "a": "No. ReadyYet doesn't replace your till or your management software, it adds tracking for your customers. You log the item at the counter in a few seconds and carry on working as before."
+      },
+      "notified": {
+        "q": "How does my customer hear about it?",
+        "a": "By email: when the item is logged, when a quote or some information is waiting on them, when the expected date moves back and when it's ready, with a reminder if they don't come by. They can also open their tracking page whenever they like."
+      },
+      "sms": {
+        "q": "Does ReadyYet send text messages?",
+        "a": "No. Tracking works by email and QR code, which costs nothing extra, for you or your customers. If a customer prefers, you send them their link on WhatsApp in one click."
+      },
+      "start": {
+        "q": "How long does it take to get started?",
+        "a": "A few minutes. You create your shop, your trade's steps are already set up, and you log your first Ticket straight away."
+      },
+      "afterTrial": {
+        "q": "What happens after the free trial?",
+        "a": "You pick Essentiel or Pro for each shop. Without a subscription your data stays, but you can't create new Tickets."
+      },
+      "shops": {
+        "q": "Can I run several shops?",
+        "a": "Yes. Each shop has its own subscription, team and steps, and you switch between them from the same account."
+      }
+    },
+    "finalCta": {
+      "row1": ["Fewer", "calls,"],
+      "row2": ["more", "time", "for"],
+      "row3": "the work.",
+      "start": "Start free trial"
+    },
+    "footer": {
+      "tagline": "Online tracking for everything people leave at a shop.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "howItWorks": "How it works",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "start": "Start free trial",
+      "signIn": "Sign in",
+      "language": "Language",
+      "rights": "© {year} ReadyYet. All rights reserved."
+    }
   }
 }
