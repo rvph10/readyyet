@@ -354,7 +354,8 @@ export class TicketService {
       const digits = phoneDigits(query.q);
       filters.push({
         OR: [
-          { title: contains },
+          // An erased Customer's Tickets have a placeholder title (ADR 0128).
+          { title: contains, customer: { deletedAt: null } },
           { description: contains },
           // Read off a slip, the code comes in groups of four (ADR 0124).
           { trackingCode: { contains: escape(query.q.replace(/\s/g, "")), mode: "insensitive" } },
@@ -445,10 +446,18 @@ export class TicketService {
     const id = parseBigIntId(ticketId, "Ticket");
     const ticket = await this.prisma.ticket.findFirst({
       where: { id, locationId },
-      include: { currentStatus: true, location: { select: READY_DATE_LOCATION_SELECT } },
+      include: {
+        currentStatus: true,
+        location: { select: READY_DATE_LOCATION_SELECT },
+        customer: { select: { deletedAt: true } },
+      },
     });
     if (!ticket) {
       throw new NotFoundError("Ticket not found");
+    }
+    // Its words were erased with the Customer, they'd come back with an edit.
+    if (ticket.customer.deletedAt && (dto.title !== undefined || dto.description !== undefined)) {
+      throw new ConflictError("An erased Customer's Ticket can't be described again");
     }
 
     const updated = await this.prisma.ticket.update({

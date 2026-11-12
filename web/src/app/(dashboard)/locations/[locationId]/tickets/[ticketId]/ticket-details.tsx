@@ -28,6 +28,8 @@ interface Props {
   // An ended Ticket's date can't change (ADR 0030).
   dateEditable: boolean;
   dateLate: boolean;
+  // Its words went with its Customer's erasure, and an edit would bring them back (ADR 0128).
+  erased: boolean;
 }
 
 export function TicketDetails(props: Props) {
@@ -86,10 +88,12 @@ export function TicketDetails(props: Props) {
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-title-h6">{t("details")}</h2>
-        <Button variant="secondary" size="sm" onClick={startEditing}>
-          <Icon name="edit" className="size-3" />
-          {t("edit")}
-        </Button>
+        {!props.erased && (
+          <Button variant="secondary" size="sm" onClick={startEditing}>
+            <Icon name="edit" className="size-3" />
+            {t("edit")}
+          </Button>
+        )}
       </div>
       <dl className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl bg-subtle px-4 py-3">

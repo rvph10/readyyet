@@ -1,4 +1,4 @@
-import { calendarDateIn, ERASED_CUSTOMER_NAME, turnaroundReadyDate } from "@readyyet/shared";
+import { calendarDateIn, ERASED_CUSTOMER_NAME, ERASED_TICKET_TITLE, turnaroundReadyDate } from "@readyyet/shared";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
@@ -53,7 +53,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   const customer = ({ id, title, customer: { fullName } }: (typeof overview.tickets)[number]) => ({
     id,
     name: fullName === ERASED_CUSTOMER_NAME ? tTickets("erasedCustomer") : fullName,
-    detail: title,
+    detail: title === ERASED_TICKET_TITLE ? tTickets("erasedTicket") : title,
   });
   const readySince = ({ statusSince }: (typeof overview.tickets)[number]) =>
     daysBetween(calendarDateIn(new Date(statusSince), location.timeZone), today);

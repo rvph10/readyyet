@@ -132,7 +132,10 @@ describe("Ticket search and filters", () => {
     const titles = async (query: Record<string, string>) =>
       ((await list({ ...query, take: "100" })).body as ListResponse).items.map(({ title }) => title);
     const up = await titles({ sort: "title", dir: "asc" });
-    expect(up).toEqual([...up].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" })));
+    // An erased Customer's Ticket is "[deleted]", which the database and
+    // localeCompare place differently.
+    const named = up.filter((title) => title !== "[deleted]");
+    expect(named).toEqual([...named].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" })));
     expect(await titles({ sort: "title", dir: "desc" })).toEqual([...up].reverse());
 
     const dated = { where: { id: BigInt(ids.brakes) } };
@@ -172,7 +175,7 @@ describe("Ticket search and filters", () => {
 
   it("filters open vs ended tickets", async () => {
     expect(await titles({ state: "open" })).toEqual(["Brake pads", "Oil change"]);
-    expect(await titles({ state: "ended" })).toEqual(["Tire rotation 100% free", "Windshield"]);
+    expect(await titles({ state: "ended" })).toEqual(["Tire rotation 100% free", "[deleted]"]);
   });
 
   it("filters by who created the ticket and by customer", async () => {
@@ -195,7 +198,7 @@ describe("Ticket search and filters", () => {
     expect(await titles({ createdFrom: "2026-02-01T00:00:00Z" })).toEqual([
       "Oil change",
       "Tire rotation 100% free",
-      "Windshield",
+      "[deleted]",
     ]);
   });
 

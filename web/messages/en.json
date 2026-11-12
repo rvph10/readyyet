@@ -136,6 +136,7 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "erasedCustomer": "Erased Customer",
+    "erasedTicket": "Erased item",
     "empty": {
       "open": {
         "title": "No open Tickets",
