@@ -18,14 +18,13 @@ function pivot(el: HTMLElement, frame: HTMLElement) {
 }
 
 // The hero's artwork: the panel rises, the props swing in from either side,
-// the phone drops in from below the fold and its screen settles last.
+// the phone drops in from below the fold.
 function stage(box: Target) {
   const panel = box?.querySelector<HTMLElement>(".hero__panel");
   const phone = box?.querySelector<HTMLElement>(".hero__phone");
   if (!box || !panel || !phone) return;
 
   const [coins, cards] = [...box.querySelectorAll<HTMLElement>(".hero__swing")];
-  const screen = [...box.querySelectorAll<SVGGElement>(".phone__header, .phone__cards")];
   const width = box.offsetWidth;
   const swing = {
     autoAlpha: 1,
@@ -66,11 +65,6 @@ function stage(box: Target) {
     phone,
     { y: Math.max(0, drop), scale: 0.9, transformOrigin: "50% 0%" },
     { ...swing, duration: 1.6, delay: 0.18 },
-  );
-  gsap.fromTo(
-    screen,
-    { y: 48 },
-    { y: 0, duration: 1.1, ease: "expo.out", stagger: 0.12, delay: 0.5, clearProps: "transform" },
   );
 }
 
