@@ -45,8 +45,7 @@ export async function readLegal(locale: string, doc: LegalDoc) {
     }
     if (!inPart) sections.push({ id, label, number: numbered?.[1], part: false });
     const tag = inPart ? "h3" : "h2";
-    const body = numbered ? `<span class="legal__num">${numbered[1]}</span>${numbered[2]}` : inline;
-    return `<${tag} id="${id}">${body}</${tag}>\n`;
+    return `<${tag} id="${id}">${inline}</${tag}>\n`;
   };
   // Wide tables scroll on their own on a phone instead of the page.
   renderer.table = function (token: Tokens.Table) {

@@ -42,9 +42,6 @@ export default async function LegalPage({ params }: PageProps<"/[locale]/[legal]
       <header className="legal-hero container container--bleed">
         <div className="legal-hero__panel">
           <Nav />
-          <span className="legal-hero__mark" aria-hidden="true">
-            §
-          </span>
           <p className="legal-hero__label">{t("label")}</p>
           <h1 className="legal-hero__title t-display">{title}</h1>
           <p className="legal-hero__since">{t("since", { date: since })}</p>
