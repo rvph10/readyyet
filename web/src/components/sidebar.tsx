@@ -5,14 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useRef, useState, useTransition, type ReactNode } from "react";
 import { setLanguage } from "@/app/(dashboard)/_profile/actions";
+import { CookieSettingsButton } from "@/components/cookie-consent";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
-
-const YEAR_SECONDS = 365 * 24 * 60 * 60;
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
 
 export interface SidebarUser {
   name: string;
@@ -144,6 +144,7 @@ export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
   const locale = useLocale();
   const [switching, startSwitching] = useTransition();
   const tProfile = useTranslations("profile");
+  const tCookies = useTranslations("cookies");
   const toast = useToast();
   // The shop or Business around this page, whose frame the profile opens in.
   const frame = /^\/(locations|businesses)\/[^/]+/.exec(pathname)?.[0];
@@ -223,6 +224,10 @@ export function UserPanel({ me, detail }: { me: SidebarUser; detail: string }) {
         </div>
       </div>
       <div className="mx-3 mb-1 border-t border-border" />
+      <CookieSettingsButton className={`${panelRow} mx-1 w-[calc(100%-0.5rem)] cursor-pointer`}>
+        <Icon name="settings" className="size-4 text-muted" />
+        {tCookies("settings")}
+      </CookieSettingsButton>
       <SignOutButton row />
     </>
   );
@@ -257,7 +262,7 @@ export function useCollapsed(initial: boolean) {
   function toggle() {
     const next = !collapsed;
     setCollapsed(next);
-    document.cookie = `${SIDEBAR_COOKIE}=${next ? "collapsed" : "open"}; path=/; max-age=${YEAR_SECONDS}; samesite=lax`;
+    document.cookie = `${SIDEBAR_COOKIE}=${next ? "collapsed" : "open"}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
   }
   return [collapsed, toggle] as const;
 }

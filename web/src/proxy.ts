@@ -1,7 +1,7 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
+import { COOKIE_MAX_AGE_SECONDS, POSTHOG_HOST } from "@/lib/consent";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
-import { REF_COOKIE, REF_MAX_AGE_SECONDS, REF_MAX_LENGTH } from "@/lib/referral";
 
 // Only the dashboard needs a session. The layout's call to /me is the real
 // check, this only spares a signed-out visitor a round trip (ADR 0045). An
@@ -12,24 +12,17 @@ function needsSession(pathname: string) {
   return pathname === "/" || DASHBOARD_PATHS.some((prefix) => pathname.startsWith(prefix));
 }
 
-const YEAR_SECONDS = 365 * 24 * 60 * 60;
-
-// ?lang= and ?ref= work on any page (ADR 0047).
+// ?lang= works on any page (ADR 0047).
 function keepChoices(request: NextRequest, response: NextResponse) {
   const { searchParams } = request.nextUrl;
   const secure = process.env.NODE_ENV === "production";
   const locale = parseLocale(searchParams.get("lang"));
   if (locale) {
-    response.cookies.set(LOCALE_COOKIE, locale, { maxAge: YEAR_SECONDS, sameSite: "lax", secure });
+    response.cookies.set(LOCALE_COOKIE, locale, { maxAge: COOKIE_MAX_AGE_SECONDS, sameSite: "lax", secure });
   }
-  const ref = searchParams.get("ref");
-  if (ref && ref.length <= REF_MAX_LENGTH && !request.cookies.has(REF_COOKIE)) {
-    response.cookies.set(REF_COOKIE, ref, {
-      maxAge: REF_MAX_AGE_SECONDS,
-      sameSite: "lax",
-      httpOnly: true,
-      secure,
-    });
+  // Left by the referral cookie ADR 0135 replaced, which nothing reads now.
+  if (request.cookies.has("ref")) {
+    response.cookies.delete("ref");
   }
   return response;
 }
@@ -41,8 +34,12 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   if (needsSession(pathname) && !getSessionCookie(request)) {
     const signIn = new URL("/sign-in", request.url);
+    const ref = request.nextUrl.searchParams.get("ref");
     if (pathname !== "/") {
       signIn.searchParams.set("next", `${pathname}${search}`);
+    } else if (ref) {
+      // The sign-in page sends it back to /?ref= (ADR 0135).
+      signIn.searchParams.set("ref", ref);
     }
     return keepChoices(request, NextResponse.redirect(signIn));
   }
@@ -66,7 +63,8 @@ export function proxy(request: NextRequest) {
     // Better Auth's client signs in against the API, whose /images serves
     // logos and avatars. Ticket photos come straight from the bucket, through
     // presigned URLs (ADR 0026).
-    `connect-src 'self' ${api}`,
+    // PostHog, once a visitor accepts it (ADR 0132).
+    `connect-src 'self' ${api}${process.env.NEXT_PUBLIC_POSTHOG_KEY ? ` ${POSTHOG_HOST}` : ""}`,
     `img-src 'self' blob: data: ${api} ${bucket}`,
     "font-src 'self'",
     "object-src 'none'",

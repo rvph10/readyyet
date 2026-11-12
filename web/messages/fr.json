@@ -1463,6 +1463,13 @@
     "NOT_FIXED": "Problème pas entièrement réglé",
     "HARD_TO_REACH": "Difficile à joindre"
   },
+  "cookies": {
+    "title": "Cookies",
+    "body": "Nous utilisons des cookies de mesure d'audience pour améliorer ReadyYet, uniquement avec votre accord. Refuser ne change rien pour vous. <link>En savoir plus</link>",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "settings": "Paramètres des cookies"
+  },
   "terms": {
     "title": "Nos conditions générales",
     "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",

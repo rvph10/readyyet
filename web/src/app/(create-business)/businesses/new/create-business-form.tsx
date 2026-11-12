@@ -29,6 +29,7 @@ interface Props {
   header: ReactNode;
   businessTypes: { code: string; label: string; steps: WorkflowStep[] }[];
   email: string;
+  referralCode: string | undefined;
   legal: { terms: string; dpa: string };
 }
 
@@ -36,7 +37,7 @@ interface Props {
 // schema before going on, with the errors under their fields in the page's
 // language (ADR 0049 and 0073), then again by the API, whose refusals land
 // in the same places.
-export function CreateBusinessForm({ header, businessTypes, email, legal }: Props) {
+export function CreateBusinessForm({ header, businessTypes, email, referralCode, legal }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
   const [step, setStep] = useState<1 | 2>(1);
@@ -97,6 +98,7 @@ export function CreateBusinessForm({ header, businessTypes, email, legal }: Prop
         createBusiness({
           termsVersion: TERMS_VERSION,
           name: business.data.name,
+          referralCode,
           location: {
             ...business.data.location,
             ...location.data.location,

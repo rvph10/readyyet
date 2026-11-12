@@ -18,12 +18,12 @@ import { ShopDetails } from "../settings/shop-details";
 import { Turnaround } from "../settings/turnaround";
 import { InviteForm } from "../team/invite-form";
 import { foldedCookie, setupSteps, type StepKey } from "./setup-steps";
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
 
 type Location = components["schemas"]["LocationDto"];
 type Setup = components["schemas"]["InsightsSetupDto"];
 // What opens in the side panel rather than somewhere else.
 type PanelKey = Exclude<StepKey, "firstTicket" | "firstHandover">;
-const YEAR_S = 60 * 60 * 24 * 365;
 
 interface Props {
   location: Location;
@@ -54,7 +54,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
   function fold(next: boolean) {
     setFolded(next);
     // Both ways, as a running shop's guide starts folded (ADR 0117).
-    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : "0"}; path=/; max-age=${YEAR_S}; samesite=lax`;
+    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : "0"}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
   }
 
   function act(key: StepKey) {
