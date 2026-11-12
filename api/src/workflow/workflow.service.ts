@@ -92,6 +92,7 @@ export class WorkflowService {
 
   private serialize(workflow: {
     id: bigint;
+    locationId: string | null;
     name: string;
     steps: {
       position: number;
@@ -101,6 +102,7 @@ export class WorkflowService {
     return {
       id: workflow.id.toString(),
       name: workflow.name,
+      custom: workflow.locationId !== null,
       steps: workflow.steps.map((step) => ({
         position: step.position,
         status: step.status,

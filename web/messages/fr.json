@@ -1157,7 +1157,10 @@
       "planLegend": "Plan",
       "sameType": "Le même que vos autres magasins",
       "sameTypeHint": "Ses tickets suivent les étapes de ce métier. Changez-le seulement si ce magasin en fait un autre.",
-      "otherType": "Il fait un autre métier"
+      "otherType": "Il fait un autre métier",
+      "workflowLegend": "Étapes des tickets",
+      "workflowDefault": "Celles du métier, à personnaliser ensuite",
+      "workflowCopy": "Les mêmes que {shop}"
     },
     "settings": {
       "name": "Nom de l'entreprise",

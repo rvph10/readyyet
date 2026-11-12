@@ -16,7 +16,7 @@ import { toAddressColumns, toOpeningHoursJson } from "../location/location-info"
 import { locationSelect, toLocationResponse } from "../location/location-select";
 import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
-import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
+import { AddLocationDto, CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { generateReferralCode } from "./referral-code";
 import { acceptedByOwner } from "./terms-accepted";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
@@ -207,18 +207,39 @@ export class BusinessService {
     return toBusinessResponse(business);
   }
 
-  async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
+  async addLocation(businessId: string, userId: string, { copyWorkflowFrom, ...dto }: AddLocationDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can add a location");
+    const workflow = copyWorkflowFrom && (await this.findCustomWorkflow(businessId, copyWorkflowFrom));
 
     const location = await this.prisma.location.create({
       data: {
         businessId,
         ...(await this.buildLocationWithOwnerMembership(dto, userId)),
         subscription: { create: UNPAID_SUBSCRIPTION },
+        ...(workflow && {
+          workflows: {
+            create: {
+              name: workflow.name,
+              steps: { create: workflow.steps.map(({ position, statusId }) => ({ position, statusId })) },
+            },
+          },
+        }),
       },
       ...locationSelect,
     });
     return toLocationResponse(location);
+  }
+
+  // Another live Location of the same Business, with a custom Workflow.
+  private async findCustomWorkflow(businessId: string, locationId: string) {
+    const workflow = await this.prisma.workflow.findFirst({
+      where: { locationId, isActive: true, location: { businessId, deletedAt: null } },
+      select: { name: true, steps: { select: { position: true, statusId: true } } },
+    });
+    if (!workflow) {
+      throw new ValidationError("That location has no custom workflow to copy");
+    }
+    return workflow;
   }
 
   async billingPortal(businessId: string, userId: string) {

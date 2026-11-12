@@ -79,9 +79,10 @@ describe("GET /locations/:locationId/workflow", () => {
     const workflow = () =>
       request(app.getHttpServer()).get(`/locations/${locationId}/workflow`).set("Cookie", ownerCookie);
 
-    expect((await workflow()).body.name).toBe("Quick");
+    expect((await workflow()).body).toMatchObject({ name: "Quick", custom: true });
 
     await prisma.subscription.update({ where: { locationId }, data: { status: "ACTIVE", plan: "ESSENTIEL" } });
+    expect((await workflow()).body).toMatchObject({ custom: false });
     expect((await workflow()).body.name).not.toBe("Quick");
   });
 

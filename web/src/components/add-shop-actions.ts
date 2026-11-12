@@ -21,13 +21,24 @@ export async function addShopData(businessId: string) {
   // A second shop is most likely in the same country as the first, and in the
   // same trade: a chain's shops share one.
   const [first] = business.locations;
-  const shop = first && (await getLocation(first.id));
+  const client = await api();
+  const [shop, workflows] = await Promise.all([
+    first && getLocation(first.id),
+    Promise.all(
+      business.locations.map(async ({ id, name }) => {
+        const { data } = await client.GET("/locations/{locationId}/workflow", { params: { path: { locationId: id } } });
+        return data?.custom ? { id, name } : null;
+      }),
+    ),
+  ]);
   return {
     businessName: business.name,
     email: me.email,
     country: shop?.address?.addressCountry as Country | undefined,
     businessType: shop && { code: shop.businessTypeCode, detail: shop.businessTypeDetail ?? "" },
     businessTypes: businessTypes.map(({ code, label }) => ({ code, label })),
+    // The shops whose own steps a new one can start from, on Pro.
+    customWorkflows: workflows.filter((workflow) => workflow !== null),
   };
 }
 
@@ -36,7 +47,7 @@ export async function addShopData(businessId: string) {
 // checkout that doesn't open leaves the shop on its billing page, to finish.
 export async function addLocation(
   businessId: string,
-  location: components["schemas"]["CreateLocationDto"],
+  location: components["schemas"]["AddLocationDto"],
   plan: components["schemas"]["CheckoutDto"],
 ): Promise<ActionResult> {
   const client = await api();

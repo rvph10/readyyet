@@ -1121,7 +1121,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateLocationDto"
+                "$ref": "#/components/schemas/AddLocationDto"
               }
             }
           }
@@ -9415,11 +9415,11 @@
             "format": "email"
           },
           "locale": {
+            "type": "string",
             "enum": [
               "EN",
               "FR"
-            ],
-            "type": "string"
+            ]
           },
           "timeZone": {
             "type": "string"
@@ -9750,6 +9750,61 @@
         },
         "required": [
           "termsVersion"
+        ]
+      },
+      "AddLocationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "businessTypeCode": {
+            "type": "string"
+          },
+          "businessTypeDetail": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "locale": {
+            "enum": [
+              "EN",
+              "FR"
+            ],
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/PostalAddressDto"
+          },
+          "openingHours": {
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHoursSpecificationDto"
+            }
+          },
+          "copyWorkflowFrom": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "name",
+          "businessTypeCode",
+          "contactPhone",
+          "contactEmail",
+          "locale",
+          "timeZone"
         ]
       },
       "TransferOwnershipDto": {
@@ -10330,6 +10385,9 @@
           "name": {
             "type": "string"
           },
+          "custom": {
+            "type": "boolean"
+          },
           "steps": {
             "type": "array",
             "items": {
@@ -10340,6 +10398,7 @@
         "required": [
           "id",
           "name",
+          "custom",
           "steps"
         ]
       },

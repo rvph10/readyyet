@@ -40,6 +40,9 @@ import { addLocation, addShopData } from "./add-shop-actions";
 // plan has nothing to get wrong, one is always chosen.
 const STEPS = [["name"], ["businessTypeCode", "businessTypeDetail"], ["contactPhone", "contactEmail"], []];
 
+// The trade's own steps, rather than another shop's to copy.
+const DEFAULT_STEPS = "default";
+
 const AddShopContext = createContext<() => void>(() => undefined);
 
 // Opens from the top bar on any page of an Owner, as well as from their home.
@@ -73,6 +76,7 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
   const [contactEmail, setContactEmail] = useState(data.email);
   const [plan, setPlan] = useState<Plan>("PRO");
   const [interval, setInterval] = useState<Interval>("MONTH");
+  const [workflowFrom, setWorkflowFrom] = useState(DEFAULT_STEPS);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const otherType = data.businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
@@ -111,6 +115,7 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
             // Both changed later in the Location's settings (ADR 0047).
             locale: locale.toUpperCase() as "EN" | "FR",
             timeZone: browserTimeZone(),
+            ...(plan === "PRO" && workflowFrom !== DEFAULT_STEPS && { copyWorkflowFrom: workflowFrom }),
           },
           { plan, interval },
         ),
@@ -259,6 +264,22 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
               value={plan}
               onChange={(value) => setPlan(value as Plan)}
             />
+            {plan === "PRO" && data.customWorkflows.length > 0 && (
+              <RadioCards
+                legend={tNew("workflowLegend")}
+                name="workflowFrom"
+                columns={1}
+                options={[
+                  { value: DEFAULT_STEPS, label: tNew("workflowDefault") },
+                  ...data.customWorkflows.map(({ id, name }) => ({
+                    value: id,
+                    label: tNew("workflowCopy", { shop: name }),
+                  })),
+                ]}
+                value={workflowFrom}
+                onChange={setWorkflowFrom}
+              />
+            )}
           </>
         )}
       </div>

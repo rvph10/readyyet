@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  IsUUID,
   MaxLength,
   ValidateNested,
 } from "class-validator";
@@ -64,6 +65,14 @@ export class CreateLocationDto {
   @Type(() => OpeningHoursSpecificationDto)
   @IsWeeklyOpeningHours()
   openingHours?: OpeningHoursSpecificationDto[];
+}
+
+// A Business's next Location, which can start from another one's custom
+// Workflow. Used once it's on Pro, like any custom Workflow (ADR 0031).
+export class AddLocationDto extends CreateLocationDto {
+  @IsOptional()
+  @IsUUID()
+  copyWorkflowFrom?: string;
 }
 
 export class CreateBusinessDto extends AcceptTermsDto {

@@ -23,7 +23,7 @@ import { ImageUpload } from "../storage/image-upload.decorator";
 import { BusinessOwnerGuard } from "./business-owner.guard";
 import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
-import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
+import { AddLocationDto, CreateBusinessDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { AcceptTermsDto } from "./dto/accept-terms.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
@@ -117,7 +117,7 @@ export class BusinessController {
   addLocation(
     @Param("businessId") businessId: string,
     @CurrentUser() user: User,
-    @Body() dto: CreateLocationDto,
+    @Body() dto: AddLocationDto,
   ): Promise<LocationDto> {
     return this.business.addLocation(businessId, user.id, dto);
   }

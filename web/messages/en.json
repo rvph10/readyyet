@@ -1157,7 +1157,10 @@
       "planLegend": "Plan",
       "sameType": "The same as your other shops",
       "sameTypeHint": "Its Tickets follow this trade's steps. Change it only if this shop does something else.",
-      "otherType": "It does something else"
+      "otherType": "It does something else",
+      "workflowLegend": "Ticket steps",
+      "workflowDefault": "The trade's own, to make yours later",
+      "workflowCopy": "The same as {shop}"
     },
     "settings": {
       "name": "Business name",
