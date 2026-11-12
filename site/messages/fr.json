@@ -206,32 +206,28 @@
       "start": "Commencer l'essai gratuit",
       "essentiel": {
         "name": "Essentiel",
+        "price": "29 €",
+        "yearly": "ou 290 € par an, 2 mois offerts",
         "pitch": "Pour un magasin avec une petite équipe, qui veut un suivi clair sans rien à régler.",
         "items": [
           "Page de suivi et QR code",
           "E-mails automatiques",
           "2 membres d'équipe",
-          "Étapes prêtes pour votre métier",
-          "Rappels après 3 et 10 jours"
+          "Étapes prêtes pour votre métier"
         ]
       },
       "pro": {
         "name": "Pro",
+        "price": "49 €",
+        "yearly": "ou 490 € par an, 2 mois offerts",
         "pitch": "Pour les ateliers qui ont leur façon de travailler et veulent plus d'avis.",
         "items": [
           "Tout Essentiel",
           "Équipe illimitée",
           "Étapes à choisir et à ordonner",
-          "Retours privés et avis Google",
-          "Les étapes d'un magasin copiées dans le suivant"
+          "Retours privés et avis Google"
         ]
-      },
-      "label": "Tarifs",
-      "billedEvery": "Fréquence de paiement",
-      "monthly": "Mensuel",
-      "yearly": "Annuel",
-      "twoMonthsFree": "2 mois offerts",
-      "perYear": "/an"
+      }
     },
     "faq": {
       "title": "Bon à savoir avant de commencer",
