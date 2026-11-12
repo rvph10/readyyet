@@ -1,6 +1,7 @@
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { vi, type Mock } from "vitest";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // Stripe is never called from tests, only the requests sent to it are
 // checked. Test files swap it in with vi.mock of src/billing/stripe-client.
@@ -24,6 +25,7 @@ export async function createBusiness(app: INestApplication, cookie: string, name
     .post("/businesses")
     .set("Cookie", cookie)
     .send({
+      termsVersion: TERMS_VERSION,
       name,
       location: {
         name: "Main Shop",

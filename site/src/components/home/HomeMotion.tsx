@@ -1,0 +1,65 @@
+"use client";
+
+import { useEffect } from "react";
+import { startEntrances } from "@/lib/motion/entrances";
+import { startFillButtons } from "@/lib/motion/fill-buttons";
+import { startHeroScroll } from "@/lib/motion/hero-scroll";
+import { registerRevealEase, startReveals } from "@/lib/motion/reveal";
+import { startSmoothScroll } from "@/lib/motion/smooth-scroll";
+import { startTemlisSections } from "@/lib/motion/temlis";
+import { startTradesAutoplay } from "@/lib/motion/trades-autoplay";
+
+// The entrances split and hide elements as they run, so they must only ever
+// start once per page, even when React mounts this twice in development.
+let started = false;
+
+export function HomeMotion() {
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>(".hero")!;
+    const intro = hero.querySelector<HTMLElement>(".hero__intro")!;
+    // On phones the artwork fills what's left of the screen below the intro.
+    const measure = () =>
+      hero.style.setProperty(
+        "--intro-end",
+        `${intro.getBoundingClientRect().bottom - hero.getBoundingClientRect().top}px`,
+      );
+    measure();
+    const resize = new ResizeObserver(measure);
+    resize.observe(intro);
+
+    const stopHero = startHeroScroll(hero);
+    const stopTrades = startTradesAutoplay();
+
+    if (!started) {
+      started = true;
+      // The scroll-driven hero is laid out for the top of the page.
+      history.scrollRestoration = "manual";
+      registerRevealEase();
+      startSmoothScroll();
+      startFillButtons();
+      void startEntrances();
+      void startReveals();
+      // Ledger's scripts play their entrances whenever data-enter is set,
+      // the page serves it to everyone.
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.removeAttribute("data-enter");
+      }
+      void startTemlisSections([
+        "/temlis/payable-626/animations.js",
+        "/temlis/wilun-559/motion.js",
+        "/temlis/lumoras-699/slider.js",
+        "/temlis/serenium-587/motion.js",
+        "/temlis/hirely-325/scroll-reveal.js",
+        "/temlis/atniily-923/animations.js",
+      ]);
+    }
+
+    return () => {
+      resize.disconnect();
+      stopHero();
+      stopTrades();
+    };
+  }, []);
+
+  return null;
+}

@@ -136,6 +136,7 @@
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
     "erasedCustomer": "Client effacé",
+    "erasedTicket": "Objet effacé",
     "empty": {
       "open": {
         "title": "Aucun ticket en cours",
@@ -231,9 +232,11 @@
     "businessTypeDetail": "Précisez votre activité, ex. : trottinettes",
     "contactPhone": "Numéro de téléphone",
     "contactEmail": "E-mail de contact",
+    "terms": "En cliquant sur « Créer », vous acceptez les <terms>conditions générales</terms> de ReadyYet, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
     "submit": "Créer",
     "invalid": "Vérifiez ce champ.",
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+    "termsChanged": "Nos conditions ont changé pendant que cette page était ouverte. Rechargez la page pour les lire.",
     "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
     "stepOf": "Étape {step} sur {steps}",
     "stepBusiness": "Entreprise",
@@ -592,7 +595,7 @@
       },
       "reviewLink": {
         "title": "Ajoutez votre lien d'avis Google",
-        "body": "Une fois l'article récupéré, les clients sont invités à laisser un avis. Sans ce lien, personne n'est invité.",
+        "body": "Les clients satisfaits se voient proposer votre page Google. Sans ce lien, leur avis reste ici.",
         "action": "Ajouter le lien",
         "short": "Avis Google"
       },
@@ -735,6 +738,7 @@
       "alreadyPaying": "Ce site a déjà un plan. Actualisez la page dans un instant."
     },
     "startPro": "Démarrer Pro, 49 €/mois",
+    "yearlyNoRefund": "Un abonnement annuel se paie un an d'avance et n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
@@ -922,15 +926,48 @@
     "opensOn": "{day}, ouvre à",
     "closesOn": "{day}, ferme à",
     "hoursInvalid": "Chaque ouverture doit précéder sa fermeture, et les deux plages ne peuvent pas se chevaucher.",
-    "reviewMissing": "Les clients ne sont pas encore sollicités. Ajoutez votre lien d'avis Google.",
-    "reviewOn": "Les clients sont sollicités après le retrait.",
-    "reviewPaused": "Votre lien est enregistré, mais les clients ne sont sollicités qu'avec Pro.",
+    "reviewMissing": "Ajoutez votre lien d'avis Google, pour que vos clients puissent aussi y laisser leur avis.",
+    "reviewOn": "Votre lien d'avis Google est enregistré.",
+    "reviewPaused": "Votre lien est enregistré, mais les avis ne sont demandés qu'avec Pro.",
     "reviewNeedsPro": "Demander leur avis aux clients est inclus dans Pro.",
     "reviewLabel": "Lien d'avis Google",
     "reviewInvalid": "Ce n'est pas un lien d'avis Google. Il ressemble à https://g.page/r/.../review.",
     "turnaroundTitle": "Délai habituel",
     "turnaroundUnit": "{count, plural, one {jour d'ouverture} other {jours d'ouverture}}",
     "turnaroundPreviewBody": "Un Ticket créé aujourd'hui est prêt pour le",
+    "export": {
+      "title": "Exporter vos données",
+      "hint": "Tout ce que ce magasin contient, à garder ou à reprendre dans un autre outil. Vous pouvez le télécharger quand vous voulez, gratuitement.",
+      "contents": {
+        "customers": {
+          "title": "Clients",
+          "detail": "Nom, e-mail, téléphone, langue"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Objet, notes, statut, date prévue, lien de suivi"
+        },
+        "history": {
+          "title": "Historique",
+          "detail": "Chaque changement de statut, par qui et quand"
+        },
+        "feedback": {
+          "title": "Avis",
+          "detail": "Notes, étiquettes, messages et vos réponses"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Celles encore gardées, 30 jours après la fin du Ticket"
+        },
+        "team": {
+          "title": "Équipe et réglages",
+          "detail": "Membres, rôles, horaires et Workflows"
+        }
+      },
+      "format": "Un fichier ZIP : un CSV par type de données, qui s'ouvre dans Excel, et tout en JSON.",
+      "download": "Télécharger l'export",
+      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes."
+    },
     "deleteTitle": "Supprimer ce magasin",
     "deleteAction": "Supprimer ce magasin",
     "deleteConfirmTitle": "Supprimer {name} ?",
@@ -945,6 +982,7 @@
       "hours": "Horaires d'ouverture",
       "tickets": "Tickets",
       "reviews": "Avis Google",
+      "export": "Exporter",
       "delete": "Supprimer"
     },
     "off": "Désactivé",
@@ -959,7 +997,11 @@
     "to": "à",
     "ticketsHint": "Le temps que prend habituellement votre travail.",
     "turnaroundRowHint": "Vous pouvez toujours la changer sur un Ticket.",
-    "reviewHint": "Demandez à chaque client comment ça s'est passé une fois son article récupéré.",
+    "feedbackEmailsSwitch": "Demander un avis par email",
+    "feedbackEmailsHint": "Une fois le travail terminé, vos clients reçoivent un email qui leur demande comment ça s'est passé. Prévenez-les au dépôt : c'est vous qui décidez de les solliciter.",
+    "feedbackEmailsOn": "Les emails d'avis sont activés.",
+    "feedbackEmailsOff": "Les emails d'avis sont désactivés.",
+    "reviewHint": "Demandez à vos clients comment ça s'est passé, et proposez-leur votre fiche Google.",
     "deleteHint": "Définitif, pour ce magasin seulement. Vos autres magasins ne changent pas.",
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
     "reviewStep1": "Ouvrez votre fiche Google Business.",
@@ -993,6 +1035,7 @@
     "deleteLoses": {
       "tracking": "Les liens de suivi cessent de fonctionner",
       "photos": "Les photos des Tickets sont supprimées",
+      "customers": "Ses clients sont effacés",
       "plan": "Sa formule est annulée immédiatement",
       "team": "Plus personne n'y a accès"
     },
@@ -1025,7 +1068,9 @@
       "change": "Modifier",
       "keep": "Garder ce lien",
       "noPublicAddress": "Se déplace chez ses clients, sans adresse publique"
-    }
+    },
+    "exportFirst": "Gardez une copie de vos clients et de vos Tickets avant de supprimer :",
+    "exportFirstLink": "exporter vos données"
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",
@@ -1424,5 +1469,27 @@
     "accept": "Accepter",
     "refuse": "Refuser",
     "settings": "Paramètres des cookies"
+  },
+  "terms": {
+    "title": "Nos conditions générales",
+    "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l'<dpa>accord de traitement des données</dpa> de vos clients.",
+    "accept": "J'accepte",
+    "accepting": "Enregistrement…",
+    "failed": "Votre acceptation n'a pas été enregistrée. Réessayez.",
+    "changed": "Les conditions ont changé pendant que cette page était ouverte. Rechargez-la pour les lire, puis acceptez."
+  },
+  "demo": {
+    "title": "Démo de la page de suivi",
+    "label": "Démo",
+    "intro": "La page que vos clients ouvrent depuis leur e-mail ou le QR code. Choisissez un moment pour la voir évoluer.",
+    "moments": "Moments du suivi",
+    "steps": {
+      "received": "Reçu",
+      "approval": "Devis à accepter",
+      "repair": "En réparation",
+      "ready": "Prêt"
+    },
+    "item": "Montre automatique, remplacement du verre",
+    "start": "Commencer l'essai gratuit"
   }
 }

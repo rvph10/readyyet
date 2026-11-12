@@ -7,3 +7,4 @@ export * from "./business-types";
 export * from "./text-limits";
 export * from "./customer";
 export * from "./feedback";
+export * from "./terms";

@@ -1,6 +1,9 @@
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getOwnedBusiness, referralLink } from "@/lib/business";
+import { TermsDialog } from "@/components/terms-dialog";
+import { legalLinks } from "@/lib/legal";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { BusinessNav } from "./business-nav";
@@ -15,11 +18,12 @@ export async function generateMetadata({ params }: LayoutProps<"/businesses/[bus
 // ADR 0102: everything a Business has above its Locations, for its Owner alone.
 export default async function BusinessLayout({ children, params }: LayoutProps<"/businesses/[businessId]">) {
   const { businessId } = await params;
-  const [me, business, locations, cookieStore] = await Promise.all([
+  const [me, business, locations, cookieStore, locale] = await Promise.all([
     getMe(),
     getOwnedBusiness(businessId),
     getBusinessLocations(businessId),
     cookies(),
+    getLocale(),
   ]);
   return (
     <div className="flex min-h-dvh flex-col">
@@ -32,6 +36,9 @@ export default async function BusinessLayout({ children, params }: LayoutProps<"
         inviteLink={await referralLink(business.referralCode)}
         collapsed={cookieStore.get(SIDEBAR_COOKIE)?.value === "collapsed"}
       >
+        {!business.termsAccepted && (
+          <TermsDialog businessId={businessId} businessName={business.name} legal={legalLinks(locale)} />
+        )}
         {children}
       </BusinessNav>
     </div>

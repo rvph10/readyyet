@@ -26,13 +26,14 @@ interface Props {
   location: Tracking["location"];
   locale: string;
   now: Date;
+  demo?: boolean;
   // For placing it in the page's columns.
   className: string;
 }
 
 // Where, when and how to reach the Location, the questions a Customer would
 // otherwise phone about (ADR 0029).
-export async function LocationPanel({ location, locale, now, className }: Props) {
+export async function LocationPanel({ location, locale, now, demo = false, className }: Props) {
   const t = await getTranslations("tracking");
   const { address, mapsUrl, contactPhone, contactEmail, openingHours, timeZone } = location;
   const state = openingState(openingHours, timeZone, locale, now);
@@ -60,14 +61,6 @@ export async function LocationPanel({ location, locale, now, className }: Props)
 
   return (
     <Panel as="aside" padding="lg" aria-labelledby="location-title" className={`flex flex-col ${className}`}>
-      {location.bannerUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={location.bannerUrl}
-          alt=""
-          className="-mx-6 -mt-6 mb-5 hidden aspect-[3/1] w-[calc(100%+3rem)] max-w-none rounded-t-[inherit] object-cover lg:block"
-        />
-      )}
       <h2 id="location-title" className="mb-3 text-title-h6">
         {t("location")}
       </h2>
@@ -100,11 +93,11 @@ export async function LocationPanel({ location, locale, now, className }: Props)
         {/* Without hours the tile would be a tall blank between its title and
             the contact rows. */}
         {!state && <Illustration name="helping" className="m-auto hidden h-56 w-auto max-w-full lg:block" />}
-        {/* Together at the bottom, whatever height a longer column leaves. */}
-        <div className="flex flex-col gap-1 lg:mt-auto">
+        {/* The demo's rows lead nowhere, so they don't answer the pointer. */}
+        <div className={`flex flex-col gap-1 ${demo ? "pointer-events-none" : ""}`}>
           {address && mapsUrl && (
             <a
-              href={mapsUrl}
+              href={demo ? undefined : mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={`${ROW} transition-colors hover:bg-subtle`}
@@ -117,12 +110,12 @@ export async function LocationPanel({ location, locale, now, className }: Props)
               </RowText>
             </a>
           )}
-          <a href={`tel:${contactPhone}`} className={`${ROW} transition-colors hover:bg-subtle`}>
+          <a href={demo ? undefined : `tel:${contactPhone}`} className={`${ROW} transition-colors hover:bg-subtle`}>
             <RowText icon="phone">
               <span className="tabular-nums">{formatPhoneNumberIntl(contactPhone) || contactPhone}</span>
             </RowText>
           </a>
-          <a href={`mailto:${contactEmail}`} className={`${ROW} transition-colors hover:bg-subtle`}>
+          <a href={demo ? undefined : `mailto:${contactEmail}`} className={`${ROW} transition-colors hover:bg-subtle`}>
             <RowText icon="message">{contactEmail}</RowText>
           </a>
         </div>

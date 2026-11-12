@@ -7,6 +7,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("GET /locations/:locationId", () => {
   let app: INestApplication;
@@ -30,6 +31,7 @@ describe("GET /locations/:locationId", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Jane's Pressing",
         location: {
           name: "Main Street",

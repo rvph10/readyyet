@@ -10,6 +10,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { stripe } from "./support/billing";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // Hoisted by vitest above the imports, so the app gets the fake client.
 vi.mock("../src/billing/stripe-client", async () => {
@@ -39,7 +40,7 @@ describe("Referral codes on POST /businesses", () => {
     return request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", cookie)
-      .send({ name: "Referred Garage", location, referralCode });
+      .send({ termsVersion: TERMS_VERSION, name: "Referred Garage", location, referralCode });
   }
 
   function referrerOf(businessId: string) {
@@ -138,7 +139,7 @@ describe("Discounts at checkout", () => {
     const created = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", cookie)
-      .send({ name: "Discount Garage", location, referralCode });
+      .send({ termsVersion: TERMS_VERSION, name: "Discount Garage", location, referralCode });
     return { businessId: created.body.id as string, locationId: created.body.locations[0].id as string };
   }
 

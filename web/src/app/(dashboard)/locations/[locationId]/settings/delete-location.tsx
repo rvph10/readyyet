@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,11 @@ import { orFailure } from "@/lib/api/or-failure";
 import { deleteLocation } from "./actions";
 import { SectionHeading } from "./section-form";
 
-const LOSSES: { key: "tracking" | "photos" | "plan" | "team"; icon: IconName }[] = [
+const LOSSES: { key: "tracking" | "photos" | "customers" | "plan" | "team"; icon: IconName }[] = [
   { key: "tracking", icon: "link" },
   { key: "photos", icon: "camera" },
+  // ADR 0128.
+  { key: "customers", icon: "user" },
   { key: "plan", icon: "receipt" },
   { key: "team", icon: "id-card" },
 ];
@@ -88,6 +91,16 @@ export function DeleteLocation({
         variant="destructive"
       >
         <p className="text-p-sm text-muted">{t("deleteConfirmBody")}</p>
+        <p className="mt-3 text-p-sm">
+          {t("exportFirst")}{" "}
+          <Link
+            href={`/locations/${locationId}/settings?section=export`}
+            onClick={() => setOpen(false)}
+            className="font-semibold underline underline-offset-2"
+          >
+            {t("exportFirstLink")}
+          </Link>
+        </p>
         {openTickets > 0 && (
           <p className="mt-3 rounded-xl bg-danger-subtle px-3 py-2.5 text-label-sm text-danger">
             {t("deleteOpenTickets", { count: openTickets })}

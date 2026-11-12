@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { calendarDateIn, LONG_WAIT_DAYS } from "@readyyet/shared";
+import { calendarDateIn, LONG_WAIT_DAYS, TERMS_VERSION } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -72,6 +72,7 @@ describe("Ticket overview", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Overview Test Garage",
         location: {
           name: "Main Shop",

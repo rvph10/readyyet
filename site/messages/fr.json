@@ -1,11 +1,304 @@
 {
   "metadata": {
-    "title": "ReadyYet, le suivi des réparations et services pour vos clients",
-    "description": "Vos clients suivent leur réparation ou leur commande en ligne, sans appeler le magasin et sans créer de compte."
+    "title": "Suivi de réparation en ligne pour vos clients | ReadyYet",
+    "description": "Vos clients suivent leur réparation en ligne, du dépôt au retrait, sans appeler le magasin ni créer de compte. Essai gratuit de 14 jours."
   },
   "home": {
-    "title": "ReadyYet",
-    "tagline": "Vos clients savent quand leur article est prêt, sans appeler le magasin.",
-    "languages": "Langue"
+    "nav": {
+      "label": "Principale",
+      "signIn": "Se connecter",
+      "howItWorks": "Comment ça marche",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "start": "Essai gratuit"
+    },
+    "hero": {
+      "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",
+      "lede": "Déposé, en réparation, prêt : chaque étape s'affiche sur leur téléphone, sans appeler le magasin et sans créer de compte.",
+      "assurances": ["Sans carte bancaire", "Vous gardez votre logiciel actuel", "Rien à installer pour vos clients"],
+      "artLabel": "Un téléphone qui affiche la page de suivi d'une montre déposée chez un horloger, du dépôt jusqu'au moment où elle est prête",
+      "phone": {
+        "shop": "Atelier Lemaire",
+        "item": "Montre, remplacement du verre",
+        "steps": {
+          "received": "Reçu",
+          "diagnosis": "Diagnostic",
+          "approval": "Devis à accepter",
+          "repair": "En réparation",
+          "ready": "Prêt"
+        },
+        "readyTitle": "C'est prêt !",
+        "expected": "Prévu demain",
+        "openUntil": "Ouvert, jusqu'à 18:00",
+        "progress": "Avancement",
+        "photos": "Photos",
+        "pickedUp": "Je l'ai récupéré",
+        "quoteTitle": "Devis à valider",
+        "quoteText": "E-mail d'Atelier Lemaire",
+        "photoTitle": "Nouvelle photo",
+        "photoText": "Ajoutée à votre page de suivi",
+        "readyText": "E-mail : venez la chercher",
+        "reviewTitle": "Merci !",
+        "reviewText": "Avis publié sur Google"
+      }
+    },
+    "cta": {
+      "start": "Commencer l'essai gratuit",
+      "pricing": "Voir les tarifs"
+    },
+    "steps": {
+      "title": "Du dépôt au retrait",
+      "intro": "Vous enregistrez l'article, ReadyYet tient votre client au courant, et il revient au bon moment.",
+      "demo": "Voir un exemple de page de suivi",
+      "stepLabel": "Étape {n}",
+      "step1": {
+        "title": "Vous enregistrez l'article",
+        "text": "Au comptoir, en quelques secondes : le client, l'article, la date prévue. Il reçoit son lien de suivi par e-mail, sur WhatsApp ou avec un QR code à scanner sur place."
+      },
+      "step2": {
+        "title": "Il suit chaque étape",
+        "text": "Chaque étape que vous cochez s'affiche sur sa page de suivi, avec la date prévue et vos photos de l'article."
+      },
+      "step3": {
+        "title": "Il revient quand c'est prêt",
+        "text": "Dès que vous le marquez comme prêt, il est prévenu par e-mail. Il vient le chercher, sans se déplacer pour rien."
+      },
+      "art": {
+        "customer": "Cliente",
+        "qr": "QR code",
+        "item": "Veste en cuir",
+        "due": "Prête demain",
+        "create": "Créer",
+        "yourItem": "Votre article",
+        "dropped": "Déposé",
+        "diagnosis": "Diagnostic",
+        "repairing": "En réparation",
+        "ready": "Prêt",
+        "scan": "Scannez pour suivre",
+        "ticket": "Ticket #128",
+        "inProgress": "En cours",
+        "readyAt": "Aujourd'hui à 16:28",
+        "readyTitle": "C'est prêt !",
+        "emailSent": "E-mail envoyé à l'instant"
+      }
+    },
+    "features": {
+      "label": "/ Fonctionnalités",
+      "headingStart": "Un suivi qui tourne",
+      "headingEnd": "tout seul",
+      "tracking": {
+        "title": "Une page qui répond à tout",
+        "text": "Étape en cours, date prévue, photos de l'article, adresse, horaires et itinéraire : votre client trouve tout au même endroit."
+      },
+      "emails": {
+        "title": "Le bon e-mail au bon moment",
+        "text": "Un devis qui attend sa réponse, une date repoussée, un article prêt : votre client est prévenu sans que vous écriviez une ligne. S'il tarde à venir, un rappel part après 3 puis 10 jours."
+      },
+      "workflow": {
+        "title": "Les étapes de votre métier",
+        "text": "Diagnostic, nettoyage, pièce en commande : ReadyYet part des étapes de votre métier, prêtes dès l'inscription. En Pro, vous les choisissez et les mettez dans votre ordre."
+      },
+      "reviews": {
+        "title": "Plus d'avis Google",
+        "text": "En Pro, après le retrait, chaque client note son passage et choisit : un avis sur Google, ou un message privé auquel vous répondez depuis ReadyYet."
+      },
+      "today": {
+        "title": "Votre journée en un coup d'œil",
+        "text": "En ouvrant ReadyYet, vous voyez ce qui est prêt à remettre, ce qui est en retard et ce qui est prévu aujourd'hui. Les retours clients et les retraits à confirmer vous attendent dans « À traiter »."
+      },
+      "art": {
+        "shop": "Atelier Sofie",
+        "item": "Veste en cuir",
+        "status": "En réparation",
+        "dropped": "Déposé",
+        "repairing": "En réparation",
+        "ready": "Prêt",
+        "due": "Prévu demain",
+        "emailReady": "Votre veste est prête",
+        "emailLogged": "Article enregistré",
+        "now": "à l'instant",
+        "yesterday": "hier",
+        "received": "Reçu",
+        "cleaning": "Nettoyage",
+        "alteration": "Retouche",
+        "reviewAsk": "Comment s'est passé votre passage ?",
+        "reviewCta": "Laisser un avis",
+        "hello": "Bonjour, Sofie",
+        "todayReady": "Prêts à être retirés",
+        "todayLate": "En retard",
+        "todayDue": "Pour aujourd'hui",
+        "needsYou": "À traiter",
+        "saysCollected": "Dit avoir retiré",
+        "newFeedback": "Nouveau retour",
+        "customerA": "Marc D.",
+        "customerB": "Julie V.",
+        "customerC": "Léa S."
+      }
+    },
+    "trades": {
+      "title": "Pour tous les métiers où le client dépose, puis revient chercher",
+      "cta": "Commencer l'essai gratuit",
+      "label": "Métiers",
+      "previous": "Métier précédent",
+      "next": "Métier suivant",
+      "shoe": {
+        "title": "Cordonnerie et maroquinerie",
+        "text": "Un ressemelage, un sac à recoudre : votre client voit l'avancement et passe au bon moment."
+      },
+      "pressing": {
+        "title": "Pressing",
+        "text": "Costumes, robes, couettes : chaque pièce a sa page de suivi."
+      },
+      "tailoring": {
+        "title": "Retouches et couture",
+        "text": "Votre client voit quand l'essayage l'attend, puis quand sa pièce est prête."
+      },
+      "electronics": {
+        "title": "Téléphones et ordinateurs",
+        "text": "Écran, batterie, carte mère : fini les « alors, c'est réparé ? » au comptoir."
+      },
+      "watch": {
+        "title": "Horlogerie et bijouterie",
+        "text": "Une révision qui prend des semaines ? Votre client suit chaque étape, jusqu'au contrôle final."
+      },
+      "garage": {
+        "title": "Garage",
+        "text": "Diagnostic, réparation : votre client suit sa voiture et sait quand venir la récupérer."
+      },
+      "appliance": {
+        "title": "Électroménager",
+        "text": "Pièce en commande ? Votre client le voit sur sa page, inutile de lui expliquer le retard."
+      },
+      "framing": {
+        "title": "Encadrement",
+        "text": "Du choix de la baguette à la pose, votre client sait quand son cadre l'attend."
+      }
+    },
+    "promise": {
+      "label": "/ Pourquoi ReadyYet",
+      "statement": "Un exemple : 10 appels par jour, 3 minutes chacun, 6 jours sur 7, et ce sont 3 heures par semaine passées à répondre « pas encore ». ReadyYet donne la réponse à votre client avant qu'il pose la question.",
+      "cta": "Voir comment ça marche",
+      "stats": {
+        "one": {
+          "value": "10",
+          "unit": "",
+          "label": "appels « C'est prêt ? » par jour"
+        },
+        "two": {
+          "value": "3",
+          "unit": "min",
+          "label": "pour retrouver l'article et répondre"
+        },
+        "three": {
+          "value": "3",
+          "unit": "h",
+          "label": "par semaine, sur 6 jours d'ouverture"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Un prix simple, par magasin",
+      "intro": "14 jours pour tout essayer, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
+      "perMonth": "/mois",
+      "popular": "Populaire",
+      "start": "Commencer l'essai gratuit",
+      "essentiel": {
+        "name": "Essentiel",
+        "price": "29 €",
+        "yearly": "ou 290 € par an, 2 mois offerts",
+        "pitch": "Pour un magasin avec une petite équipe, qui veut un suivi clair sans rien à régler.",
+        "items": [
+          "Page de suivi et QR code",
+          "E-mails automatiques",
+          "2 membres d'équipe",
+          "Étapes prêtes pour votre métier"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "49 €",
+        "yearly": "ou 490 € par an, 2 mois offerts",
+        "pitch": "Pour les ateliers qui ont leur façon de travailler et veulent plus d'avis.",
+        "items": [
+          "Tout Essentiel",
+          "Équipe illimitée",
+          "Étapes à choisir et à ordonner",
+          "Retours privés et avis Google"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Bon à savoir avant de commencer",
+      "app": {
+        "q": "Mes clients doivent-ils installer une application ?",
+        "a": "Non. Ils reçoivent un lien par e-mail, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
+      },
+      "software": {
+        "q": "Dois-je abandonner ma caisse ou mon logiciel de gestion ?",
+        "a": "Non. ReadyYet ne remplace ni votre caisse ni votre logiciel de gestion, il ajoute le suivi pour vos clients. Vous enregistrez l'article au comptoir en quelques secondes et vous continuez à travailler comme avant."
+      },
+      "notified": {
+        "q": "Comment mon client est-il prévenu ?",
+        "a": "Par e-mail : quand l'article est enregistré, quand un devis ou une information attend sa réponse, quand la date prévue est repoussée et quand il est prêt, avec un rappel s'il ne vient pas le chercher. Il peut aussi ouvrir sa page de suivi quand il le veut."
+      },
+      "sms": {
+        "q": "Est-ce que ReadyYet envoie des SMS ?",
+        "a": "Non. Le suivi passe par e-mail et par QR code, ce qui ne coûte rien de plus, ni à vous ni à vos clients. Si votre client préfère, vous lui envoyez son lien sur WhatsApp en un clic."
+      },
+      "start": {
+        "q": "Combien de temps faut-il pour démarrer ?",
+        "a": "Quelques minutes. Vous créez votre magasin, les étapes de votre métier sont déjà prêtes, et vous enregistrez votre premier Ticket tout de suite."
+      },
+      "afterTrial": {
+        "q": "Que se passe-t-il après l'essai gratuit ?",
+        "a": "Vous choisissez Essentiel ou Pro pour chaque magasin. Sans abonnement, vos données restent là, mais vous ne pouvez plus créer de nouveaux Tickets."
+      },
+      "shops": {
+        "q": "Puis-je gérer plusieurs magasins ?",
+        "a": "Oui. Chaque magasin a son abonnement, son équipe et ses étapes, et vous passez de l'un à l'autre depuis le même compte."
+      }
+    },
+    "finalCta": {
+      "row1": ["Moins", "d'appels,"],
+      "row2": ["plus", "de", "temps"],
+      "row3": "pour travailler.",
+      "start": "Commencer l'essai gratuit"
+    },
+    "footer": {
+      "tagline": "Le suivi en ligne pour tout ce qu'on dépose en magasin.",
+      "product": "Produit",
+      "account": "Compte",
+      "contact": "Contact",
+      "howItWorks": "Comment ça marche",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "start": "Essai gratuit",
+      "signIn": "Se connecter",
+      "language": "Langue",
+      "rights": "© {year} ReadyYet. Tous droits réservés.",
+      "legal": "Juridique"
+    }
+  },
+  "legal": {
+    "label": "Juridique",
+    "docs": {
+      "terms": "Conditions générales",
+      "privacy": "Politique de confidentialité",
+      "legal-notice": "Mentions légales",
+      "customer-data": "Vos données de client"
+    },
+    "since": "En vigueur depuis le {date}",
+    "contents": "Sur cette page",
+    "others": "Documents juridiques",
+    "questions": "Une question sur ces textes ?"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "Nous utilisons des cookies de mesure d'audience pour améliorer ReadyYet, uniquement avec votre accord. Refuser ne change rien pour vous. <link>En savoir plus</link>",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "settings": "Paramètres des cookies"
   }
 }

@@ -136,6 +136,7 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "erasedCustomer": "Erased Customer",
+    "erasedTicket": "Erased item",
     "empty": {
       "open": {
         "title": "No open Tickets",
@@ -231,9 +232,11 @@
     "businessTypeDetail": "What do you do? e.g. Scooter repair",
     "contactPhone": "Phone number",
     "contactEmail": "Contact email",
+    "terms": "By clicking Create, you accept ReadyYet's <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
     "submit": "Create",
     "invalid": "Check this field.",
     "rateLimited": "Too many attempts. Wait a minute, then try again.",
+    "termsChanged": "Our terms changed while this page was open. Reload the page to read them.",
     "unexpected": "Something went wrong. Please try again.",
     "stepOf": "Step {step} of {steps}",
     "stepBusiness": "Business",
@@ -592,7 +595,7 @@
       },
       "reviewLink": {
         "title": "Add your Google review link",
-        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "body": "Customers who leave good feedback are offered your Google page. Without this link, they can only leave it here.",
         "action": "Add review link",
         "short": "Google reviews"
       },
@@ -735,6 +738,7 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
+    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -922,15 +926,48 @@
     "opensOn": "{day}, opens at",
     "closesOn": "{day}, closes at",
     "hoursInvalid": "Each time must open before it closes, and the two can't overlap.",
-    "reviewMissing": "Customers aren't being asked yet. Add your Google review link.",
-    "reviewOn": "Customers are being asked after pickup.",
-    "reviewPaused": "Your link is saved, but Customers are only asked on Pro.",
+    "reviewMissing": "Add your Google review link, so Customers can leave their review there too.",
+    "reviewOn": "Your Google review link is saved.",
+    "reviewPaused": "Your link is saved, but feedback is only asked for on Pro.",
     "reviewNeedsPro": "Asking Customers how it went comes with Pro.",
     "reviewLabel": "Google review link",
     "reviewInvalid": "That isn't a Google review link. It looks like https://g.page/r/.../review.",
     "turnaroundTitle": "Usual turnaround",
     "turnaroundUnit": "{count, plural, one {open day} other {open days}}",
     "turnaroundPreviewBody": "A Ticket created today is ready by",
+    "export": {
+      "title": "Export your data",
+      "hint": "Everything this shop holds, to keep or to take to another tool. Download it whenever you like, free of charge.",
+      "contents": {
+        "customers": {
+          "title": "Customers",
+          "detail": "Name, email, phone, language"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Item, notes, status, expected date, tracking link"
+        },
+        "history": {
+          "title": "History",
+          "detail": "Every status change, who made it and when"
+        },
+        "feedback": {
+          "title": "Feedback",
+          "detail": "Ratings, tags, messages and your replies"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Those still kept, up to 30 days after the Ticket ends"
+        },
+        "team": {
+          "title": "Team and settings",
+          "detail": "Members, roles, opening hours and Workflows"
+        }
+      },
+      "format": "One ZIP file: a CSV for each kind of data, which opens in Excel, and everything as JSON.",
+      "download": "Download the export",
+      "failed": "The export couldn't be prepared. Try again in a few minutes."
+    },
     "deleteTitle": "Delete this shop",
     "deleteAction": "Delete this shop",
     "deleteConfirmTitle": "Delete {name}?",
@@ -945,6 +982,7 @@
       "hours": "Opening hours",
       "tickets": "Tickets",
       "reviews": "Google reviews",
+      "export": "Export",
       "delete": "Delete"
     },
     "off": "Off",
@@ -959,7 +997,11 @@
     "to": "to",
     "ticketsHint": "How long your work usually takes.",
     "turnaroundRowHint": "You can always change it on a Ticket.",
-    "reviewHint": "Ask each Customer how it went once they have their item.",
+    "feedbackEmailsSwitch": "Ask for feedback by email",
+    "feedbackEmailsHint": "Once the work is done, your Customers get an email asking how it went. Tell them when they drop off their item: asking them is your decision.",
+    "feedbackEmailsOn": "Feedback emails turned on.",
+    "feedbackEmailsOff": "Feedback emails turned off.",
+    "reviewHint": "Ask your Customers how it went, and offer them your Google listing.",
     "deleteHint": "Permanent, for this shop only. Your other shops stay as they are.",
     "emailHint": "The address Customers write to. Their replies to our emails also come here.",
     "reviewStep1": "Open your Google Business Profile.",
@@ -993,6 +1035,7 @@
     "deleteLoses": {
       "tracking": "Tracking links stop working",
       "photos": "Ticket photos are deleted",
+      "customers": "Its Customers are erased",
       "plan": "Its plan is cancelled at once",
       "team": "Everyone loses access"
     },
@@ -1025,7 +1068,9 @@
       "change": "Change",
       "keep": "Keep this link",
       "noPublicAddress": "Goes to its customers, no public address"
-    }
+    },
+    "exportFirst": "Keep a copy of your Customers and Tickets before deleting:",
+    "exportFirstLink": "export your data"
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",
@@ -1424,5 +1469,27 @@
     "accept": "Accept",
     "refuse": "Refuse",
     "settings": "Cookie settings"
+  },
+  "terms": {
+    "title": "Our terms of service",
+    "ask": "To keep using ReadyYet for {name}, please accept our <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
+    "accept": "I accept",
+    "accepting": "Saving…",
+    "failed": "Your acceptance wasn't saved. Please try again.",
+    "changed": "The terms changed while this page was open. Reload it to read them, then accept."
+  },
+  "demo": {
+    "title": "Tracking page demo",
+    "label": "Demo",
+    "intro": "The page your customers open from their email or the QR code. Pick a moment to see it change.",
+    "moments": "Tracking moments",
+    "steps": {
+      "received": "Received",
+      "approval": "Quote to approve",
+      "repair": "In repair",
+      "ready": "Ready"
+    },
+    "item": "Automatic watch, new glass",
+    "start": "Start free trial"
   }
 }

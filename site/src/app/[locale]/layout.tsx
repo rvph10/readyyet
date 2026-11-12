@@ -1,24 +1,45 @@
 import type { Metadata } from "next";
-import { Figtree, Geist_Mono, Inter } from "next/font/google";
+import { Inter, Momo_Trust_Display } from "next/font/google";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale, type Locale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { CookieConsent } from "@/components/cookie-consent/CookieConsent";
 import { routing } from "@/i18n/routing";
+import { INDEXABLE, SITE_URL } from "@/lib/site-url";
 import "../globals.css";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
-// The optical size axis gives large titles Inter's display cut (ADR 0049).
-const inter = Inter({ subsets: ["latin"], axes: ["opsz"], variable: "--font-inter" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const momo = Momo_Trust_Display({ subsets: ["latin"], weight: "400", variable: "--font-momo" });
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
-  const t = await getTranslations({ locale: (await params).locale, namespace: "metadata" });
-  return { title: t("title"), description: t("description") };
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      canonical: `/${locale}`,
+      // x-default is the bare /, which sends each visitor to their language.
+      languages: { ...Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])), "x-default": "/" },
+    },
+    openGraph: {
+      type: "website",
+      siteName: "ReadyYet",
+      url: `/${locale}`,
+      title: t("title"),
+      description: t("description"),
+      locale: OG_LOCALES[locale],
+    },
+    robots: INDEXABLE ? undefined : { index: false, follow: false },
+  };
 }
+
+const OG_LOCALES: Record<Locale, string> = { en: "en_GB", fr: "fr_BE", nl: "nl_BE" };
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
@@ -27,10 +48,15 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   // locale from the request.
   setRequestLocale(locale);
 
+  // data-enter holds back what has an entrance until it plays, see the
+  // Entrances rules in globals.css.
   return (
-    <html lang={locale} className={`${figtree.variable} ${inter.variable} ${geistMono.variable}`}>
-      <body className="bg-canvas font-sans text-p-sm text-ink antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+    <html lang={locale} className={`${inter.variable} ${momo.variable}`} data-enter="">
+      <body>
+        <NextIntlClientProvider>
+          {children}
+          <CookieConsent />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

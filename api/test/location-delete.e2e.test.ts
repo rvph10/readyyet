@@ -9,6 +9,7 @@ import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0017: only the Owner deletes a Location, a soft delete that's final.
 describe("Deleting a location", () => {
@@ -29,6 +30,7 @@ describe("Deleting a location", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Delete Test",
         location: {
           name: "Shop",
@@ -106,6 +108,22 @@ describe("Deleting a location", () => {
 
     expect(await prisma.ticket.count({ where: { id: BigInt(ticket.id) } })).toBe(1);
     expect((await request(app.getHttpServer()).get(`/tracking/${ticket.trackingCode}`)).status).toBe(404);
+  });
+
+  // ADR 0128.
+  it("erases its Customers and what its Tickets said about them", async () => {
+    const locationId = await createLocation();
+    const ticket = await createTicket(locationId);
+
+    await remove(locationId);
+
+    const kept = await prisma.ticket.findUniqueOrThrow({
+      where: { id: BigInt(ticket.id) },
+      include: { customer: true },
+    });
+    expect(kept).toMatchObject({ title: "[deleted]", description: null });
+    expect(kept.customer).toMatchObject({ fullName: "[deleted]", email: null, phone: null });
+    expect(kept.customer.deletedAt).not.toBeNull();
   });
 
   it("drops status emails that were still waiting", async () => {

@@ -744,6 +744,125 @@
         ]
       }
     },
+    "/businesses/{businessId}/terms-acceptance": {
+      "post": {
+        "operationId": "BusinessController_acceptTerms",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptTermsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "VALIDATION_ERROR: the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Accept the terms in force for the business (owner only, ADR 0130)",
+        "tags": [
+          "Businesses"
+        ]
+      }
+    },
     "/businesses/{businessId}/banner": {
       "put": {
         "operationId": "BusinessController_setBanner",
@@ -2803,6 +2922,113 @@
           }
         ],
         "summary": "Follow a Google review link to see if it still leads somewhere (ADR 0109)",
+        "tags": [
+          "Locations"
+        ]
+      }
+    },
+    "/locations/{locationId}/export": {
+      "get": {
+        "operationId": "LocationController_export",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Download everything the Location holds, CSV and JSON in a ZIP, owner only (ADR 0129)",
         "tags": [
           "Locations"
         ]
@@ -9231,11 +9457,15 @@
           "referralCode": {
             "type": "string",
             "maxLength": 64
+          },
+          "termsVersion": {
+            "type": "string"
           }
         },
         "required": [
           "name",
-          "location"
+          "location",
+          "termsVersion"
         ]
       },
       "LocationDto": {
@@ -9300,6 +9530,9 @@
             "type": "string",
             "nullable": true
           },
+          "feedbackEmails": {
+            "type": "boolean"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -9324,6 +9557,7 @@
           "openingHours",
           "turnaroundDays",
           "googleReviewUrl",
+          "feedbackEmails",
           "createdAt",
           "updatedAt"
         ]
@@ -9407,6 +9641,9 @@
               "$ref": "#/components/schemas/BusinessLocationSummaryDto"
             }
           },
+          "termsAccepted": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -9438,6 +9675,7 @@
         },
         "required": [
           "locations",
+          "termsAccepted",
           "id",
           "name",
           "ownerId",
@@ -9501,6 +9739,17 @@
           "bannerUrl",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "AcceptTermsDto": {
+        "type": "object",
+        "properties": {
+          "termsVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "termsVersion"
         ]
       },
       "TransferOwnershipDto": {
@@ -9734,6 +9983,9 @@
             "type": "string",
             "nullable": true,
             "maxLength": 2048
+          },
+          "feedbackEmails": {
+            "type": "boolean"
           }
         }
       },
@@ -9841,12 +10093,16 @@
           "logoUrl": {
             "type": "string",
             "nullable": true
+          },
+          "termsAccepted": {
+            "type": "boolean"
           }
         },
         "required": [
           "id",
           "name",
-          "logoUrl"
+          "logoUrl",
+          "termsAccepted"
         ]
       },
       "MyLocationDto": {

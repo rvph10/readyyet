@@ -1,9 +1,11 @@
-import { calendarDateIn, ERASED_CUSTOMER_NAME, turnaroundReadyDate } from "@readyyet/shared";
+import { calendarDateIn, ERASED_CUSTOMER_NAME, ERASED_TICKET_TITLE, turnaroundReadyDate } from "@readyyet/shared";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getOwnedBusiness, referralLink } from "@/lib/business";
+import { TermsDialog } from "@/components/terms-dialog";
+import { legalLinks } from "@/lib/legal";
 import { getMe } from "@/lib/me";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { LocationActions } from "./location-actions";
@@ -53,7 +55,7 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
   const customer = ({ id, title, customer: { fullName } }: (typeof overview.tickets)[number]) => ({
     id,
     name: fullName === ERASED_CUSTOMER_NAME ? tTickets("erasedCustomer") : fullName,
-    detail: title,
+    detail: title === ERASED_TICKET_TITLE ? tTickets("erasedTicket") : title,
   });
   const readySince = ({ statusSince }: (typeof overview.tickets)[number]) =>
     daysBetween(calendarDateIn(new Date(statusSince), location.timeZone), today);
@@ -110,6 +112,13 @@ export default async function LocationLayout({ children, params }: LayoutProps<"
             longWaitsCount: longWaits.length,
           }}
         >
+          {current.role === "OWNER" && !current.location.business.termsAccepted && (
+            <TermsDialog
+              businessId={current.location.business.id}
+              businessName={current.location.business.name}
+              legal={legalLinks(locale)}
+            />
+          )}
           {children}
         </LocationNav>
       </div>

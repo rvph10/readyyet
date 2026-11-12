@@ -381,6 +381,10 @@ function PlansTile({
           ))}
         </div>
       </div>
+      {/* Said before any yearly payment, as the terms and the Data Act ask
+          for a cost of leaving early to be known beforehand. Above the plans,
+          so it's read before their buttons on a phone too. */}
+      {interval === "YEAR" && <p className="text-p-sm font-semibold">{t("yearlyNoRefund")}</p>}
       <div className="grid gap-3 sm:grid-cols-2">{PLANS.map(cardFor)}</div>
       <p className="text-p-sm text-muted">{t("bothPlans")}</p>
 
@@ -400,6 +404,7 @@ function PlansTile({
                     })}
             </p>
             {move.plan === "ESSENTIEL" && current.plan === "PRO" && <p className="text-p-md">{t("essentielLoses")}</p>}
+            {move.interval === "YEAR" && <p className="text-p-md font-semibold">{t("yearlyNoRefund")}</p>}
             <div className="flex flex-wrap justify-end gap-2">
               <Button variant="secondary" onClick={() => setMove(null)}>
                 {t("notNow")}
