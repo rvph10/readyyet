@@ -235,7 +235,7 @@
         "a": "Non. Ils reçoivent un lien par e-mail, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
       },
       "software": {
-        "q": "Dois-je abandonner mon logiciel de caisse ?",
+        "q": "Dois-je abandonner ma caisse ou mon logiciel de gestion ?",
         "a": "Non. ReadyYet ne remplace ni votre caisse ni votre logiciel de gestion, il ajoute le suivi pour vos clients. Vous enregistrez l'article au comptoir en quelques secondes et vous continuez à travailler comme avant."
       },
       "notified": {
