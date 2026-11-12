@@ -13,7 +13,14 @@ import {
   type TransitionStartFunction,
 } from "react";
 import { newLocation } from "@/app/(create-business)/businesses/new/schema";
-import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
+import { IntervalToggle } from "@/app/(dashboard)/locations/[locationId]/plan-chooser";
+import {
+  PLAN_FEATURES,
+  PLAN_NAMES,
+  PRICES,
+  type Interval,
+  type Plan,
+} from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { PhoneField } from "@/components/phone-field";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -29,8 +36,9 @@ import { browserTimeZone, FALLBACK_COUNTRY } from "@/lib/browser-region";
 import { fieldErrors } from "@/lib/validation";
 import { addLocation, addShopData } from "./add-shop-actions";
 
-// What each step asks, so Next only stops on what's in front of the Owner.
-const STEPS = [["name"], ["businessTypeCode", "businessTypeDetail"], ["contactPhone", "contactEmail"]];
+// What each step asks, so Next only stops on what's in front of the Owner. The
+// plan has nothing to get wrong, one is always chosen.
+const STEPS = [["name"], ["businessTypeCode", "businessTypeDetail"], ["contactPhone", "contactEmail"], []];
 
 const AddShopContext = createContext<() => void>(() => undefined);
 
@@ -51,6 +59,8 @@ interface FormProps {
 function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormProps) {
   const t = useTranslations("createBusiness");
   const tNew = useTranslations("business.newLocation");
+  const tPlans = useTranslations("plans");
+  const tBilling = useTranslations("billing");
   const format = useFormatter();
   const locale = useLocale();
   const [step, setStep] = useState(0);
@@ -59,6 +69,8 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
   const [businessTypeDetail, setBusinessTypeDetail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState(data.email);
+  const [plan, setPlan] = useState<Plan>("PRO");
+  const [interval, setInterval] = useState<Interval>("MONTH");
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const otherType = data.businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
@@ -90,12 +102,16 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
     setFailure(null);
     startSubmit(async () => {
       const result = await orFailure(
-        addLocation(businessId, {
-          ...location.data,
-          // Both changed later in the Location's settings (ADR 0047).
-          locale: locale.toUpperCase() as "EN" | "FR",
-          timeZone: browserTimeZone(),
-        }),
+        addLocation(
+          businessId,
+          {
+            ...location.data,
+            // Both changed later in the Location's settings (ADR 0047).
+            locale: locale.toUpperCase() as "EN" | "FR",
+            timeZone: browserTimeZone(),
+          },
+          { plan, interval },
+        ),
       );
       if (result.ok) return;
       const refused = STEPS.flat().filter((field) => result.fields?.[field]);
@@ -113,7 +129,7 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
     <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-4 md:px-7">
         <Steps
-          steps={[tNew("stepName"), tNew("stepType"), tNew("stepContact")]}
+          steps={[tNew("stepName"), tNew("stepType"), tNew("stepContact"), tNew("stepPlan")]}
           current={step + 1}
           label={t("stepOf", { step: step + 1, steps: STEPS.length })}
         />
@@ -197,15 +213,34 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
               }}
               error={errors.contactEmail}
             />
-            <p className="rounded-2xl bg-brand px-4 py-3 text-p-sm text-ink">
-              {tNew("planNotice", {
-                price: format.number(PRICES.ESSENTIEL.MONTH, {
+          </>
+        )}
+        {step === 3 && (
+          <>
+            <div>
+              <p className="text-title-h6">{tNew("planTitle")}</p>
+              <p className="mt-1 text-p-sm text-muted">{tNew("planHint")}</p>
+            </div>
+            <div>
+              <IntervalToggle interval={interval} onChange={setInterval} />
+              {interval === "YEAR" && <p className="mt-3 text-p-sm font-semibold">{tBilling("yearlyNoRefund")}</p>}
+            </div>
+            <RadioCards
+              legend={tNew("planLegend")}
+              name="plan"
+              columns={1}
+              options={(["PRO", "ESSENTIEL"] as const).map((option) => ({
+                value: option,
+                label: `${PLAN_NAMES[option]} · ${format.number(PRICES[option][interval], {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
-                }),
-              })}
-            </p>
+                })}${tPlans(interval === "YEAR" ? "perYear" : "perMonth")}`,
+                description: PLAN_FEATURES[option].map((feature) => tBilling(`features.${feature}`)).join(" · "),
+              }))}
+              value={plan}
+              onChange={(value) => setPlan(value as Plan)}
+            />
           </>
         )}
       </div>

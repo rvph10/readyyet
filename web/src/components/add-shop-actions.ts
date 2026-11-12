@@ -29,18 +29,27 @@ export async function addShopData(businessId: string) {
   };
 }
 
-// ADR 0082: a later Location has no trial, so it goes straight to choosing a
-// plan, the only way it can take Tickets.
+// ADR 0082: a later Location has no trial, so the plan is chosen in the same
+// drawer and it goes straight to paying, the only way it can take Tickets. A
+// checkout that doesn't open leaves the shop on its billing page, to finish.
 export async function addLocation(
   businessId: string,
   location: components["schemas"]["CreateLocationDto"],
+  plan: components["schemas"]["CheckoutDto"],
 ): Promise<ActionResult> {
-  const result = await (
-    await api()
-  ).POST("/businesses/{businessId}/locations", { params: { path: { businessId } }, body: location });
-  if (result.data) {
-    revalidatePath("/", "layout");
-    redirect(`/locations/${result.data.id}/billing`);
+  const client = await api();
+  const result = await client.POST("/businesses/{businessId}/locations", {
+    params: { path: { businessId } },
+    body: location,
+  });
+  if (!result.data) {
+    return actionResult(result);
   }
-  return actionResult(result);
+  const locationId = result.data.id;
+  revalidatePath("/", "layout");
+  const checkout = await client.POST("/locations/{locationId}/billing/checkout", {
+    params: { path: { locationId } },
+    body: plan,
+  });
+  redirect(checkout.data?.url ?? `/locations/${locationId}/billing`);
 }

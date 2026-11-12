@@ -196,7 +196,7 @@
       "notesTooLong": "5000 caractères maximum.",
       "datePast": "Choisissez aujourd'hui ou une date ultérieure.",
       "invalid": "Vérifiez ce champ.",
-      "frozen": "Les nouveaux tickets sont suspendus dans ce magasin car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
+      "frozen": "Ce magasin n'a pas de plan actif, il ne peut donc pas créer de tickets. Un propriétaire ou un administrateur peut en choisir un dans Facturation.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
@@ -517,7 +517,7 @@
     "emailFailed": "Email non abouti",
     "waiting": "Attend {days} jours",
     "trialEnds": "{days, plural, one {Votre essai se termine demain} other {Votre essai se termine dans # jours}}",
-    "trialEnded": "Nouveaux tickets en pause",
+    "trialEnded": "Pas de plan actif",
     "allTickets": "Tous les tickets",
     "first": {
       "title": "Créez votre premier ticket",
@@ -649,7 +649,7 @@
     "noReviews": "Pas de retours privés ni de demandes d'avis",
     "title": "Gardez ReadyYet actif",
     "chargedLater": "{days, plural, one {Votre carte est débitée à la fin de l'essai, demain. Annulez à tout moment avant.} other {Votre carte est débitée à la fin de l'essai, dans # jours. Annulez à tout moment avant.}}",
-    "resume": "Choisissez un plan pour créer à nouveau des tickets. Rien n'est perdu.",
+    "resume": "Choisissez un plan pour créer des tickets dans ce magasin. Rien n'est perdu.",
     "billedEvery": "Fréquence de paiement",
     "monthly": "Mensuel",
     "yearly": "Annuel",
@@ -663,9 +663,9 @@
       "unexpected": "La page de paiement ne s'est pas ouverte. Veuillez réessayer."
     },
     "daysLeft": "{days, plural, one {Encore # jour de Pro} other {Encore # jours de Pro}}",
-    "ended": "Les nouveaux tickets sont en pause",
+    "ended": "Pas de plan actif",
     "cardBody": "Gardez votre workflow et vos avis. Vous ne payez qu'à la fin de l'essai.",
-    "endedBody": "Choisissez un plan, rien n'est perdu.",
+    "endedBody": "Choisissez un plan pour créer des tickets. Rien n'est perdu.",
     "keepPro": "Garder Pro, 49 €/mois",
     "choosePlan": "Choisir un plan",
     "daysShort": "{days} j",
@@ -675,8 +675,8 @@
   "billing": {
     "yourPlan": "Votre plan",
     "trialBody": "Votre essai se termine le {date}. Choisissez un plan maintenant et vous gardez les jours restants : votre carte n'est débitée qu'à la fin.",
-    "pausedTitle": "Les nouveaux tickets sont en pause",
-    "pausedBody": "Choisissez un plan pour reprendre. Rien n'est perdu, les tickets ouverts continuent d'avancer et les liens de suivi restent actifs.",
+    "pausedTitle": "Ce magasin n'a pas de plan actif",
+    "pausedBody": "Choisissez un plan pour créer des tickets. Rien n'est perdu, les tickets ouverts continuent d'avancer et les liens de suivi restent actifs.",
     "pastDueTitle": "Votre dernier paiement a échoué",
     "pastDueBody": "Stripe réessaie pendant 2 semaines maximum et votre commerce continue de fonctionner. Mettez la carte à jour pour éviter l'arrêt.",
     "pastDueBodyAdmin": "Stripe réessaie pendant 2 semaines maximum et votre commerce continue de fonctionner. Demandez au propriétaire de mettre la carte à jour.",
@@ -1116,7 +1116,7 @@
     },
     "plan": {
       "trial": "{days, plural, one {Essai, # jour restant} other {Essai, # jours restants}}",
-      "paused": "En pause",
+      "paused": "Sans plan",
       "failed": "Paiement échoué",
       "stopping": "Arrêt prévu",
       "changing": "Changement de formule"
@@ -1134,16 +1134,15 @@
       "choosePlan": "Choisir une formule",
       "fixPayment": "Régler le paiement",
       "manage": "Gérer la formule",
-      "pausedHint": "Nouveaux tickets en pause",
+      "pausedHint": "Pas de plan actif",
       "failedHint": "Mettez la carte à jour",
       "price": "Prix",
       "nothingDueHint": "Aucun renouvellement prévu"
     },
     "newLocation": {
       "nameHint": "Les clients le voient sur leur page de suivi.",
-      "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",
-      "submit": "Créer et choisir une formule",
+      "submit": "Créer et payer",
       "stepName": "Nom",
       "stepType": "Métier",
       "stepContact": "Contact",
@@ -1151,7 +1150,11 @@
       "typeTitle": "Que fait-il ?",
       "typeHint": "Cela définit les étapes de ses Tickets. Vous pourrez les changer plus tard.",
       "contactTitle": "Comment les clients le joignent-ils ?",
-      "contactHint": "Affiché sur les pages de suivi et dans les emails."
+      "contactHint": "Affiché sur les pages de suivi et dans les emails.",
+      "stepPlan": "Plan",
+      "planTitle": "Quel plan pour ce magasin ?",
+      "planHint": "Chaque magasin a son propre plan. Il n'y a pas d'essai pour un magasin de plus : les tickets démarrent dès le paiement.",
+      "planLegend": "Plan"
     },
     "settings": {
       "name": "Nom de l'entreprise",
