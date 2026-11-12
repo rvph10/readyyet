@@ -56,7 +56,9 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
           fill
           className={location.bannerUrl ? "relative ring-4 ring-canvas" : undefined}
         />
-        <p className={`min-w-0 text-label-md text-balance wrap-anywhere ${location.bannerUrl ? "pb-2" : ""}`}>
+        <p
+          className={`min-w-0 text-title-h6 text-balance wrap-anywhere md:text-title-h5 ${location.bannerUrl ? "pb-1" : ""}`}
+        >
           {location.name}
         </p>
       </header>
