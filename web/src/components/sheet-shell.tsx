@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 
@@ -22,7 +23,10 @@ export interface SheetSection {
 // switching is instant. The section is still in the URL, for a link to lead there.
 // Settings and the profile share it (ADR 0118).
 export function SheetShell({ label, start, sections }: { label: string; start: string; sections: SheetSection[] }) {
-  const [active, setActive] = useState(start);
+  // Read from the URL, which Next.js keeps in step with replaceState, so a
+  // link inside a section (the delete dialog's "export first") switches too.
+  const requested = useSearchParams().get("section");
+  const active = sections.some(({ name }) => name === requested) ? requested : start;
 
   return (
     <Panel padding="none" className="flex min-h-0 flex-1 flex-col overflow-clip lg:flex-row">
@@ -35,7 +39,6 @@ export function SheetShell({ label, start, sections }: { label: string; start: s
                 aria-current={name === active ? "page" : undefined}
                 onClick={(event) => {
                   event.preventDefault();
-                  setActive(name);
                   window.history.replaceState(null, "", `?section=${name}`);
                 }}
                 className={`flex h-11 items-center gap-3 rounded-xl px-3 text-label-sm whitespace-nowrap transition-colors ${

@@ -1,0 +1,63 @@
+/* Strivo's FAQ in Ledger's look (ADR 0133), overridden on its wrapper. Its
+   own rules stay as bought, in src/temlis/strivo-833. Questions sit in white
+   cards on the page's grey, with a pine disc. */
+
+[data-temlis="strivo-833"] {
+  --c-ink: #1e1e1e;
+  --c-ink-72: #565656;
+  --c-grey: var(--color-bg-white);
+  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+
+  background-color: var(--color-bg-page);
+}
+
+[data-temlis="strivo-833"] .faq[data-astro-cid-z6gx6xcw] {
+  background-color: var(--color-bg-page);
+}
+
+[data-temlis="strivo-833"] .faq__disc[data-astro-cid-z6gx6xcw] {
+  background-color: var(--color-bg-dark);
+}
+
+/* The site's .t-display (globals.css) sizes Ledger's titles with !important,
+   so Strivo's sizes are restated the same way. Ledger sets no title in
+   capitals. */
+[data-temlis="strivo-833"] .t-display {
+  text-transform: none;
+}
+
+[data-temlis="strivo-833"] .faq__title.t-display {
+  font-size: var(--section-heading) !important;
+  line-height: 1 !important;
+}
+
+/* The page's rhythm (globals.css): the pricing above ends on its own section
+   space, and the questions line up with the other sections. */
+[data-temlis="strivo-833"] .faq__inner[data-astro-cid-z6gx6xcw] {
+  max-width: calc(var(--section-max) + 2 * var(--section-gutter));
+  padding: 0 var(--section-gutter) var(--section-space);
+}
+
+@media (min-width: 992px) {
+  [data-temlis="strivo-833"] .faq__inner[data-astro-cid-z6gx6xcw] {
+    grid-template-columns: 26rem minmax(0, 1fr);
+  }
+}
+
+/* A title word never breaks inside, at the page's heading size. */
+[data-temlis="strivo-833"] .faq__title[data-astro-cid-z6gx6xcw] {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+[data-temlis="strivo-833"] .faq__q .t-display {
+  font-size: 1.5rem !important;
+  line-height: 1.3333 !important;
+}
+
+@media (max-width: 767px) {
+  [data-temlis="strivo-833"] .faq__q .t-display {
+    font-size: 1.25rem !important;
+  }
+}

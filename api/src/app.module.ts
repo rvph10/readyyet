@@ -25,6 +25,7 @@ import { InvitationModule } from "./invitation/invitation.module";
 import { LocationModule } from "./location/location.module";
 import { MeModule } from "./me/me.module";
 import { MembershipModule } from "./membership/membership.module";
+import { RetentionModule } from "./retention/retention.module";
 import { StorageModule } from "./storage/storage.module";
 import { TicketModule } from "./ticket/ticket.module";
 import { TrackingModule } from "./tracking/tracking.module";
@@ -69,6 +70,7 @@ import { WorkflowModule } from "./workflow/workflow.module";
     StorageModule,
     FeedbackModule,
     AdminModule,
+    RetentionModule,
   ],
   providers: [
     // APP_FILTER/APP_PIPE, not imperative app.useGlobalFilters/useGlobalPipes

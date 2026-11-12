@@ -1,4 +1,4 @@
-import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
+import { ERASED_CUSTOMER_NAME, ERASED_TICKET_TITLE } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { StatusPill } from "@/components/status-pill";
@@ -58,6 +58,7 @@ export function ActivityTile({
             const person = you ? t("you") : event.changedByName.split(" ")[0];
             const customer =
               event.customerName === ERASED_CUSTOMER_NAME ? tTickets("erasedCustomer") : event.customerName;
+            const title = event.ticketTitle === ERASED_TICKET_TITLE ? tTickets("erasedTicket") : event.ticketTitle;
             return (
               <li key={event.id}>
                 <Link
@@ -69,7 +70,7 @@ export function ActivityTile({
                     <span className="text-p-sm">
                       <span className="font-semibold">{person}</span>{" "}
                       {event.status.code === "RECEIVED" ? t("created") : t("moved")}{" "}
-                      <span className="font-semibold">{event.ticketTitle}</span>
+                      <span className="font-semibold">{title}</span>
                       <span className="text-muted"> · {customer}</span>
                     </span>
                     <span className="flex flex-wrap items-center gap-2">
