@@ -18,6 +18,7 @@ import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { generateReferralCode } from "./referral-code";
+import { acceptedByOwner } from "./terms-accepted";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
@@ -89,7 +90,7 @@ export class BusinessService {
   // accept again (ADR 0130). Accepting twice changes nothing.
   async acceptTerms(businessId: string, userId: string, version: string) {
     await this.prisma.termsAcceptance.upsert({
-      where: { businessId_version: { businessId, version } },
+      where: { businessId_version_userId: { businessId, version, userId } },
       create: { businessId, userId, version },
       update: {},
     });
@@ -139,11 +140,11 @@ export class BusinessService {
           orderBy: { createdAt: "asc" },
           select: { id: true, name: true, createdAt: true },
         },
-        termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true }, take: 1 },
+        termsAcceptances: { where: { version: TERMS_VERSION }, select: { userId: true } },
       },
     });
     const { termsAcceptances, ...rest } = business;
-    return { ...toBusinessResponse(rest), termsAccepted: termsAcceptances.length > 0 };
+    return { ...toBusinessResponse(rest), termsAccepted: acceptedByOwner(termsAcceptances, business.ownerId) };
   }
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {

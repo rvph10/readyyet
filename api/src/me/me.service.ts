@@ -9,6 +9,7 @@ import { buildAccountDeletedEmail } from "../notification/staff-email/staff-emai
 import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
 import { UpdateMeDto } from "./dto/update-me.dto";
+import { acceptedByOwner } from "../business/terms-accepted";
 
 // Deleting an account is refused past this long after signing in, so an
 // unlocked shop computer isn't enough to wipe someone's account.
@@ -60,7 +61,8 @@ export class MeService {
                 id: true,
                 name: true,
                 logoKey: true,
-                termsAcceptances: { where: { version: TERMS_VERSION }, select: { id: true }, take: 1 },
+                ownerId: true,
+                termsAcceptances: { where: { version: TERMS_VERSION }, select: { userId: true } },
               },
             },
           },
@@ -75,7 +77,7 @@ export class MeService {
           id: business.id,
           name: business.name,
           logoUrl: publicImageUrl(business.logoKey),
-          termsAccepted: business.termsAcceptances.length > 0,
+          termsAccepted: acceptedByOwner(business.termsAcceptances, business.ownerId),
         },
       },
     }));

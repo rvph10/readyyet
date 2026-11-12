@@ -649,7 +649,8 @@ model TermsAcceptance {
   business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
   user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
 
-  @@unique([businessId, version])
+  // One per Owner: a new Owner after a transfer accepts too (ADR 0138).
+  @@unique([businessId, version, userId])
   @@index([userId])
   @@map("terms_acceptance")
 }

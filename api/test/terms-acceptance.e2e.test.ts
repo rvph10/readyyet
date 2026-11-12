@@ -97,6 +97,28 @@ describe("Accepting the terms", () => {
     expect(business.body.termsAccepted).toBe(false);
   });
 
+  it("asks a new Owner after a transfer to accept for themselves", async () => {
+    const created = await create({ termsVersion: TERMS_VERSION, name: "Handed Over", location });
+    const businessId = created.body.id as string;
+    await prisma.membership.create({
+      data: { userId: userIds.admin, locationId: created.body.locations[0].id, role: Role.ADMIN },
+    });
+    await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/transfer-ownership`)
+      .set("Cookie", cookies.owner)
+      .send({ userId: userIds.admin })
+      .expect((response) => expect(response.status).toBeLessThan(300));
+
+    expect((await myBusiness("admin", businessId)).termsAccepted).toBe(false);
+    await request(app.getHttpServer())
+      .post(`/businesses/${businessId}/terms-acceptance`)
+      .set("Cookie", cookies.admin)
+      .send({ termsVersion: TERMS_VERSION })
+      .expect(204);
+    expect((await myBusiness("admin", businessId)).termsAccepted).toBe(true);
+    expect(await prisma.termsAcceptance.count({ where: { businessId } })).toBe(2);
+  });
+
   it("is the Owner's to accept, not an Admin's", async () => {
     const created = await create({ termsVersion: TERMS_VERSION, name: "Admin Tries", location });
     await prisma.membership.create({
