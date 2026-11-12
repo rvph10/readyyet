@@ -1230,7 +1230,8 @@
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
     },
-    "createAnother": "New business"
+    "createAnother": "New business",
+    "manage": "Shops and settings"
   },
   "profile": {
     "title": "Your profile",

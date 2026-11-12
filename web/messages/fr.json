@@ -1230,7 +1230,8 @@
       "subject": "Essayez ReadyYet pour votre magasin",
       "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     },
-    "createAnother": "Nouvelle entreprise"
+    "createAnother": "Nouvelle entreprise",
+    "manage": "Magasins et réglages"
   },
   "profile": {
     "title": "Votre profil",
