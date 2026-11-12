@@ -38,7 +38,7 @@ Sign-in is by a code sent to your email address. You are responsible for who you
 
 ## 7. Your data, and moving it elsewhere
 
-- Your data stays yours. You can export your customers, Tickets and feedback at any time from the Location settings, in CSV and JSON. [WHEN AVAILABLE: export, roadmap step 4.6] The export page lists what is included and the format of each file.
+- Your data stays yours. You can export your customers, Tickets and feedback at any time from the Location settings, in CSV and JSON. The export page lists what is included and the format of each file.
 - For your customers' personal data you are the controller and we are your processor. Annex 1 sets out what we do with it.
 - **Switching to another provider or leaving.** You can ask to leave or move to another service at any time, by cancelling or by writing to support@readyyet.app, with no notice period. From then on:
   - we help you export your data within 30 days at most, and the service keeps working during that time;
@@ -129,7 +129,7 @@ You give a general authorisation to use the subprocessors in Annex 3. We will te
 
 ## 8. Assistance
 
-- **Requests from your customers.** The service lets you correct, erase [WHEN AVAILABLE: and export] a customer's data. If a customer writes to us about data you control, we forward the request to you without undue delay and do not answer it ourselves.
+- **Requests from your customers.** The service lets you correct, erase and export a customer's data. If a customer writes to us about data you control, we forward the request to you without undue delay and do not answer it ourselves.
 - **Breaches.** We notify you without undue delay, and where possible within 48 hours, after becoming aware of a personal data breach affecting your data, with what we know and what we are doing about it.
 - **Impact assessments and authorities.** We give you the information you reasonably need.
 
@@ -160,7 +160,6 @@ Data is stored in the European Union. Where a subprocessor in Annex 3 is based o
 - Photos stored privately and shown through short-lived signed links.
 - Daily and weekly database backups, kept up to 27 days; a restore was tested on 9 November 2026.
 - Error reports and logs stripped of names, emails, cookies, request bodies and tracking codes.
-- Production access limited to the publisher, with two-factor authentication on the hosting and email accounts. [TO CHECK: 2FA enabled on Railway, Stripe, Resend, Sentry, Zoho, PostHog, GitHub.]
 - Security headers, including a strict Content Security Policy, on the web app.
 
 # Annex 3: Subprocessors {#annex-3}

@@ -40,7 +40,7 @@ La connexion se fait par un code envoyé à votre adresse email. Vous êtes resp
 
 ## 7. Vos données, et les emporter ailleurs
 
-- Vos données vous appartiennent. Vous pouvez exporter vos clients, Tickets et avis à tout moment depuis les réglages de la Location, aux formats CSV et JSON. [QUAND DISPONIBLE : export, étape 4.6 de la feuille de route] La page d'export indique ce qui est inclus et le format de chaque fichier.
+- Vos données vous appartiennent. Vous pouvez exporter vos clients, Tickets et avis à tout moment depuis les réglages de la Location, aux formats CSV et JSON. La page d'export indique ce qui est inclus et le format de chaque fichier.
 - Pour les données personnelles de vos clients, vous êtes responsable du traitement et nous sommes votre sous-traitant. L'annexe 1 décrit ce que nous en faisons.
 - **Changer de fournisseur ou partir.** Vous pouvez demander à partir ou à passer à un autre service à tout moment, en résiliant ou en écrivant à support@readyyet.app, sans préavis. À partir de là :
   - nous vous aidons à exporter vos données dans un délai maximal de 30 jours, pendant lequel le service continue de fonctionner ;
@@ -131,7 +131,7 @@ Vous autorisez de manière générale le recours aux sous-traitants listés à l
 
 ## 8. Assistance
 
-- **Demandes de vos clients.** Le service vous permet de corriger, d'effacer [QUAND DISPONIBLE : et d'exporter] les données d'un client. Si un client nous écrit au sujet de données dont vous êtes responsable, nous vous transmettons sa demande dans les meilleurs délais et n'y répondons pas nous-mêmes.
+- **Demandes de vos clients.** Le service vous permet de corriger, d'effacer et d'exporter les données d'un client. Si un client nous écrit au sujet de données dont vous êtes responsable, nous vous transmettons sa demande dans les meilleurs délais et n'y répondons pas nous-mêmes.
 - **Violations de données.** Nous vous prévenons dans les meilleurs délais, et si possible dans les 48 heures, après avoir pris connaissance d'une violation de données personnelles touchant vos données, avec ce que nous savons et les mesures prises.
 - **Analyses d'impact et autorités.** Nous vous fournissons les informations dont vous avez raisonnablement besoin.
 
@@ -162,7 +162,6 @@ Les données sont stockées dans l'Union européenne. Lorsqu'un sous-traitant de
 - Photos stockées de façon privée et affichées via des liens signés de courte durée.
 - Sauvegardes quotidiennes et hebdomadaires de la base de données, conservées jusqu'à 27 jours ; une restauration a été testée le 9 novembre 2026.
 - Rapports d'erreurs et journaux débarrassés des noms, emails, cookies, contenus de requêtes et codes de suivi.
-- Accès à la production limité à l'éditeur, avec double authentification sur les comptes d'hébergement et de messagerie. [À VÉRIFIER : 2FA active sur Railway, Stripe, Resend, Sentry, Zoho, PostHog, GitHub.]
 - En-têtes de sécurité, dont une politique de sécurité du contenu (CSP) stricte, sur l'application web.
 
 # Annexe 3 : Sous-traitants ultérieurs {#annex-3}

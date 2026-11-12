@@ -38,7 +38,7 @@ U meldt zich aan met een code die naar uw e-mailadres gestuurd wordt. U bent ver
 
 ## 7. Uw gegevens, en ze meenemen
 
-- Uw gegevens blijven van u. U kunt uw klanten, Tickets en feedback op elk moment exporteren vanuit de instellingen van de Location, in CSV en JSON. [ZODRA BESCHIKBAAR: export, roadmap stap 4.6] De exportpagina vermeldt wat erin zit en het formaat van elk bestand.
+- Uw gegevens blijven van u. U kunt uw klanten, Tickets en feedback op elk moment exporteren vanuit de instellingen van de Location, in CSV en JSON. De exportpagina vermeldt wat erin zit en het formaat van elk bestand.
 - Voor de persoonsgegevens van uw klanten bent u de verwerkingsverantwoordelijke en zijn wij uw verwerker. Bijlage 1 beschrijft wat we ermee doen.
 - **Overstappen naar een andere aanbieder of vertrekken.** U kunt op elk moment vragen om te vertrekken of naar een andere dienst over te stappen, door op te zeggen of door te schrijven naar support@readyyet.app, zonder opzegtermijn. Vanaf dan:
   - helpen we u uw gegevens te exporteren binnen ten hoogste 30 dagen, en blijft de dienst intussen werken;
@@ -129,7 +129,7 @@ U geeft een algemene toestemming om de subverwerkers uit bijlage 3 in te schakel
 
 ## 8. Bijstand
 
-- **Verzoeken van uw klanten.** Met de dienst kunt u de gegevens van een klant verbeteren, wissen [ZODRA BESCHIKBAAR: en exporteren]. Schrijft een klant ons over gegevens waarvoor u verantwoordelijk bent, dan bezorgen we u het verzoek zonder onredelijke vertraging en beantwoorden we het niet zelf.
+- **Verzoeken van uw klanten.** Met de dienst kunt u de gegevens van een klant verbeteren, wissen en exporteren. Schrijft een klant ons over gegevens waarvoor u verantwoordelijk bent, dan bezorgen we u het verzoek zonder onredelijke vertraging en beantwoorden we het niet zelf.
 - **Inbreuken.** We verwittigen u zonder onredelijke vertraging, en waar mogelijk binnen 48 uur, nadat we kennis kregen van een inbreuk in verband met persoonsgegevens die uw gegevens raakt, met wat we weten en wat we eraan doen.
 - **Effectbeoordelingen en autoriteiten.** We geven u de informatie die u redelijkerwijs nodig hebt.
 
@@ -160,7 +160,6 @@ De gegevens worden in de Europese Unie opgeslagen. Is een subverwerker uit bijla
 - Foto's worden privé opgeslagen en getoond via ondertekende links die kort geldig zijn.
 - Dagelijkse en wekelijkse back-ups van de databank, tot 27 dagen bewaard; een herstel werd getest op 9 november 2026.
 - Foutrapporten en logs ontdaan van namen, e-mailadressen, cookies, de inhoud van verzoeken en volgcodes.
-- Toegang tot de productie beperkt tot de uitgever, met tweestapsverificatie op de hosting- en e-mailaccounts. [TE CONTROLEREN: tweestapsverificatie actief op Railway, Stripe, Resend, Sentry, Zoho, PostHog, GitHub.]
 - Beveiligingsheaders, waaronder een strikte Content Security Policy, op de webapp.
 
 # Bijlage 3: Subverwerkers {#annex-3}

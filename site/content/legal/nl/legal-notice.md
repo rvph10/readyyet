@@ -3,9 +3,9 @@
 ReadyYet (readyyet.app, app.readyyet.app, api.readyyet.app) wordt uitgegeven door:
 
 **Raphaël Genu**, zelfstandige in eigen naam (natuurlijke persoon), handelend onder de naam **UpInTown**
-Kerkedelle 51A, 1200 Sint-Lambrechts-Woluwe, België [TE CONTROLEREN: de KBO vermeldt "Kerkedelle 51", zonder A]
+Kerkedelle 51A, 1200 Sint-Lambrechts-Woluwe, België
 Ondernemingsnummer: 1034.448.184 (Kruispuntbank van Ondernemingen), vestigingseenheid 2.385.141.710
-Btw: BE1034448184. [TE CONTROLEREN met de boekhouder: exacte huidige formulering] Bijzondere vrijstellingsregeling voor kleine ondernemingen; btw niet van toepassing.
+Btw: BE1034448184. Bijzondere vrijstellingsregeling voor kleine ondernemingen; btw niet van toepassing.
 
 ## Contact
 

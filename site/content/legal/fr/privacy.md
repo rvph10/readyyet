@@ -32,7 +32,7 @@ Nous ne vendons pas de données personnelles, ne les utilisons pas pour de la pu
 - **Sessions et codes de connexion** : supprimés à leur expiration (une session dure 7 jours et se prolonge tant que vous utilisez le service).
 - **Emails que nous vous envoyons** : leur contenu est gardé 30 jours pour la distribution et le support, puis seule la trace de l'envoi est conservée.
 - **Pièces de facturation** : 10 ans, comme l'exige le droit fiscal belge (le droit comptable seul impose 7 ans).
-- **Statistiques** : [À FIXER : la durée la plus courte permise par la formule PostHog, par exemple 12 mois].
+- **Statistiques** : 1 an, puis PostHog les supprime.
 - **Messages au support** : jusqu'à 2 ans après la fin de l'échange.
 
 ## 4. Qui les reçoit
@@ -44,7 +44,7 @@ Nous faisons appel à ces prestataires, chacun lié par un accord de traitement 
 | Railway Corporation                | Hébergement, base de données, stockage des fichiers                                                   | UE (Amsterdam, Pays-Bas)                                     |
 | Resend (Plus Five Five, Inc.)      | Envoi des emails                                                                                      | UE (Irlande)                                                 |
 | Stripe Payments Europe, Ltd.       | Paiements et factures                                                                                 | UE (Irlande), avec transferts vers Stripe, Inc. (États-Unis) |
-| Billit NV                          | Envoi des factures via le réseau Peppol                                                               | UE (Belgique) [À VÉRIFIER : région d'hébergement de Billit]  |
+| Billit NV                          | Envoi des factures via le réseau Peppol                                                               | UE (Pays-Bas et Irlande)                                     |
 | Functional Software, Inc. (Sentry) | Rapports d'erreurs, débarrassés des noms, emails, cookies et contenus de requêtes                     | UE (Allemagne)                                               |
 | PostHog, Inc.                      | Statistiques d'utilisation, uniquement avec votre accord                                              | UE (Allemagne)                                               |
 | Google LLC (API Places)            | Retrouver l'adresse publique, les horaires et le lien d'avis de votre commerce quand vous le cherchez | Monde ; seul ce que vous tapez dans la recherche est envoyé  |

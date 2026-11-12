@@ -32,7 +32,7 @@ We verkopen geen persoonsgegevens, gebruiken ze niet voor reclame, en nemen geen
 - **Sessies en inlogcodes**: gewist wanneer ze vervallen (een sessie duurt 7 dagen en wordt verlengd zolang u de dienst gebruikt).
 - **E-mails die we u sturen**: de inhoud wordt 30 dagen bewaard voor de aflevering en de support, daarna blijft alleen de vermelding dat er een e-mail verstuurd werd.
 - **Facturatiegegevens**: 10 jaar, zoals de Belgische fiscale wetgeving vereist (het boekhoudrecht alleen vereist er 7).
-- **Analyse**: [TE BEPALEN: de kortste termijn die het plan van PostHog toelaat, bijvoorbeeld 12 maanden].
+- **Analyse**: 1 jaar, daarna wist PostHog ze.
 - **Berichten aan de support**: tot 2 jaar na het einde van het gesprek.
 
 ## 4. Wie ze ontvangt
@@ -44,7 +44,7 @@ We werken met deze dienstverleners, elk gebonden door een verwerkersovereenkomst
 | Railway Corporation                | Hosting, databank, opslag van bestanden                                                        | EU (Amsterdam, Nederland)                                                |
 | Resend (Plus Five Five, Inc.)      | Versturen van e-mails                                                                          | EU (Ierland)                                                             |
 | Stripe Payments Europe, Ltd.       | Betalingen en facturen                                                                         | EU (Ierland), met doorgifte aan Stripe, Inc. (VS)                        |
-| Billit NV                          | Versturen van facturen via het Peppol-netwerk                                                  | EU (België) [TE CONTROLEREN: hostingregio van Billit]                    |
+| Billit NV                          | Versturen van facturen via het Peppol-netwerk                                                  | EU (Nederland en Ierland)                                                |
 | Functional Software, Inc. (Sentry) | Foutrapporten, ontdaan van namen, e-mailadressen, cookies en de inhoud van verzoeken           | EU (Duitsland)                                                           |
 | PostHog, Inc.                      | Productanalyse                                                                                 | EU (Duitsland)                                                           |
 | Google LLC (Places API)            | Het openbare adres, de openingsuren en de reviewlink van uw zaak vinden wanneer u ernaar zoekt | Wereldwijd; alleen wat u in de zoekbalk voor zaken typt, wordt verstuurd |

@@ -5,7 +5,7 @@ ReadyYet (readyyet.app, app.readyyet.app, api.readyyet.app) est édité par :
 **Raphaël Genu**, indépendant en personne physique, exerçant sous la dénomination **UpInTown**
 Kerkedelle 51A, 1200 Woluwe-Saint-Lambert, Belgique
 Numéro d'entreprise : 1034.448.184 (Banque-Carrefour des Entreprises), unité d'établissement 2.385.141.710
-TVA : BE1034448184. [À VÉRIFIER avec le comptable : formulation exacte] Régime particulier de franchise des petites entreprises ; TVA non applicable.
+TVA : BE1034448184. Régime particulier de franchise des petites entreprises ; TVA non applicable.
 
 ## Contact
 

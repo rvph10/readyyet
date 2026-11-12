@@ -32,7 +32,7 @@ We do not sell personal data, use it for advertising, or make decisions about yo
 - **Sessions and sign-in codes**: deleted when they expire (a session lasts 7 days and renews while you use the service).
 - **Emails we send you**: their content is kept 30 days for delivery and support, then only the record that an email was sent is kept.
 - **Billing records**: 10 years, as Belgian tax law requires (accounting law alone requires 7).
-- **Analytics**: [TO SET: the shortest period PostHog's plan allows, e.g. 12 months].
+- **Analytics**: 1 year, then PostHog deletes them.
 - **Messages to support**: up to 2 years after the conversation ends.
 
 ## 4. Who receives it
@@ -44,7 +44,7 @@ We use these providers, each bound by a data processing agreement:
 | Railway Corporation                | Hosting, database, file storage                                                  | EU (Amsterdam, the Netherlands)                       |
 | Resend (Plus Five Five, Inc.)      | Sending emails                                                                   | EU (Ireland)                                          |
 | Stripe Payments Europe, Ltd.       | Payments and invoices                                                            | EU (Ireland), with transfers to Stripe, Inc. (US)     |
-| Billit NV                          | Sending invoices through the Peppol network                                      | EU (Belgium) [TO CHECK: Billit's hosting region]      |
+| Billit NV                          | Sending invoices through the Peppol network                                      | EU (the Netherlands and Ireland)                      |
 | Functional Software, Inc. (Sentry) | Error reports, stripped of names, emails, cookies and request content            | EU (Germany)                                          |
 | PostHog, Inc.                      | Product analytics                                                                | EU (Germany)                                          |
 | Google LLC (Places API)            | Finding your shop's public address, hours and review link when you search for it | Global; only what you type in the shop search is sent |

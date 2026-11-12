@@ -3,9 +3,9 @@
 ReadyYet (readyyet.app, app.readyyet.app, api.readyyet.app) is published by:
 
 **Raphaël Genu**, self-employed (sole trader), trading as **UpInTown**
-Kerkedelle 51A, 1200 Woluwe-Saint-Lambert, Belgium [TO CHECK: the BCE lists "Kerkedelle 51", without the A]
+Kerkedelle 51A, 1200 Woluwe-Saint-Lambert, Belgium
 Enterprise number: 1034.448.184 (Crossroads Bank for Enterprises), establishment unit 2.385.141.710
-VAT: BE1034448184. [TO CHECK with the accountant: exact current wording] Special franchise scheme for small enterprises; VAT not applicable.
+VAT: BE1034448184. Special franchise scheme for small enterprises; VAT not applicable.
 
 ## Contact
 
