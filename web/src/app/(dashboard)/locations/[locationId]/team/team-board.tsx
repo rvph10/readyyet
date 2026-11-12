@@ -96,9 +96,14 @@ export function TeamBoard({ locationId, meId, myRole, members, invitations, take
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span title={member.user.name} className="truncate text-label-md">
+                    {/* What they did here, open to the whole team (ADR 0142). */}
+                    <Link
+                      href={`/locations/${locationId}/members/${member.user.id}`}
+                      title={member.user.name}
+                      className="truncate text-label-md underline-offset-4 hover:underline"
+                    >
                       {member.user.name}
-                    </span>
+                    </Link>
                     {mine && <Badge>{t("you")}</Badge>}
                   </span>
                   <span title={member.user.email} className="block truncate text-p-xs text-muted">

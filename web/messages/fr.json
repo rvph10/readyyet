@@ -636,9 +636,8 @@
     },
     "activity": {
       "title": "Activité",
-      "you": "Vous",
-      "created": "a créé",
-      "moved": "a fait avancer",
+      "created": "A créé",
+      "moved": "A fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
     }
@@ -1516,5 +1515,19 @@
     "upgrade": "Passer à Pro",
     "choose": "Choisir un plan",
     "frozen": "Ce magasin n'a plus de plan actif. Choisissez-en un pour retrouver cette fonction, rien de ce que vous aviez n'est perdu."
+  },
+  "member": {
+    "open": "Voir la carte de {name}",
+    "profile": "Voir son profil",
+    "since": "Dans l'équipe depuis le {date}",
+    "thisMonth": "Ce mois-ci",
+    "movedHint": "Chaque étape franchie par un ticket compte, jusqu'au retrait.",
+    "total": "Depuis son arrivée",
+    "counts": {
+      "moved": "Étapes avancées",
+      "created": "Tickets créés",
+      "ready": "Marqués prêts",
+      "completed": "Remis au client"
+    }
   }
 }

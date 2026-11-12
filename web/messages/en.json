@@ -636,9 +636,8 @@
     },
     "activity": {
       "title": "Activity",
-      "you": "You",
-      "created": "created",
-      "moved": "moved",
+      "created": "Created",
+      "moved": "Moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
     }
@@ -1516,5 +1515,19 @@
     "upgrade": "Move to Pro",
     "choose": "Choose a plan",
     "frozen": "This shop has no active plan. Choose one to get this back, nothing you had is lost."
+  },
+  "member": {
+    "open": "See {name}'s card",
+    "profile": "See their profile",
+    "since": "On the team since {date}",
+    "thisMonth": "This month",
+    "movedHint": "Every step a Ticket takes counts, up to its collection.",
+    "total": "Since joining",
+    "counts": {
+      "moved": "Steps moved on",
+      "created": "Tickets created",
+      "ready": "Marked ready",
+      "completed": "Handed back"
+    }
   }
 }
