@@ -1419,8 +1419,8 @@
     "HARD_TO_REACH": "Difficile à joindre"
   },
   "cookies": {
-    "title": "Pouvons-nous mesurer vos visites ?",
-    "body": "Avec votre accord, ReadyYet compte les pages vues avec PostHog, hébergé dans l'UE, pour voir comment le service est trouvé et utilisé. Refuser ne change rien au service. Vous pouvez changer d'avis à tout moment dans Paramètres des cookies. <link>En savoir plus</link>",
+    "title": "Cookies",
+    "body": "Nous utilisons des cookies de mesure d'audience pour améliorer ReadyYet, uniquement avec votre accord. Refuser ne change rien pour vous. <link>En savoir plus</link>",
     "accept": "Accepter",
     "refuse": "Refuser",
     "settings": "Paramètres des cookies"

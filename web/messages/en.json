@@ -1419,8 +1419,8 @@
     "HARD_TO_REACH": "Hard to reach"
   },
   "cookies": {
-    "title": "Can we measure your visits?",
-    "body": "With your consent, ReadyYet counts page views with PostHog, hosted in the EU, to see how the service is found and used. Refusing changes nothing in the service. You can change your mind at any time from Cookie settings. <link>Read more</link>",
+    "title": "Cookies",
+    "body": "We use analytics cookies to improve ReadyYet, only if you agree. Refusing changes nothing for you. <link>Read more</link>",
     "accept": "Accept",
     "refuse": "Refuse",
     "settings": "Cookie settings"
