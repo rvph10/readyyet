@@ -51,8 +51,6 @@ export function HomeMotion() {
         "/temlis/serenium-587/motion.js",
         "/temlis/hirely-325/scroll-reveal.js",
         "/temlis/atniily-923/animations.js",
-        "/temlis/nexio-641/script.js",
-        "/temlis/nexio-641/animations.js",
       ]);
     }
 
