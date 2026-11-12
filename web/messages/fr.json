@@ -61,7 +61,21 @@
           "title": "Une liste pour votre équipe",
           "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque magasin."
         }
-      ]
+      ],
+      "showcase": {
+        "shop": "Atelier Lemaire",
+        "item": "Montre, remplacement du verre",
+        "progress": "Avancement",
+        "steps": ["Reçu", "Diagnostic", "Devis à accepter", "Réparation", "Prêt"],
+        "quote": {
+          "title": "Devis à valider",
+          "text": "E-mail envoyé au client"
+        },
+        "ready": {
+          "title": "C'est prêt !",
+          "text": "E-mail : venez la chercher"
+        }
+      }
     },
     "emailPlaceholder": "Entrez votre e-mail",
     "namePlaceholder": "Entrez votre nom",

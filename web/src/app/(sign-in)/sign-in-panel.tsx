@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
+import { Showcase } from "./showcase";
 import { TipsCarousel } from "./tips-carousel";
 
 // In the order of signIn.panel.tips.
@@ -13,12 +14,19 @@ export async function SignInPanel() {
   });
 
   return (
-    <Panel as="aside" padding="none" className="relative hidden w-1/2 overflow-hidden lg:block">
-      <div className="absolute inset-x-8 top-8 xl:inset-x-10 xl:top-19">
+    <Panel
+      as="aside"
+      padding="none"
+      className="on-pine relative hidden w-1/2 flex-col gap-8 overflow-hidden bg-pine! p-8 text-surface lg:flex xl:p-10"
+    >
+      <div>
         <p className="mb-4 text-title-h3 font-bold text-balance xl:text-title-h1">{t("title")}</p>
-        <p className="text-p-md text-muted xl:text-p-lg">{t("text")}</p>
+        <p className="text-p-md text-surface/75 xl:text-p-lg">{t("text")}</p>
       </div>
-      <div className="absolute inset-x-8 bottom-8 xl:inset-x-10 xl:bottom-15">
+      <div className="flex flex-1 items-center">
+        <Showcase copy={t.raw("showcase") as Parameters<typeof Showcase>[0]["copy"]} />
+      </div>
+      <div className="text-ink">
         <TipsCarousel tips={tips} label={t("tipsLabel")} nextLabel={t("nextTip")} />
       </div>
     </Panel>

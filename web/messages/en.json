@@ -61,7 +61,21 @@
           "title": "One list for your team",
           "text": "Everyone at the counter sees the same Tickets, at every shop."
         }
-      ]
+      ],
+      "showcase": {
+        "shop": "Atelier Lemaire",
+        "item": "Watch, new glass",
+        "progress": "Progress",
+        "steps": ["Received", "Diagnosing", "Quote to approve", "Repairing", "Ready"],
+        "quote": {
+          "title": "Quote to approve",
+          "text": "Email sent to the customer"
+        },
+        "ready": {
+          "title": "It's ready!",
+          "text": "Email: come and collect it"
+        }
+      }
     },
     "emailPlaceholder": "Enter your email",
     "namePlaceholder": "Enter your name",

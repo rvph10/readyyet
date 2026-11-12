@@ -977,3 +977,11 @@
     opacity: 0;
   }
 }
+
+/* The sign-in showcase's Status, rising in as it changes (showcase.tsx). */
+@keyframes showcase-in {
+  from {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+}
