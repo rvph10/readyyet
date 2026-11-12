@@ -10,6 +10,8 @@ import { StorageService } from "../storage/storage.service";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const EMAIL_CONTENT_DAYS = 30;
 const CUSTOMER_MONTHS = 24;
+const INVITATION_DAYS = 30;
+const EMAIL_RECORD_MONTHS = 24;
 const BATCH_SIZE = 500;
 
 // The retention periods of ADR 0128 that no request triggers.
@@ -30,6 +32,8 @@ export class RetentionService {
     await this.clearOldEmailContent();
     await this.deleteExpiredSignIns();
     await this.eraseInactiveCustomers();
+    await this.deleteOldInvitations();
+    await this.deleteOldEmailRecords();
   }
 
   // Long past any retry, the sweep gives up after a day (ADR 0081). That
@@ -49,6 +53,21 @@ export class RetentionService {
     const now = new Date();
     await this.prisma.session.deleteMany({ where: { expiresAt: { lt: now } } });
     await this.prisma.verification.deleteMany({ where: { expiresAt: { lt: now } } });
+  }
+
+  // Accepted or not, an invitation has done its job a month after it expired.
+  async deleteOldInvitations() {
+    await this.prisma.invitation.deleteMany({
+      where: { expiresAt: { lt: new Date(Date.now() - INVITATION_DAYS * DAY_MS) } },
+    });
+  }
+
+  // Who an email went to and whether it arrived, kept for support and
+  // disputes, then gone (privacy notice).
+  async deleteOldEmailRecords() {
+    const cutoff = new Date();
+    cutoff.setUTCMonth(cutoff.getUTCMonth() - EMAIL_RECORD_MONTHS);
+    await this.prisma.emailLog.deleteMany({ where: { createdAt: { lt: cutoff } } });
   }
 
   // A Customer with nothing open and nothing moving for 24 months, or left

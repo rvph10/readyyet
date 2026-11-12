@@ -147,6 +147,49 @@ describe("Retention", () => {
     ).toEqual([{ id: `live-${stamp}` }]);
   });
 
+  it("deletes invitations a month after they expired, accepted or not, and keeps the others", async () => {
+    const { id: invitedBy } = await prisma.user.findUniqueOrThrow({
+      where: { email: `delivered+retention-${stamp}@resend.dev` },
+    });
+    const invitation = (label: string, expiresAt: Date, status: "PENDING" | "ACCEPTED") =>
+      prisma.invitation.create({
+        data: {
+          locationId,
+          email: `delivered+${label}-${stamp}@resend.dev`,
+          role: "EMPLOYEE",
+          invitedBy,
+          status,
+          expiresAt,
+        },
+      });
+    const old = await invitation("old-invite", new Date(Date.now() - 31 * DAY_MS), "ACCEPTED");
+    const expired = await invitation("expired-invite", new Date(Date.now() - 29 * DAY_MS), "PENDING");
+
+    await retention.deleteOldInvitations();
+
+    await expect(prisma.invitation.findUnique({ where: { id: old.id } })).resolves.toBeNull();
+    await expect(prisma.invitation.findUnique({ where: { id: expired.id } })).resolves.not.toBeNull();
+  });
+
+  it("deletes the record of an email after 24 months", async () => {
+    const record = (label: string, createdAt: Date) =>
+      prisma.emailLog.create({
+        data: {
+          to: `delivered+${label}-${stamp}@resend.dev`,
+          subject: "Prêt",
+          type: "ticket_status_update",
+          createdAt,
+        },
+      });
+    const old = await record("old-record", monthsAgo(25));
+    const recent = await record("recent-record", monthsAgo(23));
+
+    await retention.deleteOldEmailRecords();
+
+    await expect(prisma.emailLog.findUnique({ where: { id: old.id } })).resolves.toBeNull();
+    await expect(prisma.emailLog.findUnique({ where: { id: recent.id } })).resolves.not.toBeNull();
+  });
+
   it("erases a Customer whose last Ticket ended over 24 months ago", async () => {
     const { ticketId, customerId } = await createTicket();
     await age(ticketId, customerId, monthsAgo(25));
