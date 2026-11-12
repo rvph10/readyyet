@@ -33,7 +33,7 @@ function status(code: Code) {
   };
 }
 
-// Each moment's history, as opening days before today and a time on the shop's clock,
+// Each moment's history, as opening days before today and a time on the Location's clock,
 // so it reads as last week's work in opening hours whenever it's opened. The
 // photos follow the watch: dropped off cracked, opened on the bench, mended.
 // Any of those days can be a Saturday, so every time fits its shorter hours.
@@ -110,7 +110,7 @@ const HOURS: Tracking["location"]["openingHours"] = [
 ];
 
 export function demoTracking(moment: Moment, title: string, locale: string, now: Date): Tracking {
-  // Counted in days the shop opens, so nothing happens on a Sunday or Monday.
+  // Counted in days the Location opens, so nothing happens on a Sunday or Monday.
   const day = (offset: number) => {
     let date = calendarDateIn(now, TIME_ZONE);
     for (let left = Math.abs(offset); left > 0;) {

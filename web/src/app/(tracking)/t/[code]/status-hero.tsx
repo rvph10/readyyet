@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Illustration, type IllustrationName } from "@/components/illustration";
 import { statusDotClass, statusTone } from "@/components/status-pill";
-import { Button, buttonClass } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { PickedUpButton } from "./picked-up-button";
 import { statusLabel } from "@/lib/status-label";
@@ -110,7 +110,8 @@ export async function StatusHero({ tracking, locale, now, demo = false, classNam
               </a>
             )}
             {demo ? (
-              <Button variant="secondary">{t("pickedUp")}</Button>
+              // Not a button, so the keyboard doesn't stop on one that does nothing.
+              <span className={buttonClass({ variant: "secondary" })}>{t("pickedUp")}</span>
             ) : (
               <PickedUpButton code={tracking.trackingCode} variant="secondary" label={t("pickedUp")} />
             )}

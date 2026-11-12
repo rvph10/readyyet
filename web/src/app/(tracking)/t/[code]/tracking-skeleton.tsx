@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TrackingBento, TrackingGrid } from "./tracking-grid";
 
 // The page's shape in its most common state, an open Ticket with an estimated
-// date, no photos and a shop with a banner, so its tiles stay where they are
+// date, no photos and a Business with a banner, so its tiles stay where they are
 // when the data arrives.
 export function TrackingSkeleton() {
   const t = useTranslations("tracking");

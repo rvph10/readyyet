@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false, follow: false } };
 }
 
-// The page a Customer gets, on a made-up Ticket, for a shop that wants to see
+// The page a Customer gets, on a made-up Ticket, for a Business that wants to see
 // it before signing up. The site links here; ?step= picks the moment.
 export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
   const { step } = await searchParams;
