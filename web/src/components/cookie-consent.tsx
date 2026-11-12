@@ -4,14 +4,8 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  deletePostHogStorage,
-  isCustomerPage,
-  POSTHOG_OPTIONS,
-  readConsent,
-  saveConsent,
-  type Consent,
-} from "@/lib/consent";
+import { deletePostHogStorage, isCustomerPage, readConsent, saveConsent, type Consent } from "@/lib/consent";
+import { loadPostHog } from "@/lib/analytics";
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
@@ -64,9 +58,7 @@ export function CookieConsent({ privacyUrl }: { privacyUrl: string }) {
 
   useEffect(() => {
     if (!POSTHOG_KEY || consent !== "granted" || customerPage) return;
-    void import("posthog-js").then(({ default: posthog }) => {
-      if (!posthog.__loaded) posthog.init(POSTHOG_KEY, POSTHOG_OPTIONS);
-    });
+    void loadPostHog(POSTHOG_KEY);
   }, [consent, customerPage]);
 
   if (!POSTHOG_KEY || customerPage || consent === "unknown" || (consent !== null && !open)) return null;

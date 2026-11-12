@@ -198,8 +198,9 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
 
   async function saveName(name: string) {
     if (await call("saveName", () => authClient.updateUser({ name }))) {
-      // Only a first sign-in asks for the name (ADR 0011), so this is the sign-up.
-      track("signed_up");
+      // Only a first sign-in asks for the name (ADR 0011). Someone invited
+      // joins an existing Business, which isn't a sign-up.
+      if (!next.startsWith("/invitations/")) track("signed_up");
       router.replace(next);
     }
   }
