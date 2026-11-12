@@ -45,7 +45,7 @@
       }
     },
     "cta": {
-      "start": "14 dagen gratis proberen",
+      "start": "Start uw gratis proefperiode",
       "pricing": "Bekijk de prijzen"
     },
     "steps": {
@@ -138,7 +138,7 @@
     },
     "trades": {
       "title": "Voor elke zaak waar klanten iets binnenbrengen",
-      "cta": "14 dagen gratis proberen",
+      "cta": "Start uw gratis proefperiode",
       "label": "Beroepen",
       "previous": "Vorig beroep",
       "next": "Volgend beroep",
@@ -202,7 +202,7 @@
       "intro": "14 dagen om alles te proberen, zonder bankkaart. Daarna één abonnement per winkel, per maand of per jaar, opzegbaar aan het einde van de periode.",
       "perMonth": "/maand",
       "popular": "Populair",
-      "start": "14 dagen gratis proberen",
+      "start": "Start uw gratis proefperiode",
       "essentiel": {
         "name": "Essentiel",
         "price": "€ 29",
@@ -258,7 +258,7 @@
       "row1": ["Minder", "telefoontjes,"],
       "row2": ["meer", "tijd", "voor"],
       "row3": "uw werk.",
-      "start": "14 dagen gratis proberen"
+      "start": "Start uw gratis proefperiode"
     },
     "footer": {
       "tagline": "Online opvolging voor alles wat klanten in de winkel achterlaten.",

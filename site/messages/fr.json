@@ -45,7 +45,7 @@
       }
     },
     "cta": {
-      "start": "Essai gratuit de 14 jours",
+      "start": "Commencer l'essai gratuit",
       "pricing": "Voir les tarifs"
     },
     "steps": {
@@ -138,7 +138,7 @@
     },
     "trades": {
       "title": "Pour tous les métiers où le client dépose, puis revient chercher",
-      "cta": "Essai gratuit de 14 jours",
+      "cta": "Commencer l'essai gratuit",
       "label": "Métiers",
       "previous": "Métier précédent",
       "next": "Métier suivant",
@@ -202,7 +202,7 @@
       "intro": "14 jours pour tout essayer, sans carte bancaire. Ensuite, un abonnement par magasin, au mois ou à l'année, résiliable en fin de période.",
       "perMonth": "/mois",
       "popular": "Populaire",
-      "start": "Essai gratuit de 14 jours",
+      "start": "Commencer l'essai gratuit",
       "essentiel": {
         "name": "Essentiel",
         "price": "29 €",
@@ -263,7 +263,7 @@
       "row1": ["Moins", "d'appels,"],
       "row2": ["plus", "de", "temps"],
       "row3": "pour travailler.",
-      "start": "Essai gratuit de 14 jours"
+      "start": "Commencer l'essai gratuit"
     },
     "footer": {
       "tagline": "Le suivi en ligne pour tout ce qu'on dépose en magasin.",

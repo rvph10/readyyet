@@ -45,7 +45,7 @@
       }
     },
     "cta": {
-      "start": "Try it free for 14 days",
+      "start": "Start free trial",
       "pricing": "See pricing"
     },
     "steps": {
@@ -138,7 +138,7 @@
     },
     "trades": {
       "title": "For every trade where customers drop off and come back",
-      "cta": "Try it free for 14 days",
+      "cta": "Start free trial",
       "label": "Trades",
       "previous": "Previous trade",
       "next": "Next trade",
@@ -202,7 +202,7 @@
       "intro": "14 days to try everything, no card needed. After that, one subscription per shop, monthly or yearly, cancel at the end of any period.",
       "perMonth": "/month",
       "popular": "Popular",
-      "start": "Try it free for 14 days",
+      "start": "Start free trial",
       "essentiel": {
         "name": "Essentiel",
         "price": "€29",
@@ -258,7 +258,7 @@
       "row1": ["Fewer", "calls,"],
       "row2": ["more", "time", "for"],
       "row3": "the work.",
-      "start": "Try it free for 14 days"
+      "start": "Start free trial"
     },
     "footer": {
       "tagline": "Online tracking for everything people leave at a shop.",
