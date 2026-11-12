@@ -36,14 +36,7 @@ interface Props extends NewTicketProps {
   children: ReactNode;
 }
 
-export function LocationActions({
-  locationName,
-  frozen,
-  canChoosePlan,
-  trialDaysLeft,
-  children,
-  ...newTicket
-}: Props) {
+export function LocationActions({ locationName, frozen, canChoosePlan, trialDaysLeft, children, ...newTicket }: Props) {
   const t = useTranslations("plans");
   const tTickets = useTranslations("tickets");
   const [creating, setCreating] = useState(false);

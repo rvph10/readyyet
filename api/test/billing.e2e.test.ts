@@ -197,7 +197,9 @@ describe("POST /locations/:locationId/billing/checkout", () => {
       metadata: { locationId },
       cancel_at_period_end: false,
       schedule: null,
-      items: { data: [{ current_period_end: Math.floor(Date.now() / 1000) + 86_400, price: { lookup_key: "pro_monthly" } }] },
+      items: {
+        data: [{ current_period_end: Math.floor(Date.now() / 1000) + 86_400, price: { lookup_key: "pro_monthly" } }],
+      },
     });
 
     const response = await checkout({ plan: "PRO", interval: "MONTH" });
@@ -211,7 +213,13 @@ describe("POST /locations/:locationId/billing/checkout", () => {
     // Back to the trial, which the next tests start from.
     await prisma.subscription.update({
       where: { locationId },
-      data: { status: before.status, plan: before.plan, interval: before.interval, stripeSubscriptionId: null, currentPeriodEnd: null },
+      data: {
+        status: before.status,
+        plan: before.plan,
+        interval: before.interval,
+        stripeSubscriptionId: null,
+        currentPeriodEnd: null,
+      },
     });
   });
 

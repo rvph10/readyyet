@@ -30,7 +30,9 @@ export class SalesPartnerService {
   }
 
   async mark(email: string): Promise<SalesPartnerDto> {
-    const user = await this.prisma.user.findFirst({ where: { email: { equals: escapeLike(email), mode: "insensitive" } } });
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: escapeLike(email), mode: "insensitive" } },
+    });
     if (!user || user.deletedAt) {
       throw new NotFoundError("No account uses this email");
     }
