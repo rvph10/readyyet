@@ -67,6 +67,9 @@ interface Props {
   src: string | null;
   size?: AvatarSize;
   shape?: "circle" | "square";
+  // A logo that fills its square edge to edge, where it stands for the shop
+  // on its own, as at the top of a tracking page.
+  fill?: boolean;
   // For placing it, like a ring or overlap in a stack, not resizing it.
   className?: string;
 }
@@ -74,16 +77,16 @@ interface Props {
 // A User's picture or a Business's logo, or their initials in a colour of
 // their own without one, or when it can't be loaded. Decorative: the name is
 // always written next to it or in the text around it. A photo fills its
-// circle, a logo sits whole inside its square, since logos have their own
-// shapes and margins.
-export function Avatar({ id, name, src, size = "md", shape = "circle", className }: Props) {
+// circle, a logo sits whole inside its square unless told to fill it, since
+// logos have their own shapes and margins.
+export function Avatar({ id, name, src, size = "md", shape = "circle", fill = false, className }: Props) {
   const [failed, setFailed] = useState(false);
   const picture = src && !failed;
   const square = shape === "square";
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center overflow-hidden leading-none font-semibold select-none ${sizes[size]} ${square ? squares[size] : "rounded-full"} ${picture ? (square ? "border border-border bg-surface" : "bg-subtle") : avatarColor(id)} ${className ?? ""}`}
+      className={`flex shrink-0 items-center justify-center overflow-hidden leading-none font-semibold select-none ${sizes[size]} ${square ? squares[size] : "rounded-full"} ${picture ? (square && !fill ? "border border-border bg-surface" : "bg-subtle") : avatarColor(id)} ${className ?? ""}`}
     >
       {picture ? (
         // Served by the API, already resized when uploaded (ADR 0026), so
@@ -101,7 +104,7 @@ export function Avatar({ id, name, src, size = "md", shape = "circle", className
             if (image?.complete && image.naturalWidth === 0) setFailed(true);
           }}
           onError={() => setFailed(true)}
-          className={square ? "size-full object-contain p-[12%]" : "size-full object-cover"}
+          className={square && !fill ? "size-full object-contain p-[12%]" : "size-full object-cover"}
         />
       ) : (
         initials(name)

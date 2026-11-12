@@ -32,12 +32,17 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
     <TrackingGrid>
       {children}
       {location.bannerUrl && (
-        // Whole, at 3:1 (ADR 0109). On a computer it's in the shop's tile instead.
+        // Across the top like a cover (ADR 0134): whole at 3:1 on a phone, a
+        // lower band on a computer so the Status stays in the first screen.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={location.bannerUrl} alt="" className="aspect-[3/1] w-full rounded-sheet object-cover lg:hidden" />
+        <img
+          src={location.bannerUrl}
+          alt=""
+          className="aspect-[3/1] w-full rounded-sheet object-cover lg:aspect-auto lg:h-64"
+        />
       )}
       <header className="flex items-center gap-3 px-1">
-        <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="lg" />
+        <Avatar id={location.name} name={location.name} src={location.logoUrl} shape="square" size="xl" fill />
         <p className="min-w-0 text-label-md text-balance wrap-anywhere">{location.name}</p>
       </header>
       <TrackingBento photos={photos.length > 0}>
@@ -49,7 +54,7 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
           locale={locale}
           now={now}
           demo={demo}
-          className={`${ready ? "order-2" : "order-5"} lg:order-none ${photos.length > 0 ? "lg:row-span-3" : "lg:row-span-2"}`}
+          className={`${ready ? "order-2" : "order-5"} lg:sticky lg:top-5 lg:order-none lg:self-start ${photos.length > 0 ? "lg:row-span-3" : "lg:row-span-2"}`}
         />
         <Panel
           as="section"

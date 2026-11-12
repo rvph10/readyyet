@@ -61,14 +61,6 @@ export async function LocationPanel({ location, locale, now, demo = false, class
 
   return (
     <Panel as="aside" padding="lg" aria-labelledby="location-title" className={`flex flex-col ${className}`}>
-      {location.bannerUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={location.bannerUrl}
-          alt=""
-          className="-mx-6 -mt-6 mb-5 hidden aspect-[3/1] w-[calc(100%+3rem)] max-w-none rounded-t-[inherit] object-cover lg:block"
-        />
-      )}
       <h2 id="location-title" className="mb-3 text-title-h6">
         {t("location")}
       </h2>
@@ -101,8 +93,7 @@ export async function LocationPanel({ location, locale, now, demo = false, class
         {/* Without hours the tile would be a tall blank between its title and
             the contact rows. */}
         {!state && <Illustration name="helping" className="m-auto hidden h-56 w-auto max-w-full lg:block" />}
-        {/* Together at the bottom, whatever height a longer column leaves. */}
-        <div className="flex flex-col gap-1 lg:mt-auto">
+        <div className="flex flex-col gap-1">
           {address && mapsUrl && (
             <a
               href={demo ? undefined : mapsUrl}
