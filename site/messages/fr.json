@@ -293,5 +293,12 @@
     "contents": "Sur cette page",
     "others": "Documents juridiques",
     "questions": "Une question sur ces textes ?"
+  },
+  "cookies": {
+    "title": "Pouvons-nous mesurer vos visites ?",
+    "body": "Avec votre accord, ReadyYet compte les pages vues avec PostHog, hébergé dans l'UE, pour voir comment le service est trouvé et utilisé. Refuser ne change rien pour vous. Vous pouvez changer d'avis à tout moment dans Paramètres des cookies. <link>En savoir plus</link>",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "settings": "Paramètres des cookies"
   }
 }

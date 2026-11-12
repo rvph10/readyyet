@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { CookieSettingsButton } from "@/components/cookie-consent/CookieConsent";
 import { signInUrl } from "@/lib/sign-in-url";
 import { LEGAL_DOCS } from "@/lib/legal";
 import { noOrphan } from "@/lib/typography";
@@ -48,6 +49,7 @@ export async function Footer() {
     getLocale(),
     signInUrl(),
   ]);
+  const cookies = await getTranslations("cookies");
   const columns = [
     {
       title: t("product"),
@@ -112,6 +114,7 @@ export async function Footer() {
                     {legal(doc)}
                   </a>
                 ))}
+                <CookieSettingsButton className="footer__cookies">{cookies("settings")}</CookieSettingsButton>
               </nav>
               <LanguageSwitch label={t("language")} />
             </div>

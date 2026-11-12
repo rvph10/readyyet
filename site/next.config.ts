@@ -10,6 +10,8 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
+  // PostHog, once a visitor accepts it (ADR 0132).
+  `connect-src 'self'${process.env.NEXT_PUBLIC_POSTHOG_KEY ? " https://eu.i.posthog.com" : ""}`,
   "img-src 'self' blob: data:",
   "font-src 'self'",
   "object-src 'none'",
