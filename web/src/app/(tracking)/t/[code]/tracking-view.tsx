@@ -67,13 +67,15 @@ export async function TrackingView({ tracking, locale, now, demo = false, childr
       <TrackingBento photos={photos.length > 0}>
         <StatusHero tracking={tracking} locale={locale} now={now} demo={demo} className="order-1 lg:order-none" />
         {/* An item that's ready raises "where and when" first, so on a phone
-            the Location comes right after the Status. */}
+            the Location comes right after the Status. On a screen too short
+            for the whole tile, it scrolls within itself rather than hide its
+            bottom while it stays in view. */}
         <LocationPanel
           location={location}
           locale={locale}
           now={now}
           demo={demo}
-          className={`${ready ? "order-2" : "order-5"} lg:sticky lg:top-5 lg:order-none lg:self-start ${photos.length > 0 ? "lg:row-span-3" : "lg:row-span-2"}`}
+          className={`${ready ? "order-2" : "order-5"} lg:sticky lg:top-5 lg:order-none lg:max-h-[calc(100dvh-2.5rem)] lg:self-start lg:overflow-y-auto ${photos.length > 0 ? "lg:row-span-3" : "lg:row-span-2"}`}
         />
         <Panel
           as="section"
