@@ -51,6 +51,7 @@
     "steps": {
       "title": "Van afgifte tot ophaling",
       "intro": "U registreert het stuk, ReadyYet houdt uw klant op de hoogte en die komt terug op het juiste moment.",
+      "demo": "Bekijk een voorbeeld van een opvolgpagina",
       "stepLabel": "Stap {n}",
       "step1": {
         "title": "U registreert het stuk",

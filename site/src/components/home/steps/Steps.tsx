@@ -1,5 +1,7 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { APP_URL } from "@/lib/app-url";
 import { noOrphan } from "@/lib/typography";
+import { FillButton } from "../FillButton";
 import "@/temlis/payable-626/styles.css";
 import { type ArtText, CustomerRow, ItemRow, QrCard, ReadyEmail, ReadyTrack, TrackingCard } from "./StepArt";
 import "./steps.css";
@@ -28,7 +30,7 @@ const ART_KEYS = [
 // /temlis/payable-626/animations.js; the header enters like every section's,
 // through data-entrance (lib/motion/reveal.ts).
 export async function Steps() {
-  const t = await getTranslations("home.steps");
+  const [t, locale] = await Promise.all([getTranslations("home.steps"), getLocale()]);
   const art = Object.fromEntries(ART_KEYS.map((key) => [key, t(`art.${key}`)])) as ArtText;
   const step = (n: 1 | 2 | 3) => (
     <div className="card-text-wrap">
@@ -54,6 +56,13 @@ export async function Steps() {
                     </h2>
                     <div className="steps_description" data-entrance="">
                       <div className="text-base text-align-center text-color-secondary">{t("intro")}</div>
+                    </div>
+                    {/* The app's demo of the page Customers get, in the visitor's
+                        language where the app has it; it has no Dutch yet. */}
+                    <div data-entrance="">
+                      <FillButton href={`${APP_URL}/demo?lang=${locale === "fr" ? "fr" : "en"}`} className="btn--muted">
+                        {t("demo")}
+                      </FillButton>
                     </div>
                   </div>
                   <div className="steps_cards-wrap">

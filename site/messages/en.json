@@ -51,6 +51,7 @@
     "steps": {
       "title": "From drop-off to pickup",
       "intro": "You log the item, ReadyYet keeps your customer posted, and they come back at the right time.",
+      "demo": "See a sample tracking page",
       "stepLabel": "Step {n}",
       "step1": {
         "title": "You log the item",

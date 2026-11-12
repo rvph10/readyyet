@@ -51,6 +51,7 @@
     "steps": {
       "title": "Du dépôt au retrait",
       "intro": "Vous enregistrez l'article, ReadyYet tient votre client au courant, et il revient au bon moment.",
+      "demo": "Voir un exemple de page de suivi",
       "stepLabel": "Étape {n}",
       "step1": {
         "title": "Vous enregistrez l'article",

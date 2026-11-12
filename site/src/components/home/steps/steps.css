@@ -36,3 +36,11 @@
 [data-temlis="payable-626"] .step-art {
   font-family: var(--font-body);
 }
+
+/* Payable's link reset clears the site's buttons; the demo link under the
+   header gets the muted button's fill, colour and size back. */
+[data-temlis="payable-626"] .btn--muted {
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-size: 1rem;
+}
