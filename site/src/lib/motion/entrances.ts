@@ -74,14 +74,15 @@ function hero() {
   const lede = $(".hero__lede");
   const cta = $(".hero .cta");
   const buttons = $$(".hero .cta .btn");
+  const assure = $(".hero__assure");
   const box = $(".hero__panelbox");
   if (!title) return;
 
   const lines = splitTitle(title);
-  const after = [lede, ...buttons].filter(Boolean) as HTMLElement[];
+  const after = [lede, ...buttons, assure].filter(Boolean) as HTMLElement[];
   gsap.set([nav, ...after].filter(Boolean), { autoAlpha: 0, y: REVEAL.rise });
   stage(box);
-  show(nav, title, lede, cta, box);
+  show(nav, title, lede, cta, assure, box);
 
   // The same order as every section below: the title rises out of its
   // lines, then what it leads to.

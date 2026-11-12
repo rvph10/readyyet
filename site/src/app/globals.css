@@ -214,7 +214,7 @@ p {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html[data-enter] :is(.nav, .hero__title, .hero__lede, .hero .cta, .hero__panelbox):not(.is-revealed) {
+  html[data-enter] :is(.nav, .hero__title, .hero__lede, .hero .cta, .hero__assure, .hero__panelbox):not(.is-revealed) {
     visibility: hidden;
     animation: enter-fallback 0s 4s forwards;
   }

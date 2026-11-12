@@ -3,7 +3,7 @@ import { noOrphan } from "@/lib/typography";
 import "@/temlis/strivo-833/styles.css";
 import "./faq.css";
 
-const QUESTIONS = ["app", "notified", "sms", "start", "afterTrial", "shops"] as const;
+const QUESTIONS = ["app", "software", "notified", "sms", "start", "afterTrial", "shops"] as const;
 
 // Strivo's "Two-Column Accordion FAQ" (Temlis), markup as bought: native
 // <details> sharing one name, so opening one closes the others. It enters

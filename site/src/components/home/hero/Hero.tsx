@@ -25,6 +25,14 @@ export async function Hero() {
           <p className="body-text hero__lede">{noOrphan(t("lede"))}</p>
         </div>
         <CtaPair />
+        <ul className="hero__assure">
+          {[0, 1, 2].map((i) => (
+            <li key={i}>
+              <img src="/home/pricing-check.svg" alt="" width="20" height="20" />
+              {t(`assurances.${i}`)}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="hero__stage container container--bleed">
