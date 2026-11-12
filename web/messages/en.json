@@ -973,7 +973,9 @@
       },
       "format": "One ZIP file: a CSV for each kind of data, which opens in Excel, and everything as JSON.",
       "download": "Download the export",
-      "failed": "The export couldn't be prepared. Try again in a few minutes."
+      "failed": "The export couldn't be prepared. Try again in a few minutes.",
+      "started": "Downloading…",
+      "limit": "This shop has already been exported five times this hour. Try again in an hour."
     },
     "deleteTitle": "Delete this shop",
     "deleteAction": "Delete this shop",

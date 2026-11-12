@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Banner } from "@/components/ui/banner";
-import { buttonClass } from "@/components/ui/button";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { ExportButton } from "./export-button";
 import { SectionHeading } from "./section-form";
 
 // What the archive holds, in the order of its files.
@@ -16,14 +16,14 @@ const CONTENTS: { key: "customers" | "tickets" | "history" | "feedback" | "photo
 
 // ADR 0129: the Owner's data, theirs to keep or take elsewhere, listed before
 // it's downloaded as the terms promise (Data Act art. 26).
-export async function ExportData({ locationId, failed }: { locationId: string; failed: boolean }) {
+export async function ExportData({ locationId, failed }: { locationId: string; failed: string | undefined }) {
   const t = await getTranslations("settings.export");
   return (
     <section className="max-w-3xl pb-8">
       <SectionHeading title={t("title")} hint={t("hint")} />
       {failed && (
         <div className="mb-4">
-          <Banner tone="error">{t("failed")}</Banner>
+          <Banner tone="error">{t(failed === "limit" ? "limit" : "failed")}</Banner>
         </div>
       )}
       <div className="overflow-clip rounded-3xl border border-border">
@@ -42,10 +42,7 @@ export async function ExportData({ locationId, failed }: { locationId: string; f
         </ul>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-subtle px-5 py-4 lg:px-6">
           <p className="min-w-0 flex-1 basis-56 text-p-sm">{t("format")}</p>
-          {/* A download, not a page: a plain link, never prefetched. */}
-          <a href={`/locations/${locationId}/export`} className={buttonClass()}>
-            {t("download")}
-          </a>
+          <ExportButton locationId={locationId} />
         </div>
       </div>
     </section>

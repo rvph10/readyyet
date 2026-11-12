@@ -973,7 +973,9 @@
       },
       "format": "Un fichier ZIP : un CSV par type de données, qui s'ouvre dans Excel, et tout en JSON.",
       "download": "Télécharger l'export",
-      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes."
+      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes.",
+      "started": "Téléchargement en cours…",
+      "limit": "Ce magasin a déjà été exporté cinq fois cette heure-ci. Réessayez dans une heure."
     },
     "deleteTitle": "Supprimer ce magasin",
     "deleteAction": "Supprimer ce magasin",
