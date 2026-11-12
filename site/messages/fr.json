@@ -277,7 +277,21 @@
       "start": "Essai gratuit",
       "signIn": "Se connecter",
       "language": "Langue",
-      "rights": "© {year} ReadyYet. Tous droits réservés."
+      "rights": "© {year} ReadyYet. Tous droits réservés.",
+      "legal": "Juridique"
     }
+  },
+  "legal": {
+    "label": "Juridique",
+    "docs": {
+      "terms": "Conditions générales",
+      "privacy": "Politique de confidentialité",
+      "legal-notice": "Mentions légales",
+      "customer-data": "Vos données de client"
+    },
+    "since": "En vigueur depuis le {date}",
+    "contents": "Sur cette page",
+    "others": "Documents juridiques",
+    "questions": "Une question sur ces textes ?"
   }
 }

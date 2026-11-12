@@ -272,7 +272,21 @@
       "start": "Start free trial",
       "signIn": "Sign in",
       "language": "Language",
-      "rights": "© {year} ReadyYet. All rights reserved."
+      "rights": "© {year} ReadyYet. All rights reserved.",
+      "legal": "Legal"
     }
+  },
+  "legal": {
+    "label": "Legal",
+    "docs": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Notice",
+      "legal-notice": "Legal notice",
+      "customer-data": "Your data as a customer"
+    },
+    "since": "In force since {date}",
+    "contents": "On this page",
+    "others": "Legal documents",
+    "questions": "A question about these texts?"
   }
 }

@@ -272,7 +272,21 @@
       "start": "Gratis proberen",
       "signIn": "Aanmelden",
       "language": "Taal",
-      "rights": "© {year} ReadyYet. Alle rechten voorbehouden."
+      "rights": "© {year} ReadyYet. Alle rechten voorbehouden.",
+      "legal": "Juridisch"
     }
+  },
+  "legal": {
+    "label": "Juridisch",
+    "docs": {
+      "terms": "Algemene voorwaarden",
+      "privacy": "Privacyverklaring",
+      "legal-notice": "Wettelijke vermeldingen",
+      "customer-data": "Uw gegevens als klant"
+    },
+    "since": "Van kracht sinds {date}",
+    "contents": "Op deze pagina",
+    "others": "Juridische documenten",
+    "questions": "Een vraag over deze teksten?"
   }
 }
