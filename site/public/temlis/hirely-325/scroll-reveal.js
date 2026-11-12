@@ -98,15 +98,18 @@
       imgs.forEach(function (img) {
         var natural = getComputedStyle(img).width;
         gsap.set(img, { width: 0 });
+        // ReadyYet: opens once its row has risen (lib/motion/reveal.ts), on the
+        // home page's shared curve.
         ScrollTrigger.create({
           trigger: block,
-          start: 'top 88%',
+          start: 'top 85%',
           once: true,
           onEnter: function () {
             gsap.to(img, {
               width: natural,
-              duration: 0.7,
-              ease: 'power2.inOut',
+              duration: 0.9,
+              delay: 0.35,
+              ease: 'reveal',
               onComplete: function () { gsap.set(img, { clearProps: 'width' }); },
             });
           },

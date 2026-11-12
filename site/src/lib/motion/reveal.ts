@@ -62,13 +62,26 @@ export function splitTitle(el: HTMLElement) {
   const lines = split.lines as HTMLElement[];
   fitMasks(lines);
   gsap.set(lines, { yPercent: 110 });
-  return { lines, revert: () => split.revert() };
+  return { lines, to: { yPercent: 0 }, revert: () => split.revert() };
+}
+
+// A title already built of rows (data-entrance="rows"), stickers between its
+// words, rises a row at a time the way split lines do: each row is clipped
+// to where it will rest while it travels up into it.
+function rowsOf(el: HTMLElement) {
+  const lines = [...el.children] as HTMLElement[];
+  gsap.set(lines, { yPercent: 110, clipPath: "inset(0% 0% 100% 0%)" });
+  return {
+    lines,
+    to: { yPercent: 0, clipPath: "inset(0% 0% 0% 0%)" },
+    revert: () => gsap.set(lines, { clearProps: "clipPath" }),
+  };
 }
 
 // Section entrances. A [data-entrance-group] plays once when its top reaches
 // REVEAL.start, its [data-entrance] members in page order: titles
-// (data-entrance="title") rise out of their lines, everything else rises
-// REVEAL.rise, REVEAL.follow after the title and REVEAL.stagger apart.
+// (data-entrance="title" or "rows") rise out of their lines, everything else
+// rises REVEAL.rise, REVEAL.follow after the title and REVEAL.stagger apart.
 export async function startReveals() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -77,8 +90,9 @@ export async function startReveals() {
 
   document.querySelectorAll<HTMLElement>("[data-entrance-group]").forEach((group) => {
     const members = [...group.querySelectorAll<HTMLElement>("[data-entrance]")];
-    const titles = members.filter((el) => el.dataset.entrance === "title").map(splitTitle);
-    const rest = members.filter((el) => el.dataset.entrance !== "title");
+    const isTitle = (el: HTMLElement) => el.dataset.entrance === "title" || el.dataset.entrance === "rows";
+    const titles = members.filter(isTitle).map((el) => (el.dataset.entrance === "rows" ? rowsOf(el) : splitTitle(el)));
+    const rest = members.filter((el) => !isTitle(el));
     gsap.set(rest, { autoAlpha: 0, y: REVEAL.rise });
 
     ScrollTrigger.create({
@@ -87,8 +101,8 @@ export async function startReveals() {
       once: true,
       onEnter: () => {
         const tl = gsap.timeline({ defaults: { ease: REVEAL.ease, clearProps: CLEAR } });
-        titles.forEach(({ lines, revert }) =>
-          tl.to(lines, { yPercent: 0, duration: REVEAL.duration, stagger: REVEAL.stagger, onComplete: revert }, 0),
+        titles.forEach(({ lines, to, revert }) =>
+          tl.to(lines, { ...to, duration: REVEAL.duration, stagger: REVEAL.stagger, onComplete: revert }, 0),
         );
         tl.to(
           rest,

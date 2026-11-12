@@ -5,8 +5,9 @@ import { ChipButton } from "../ChipButton";
 import "./final-cta.css";
 
 // Hirely's "Call-to-Action" (Temlis), markup as bought, with Ledger's button
-// in place of its own and its two stickers in lime and pine. Its script is
-// /temlis/hirely-325/scroll-reveal.js.
+// in place of its own and its two stickers in lime and pine. Its script,
+// /temlis/hirely-325/scroll-reveal.js, opens the stickers; the rest enters
+// like every section, through data-entrance (lib/motion/reveal.ts).
 export async function FinalCta() {
   const t = await getTranslations("home.finalCta");
   const [a, b] = [t("row1.0"), t("row1.1")];
@@ -18,8 +19,8 @@ export async function FinalCta() {
         <section className="section_cta bg-dark">
           <div className="padding-section-medium"></div>
           <div className="padding-global">
-            <div className="container-large vertical-center">
-              <h2 className="cta_header scroll-animation">
+            <div className="container-large vertical-center" data-entrance-group="">
+              <h2 className="cta_header" data-entrance="rows">
                 <span className="cta_header-row">
                   <span className="h1">{a}</span>
                   <span className="h1">{b}</span>
@@ -38,7 +39,7 @@ export async function FinalCta() {
                 <div className="spacer-tablet"></div>
                 <div className="spacer-mobile"></div>
               </div>
-              <div className="scroll-animation">
+              <div data-entrance="">
                 <ChipButton href={`${APP_URL}/sign-in`}>{t("start")}</ChipButton>
               </div>
             </div>
