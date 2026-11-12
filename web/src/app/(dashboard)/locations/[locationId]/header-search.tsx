@@ -54,15 +54,17 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
     };
   }, [query, locationId]);
 
+  // Compact, the search is a Dialog rendered outside the box, which closes
+  // itself: a tap inside it would count as outside and shut it.
   useEffect(() => {
+    if (compact) return;
     function outside(event: PointerEvent) {
       if (box.current?.contains(event.target as Node)) return;
       setOpen(false);
-      setExpanded(false);
     }
     function shortcut(event: KeyboardEvent) {
       const typing = (event.target as HTMLElement).closest("input, textarea, select");
-      if (event.key !== "/" || typing || compact) return;
+      if (event.key !== "/" || typing) return;
       event.preventDefault();
       box.current?.querySelector("input")?.focus();
     }
