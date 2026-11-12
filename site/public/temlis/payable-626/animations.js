@@ -41,7 +41,7 @@
   var STAGGER = { tight: 0.05, base: 0.08, loose: 0.14 };
 
   /** Where an element is on screen when its entrance fires. */
-  var START = "top 88%";
+  var START = "top 85%";
 
   var BP = {
     desktop: "(min-width: 992px)",
@@ -845,7 +845,8 @@
     // WebKit does not paint a parent's `perspective` onto a transformed child, so the depth
     // has to travel in the child's own transform or the lean reads flat in Safari and deep
     // everywhere else.
-    gsap.set(cards, { transformPerspective: 900, rotateX: 8, y: 48, opacity: 0 });
+    // ReadyYet: the home page's shared rise (lib/motion/reveal.ts), not the template's 48px.
+    gsap.set(cards, { transformPerspective: 900, rotateX: 8, y: 24, opacity: 0 });
 
     // The row is the trigger, not each card: below 992px they stack, and one trigger per card
     // would turn the lean into three separate arrivals.
@@ -857,8 +858,8 @@
         y: 0,
         opacity: 1,
         duration: DUR.xl,
-        ease: EASE.settle,
-        stagger: STAGGER.loose,
+        ease: "reveal",
+        stagger: STAGGER.base,
         onComplete: function () {
           release(cards);
         },

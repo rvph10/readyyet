@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { startEntrances } from "@/lib/motion/entrances";
 import { startFillButtons } from "@/lib/motion/fill-buttons";
 import { startHeroScroll } from "@/lib/motion/hero-scroll";
-import { registerRevealEase } from "@/lib/motion/reveal";
+import { registerRevealEase, startReveals } from "@/lib/motion/reveal";
 import { startSmoothScroll } from "@/lib/motion/smooth-scroll";
 import { startTemlisSections } from "@/lib/motion/temlis";
 import { startTradesAutoplay } from "@/lib/motion/trades-autoplay";
@@ -38,6 +38,7 @@ export function HomeMotion() {
       startSmoothScroll();
       startFillButtons();
       void startEntrances();
+      void startReveals();
       // Ledger's scripts play their entrances whenever data-enter is set,
       // the page serves it to everyone.
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) {

@@ -25,7 +25,8 @@ const ART_KEYS = [
 
 // Payable's "Three Steps With Layered Art" (Temlis), markup as bought. The
 // data-anim and data-parallax attributes drive its script,
-// /temlis/payable-626/animations.js.
+// /temlis/payable-626/animations.js; the header enters like every section's,
+// through data-entrance (lib/motion/reveal.ts).
 export async function Steps() {
   const t = await getTranslations("home.steps");
   const art = Object.fromEntries(ART_KEYS.map((key) => [key, t(`art.${key}`)])) as ArtText;
@@ -47,11 +48,11 @@ export async function Steps() {
             <div className="padding-global padding-section-medium">
               <div className="container-medium">
                 <div className="steps_wrap">
-                  <div className="steps_header" data-anim-group="">
-                    <h2 className="text-5xl text-align-center" data-anim="lines">
+                  <div className="steps_header" data-entrance-group="">
+                    <h2 className="text-5xl text-align-center" data-entrance="title">
                       {noOrphan(t("title"))}
                     </h2>
-                    <div className="steps_description" data-anim="">
+                    <div className="steps_description" data-entrance="">
                       <div className="text-base text-align-center text-color-secondary">{t("intro")}</div>
                     </div>
                   </div>

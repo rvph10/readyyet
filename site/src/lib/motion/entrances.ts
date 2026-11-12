@@ -1,10 +1,5 @@
 import { gsap } from "gsap";
-import { CustomEase } from "gsap/CustomEase";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
-import { REVEAL } from "./reveal";
-
-gsap.registerPlugin(CustomEase, ScrollTrigger, SplitText);
+import { REVEAL, splitTitle } from "./reveal";
 
 const SHOWN = "is-revealed";
 const CLEAR = "transform,translate,rotate,scale,opacity,visibility";
@@ -15,24 +10,6 @@ const $ = (selector: string) => document.querySelector<HTMLElement>(selector);
 const $$ = (selector: string) => [...document.querySelectorAll<HTMLElement>(selector)];
 
 const show = (...els: Target[]) => els.forEach((el) => el?.classList.add(SHOWN));
-
-// SplitText would otherwise break lines at the non-breaking spaces that keep
-// a title's last words together.
-function keepBindings(el: HTMLElement) {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const nodes: Text[] = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode as Text);
-  nodes.forEach((node) => (node.nodeValue = (node.nodeValue ?? "").replace(/[^\S\u00a0]+/g, " ")));
-  const first = nodes[0];
-  const last = nodes[nodes.length - 1];
-  if (first) first.nodeValue = (first.nodeValue ?? "").replace(/^ /, "");
-  if (last) last.nodeValue = (last.nodeValue ?? "").replace(/ $/, "");
-}
-
-function split(el: HTMLElement, vars: SplitText.Vars) {
-  keepBindings(el);
-  return SplitText.create(el, { reduceWhiteSpace: false, ...vars });
-}
 
 function pivot(el: HTMLElement, frame: HTMLElement) {
   const a = el.getBoundingClientRect();
@@ -106,11 +83,9 @@ function hero() {
   const box = $(".hero__panelbox");
   if (!title) return;
 
-  const lines = split(title, { type: "lines", mask: "lines" });
-  fitMasks(lines.lines as HTMLElement[]);
+  const lines = splitTitle(title);
   const after = [lede, ...buttons].filter(Boolean) as HTMLElement[];
   gsap.set([nav, ...after].filter(Boolean), { autoAlpha: 0, y: REVEAL.rise });
-  gsap.set(lines.lines, { yPercent: 110 });
   stage(box);
   show(nav, title, lede, cta, box);
 
@@ -132,19 +107,6 @@ function hero() {
       0.1,
     )
     .to(after, { autoAlpha: 1, y: 0, duration: REVEAL.duration, stagger: REVEAL.stagger, ...enter }, 0.35);
-}
-
-// A display face set solid (line-height 1) draws its accents and descenders
-// outside the line box, which a line's mask would cut while it rises.
-function fitMasks(lines: HTMLElement[]) {
-  const ctx = document.createElement("canvas").getContext("2d")!;
-  lines.forEach((line) => {
-    const style = getComputedStyle(line);
-    ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const m = ctx.measureText(line.textContent ?? "");
-    const spill = Math.ceil((m.fontBoundingBoxAscent + m.fontBoundingBoxDescent - line.offsetHeight) / 2);
-    if (spill > 0) line.parentElement!.style.overflowClipMargin = `${spill}px`;
-  });
 }
 
 export async function startEntrances() {
