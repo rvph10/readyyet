@@ -154,13 +154,11 @@ Data is stored in the European Union. Where a subprocessor in Annex 3 is based o
 
 # Annex 2: Security measures {#annex-2}
 
-- Hosting in the EU (Railway, Amsterdam); data encrypted in transit (HTTPS, TLS) and stored by a provider that encrypts at rest.
-- Sign-in by single-use email codes valid 5 minutes, no passwords; rate limits on sign-in and on the API.
-- Every request checked against the person's role and Location; tracking pages reachable only with the Ticket's unguessable code.
-- Photos stored privately and shown through short-lived signed links.
-- Daily and weekly database backups, kept up to 27 days; a restore was tested on 9 November 2026.
-- Error reports and logs stripped of names, emails, cookies, request bodies and tracking codes.
-- Security headers, including a strict Content Security Policy, on the web app.
+- Hosting in the EU; data encrypted in transit and at rest.
+- Access limited by each person's role and Location; tracking pages reachable only through the Ticket's private link.
+- Photos stored privately and shown through short-lived links.
+- Daily database backups, kept up to 27 days.
+- Error reports and logs stripped of personal data.
 
 # Annex 3: Subprocessors {#annex-3}
 

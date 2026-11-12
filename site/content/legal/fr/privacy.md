@@ -8,8 +8,6 @@ Cette politique explique comment ReadyYet traite les données personnelles lorsq
 
 ReadyYet est édité par Raphaël Genu, indépendant, exerçant sous la dénomination UpInTown, Kerkedelle 51A, 1200 Woluwe-Saint-Lambert, Belgique, numéro d'entreprise 1034.448.184 (« nous »). Pour toute question sur vos données : **privacy@readyyet.app**.
 
-Nous n'avons pas désigné de délégué à la protection des données ; la loi ne l'impose pas pour un service de cette taille.
-
 ## 2. Ce que nous collectons, pourquoi, et sur quelle base
 
 | Qui                                           | Données                                                                                                                     | Pourquoi                                                                                                                     | Base légale (art. 6 RGPD)                                                          |

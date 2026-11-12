@@ -8,8 +8,6 @@ This notice explains how ReadyYet handles personal data when ReadyYet decides wh
 
 ReadyYet is run by Raphaël Genu, self-employed, trading as UpInTown, Kerkedelle 51A, 1200 Woluwe-Saint-Lambert, Belgium, enterprise number 1034.448.184 ("we"). For anything about your data: **privacy@readyyet.app**.
 
-We have not appointed a data protection officer; the law does not require one for a service of this size.
-
 ## 2. What we collect, why, and on what basis
 
 | Who                                           | Data                                                                                                               | Why                                                                                                     | Legal basis (GDPR art. 6)                                                    |

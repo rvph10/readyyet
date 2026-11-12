@@ -156,13 +156,11 @@ Les données sont stockées dans l'Union européenne. Lorsqu'un sous-traitant de
 
 # Annexe 2 : Mesures de sécurité {#annex-2}
 
-- Hébergement dans l'UE (Railway, Amsterdam) ; données chiffrées en transit (HTTPS, TLS) et stockées chez un fournisseur qui chiffre au repos.
-- Connexion par codes à usage unique envoyés par email, valables 5 minutes, sans mot de passe ; limitation du nombre de tentatives sur la connexion et sur l'API.
-- Chaque requête est vérifiée selon le rôle et la Location de la personne ; les pages de suivi ne sont accessibles qu'avec le code impossible à deviner du Ticket.
-- Photos stockées de façon privée et affichées via des liens signés de courte durée.
-- Sauvegardes quotidiennes et hebdomadaires de la base de données, conservées jusqu'à 27 jours ; une restauration a été testée le 9 novembre 2026.
-- Rapports d'erreurs et journaux débarrassés des noms, emails, cookies, contenus de requêtes et codes de suivi.
-- En-têtes de sécurité, dont une politique de sécurité du contenu (CSP) stricte, sur l'application web.
+- Hébergement dans l'UE ; données chiffrées en transit et au repos.
+- Accès limité selon le rôle et la Location de chaque personne ; pages de suivi accessibles uniquement par le lien privé du Ticket.
+- Photos stockées de façon privée et affichées via des liens de courte durée.
+- Sauvegardes quotidiennes de la base de données, conservées jusqu'à 27 jours.
+- Rapports d'erreurs et journaux débarrassés des données personnelles.
 
 # Annexe 3 : Sous-traitants ultérieurs {#annex-3}
 

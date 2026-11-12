@@ -154,13 +154,11 @@ De gegevens worden in de Europese Unie opgeslagen. Is een subverwerker uit bijla
 
 # Bijlage 2: Beveiligingsmaatregelen {#annex-2}
 
-- Hosting in de EU (Railway, Amsterdam); gegevens versleuteld tijdens het transport (HTTPS, TLS) en opgeslagen bij een aanbieder die in opslag versleutelt.
-- Aanmelden met eenmalige codes per e-mail die 5 minuten geldig zijn, geen wachtwoorden; limieten op het aantal pogingen bij het aanmelden en op de API.
-- Elk verzoek wordt getoetst aan de rol en de Location van de persoon; volgpagina's zijn alleen bereikbaar met de onraadbare code van het Ticket.
-- Foto's worden privé opgeslagen en getoond via ondertekende links die kort geldig zijn.
-- Dagelijkse en wekelijkse back-ups van de databank, tot 27 dagen bewaard; een herstel werd getest op 9 november 2026.
-- Foutrapporten en logs ontdaan van namen, e-mailadressen, cookies, de inhoud van verzoeken en volgcodes.
-- Beveiligingsheaders, waaronder een strikte Content Security Policy, op de webapp.
+- Hosting in de EU; gegevens versleuteld tijdens het transport en in opslag.
+- Toegang beperkt volgens de rol en de Location van elke persoon; volgpagina's alleen bereikbaar via de privélink van het Ticket.
+- Foto's privé opgeslagen en getoond via links die kort geldig zijn.
+- Dagelijkse back-ups van de databank, tot 27 dagen bewaard.
+- Foutrapporten en logs ontdaan van persoonsgegevens.
 
 # Bijlage 3: Subverwerkers {#annex-3}
 

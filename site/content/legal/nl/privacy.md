@@ -8,8 +8,6 @@ Deze verklaring legt uit hoe ReadyYet met persoonsgegevens omgaat wanneer ReadyY
 
 ReadyYet wordt uitgebaat door Raphaël Genu, zelfstandige, handelend onder de naam UpInTown, Kerkedelle 51A, 1200 Sint-Lambrechts-Woluwe, België, ondernemingsnummer 1034.448.184 ("wij"). Voor alles over uw gegevens: **privacy@readyyet.app**.
 
-We hebben geen functionaris voor gegevensbescherming aangesteld; de wet verplicht dat niet voor een dienst van deze omvang.
-
 ## 2. Wat we verzamelen, waarom, en op welke grondslag
 
 | Wie                                            | Gegevens                                                                                                                            | Waarom                                                                                                               | Rechtsgrond (art. 6 AVG)                                                                       |
