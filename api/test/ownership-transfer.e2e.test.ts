@@ -9,6 +9,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0017.
 describe("Transferring a business's ownership", () => {
@@ -49,7 +50,7 @@ describe("Transferring a business's ownership", () => {
     const business = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", owner.cookie)
-      .send({ name: "Transfer Test", location: location("First") });
+      .send({ termsVersion: TERMS_VERSION, name: "Transfer Test", location: location("First") });
     const businessId = business.body.id as string;
     const first = business.body.locations[0].id as string;
     const second = await request(app.getHttpServer())

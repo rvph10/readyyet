@@ -8,6 +8,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { EmailRetryService } from "../src/email/email-retry.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("Invitations", () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe("Invitations", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Invite Test Garage",
         location: {
           name: "Main Shop",

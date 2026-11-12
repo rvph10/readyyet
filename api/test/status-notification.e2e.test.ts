@@ -9,6 +9,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0015: a notifying status queues an email that's only sent once the
 // undo window has passed, and only if the ticket is still at that status.
@@ -74,6 +75,7 @@ describe("Customer status emails", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Status Email Test",
         location: {
           name: "Maroquinerie Lumière",

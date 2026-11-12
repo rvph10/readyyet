@@ -3,6 +3,7 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { Role } from "@readyyet/db";
+import { TERMS_VERSION } from "@readyyet/shared";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { fromBufferPromise } from "yauzl";
@@ -27,6 +28,7 @@ describe("Exporting a Location", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Export",
         location: {
           name: "Atelier Export",

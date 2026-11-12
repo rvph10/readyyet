@@ -7,6 +7,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("POST /businesses", () => {
   let app: INestApplication;
@@ -39,7 +40,7 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send(validPayload);
+      .send({ termsVersion: TERMS_VERSION, ...validPayload });
 
     expect(response.status).toBe(201);
     expect(response.body.name).toBe("Joe's Garage");
@@ -49,7 +50,11 @@ describe("POST /businesses", () => {
 
   it("starts an Owner's first Business on a 14-day Pro trial, and a later one unpaid", async () => {
     const cookie = await signInViaOtp(app, app.get(PrismaService), `delivered+trial-${Date.now()}@resend.dev`);
-    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    const create = () =>
+      request(app.getHttpServer())
+        .post("/businesses")
+        .set("Cookie", cookie)
+        .send({ termsVersion: TERMS_VERSION, ...validPayload });
     const response = await create();
 
     const subscription = await app
@@ -70,7 +75,11 @@ describe("POST /businesses", () => {
     const prisma = app.get(PrismaService);
     const email = `delivered+welcome-${Date.now()}@resend.dev`;
     const cookie = await signInViaOtp(app, prisma, email);
-    const create = () => request(app.getHttpServer()).post("/businesses").set("Cookie", cookie).send(validPayload);
+    const create = () =>
+      request(app.getHttpServer())
+        .post("/businesses")
+        .set("Cookie", cookie)
+        .send({ termsVersion: TERMS_VERSION, ...validPayload });
     await create();
     await create();
 
@@ -86,6 +95,7 @@ describe("POST /businesses", () => {
       .post("/businesses")
       .set("Cookie", sessionCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         ...validPayload,
         location: { ...validPayload.location, businessTypeCode: "OTHER", businessTypeDetail: "Scooter repair" },
       });
@@ -101,7 +111,7 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send(validPayload);
+      .send({ termsVersion: TERMS_VERSION, ...validPayload });
 
     expect(response.body.locations[0].businessTypeDetail).toBeNull();
   });
@@ -110,7 +120,11 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, location: { ...validPayload.location, businessTypeDetail: "Scooter repair" } });
+      .send({
+        termsVersion: TERMS_VERSION,
+        ...validPayload,
+        location: { ...validPayload.location, businessTypeDetail: "Scooter repair" },
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -120,7 +134,11 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, location: { ...validPayload.location, businessTypeCode: "NOT_REAL" } });
+      .send({
+        termsVersion: TERMS_VERSION,
+        ...validPayload,
+        location: { ...validPayload.location, businessTypeCode: "NOT_REAL" },
+      });
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("NOT_FOUND");
@@ -130,7 +148,11 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, location: { ...validPayload.location, contactEmail: "not-an-email" } });
+      .send({
+        termsVersion: TERMS_VERSION,
+        ...validPayload,
+        location: { ...validPayload.location, contactEmail: "not-an-email" },
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -140,14 +162,20 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, location: { ...validPayload.location, timeZone: undefined } });
+      .send({
+        termsVersion: TERMS_VERSION,
+        ...validPayload,
+        location: { ...validPayload.location, timeZone: undefined },
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.error.details[0].property).toBe("location.timeZone");
   });
 
   it("rejects the request without a session", async () => {
-    const response = await request(app.getHttpServer()).post("/businesses").send(validPayload);
+    const response = await request(app.getHttpServer())
+      .post("/businesses")
+      .send({ termsVersion: TERMS_VERSION, ...validPayload });
 
     expect(response.status).toBe(401);
   });
@@ -156,7 +184,7 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, name: 123 });
+      .send({ termsVersion: TERMS_VERSION, ...validPayload, name: 123 });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -166,7 +194,7 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ name: "No Location Co" });
+      .send({ termsVersion: TERMS_VERSION, name: "No Location Co" });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -176,7 +204,7 @@ describe("POST /businesses", () => {
     const response = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", sessionCookie)
-      .send({ ...validPayload, location: [validPayload.location] });
+      .send({ termsVersion: TERMS_VERSION, ...validPayload, location: [validPayload.location] });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -203,6 +231,7 @@ describe("POST /businesses/:businessId/locations", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Multi-Location Co",
         location: {
           name: "First Shop",
@@ -351,7 +380,7 @@ describe("GET and PATCH /businesses/:businessId", () => {
     const created = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", ownerCookie)
-      .send({ name: "Read Rename Co", location: location("First") });
+      .send({ termsVersion: TERMS_VERSION, name: "Read Rename Co", location: location("First") });
     businessId = created.body.id;
     firstLocationId = created.body.locations[0].id;
     const admin = await prisma.user.findUniqueOrThrow({ where: { email: adminEmail } });

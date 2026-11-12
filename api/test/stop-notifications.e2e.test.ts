@@ -8,6 +8,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0015: the per-ticket "stop updates" link, also offered by mail
 // clients through List-Unsubscribe.
@@ -67,6 +68,7 @@ describe("Stopping a ticket's status updates", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Stop Updates Test",
         location: {
           name: "Cordonnerie Lumière",

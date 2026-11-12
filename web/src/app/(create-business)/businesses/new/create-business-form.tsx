@@ -1,6 +1,6 @@
 "use client";
 
-import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE } from "@readyyet/shared";
+import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import type { Country } from "react-phone-number-input";
@@ -29,13 +29,14 @@ interface Props {
   header: ReactNode;
   businessTypes: { code: string; label: string; steps: WorkflowStep[] }[];
   email: string;
+  legal: { terms: string; dpa: string };
 }
 
 // Two steps: the Business, then its first Location. Each is checked by its
 // schema before going on, with the errors under their fields in the page's
 // language (ADR 0049 and 0073), then again by the API, whose refusals land
 // in the same places.
-export function CreateBusinessForm({ header, businessTypes, email }: Props) {
+export function CreateBusinessForm({ header, businessTypes, email, legal }: Props) {
   const t = useTranslations("createBusiness");
   const locale = useLocale();
   const [step, setStep] = useState<1 | 2>(1);
@@ -94,6 +95,7 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
     startTransition(async () => {
       const result = await orFailure(
         createBusiness({
+          termsVersion: TERMS_VERSION,
           name: business.data.name,
           location: {
             ...business.data.location,
@@ -173,7 +175,15 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
         {progress}
         <div className="flex flex-col gap-6">
           {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
-            <FormAlert>{t(failure.code === "RATE_LIMITED" ? "rateLimited" : "unexpected")}</FormAlert>
+            <FormAlert>
+              {t(
+                failure.fields?.termsVersion
+                  ? "termsChanged"
+                  : failure.code === "RATE_LIMITED"
+                    ? "rateLimited"
+                    : "unexpected",
+              )}
+            </FormAlert>
           )}
           <Field
             label={t("locationName")}
@@ -214,13 +224,41 @@ export function CreateBusinessForm({ header, businessTypes, email }: Props) {
             error={errorFor("location.contactEmail")}
           />
         </div>
-        <div className="mt-auto grid grid-cols-2 gap-3 pt-6">
-          <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
-            {t("back")}
-          </Button>
-          <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
-            {t("submit")}
-          </Button>
+        <div className="mt-auto pt-6">
+          {/* Creating the Business accepts them (ADR 0130), in a new tab so
+              the form stays filled in. */}
+          <p className="mb-4 text-p-sm text-pretty">
+            {t.rich("terms", {
+              terms: (chunks) => (
+                <a
+                  href={legal.terms}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-2"
+                >
+                  {chunks}
+                </a>
+              ),
+              dpa: (chunks) => (
+                <a
+                  href={legal.dpa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-2"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
+              {t("back")}
+            </Button>
+            <Button type="submit" size="lg" pending={pending} pendingLabel={t("creating")}>
+              {t("submit")}
+            </Button>
+          </div>
         </div>
       </form>
     );
