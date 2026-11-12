@@ -2,6 +2,7 @@ import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import { REVEAL } from "./reveal";
 
 gsap.registerPlugin(CustomEase, ScrollTrigger, SplitText);
 
@@ -105,20 +106,44 @@ function hero() {
   const box = $(".hero__panelbox");
   if (!title) return;
 
-  const lines = split(title, { type: "lines" });
-  const sequence = [nav, ...(lines.lines as HTMLElement[]), lede, ...buttons].filter(Boolean) as HTMLElement[];
-  gsap.set(sequence, { autoAlpha: 0, y: 28 });
+  const lines = split(title, { type: "lines", mask: "lines" });
+  fitMasks(lines.lines as HTMLElement[]);
+  const after = [lede, ...buttons].filter(Boolean) as HTMLElement[];
+  gsap.set([nav, ...after].filter(Boolean), { autoAlpha: 0, y: REVEAL.rise });
+  gsap.set(lines.lines, { yPercent: 110 });
   stage(box);
   show(nav, title, lede, cta, box);
 
-  gsap.to(sequence, {
-    autoAlpha: 1,
-    y: 0,
-    duration: 0.6,
-    ease: "power3.out",
-    stagger: 0.12,
-    clearProps: CLEAR,
-    onComplete: () => lines.revert(),
+  // The same order as every section below: the title rises out of its
+  // lines, then what it leads to.
+  const enter = { ease: REVEAL.ease, clearProps: CLEAR };
+  gsap
+    .timeline()
+    .to(nav, { autoAlpha: 1, y: 0, duration: REVEAL.small, ...enter }, 0)
+    .to(
+      lines.lines,
+      {
+        yPercent: 0,
+        duration: REVEAL.duration,
+        stagger: REVEAL.stagger,
+        ...enter,
+        onComplete: () => lines.revert(),
+      },
+      0.1,
+    )
+    .to(after, { autoAlpha: 1, y: 0, duration: REVEAL.duration, stagger: REVEAL.stagger, ...enter }, 0.35);
+}
+
+// A display face set solid (line-height 1) draws its accents and descenders
+// outside the line box, which a line's mask would cut while it rises.
+function fitMasks(lines: HTMLElement[]) {
+  const ctx = document.createElement("canvas").getContext("2d")!;
+  lines.forEach((line) => {
+    const style = getComputedStyle(line);
+    ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const m = ctx.measureText(line.textContent ?? "");
+    const spill = Math.ceil((m.fontBoundingBoxAscent + m.fontBoundingBoxDescent - line.offsetHeight) / 2);
+    if (spill > 0) line.parentElement!.style.overflowClipMargin = `${spill}px`;
   });
 }
 

@@ -21,6 +21,14 @@
   --section-max: 71.25rem;
   --section-gutter: 2.5rem;
   --section-heading: 4rem;
+
+  /* The entrance every home section shares, mirrored for the section scripts
+     in lib/motion/reveal.ts. */
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-duration: 0.9s;
+  --reveal-duration-small: 0.6s;
+  --reveal-rise: 24px;
+  --reveal-stagger: 80ms;
 }
 
 @media (max-width: 991px) {
