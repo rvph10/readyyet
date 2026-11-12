@@ -200,7 +200,12 @@
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
-      "customerGone": "This Customer is no longer in your list. Find or add them again."
+      "customerGone": "This Customer is no longer in your list. Find or add them again.",
+      "noEmailTitle": "This Customer won't hear from you",
+      "noEmailBody": "Without an email address they get nothing: no tracking link, no email when it's ready. Add their email, or hand them their tracking code right after creating it, by QR code, printed slip or WhatsApp.",
+      "noEmailFailingBody": "Emails to this address have already failed, so they get nothing. Hand them their tracking code right after creating it, and check their address with them.",
+      "createAnyway": "Create without email",
+      "addEmail": "Add an email"
     },
     "seeAll": "See all results",
     "resultsFor": "Results for “{query}”",
@@ -218,7 +223,8 @@
       "qrLabel": "QR code of the tracking link for {name}",
       "done": "Done",
       "open": "Open Ticket"
-    }
+    },
+    "recent": "Latest Tickets"
   },
   "createBusiness": {
     "title": "Create your Business",
@@ -630,9 +636,8 @@
     },
     "activity": {
       "title": "Activity",
-      "you": "You",
-      "created": "created",
-      "moved": "moved",
+      "created": "Created",
+      "moved": "Moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
     }
@@ -968,7 +973,9 @@
       },
       "format": "One ZIP file: a CSV for each kind of data, which opens in Excel, and everything as JSON.",
       "download": "Download the export",
-      "failed": "The export couldn't be prepared. Try again in a few minutes."
+      "failed": "The export couldn't be prepared. Try again in a few minutes.",
+      "started": "Downloading…",
+      "limit": "This shop has already been exported five times this hour. Try again in an hour."
     },
     "deleteTitle": "Delete this shop",
     "deleteAction": "Delete this shop",
@@ -1224,7 +1231,8 @@
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
     },
-    "createAnother": "New business"
+    "createAnother": "New business",
+    "manage": "Shops and settings"
   },
   "profile": {
     "title": "Your profile",
@@ -1509,5 +1517,19 @@
     "upgrade": "Move to Pro",
     "choose": "Choose a plan",
     "frozen": "This shop has no active plan. Choose one to get this back, nothing you had is lost."
+  },
+  "member": {
+    "open": "See {name}'s card",
+    "profile": "See their profile",
+    "since": "On the team since {date}",
+    "thisMonth": "This month",
+    "movedHint": "Every step a Ticket takes counts, up to its collection.",
+    "total": "Since joining",
+    "counts": {
+      "moved": "Steps moved on",
+      "created": "Tickets created",
+      "ready": "Marked ready",
+      "completed": "Handed back"
+    }
   }
 }

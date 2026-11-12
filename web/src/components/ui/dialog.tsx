@@ -87,7 +87,9 @@ export function Dialog({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      onClose={onClose}
+      // React passes a dialog's close up to the dialogs around it, so one
+      // opened from a panel would shut the panel too.
+      onClose={(event) => event.target === ref.current && onClose()}
       // Chrome and Firefox only let a page refuse the first Escape, so closedby
       // turns it off. Safari doesn't know it, but always asks through cancel.
       closedby={locked ? "none" : undefined}

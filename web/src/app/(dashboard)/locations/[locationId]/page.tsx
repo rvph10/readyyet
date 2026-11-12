@@ -33,7 +33,6 @@ interface Today {
   manager: boolean;
   owner: boolean;
   businessName: string;
-  meId: string;
   greeting: string;
   date: string;
   timeZone: string;
@@ -73,7 +72,6 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
     manager: isManager(membership.role),
     owner: membership.role === "OWNER",
     businessName: membership.location.business.name,
-    meId: me.id,
     greeting: t(`greeting.${greetingKey(now, timeZone)}`, { name: me.name.split(" ")[0] }),
     date: date.charAt(0).toUpperCase() + date.slice(1),
     timeZone,
@@ -149,13 +147,7 @@ function Running({ page, overview }: { page: Today; overview: Overview | null })
         <Waiting
           ready={overview !== null}
           fallback={
-            <ActivityTile
-              activity={null}
-              locationId={page.locationId}
-              meId={page.meId}
-              when={page.when}
-              className={activityClass}
-            />
+            <ActivityTile activity={null} locationId={page.locationId} when={page.when} className={activityClass} />
           }
         >
           <Activity page={page} className={activityClass} />
@@ -245,15 +237,7 @@ async function Month({ page }: { page: Today }) {
 
 async function Activity({ page, className }: { page: Today; className: string }) {
   const { activity } = await getInsights(page.locationId);
-  return (
-    <ActivityTile
-      activity={activity}
-      locationId={page.locationId}
-      meId={page.meId}
-      when={page.when}
-      className={className}
-    />
-  );
+  return <ActivityTile activity={activity} locationId={page.locationId} when={page.when} className={className} />;
 }
 
 // ADR 0117: a manager's, until the shop is fully set up.

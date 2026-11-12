@@ -200,7 +200,12 @@
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
-      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau."
+      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau.",
+      "noEmailTitle": "Ce client ne sera pas prévenu",
+      "noEmailBody": "Sans adresse e-mail, il ne reçoit aucune nouvelle : ni le lien de suivi, ni l'e-mail quand c'est prêt. Ajoutez son e-mail, ou donnez-lui son code de suivi juste après la création, par QR code, bon imprimé ou WhatsApp.",
+      "noEmailFailingBody": "Les e-mails à cette adresse ont déjà échoué, il ne reçoit donc aucune nouvelle. Donnez-lui son code de suivi juste après la création, et vérifiez son adresse avec lui.",
+      "createAnyway": "Créer sans e-mail",
+      "addEmail": "Ajouter un e-mail"
     },
     "seeAll": "Voir tous les résultats",
     "resultsFor": "Résultats pour « {query} »",
@@ -218,7 +223,8 @@
       "qrLabel": "Code QR du lien de suivi pour {name}",
       "done": "Terminé",
       "open": "Ouvrir le ticket"
-    }
+    },
+    "recent": "Derniers tickets"
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
@@ -630,9 +636,8 @@
     },
     "activity": {
       "title": "Activité",
-      "you": "Vous",
-      "created": "a créé",
-      "moved": "a fait avancer",
+      "created": "A créé",
+      "moved": "A fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
     }
@@ -968,7 +973,9 @@
       },
       "format": "Un fichier ZIP : un CSV par type de données, qui s'ouvre dans Excel, et tout en JSON.",
       "download": "Télécharger l'export",
-      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes."
+      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes.",
+      "started": "Téléchargement en cours…",
+      "limit": "Ce magasin a déjà été exporté cinq fois cette heure-ci. Réessayez dans une heure."
     },
     "deleteTitle": "Supprimer ce magasin",
     "deleteAction": "Supprimer ce magasin",
@@ -1224,7 +1231,8 @@
       "subject": "Essayez ReadyYet pour votre magasin",
       "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
     },
-    "createAnother": "Nouvelle entreprise"
+    "createAnother": "Nouvelle entreprise",
+    "manage": "Magasins et réglages"
   },
   "profile": {
     "title": "Votre profil",
@@ -1509,5 +1517,19 @@
     "upgrade": "Passer à Pro",
     "choose": "Choisir un plan",
     "frozen": "Ce magasin n'a plus de plan actif. Choisissez-en un pour retrouver cette fonction, rien de ce que vous aviez n'est perdu."
+  },
+  "member": {
+    "open": "Voir la carte de {name}",
+    "profile": "Voir son profil",
+    "since": "Dans l'équipe depuis le {date}",
+    "thisMonth": "Ce mois-ci",
+    "movedHint": "Chaque étape franchie par un ticket compte, jusqu'au retrait.",
+    "total": "Depuis son arrivée",
+    "counts": {
+      "moved": "Étapes avancées",
+      "created": "Tickets créés",
+      "ready": "Marqués prêts",
+      "completed": "Remis au client"
+    }
   }
 }

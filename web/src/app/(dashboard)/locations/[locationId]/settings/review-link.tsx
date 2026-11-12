@@ -8,6 +8,7 @@ import { Button, buttonClass } from "@/components/ui/button";
 import { Switch } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { Notice } from "@/components/ui/notice";
 import { useToast } from "@/components/ui/toast";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
@@ -208,34 +209,34 @@ export function ReviewLink({ location, hasPro, frozen, onSaved }: Props) {
             onChange={(event) => toggleEmails(event.target.checked)}
           />
           {/* ADR 0126: a saved link reads as linked, never as the long Google address. */}
-          <div
-            className={`flex flex-wrap items-center gap-3 rounded-2xl p-4 text-label-sm ${url ? "bg-pine-subtle text-pine" : "bg-brand"}`}
-          >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface text-ink">
-              <Icon name={url ? "check" : "info"} className="size-3" />
-            </span>
-            <span className="min-w-0 flex-1">{t(url ? "reviewOn" : "reviewMissing")}</span>
-            {url && changing && (
-              <Button variant="secondary" size="sm" onClick={() => setChanging(false)}>
-                {t("google.keep")}
-              </Button>
-            )}
-            {url && !changing && (
-              <span className="flex gap-2">
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonClass({ variant: "secondary", size: "sm" })}
-                >
-                  {t("google.open")}
-                </a>
-                <Button variant="secondary" size="sm" onClick={() => setChanging(true)}>
-                  {t("google.change")}
+          <Notice
+            tone={url ? "success" : "brand"}
+            icon={url ? "check" : "info"}
+            actions={
+              url &&
+              (changing ? (
+                <Button variant="secondary" size="sm" onClick={() => setChanging(false)}>
+                  {t("google.keep")}
                 </Button>
-              </span>
-            )}
-          </div>
+              ) : (
+                <>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={buttonClass({ variant: "secondary", size: "sm" })}
+                  >
+                    {t("google.open")}
+                  </a>
+                  <Button variant="secondary" size="sm" onClick={() => setChanging(true)}>
+                    {t("google.change")}
+                  </Button>
+                </>
+              ))
+            }
+          >
+            {t(url ? "reviewOn" : "reviewMissing")}
+          </Notice>
 
           {(!url || changing) && (
             <GoogleFinder

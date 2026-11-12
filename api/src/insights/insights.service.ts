@@ -1,12 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus } from "@readyyet/db";
-import { calendarDateIn } from "@readyyet/shared";
+import { calendarDateIn, SYSTEM_STATUS_CODES } from "@readyyet/shared";
 import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { statusSelect } from "../common/status-select";
+import { NotFoundError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
+import { publicImageUrl } from "../storage/image";
 
 const MONTHS = 6;
 const ACTIVITY = 8;
+const [CREATED_STATUS_CODE] = SYSTEM_STATUS_CODES;
 
 function addDays(date: string, days: number) {
   const moved = fromCalendarDate(date);
@@ -53,7 +56,7 @@ export class InsightsService {
           id: true,
           createdAt: true,
           changedBy: true,
-          changer: { select: { name: true } },
+          changer: { select: { name: true, image: true } },
           status: statusSelect,
           ticket: { select: { id: true, title: true, customer: { select: { fullName: true } } } },
         },
@@ -118,8 +121,48 @@ export class InsightsService {
         status: event.status,
         changedBy: event.changedBy,
         changedByName: event.changer.name,
+        changedByAvatarUrl: publicImageUrl(event.changer.image),
         createdAt: event.createdAt,
       })),
+    };
+  }
+
+  // ADR 0142: shown to the whole team, so only what's done here, and only for a
+  // current member.
+  async member(locationId: string, userId: string) {
+    const membership = await this.prisma.membership.findUnique({
+      where: { userId_locationId: { userId, locationId } },
+      include: { user: { select: { name: true, image: true } }, location: { select: { timeZone: true } } },
+    });
+    if (!membership) {
+      throw new NotFoundError("Member not found");
+    }
+    const [created, events] = await Promise.all([
+      this.prisma.ticket.findMany({ where: { locationId, createdBy: userId }, select: { createdAt: true } }),
+      this.prisma.ticketStatusEvent.findMany({
+        where: { changedBy: userId, ticket: { locationId } },
+        select: { createdAt: true, status: { select: { code: true } } },
+      }),
+    ]);
+    const { timeZone } = membership.location;
+    const monthStart = `${calendarDateIn(new Date(), timeZone).slice(0, 7)}-01`;
+    const counts = (keep: (instant: Date) => boolean) => {
+      const moves = events.filter((event) => event.status.code !== CREATED_STATUS_CODE && keep(event.createdAt));
+      return {
+        created: created.filter((ticket) => keep(ticket.createdAt)).length,
+        moved: moves.length,
+        ready: moves.filter((event) => event.status.code === "READY").length,
+        completed: moves.filter((event) => event.status.code === "COMPLETED").length,
+      };
+    };
+    return {
+      userId,
+      name: membership.user.name,
+      avatarUrl: publicImageUrl(membership.user.image),
+      role: membership.role,
+      memberSince: membership.createdAt,
+      month: counts((instant) => calendarDateIn(instant, timeZone) >= monthStart),
+      total: counts(() => true),
     };
   }
 }

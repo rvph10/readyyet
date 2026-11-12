@@ -13,7 +13,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/location
   if (!response.ok || !response.body) {
     // Read or not, an answer holds its connection to the API until dropped.
     await response.body?.cancel();
-    redirect(`/locations/${locationId}/settings?section=export&failed=1`);
+    redirect(`/locations/${locationId}/settings?section=export&failed=${response.status === 429 ? "limit" : "1"}`);
   }
   return new Response(response.body, {
     headers: {

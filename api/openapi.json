@@ -5464,6 +5464,120 @@
         ]
       }
     },
+    "/locations/{locationId}/insights/members/{userId}": {
+      "get": {
+        "operationId": "InsightsController_member",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberInsightsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "What a current member did at this Location, this month and in all (ADR 0142)",
+        "tags": [
+          "Insights"
+        ]
+      }
+    },
     "/locations/{locationId}/customers": {
       "get": {
         "operationId": "CustomerController_list",
@@ -11126,6 +11240,10 @@
           "changedByName": {
             "type": "string"
           },
+          "changedByAvatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -11139,6 +11257,7 @@
           "status",
           "changedBy",
           "changedByName",
+          "changedByAvatarUrl",
           "createdAt"
         ]
       },
@@ -11166,6 +11285,71 @@
           "received",
           "customers",
           "activity"
+        ]
+      },
+      "MemberCountsDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "number"
+          },
+          "moved": {
+            "type": "number"
+          },
+          "ready": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "created",
+          "moved",
+          "ready",
+          "completed"
+        ]
+      },
+      "MemberInsightsDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "EMPLOYEE"
+            ],
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "memberSince": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "month": {
+            "$ref": "#/components/schemas/MemberCountsDto"
+          },
+          "total": {
+            "$ref": "#/components/schemas/MemberCountsDto"
+          }
+        },
+        "required": [
+          "role",
+          "userId",
+          "name",
+          "avatarUrl",
+          "memberSince",
+          "month",
+          "total"
         ]
       },
       "CustomerPageDto": {

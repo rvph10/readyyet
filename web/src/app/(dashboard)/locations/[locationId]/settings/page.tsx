@@ -58,7 +58,9 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
     hours: <HoursSection locationId={locationId} />,
     tickets: <TicketsSection locationId={locationId} />,
     reviews: <ReviewsSection locationId={locationId} />,
-    export: <ExportData locationId={locationId} failed={search.failed === "1"} />,
+    export: (
+      <ExportData locationId={locationId} failed={typeof search.failed === "string" ? search.failed : undefined} />
+    ),
     delete: <DeleteSection locationId={locationId} businessId={membership.location.business.id} />,
   };
 
@@ -67,6 +69,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
       <PageHeader title={t("sections.settings")} />
       <SheetShell
         label={tSettings("navLabel")}
+        back={t("sections.settings")}
         start={parseSection(search.section, allowed)}
         sections={allowed.map((name) => {
           const [title, hint, groups] = HEADINGS[name];

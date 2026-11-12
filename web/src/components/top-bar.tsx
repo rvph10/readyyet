@@ -67,10 +67,25 @@ function PanelLink({
 // only way to the Locations of another one (ADR 0104).
 export function BusinessPanel({ business, memberships }: { business: Business; memberships: Membership[] }) {
   const t = useTranslations("business");
+  const groups = groupByBusiness(memberships);
+  const here = groups.find((group) => group.business.id === business.id);
   return (
     <>
+      {/* Only its Owner has pages for a Business, which a row of names didn't
+          make clear: its shops, team, billing and settings are one tap here. */}
+      {here?.owned && (
+        <>
+          <Link href={`/businesses/${business.id}`} className={panelRow}>
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand">
+              <Icon name="home" className="size-3" />
+            </span>
+            <span className="min-w-0 flex-1 truncate">{t("manage")}</span>
+          </Link>
+          <div className="mx-1 my-2 border-t border-border" />
+        </>
+      )}
       <div className={list}>
-        {groupByBusiness(memberships).map((group) => (
+        {groups.map((group) => (
           <PanelLink
             key={group.business.id}
             href={businessHref(group)}

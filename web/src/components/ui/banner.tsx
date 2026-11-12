@@ -22,22 +22,25 @@ interface Props {
 // it's about is fixed, so it has no close button. Neutral or red, like
 // FormAlert, whose place is inside a form instead.
 export function Banner({ tone = "info", children, action }: Props) {
+  // Its action under the words while narrow, beside them once wide, never
+  // wrapped under the icon (as Notice).
   return (
-    <div
-      role={tone === "error" ? "alert" : undefined}
-      className={`flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl px-4 py-3 text-p-sm ${tones[tone]}`}
-    >
-      <Icon name={tone === "error" ? "info-triangle" : "info"} className="size-3.5 shrink-0" />
-      <p className="min-w-0 flex-1">{children}</p>
-      {action && (
-        <Link
-          href={action.href}
-          className={buttonClass({ variant: tone === "error" ? "danger" : "primary", size: "sm" })}
-        >
-          {action.label}
-          <Icon name="arrow-right" className="size-2.5" />
-        </Link>
-      )}
+    <div role={tone === "error" ? "alert" : undefined} className={`@container rounded-2xl text-p-sm ${tones[tone]}`}>
+      <div
+        className={`grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 px-4 py-3 ${action ? "@lg:grid-cols-[auto_minmax(0,1fr)_auto]" : ""}`}
+      >
+        <Icon name={tone === "error" ? "info-triangle" : "info"} className="size-3.5 shrink-0" />
+        <p className="min-w-0">{children}</p>
+        {action && (
+          <Link
+            href={action.href}
+            className={`col-start-2 justify-self-start @lg:col-start-3 ${buttonClass({ variant: tone === "error" ? "danger" : "primary", size: "sm" })}`}
+          >
+            {action.label}
+            <Icon name="arrow-right" className="size-2.5" />
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

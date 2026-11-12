@@ -171,4 +171,24 @@ describe("Exporting a Location", () => {
     expect((await download(locationId, cookies.admin)).status).toBe(403);
     expect((await download(locationId, cookies.employee)).status).toBe(403);
   });
+
+  it("holds a Location to five exports an hour, from wherever they're asked", async () => {
+    const locationId = await createLocation("FR");
+    const exportFrom = (ip: string) =>
+      request(app.getHttpServer())
+        .get(`/locations/${locationId}/export`)
+        .set("Cookie", ownerCookie)
+        .set("X-Real-IP", ip)
+        .buffer(true)
+        .parse((response, done) => {
+          response.on("data", () => undefined);
+          response.on("end", () => done(null, null));
+        });
+
+    for (let n = 1; n <= 5; n++) {
+      expect((await exportFrom(`198.18.7.${n}`)).status).toBe(200);
+    }
+    expect((await exportFrom("198.18.7.99")).status).toBe(429);
+    expect((await download(await createLocation("FR"))).status).toBe(200);
+  });
 });
