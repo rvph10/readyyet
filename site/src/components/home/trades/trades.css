@@ -74,3 +74,13 @@
     color: var(--color-ink);
   }
 }
+
+/* Every card as tall as the tallest, whatever the length of its trade's text. */
+[data-temlis="lumoras-699"] .swiper-slide {
+  display: flex;
+  height: auto;
+}
+
+[data-temlis="lumoras-699"] .solutions_card {
+  flex: 1;
+}
