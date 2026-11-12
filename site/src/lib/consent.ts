@@ -24,9 +24,18 @@ export function cookieDomain(hostname: string) {
   return labels.length < 2 || /^\d+$/.test(labels.at(-1)!) ? null : labels.slice(-2).join(".");
 }
 
-export function consentCookie(consent: Consent, hostname: string, secure: boolean) {
-  const domain = cookieDomain(hostname);
+export function consentCookie(consent: Consent, domain: string | null, secure: boolean) {
   return `${CONSENT_COOKIE}=${consent}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${domain ? `; domain=${domain}` : ""}${secure ? "; secure" : ""}`;
+}
+
+// A browser refuses a domain under a public suffix, such as Railway's
+// up.railway.app, and the answer then stays on this host.
+export function saveConsent(consent: Consent) {
+  const secure = location.protocol === "https:";
+  document.cookie = consentCookie(consent, cookieDomain(location.hostname), secure);
+  if (readConsent(document.cookie) !== consent) {
+    document.cookie = consentCookie(consent, null, secure);
+  }
 }
 
 // Pages for Customers never measure anything.
@@ -59,9 +68,11 @@ export const POSTHOG_OPTIONS: Partial<PostHogConfig> = {
   advanced_disable_flags: true,
   before_send: (event) => {
     if (!event || isCustomerPage(location.pathname)) return null;
-    for (const key of ["$current_url", "$referrer", "$initial_current_url"]) {
-      const value: unknown = event.properties[key];
-      if (typeof value === "string") event.properties[key] = withoutQuery(value);
+    // Every URL PostHog adds, the session's entry page and the first one ever included.
+    for (const properties of [event.properties, event.$set_once]) {
+      for (const [key, value] of Object.entries(properties ?? {})) {
+        if (typeof value === "string" && /(_url|referrer)$/.test(key)) properties![key] = withoutQuery(value);
+      }
     }
     return event;
   },

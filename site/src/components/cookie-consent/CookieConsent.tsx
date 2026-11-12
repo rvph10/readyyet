@@ -1,9 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
-import { consentCookie, deletePostHogStorage, POSTHOG_OPTIONS, readConsent, type Consent } from "@/lib/consent";
+import { deletePostHogStorage, POSTHOG_OPTIONS, readConsent, saveConsent, type Consent } from "@/lib/consent";
 import "./cookie-consent.css";
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -40,6 +39,7 @@ export function CookieSettingsButton({ className, children }: { className: strin
 
 export function CookieConsent() {
   const t = useTranslations("cookies");
+  const locale = useLocale();
   const consent = useSyncExternalStore(
     subscribe,
     () => readConsent(document.cookie),
@@ -61,12 +61,17 @@ export function CookieConsent() {
   if (!POSTHOG_KEY || consent === "unknown" || (consent !== null && !open)) return null;
 
   function choose(next: Consent) {
-    document.cookie = consentCookie(next, location.hostname, location.protocol === "https:");
+    saveConsent(next);
     reopened = false;
-    // A PostHog already running can't be unloaded, so the page starts again without it.
+    // A PostHog already running can't be unloaded, so the page starts again
+    // without it. Stopped first, or leaving the page would send an event and
+    // write its cookie again.
     if (consent === "granted" && next === "denied") {
-      deletePostHogStorage(location.hostname);
-      location.reload();
+      void import("posthog-js").then(({ default: posthog }) => {
+        posthog.set_config({ disable_persistence: true, capture_pageleave: false });
+        deletePostHogStorage(location.hostname);
+        location.reload();
+      });
       return;
     }
     changed();
@@ -79,7 +84,7 @@ export function CookieConsent() {
       </h2>
       <p className="consent__body">
         {t.rich("body", {
-          link: (chunks) => <Link href="/privacy#cookies">{chunks}</Link>,
+          link: (chunks) => <a href={`/${locale}/privacy#cookies`}>{chunks}</a>,
         })}
       </p>
       {/* The Data Protection Authority asks for both side by side, with the same weight. */}

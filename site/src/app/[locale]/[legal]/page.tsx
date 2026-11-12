@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Nav } from "@/components/home/Nav";
 import { Footer } from "@/components/home/footer/Footer";
-import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { LEGAL_DATE, LEGAL_DOCS, type LegalDoc, readLegal } from "@/lib/legal";
 import "./legal.css";
@@ -15,16 +14,23 @@ export function generateStaticParams() {
   return LEGAL_DOCS.map((legal) => ({ legal }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/[legal]">): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: PageProps<"/[locale]/[legal]">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { locale, legal } = await params;
-  const { title } = await readLegal(locale, legal as LegalDoc);
+  const [{ title }, { openGraph }] = await Promise.all([readLegal(locale, legal as LegalDoc), parent]);
   return {
     title: `${title} | ReadyYet`,
     alternates: {
       canonical: `/${locale}/${legal}`,
-      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/${legal}`])),
+      languages: {
+        ...Object.fromEntries(routing.locales.map((l) => [l, `/${l}/${legal}`])),
+        "x-default": `/${routing.defaultLocale}/${legal}`,
+      },
     },
-    openGraph: { url: `/${locale}/${legal}`, title },
+    // Next.js replaces a nested object whole, so the layout's site name, type and locale are carried over.
+    openGraph: { ...openGraph, url: `/${locale}/${legal}`, title },
   };
 }
 
@@ -47,14 +53,14 @@ export default async function LegalPage({ params }: PageProps<"/[locale]/[legal]
           <p className="legal-hero__since">{t("since", { date: since })}</p>
           <nav className="legal-hero__docs" aria-label={t("others")}>
             {LEGAL_DOCS.map((doc) => (
-              <Link
+              <a
                 key={doc}
-                href={`/${doc}`}
+                href={`/${locale}/${doc}`}
                 className="legal-hero__doc"
                 aria-current={doc === legal ? "page" : undefined}
               >
                 {t(`docs.${doc}`)}
-              </Link>
+              </a>
             ))}
           </nav>
         </div>

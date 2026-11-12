@@ -38,7 +38,9 @@ function linkAnchors(lenis: Lenis) {
 
     // Section links carry the page's path too, to work from the legal pages.
     const link = (event.target as Element | null)?.closest?.<HTMLAnchorElement>('a[href*="#"]');
-    if (!link || link.pathname !== location.pathname || link.target === "_blank") return;
+    if (!link || link.origin !== location.origin || link.pathname !== location.pathname || link.target === "_blank")
+      return;
+    if (link.search !== location.search) return;
     const hash = link.hash;
     if (!hash || hash === "#") return;
 

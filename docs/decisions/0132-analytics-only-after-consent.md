@@ -14,7 +14,7 @@ The site and the web app measure visits with PostHog (EU cloud, Frankfurt), and 
 - Visitors stay anonymous: no `identify`, no session replay, no surveys, and PostHog may not load more code than the bundled package (`disable_external_dependency_loading`), so the CSP only opens `connect-src` to its EU host.
 - Without `NEXT_PUBLIC_POSTHOG_KEY` (locally, in CI) there is nothing to consent to, so no banner shows.
 
-The `ref` cookie is set only on `/sign-in`, where referral links lead, so it is part of the sign-up the visitor started rather than a tracker set on landing. The `locale`, `sidebar` and setup guide cookies last 6 months instead of a year.
+The `locale`, `sidebar` and setup guide cookies last 6 months instead of a year.
 
 ## Why
 
