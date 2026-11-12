@@ -91,8 +91,15 @@ export class LocationController {
   @Get(":locationId/export")
   @LocationRoles(Role.OWNER)
   @UseGuards(LocationMembershipGuard)
-  // Reads every row and photo of the Location.
-  @Throttle({ default: { limit: 5, ttl: 60 * 60_000 } })
+  // Reads every row and photo of the Location, so held to five an hour for the
+  // Location, whoever and from wherever asks.
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60 * 60_000,
+      getTracker: (request) => (request as { params: { locationId: string } }).params.locationId,
+    },
+  })
   @Header("Cache-Control", "no-store")
   @ApiParam({ name: "locationId" })
   @ApiOperation({ summary: "Download everything the Location holds, CSV and JSON in a ZIP, owner only (ADR 0129)" })
