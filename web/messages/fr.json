@@ -659,7 +659,7 @@
   "plans": {
     "keepPlan": "Garder {plan}",
     "startPlan": "Choisir {plan}",
-    "onTrial": "Votre formule actuelle",
+    "onTrial": "Votre plan actuel",
     "billedMonthly": "Résiliable à tout moment",
     "billedYearly": "{amount} une fois par an, vous économisez {saved}",
     "timelineToday": "Aujourd'hui",
@@ -764,7 +764,7 @@
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
     "haveCode": "Vous avez un code promo ?",
-    "trialBodyNow": "Votre essai se termine le {date}. Choisissez une formule maintenant : votre carte est débitée aujourd'hui.",
+    "trialBodyNow": "Votre essai se termine le {date}. Choisissez un plan maintenant : votre carte est débitée aujourd'hui.",
     "pastDueShort": "Paiement échoué",
     "retrying": "Stripe réessaie"
   },
@@ -1059,7 +1059,7 @@
       "tracking": "Les liens de suivi cessent de fonctionner",
       "photos": "Les photos des Tickets sont supprimées",
       "customers": "Ses clients sont effacés",
-      "plan": "Sa formule est annulée immédiatement",
+      "plan": "Son plan est annulé immédiatement",
       "team": "Plus personne n'y a accès"
     },
     "deleteFinal": "Cette action est irréversible.",
@@ -1140,11 +1140,11 @@
       "paused": "Sans plan",
       "failed": "Paiement échoué",
       "stopping": "Arrêt prévu",
-      "changing": "Changement de formule"
+      "changing": "Changement de plan"
     },
     "overview": {
       "location": "Magasin",
-      "plan": "Formule"
+      "plan": "Plan"
     },
     "billing": {
       "nextPayment": "Prochain paiement",
@@ -1152,9 +1152,9 @@
       "renewsOn": "Renouvellement le {date}",
       "stopsOn": "S'arrête le {date}",
       "trialEnds": "Fin le {date}",
-      "choosePlan": "Choisir une formule",
+      "choosePlan": "Choisir un plan",
       "fixPayment": "Régler le paiement",
-      "manage": "Gérer la formule",
+      "manage": "Gérer le plan",
       "pausedHint": "Pas de plan actif",
       "failedHint": "Mettez la carte à jour",
       "price": "Prix",
@@ -1211,8 +1211,8 @@
       "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
       "seeBilling": "Voir la facturation",
       "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et sa formule.",
-      "addHint": "Ses propres Tickets, équipe et formule."
+      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et son plan.",
+      "addHint": "Ses propres Tickets, équipe et plan."
     },
     "team": {
       "people": "{count, plural, one {# personne} other {# personnes}}",
@@ -1224,7 +1224,7 @@
       "whichLocations": "Quels magasins ?",
       "pickLocation": "Choisissez au moins un magasin.",
       "blocked": {
-        "frozen": "Pas de formule active",
+        "frozen": "Pas de plan actif",
         "full": "Plus de place sur Essentiel"
       },
       "byShop": "L'équipe de chaque magasin"
@@ -1235,7 +1235,7 @@
       "actionHint": "Gagnez un mois offert",
       "lead": "Vous connaissez un magasin qui répond encore « c'est prêt ? » au téléphone ? Envoyez-lui votre lien.",
       "youLabel": "Vous recevez",
-      "you": "Un mois de sa formule en crédit",
+      "you": "Un mois de son plan en crédit",
       "theyLabel": "Il reçoit",
       "they": "Un demi-mois de réduction sur sa première facture",
       "copy": "Copier mon lien d'invitation",
