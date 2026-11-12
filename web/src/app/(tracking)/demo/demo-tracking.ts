@@ -36,6 +36,7 @@ function status(code: Code) {
 // Each moment's history, as opening days before today and a time on the shop's clock,
 // so it reads as last week's work in opening hours whenever it's opened. The
 // photos follow the watch: dropped off cracked, opened on the bench, mended.
+// Any of those days can be a Saturday, so every time fits its shorter hours.
 type When = [daysAgo: number, time: string];
 
 const HISTORY: Record<Moment, [Code, When][]> = {
@@ -56,8 +57,8 @@ const HISTORY: Record<Moment, [Code, When][]> = {
     ["DIAGNOSING", [4, "15:40"]],
     ["AWAITING_APPROVAL", [3, "10:25"]],
     ["REPAIRING", [2, "11:30"]],
-    ["QUALITY_CHECK", [1, "16:20"]],
-    ["READY", [1, "17:05"]],
+    ["QUALITY_CHECK", [1, "15:55"]],
+    ["READY", [1, "16:40"]],
   ],
 };
 
@@ -74,7 +75,7 @@ const PHOTOS: Record<Moment, [string, When][]> = {
   ready: [
     ["/demo/watch-1.webp", [4, "10:14"]],
     ["/demo/watch-2.webp", [4, "15:38"]],
-    ["/demo/watch-3.webp", [1, "17:02"]],
+    ["/demo/watch-3.webp", [1, "16:35"]],
   ],
 };
 
