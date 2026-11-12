@@ -270,7 +270,8 @@ async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) 
       businessName={page.businessName}
       setup={setup}
       owner={page.owner}
-      hasPro={billing.plan === "PRO" && !billing.frozen}
+      hasPro={billing.hasPro}
+      frozen={billing.frozen}
       // A shop already taking Tickets has its day to see first, an empty one
       // has nothing else: until someone folds or opens it themselves.
       folded={(page.folded ?? (setup.firstTicket ? "1" : "0")) === "1"}

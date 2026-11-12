@@ -32,13 +32,14 @@ interface Props {
   // The logo is the Business's, which only its Owner changes.
   owner: boolean;
   hasPro: boolean;
+  frozen: boolean;
   folded: boolean;
 }
 
 // ADR 0117: on Today until the shop is fully set up. The tasks as a track, the
 // one to do as a card beside it, each done in a side panel and ticked off from
 // the shop's own data once saved.
-export function SetupGuide({ location, businessName, setup, owner, hasPro, folded: foldedAtFirst }: Props) {
+export function SetupGuide({ location, businessName, setup, owner, hasPro, frozen, folded: foldedAtFirst }: Props) {
   const t = useTranslations("today.setup");
   const { newTicket } = useLocationActions();
   const steps = setupSteps(setup, owner);
@@ -82,7 +83,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         onSaved={close}
       />
     ),
-    reviewLink: <ReviewLink location={location} hasPro={hasPro} onSaved={close} />,
+    reviewLink: <ReviewLink location={location} hasPro={hasPro} frozen={frozen} onSaved={close} />,
     team: <InviteForm locationId={location.id} ownerActs={owner} onDone={close} onCancel={close} />,
     logo: <LogoPicker businessId={location.businessId} name={businessName} logoUrl={location.logoUrl} onDone={close} />,
   };

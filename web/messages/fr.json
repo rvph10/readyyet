@@ -777,7 +777,7 @@
       "title": "Les avis clients sont inclus dans Pro",
       "description": "Avec Pro, chaque client reçoit une demande d'avis après avoir récupéré son article. Vous voyez sa note, ce qui l'a marqué et ce qu'il écrit.",
       "notice": "Ce magasin n'est plus sur Pro, les clients ne sont donc plus sollicités. Ce qu'ils ont déjà envoyé reste ici.",
-      "action": "Voir les formules"
+      "noticeFrozen": "Ce magasin n'a plus de plan actif, les clients ne sont donc plus sollicités. Ce qu'ils ont déjà envoyé reste ici."
     },
     "insights": {
       "label": "Ce mois-ci",
@@ -1493,5 +1493,11 @@
     },
     "item": "Montre automatique, remplacement du verre",
     "start": "Commencer l'essai gratuit"
+  },
+  "planLock": {
+    "badge": "Pro",
+    "upgrade": "Passer à Pro",
+    "choose": "Choisir un plan",
+    "frozen": "Ce magasin n'a plus de plan actif. Choisissez-en un pour retrouver cette fonction, rien de ce que vous aviez n'est perdu."
   }
 }

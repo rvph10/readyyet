@@ -1,18 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  asksForFeedback,
-  feedbackHref,
-  parseView,
-} from "../src/app/(dashboard)/locations/[locationId]/feedback/feedback-views";
-
-describe("asksForFeedback", () => {
-  it("follows the API's: Pro and not frozen, Google link or not", () => {
-    expect(asksForFeedback({ plan: "PRO", frozen: false })).toBe(true);
-    expect(asksForFeedback({ plan: "ESSENTIEL", frozen: false })).toBe(false);
-    expect(asksForFeedback({ plan: "PRO", frozen: true })).toBe(false);
-    expect(asksForFeedback({ plan: null, frozen: false })).toBe(false);
-  });
-});
+import { feedbackHref, parseView } from "../src/app/(dashboard)/locations/[locationId]/feedback/feedback-views";
 
 describe("parseView", () => {
   it("opens on what needs a follow-up unless the URL says otherwise", () => {

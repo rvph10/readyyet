@@ -61,6 +61,7 @@ describe("GET /locations/:locationId/billing", () => {
       plan: "PRO",
       interval: null,
       frozen: false,
+      hasPro: true,
       memberLimit: null,
       cancelAtPeriodEnd: false,
     });
@@ -73,7 +74,7 @@ describe("GET /locations/:locationId/billing", () => {
       .get(`/locations/${locationId}/billing`)
       .set("Cookie", ownerCookie);
 
-    expect(response.body).toMatchObject({ status: "TRIAL", frozen: true });
+    expect(response.body).toMatchObject({ status: "TRIAL", plan: "PRO", frozen: true, hasPro: false });
   });
 
   it("holds Essentiel to 2 members, and so does a move to it waiting for the period end", async () => {
@@ -84,7 +85,7 @@ describe("GET /locations/:locationId/billing", () => {
     const essentiel = await request(app.getHttpServer())
       .get(`/locations/${locationId}/billing`)
       .set("Cookie", ownerCookie);
-    expect(essentiel.body).toMatchObject({ plan: "ESSENTIEL", frozen: false, memberLimit: 2 });
+    expect(essentiel.body).toMatchObject({ plan: "ESSENTIEL", frozen: false, hasPro: false, memberLimit: 2 });
 
     await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO", scheduledPlan: "ESSENTIEL" } });
     const scheduled = await request(app.getHttpServer())

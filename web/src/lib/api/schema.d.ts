@@ -1224,6 +1224,7 @@ export interface components {
             currentPeriodEnd: string | null;
             cancelAtPeriodEnd: boolean;
             frozen: boolean;
+            hasPro: boolean;
             memberLimit: number | null;
             referralDiscount: boolean;
         };

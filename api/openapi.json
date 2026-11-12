@@ -9834,6 +9834,9 @@
           "frozen": {
             "type": "boolean"
           },
+          "hasPro": {
+            "type": "boolean"
+          },
           "memberLimit": {
             "type": "number",
             "nullable": true
@@ -9852,6 +9855,7 @@
           "currentPeriodEnd",
           "cancelAtPeriodEnd",
           "frozen",
+          "hasPro",
           "memberLimit",
           "referralDiscount"
         ]

@@ -777,7 +777,7 @@
       "title": "Customer feedback comes with Pro",
       "description": "On Pro, each Customer is asked how it went after collecting their item. You see their rating, what stood out, and anything they write.",
       "notice": "This shop is no longer on Pro, so Customers aren't asked any more. What they already sent stays here.",
-      "action": "See plans"
+      "noticeFrozen": "This shop has no active plan, so Customers aren't asked any more. What they already sent stays here."
     },
     "insights": {
       "label": "This month",
@@ -1493,5 +1493,11 @@
     },
     "item": "Automatic watch, new glass",
     "start": "Start free trial"
+  },
+  "planLock": {
+    "badge": "Pro",
+    "upgrade": "Move to Pro",
+    "choose": "Choose a plan",
+    "frozen": "This shop has no active plan. Choose one to get this back, nothing you had is lost."
   }
 }

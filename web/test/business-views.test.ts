@@ -19,6 +19,7 @@ const billing = (changes: Partial<BusinessLocation["billing"]> = {}): BusinessLo
   scheduledPlan: null,
   scheduledInterval: null,
   frozen: false,
+  hasPro: true,
   memberLimit: null,
   referralDiscount: false,
   ...changes,

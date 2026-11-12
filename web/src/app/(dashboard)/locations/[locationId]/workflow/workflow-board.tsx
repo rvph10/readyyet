@@ -2,11 +2,11 @@
 
 import { isNotifyingStatus } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { useState, useTransition, type LiHTMLAttributes, type ReactNode } from "react";
+import { PlanLock } from "@/components/plan-lock";
 import { statusTone, toneIcons } from "@/components/status-pill";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
@@ -31,6 +31,7 @@ interface Props {
   businessTypeName: string;
   // A custom Workflow is Pro's (ADR 0031), Essentiel follows the default.
   canEdit: boolean;
+  frozen: boolean;
 }
 
 // One stop on the path: the same round marks as a Ticket's track, joined by a
@@ -88,7 +89,16 @@ function PathRow({
   );
 }
 
-export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, businessTypeName, canEdit }: Props) {
+export function WorkflowBoard({
+  locationId,
+  locale,
+  statuses,
+  saved,
+  defaults,
+  businessTypeName,
+  canEdit,
+  frozen,
+}: Props) {
   const t = useTranslations("workflow");
   const tDetail = useTranslations("ticketDetail");
   const tSettings = useTranslations("settings");
@@ -290,14 +300,9 @@ export function WorkflowBoard({ locationId, locale, statuses, saved, defaults, b
           )}
         </div>
       ) : (
-        <section className="flex flex-col items-start self-start rounded-sheet border border-brand bg-brand p-6">
-          <h2 className="text-title-h6">{t("proTitle")}</h2>
-          <p className="mt-1 text-p-sm">{t("proHint")}</p>
-          <Link href={`/locations/${locationId}/billing`} className={`${buttonClass()} mt-4`}>
-            {tSettings("seePlans")}
-            <Icon name="arrow-right" className="size-2.5" />
-          </Link>
-        </section>
+        <PlanLock locationId={locationId} frozen={frozen} title={t("proTitle")} className="self-start">
+          {t("proHint")}
+        </PlanLock>
       )}
 
       <Dialog open={resetting} onClose={() => setResetting(false)} title={t("resetTitle", { type: businessTypeName })}>

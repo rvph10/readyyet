@@ -22,6 +22,9 @@ export class BillingDto {
   scheduledInterval!: BillingInterval | null;
   // No new Tickets and no invitations, everything else keeps working (ADR 0031).
   frozen!: boolean;
+  // Pro's features are on: custom Workflow, review requests (ADR 0031). A
+  // trial is Pro, a frozen Location isn't, whatever its plan.
+  hasPro!: boolean;
   // Memberships plus pending invitations, null when unlimited.
   memberLimit!: number | null;
   // The next checkout takes half a month off, the Business was referred
