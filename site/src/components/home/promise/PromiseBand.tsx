@@ -7,8 +7,9 @@ import "./promise.css";
 const STATS = ["one", "two", "three"] as const;
 
 // Serenium's "Dark Stats Band With Counters" (Temlis), markup as bought, with
-// the section label above its paragraph. The figures are placeholders until
-// ReadyYet has real ones to show. Its script is /temlis/serenium-587/motion.js.
+// the section label above its paragraph. The figures are a worked example, said
+// as such in the paragraph, until ReadyYet has measured ones to show. Its script
+// is /temlis/serenium-587/motion.js.
 export async function PromiseBand() {
   const t = await getTranslations("home.promise");
 

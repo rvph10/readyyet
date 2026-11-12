@@ -16,6 +16,7 @@
     "hero": {
       "title": "Your customers track their repair online and know when it's ready",
       "lede": "Dropped off, being repaired, ready: every step shows up on their phone, with no call to the shop and no account to create.",
+      "assurances": ["No card needed", "Keep the software you already use", "Nothing for your customers to install"],
       "artLabel": "A phone showing the tracking page of a watch left at a watchmaker's, from drop-off until it's ready",
       "phone": {
         "shop": "Atelier Lemaire",
@@ -176,23 +177,23 @@
     },
     "promise": {
       "label": "/ Why ReadyYet",
-      "statement": "Every “is it ready yet?” call is an interruption for you and a wait for your customer. ReadyYet answers before they even ask.",
+      "statement": "An example: 10 calls a day, 3 minutes each, 6 days a week, and that's 3 hours every week spent saying “not yet”. ReadyYet gives your customers the answer before they ask.",
       "cta": "See how it works",
       "stats": {
         "one": {
-          "value": "0",
+          "value": "10",
           "unit": "",
-          "label": "account for your customers to create"
+          "label": "“is it ready?” calls a day"
         },
         "two": {
-          "value": "8",
-          "unit": "/10",
-          "label": "customers track their repair online"
+          "value": "3",
+          "unit": "min",
+          "label": "to find the item and answer"
         },
         "three": {
-          "value": "60",
-          "unit": "%",
-          "label": "fewer “is it ready?” calls"
+          "value": "3",
+          "unit": "h",
+          "label": "a week, over 6 opening days"
         }
       }
     },
@@ -227,6 +228,10 @@
       "app": {
         "q": "Do my customers need to install an app?",
         "a": "No. They get a link by email, or scan the QR code you hand them, and follow their item in their browser. No account, no app."
+      },
+      "software": {
+        "q": "Do I have to give up my till or shop software?",
+        "a": "No. ReadyYet doesn't replace your till or your management software, it adds tracking for your customers. You log the item at the counter in a few seconds and carry on working as before."
       },
       "notified": {
         "q": "How does my customer hear about it?",

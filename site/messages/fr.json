@@ -16,6 +16,7 @@
     "hero": {
       "title": "Vos clients suivent leur réparation en ligne et savent quand c'est prêt",
       "lede": "Déposé, en réparation, prêt : chaque étape s'affiche sur leur téléphone, sans appeler le magasin et sans créer de compte.",
+      "assurances": ["Sans carte bancaire", "Vous gardez votre logiciel actuel", "Rien à installer pour vos clients"],
       "artLabel": "Un téléphone qui affiche la page de suivi d'une montre déposée chez un horloger, du dépôt jusqu'au moment où elle est prête",
       "phone": {
         "shop": "Atelier Lemaire",
@@ -176,23 +177,23 @@
     },
     "promise": {
       "label": "/ Pourquoi ReadyYet",
-      "statement": "Chaque « c'est prêt ? » au téléphone, c'est une interruption pour vous et une attente pour votre client. ReadyYet lui donne la réponse avant qu'il pose la question.",
+      "statement": "Un exemple : 10 appels par jour, 3 minutes chacun, 6 jours sur 7, et ce sont 3 heures par semaine passées à répondre « pas encore ». ReadyYet donne la réponse à votre client avant qu'il pose la question.",
       "cta": "Voir comment ça marche",
       "stats": {
         "one": {
-          "value": "0",
+          "value": "10",
           "unit": "",
-          "label": "compte à créer pour vos clients"
+          "label": "appels « C'est prêt ? » par jour"
         },
         "two": {
-          "value": "8",
-          "unit": "/10",
-          "label": "clients suivent leur réparation en ligne"
+          "value": "3",
+          "unit": "min",
+          "label": "pour retrouver l'article et répondre"
         },
         "three": {
-          "value": "60",
-          "unit": "%",
-          "label": "d'appels « C'est prêt ? » en moins"
+          "value": "3",
+          "unit": "h",
+          "label": "par semaine, sur 6 jours d'ouverture"
         }
       }
     },
@@ -232,6 +233,10 @@
       "app": {
         "q": "Mes clients doivent-ils installer une application ?",
         "a": "Non. Ils reçoivent un lien par e-mail, ou scannent le QR code que vous leur donnez, et suivent leur article dans leur navigateur. Pas de compte, pas d'application."
+      },
+      "software": {
+        "q": "Dois-je abandonner mon logiciel de caisse ?",
+        "a": "Non. ReadyYet ne remplace ni votre caisse ni votre logiciel de gestion, il ajoute le suivi pour vos clients. Vous enregistrez l'article au comptoir en quelques secondes et vous continuez à travailler comme avant."
       },
       "notified": {
         "q": "Comment mon client est-il prévenu ?",

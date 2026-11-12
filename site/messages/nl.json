@@ -16,6 +16,7 @@
     "hero": {
       "title": "Uw klanten volgen hun herstelling online en weten wanneer het klaar is",
       "lede": "Binnengebracht, in herstelling, klaar: elke stap verschijnt op hun telefoon, zonder naar de winkel te bellen en zonder account.",
+      "assurances": ["Zonder bankkaart", "U houdt uw huidige software", "Niets te installeren voor uw klanten"],
       "artLabel": "Een telefoon die de opvolgpagina toont van een horloge dat bij een horlogemaker is binnengebracht, van de afgifte tot het klaar is",
       "phone": {
         "shop": "Atelier Lemaire",
@@ -176,23 +177,23 @@
     },
     "promise": {
       "label": "/ Waarom ReadyYet",
-      "statement": "Elk telefoontje met „is het al klaar?” is een onderbreking voor u en wachten voor uw klant. ReadyYet geeft het antwoord nog voor de vraag gesteld wordt.",
+      "statement": "Een voorbeeld: 10 telefoontjes per dag, telkens 3 minuten, 6 dagen per week. Dat is elke week 3 uur „nog niet klaar” zeggen. ReadyYet geeft uw klant het antwoord nog voor de vraag gesteld wordt.",
       "cta": "Bekijk hoe het werkt",
       "stats": {
         "one": {
-          "value": "0",
+          "value": "10",
           "unit": "",
-          "label": "account dat uw klant moet aanmaken"
+          "label": "telefoontjes per dag met „is het klaar?”"
         },
         "two": {
-          "value": "8",
-          "unit": "/10",
-          "label": "klanten volgen hun herstelling online"
+          "value": "3",
+          "unit": "min",
+          "label": "om het stuk op te zoeken en te antwoorden"
         },
         "three": {
-          "value": "60",
-          "unit": "%",
-          "label": "minder telefoontjes met de vraag of het klaar is"
+          "value": "3",
+          "unit": "u",
+          "label": "per week, over 6 openingsdagen"
         }
       }
     },
@@ -227,6 +228,10 @@
       "app": {
         "q": "Moeten mijn klanten een app installeren?",
         "a": "Nee. Ze krijgen een link per e-mail, of scannen de QR-code die u hen geeft, en volgen hun stuk in de browser. Geen account, geen app."
+      },
+      "software": {
+        "q": "Moet ik mijn kassa- of beheersoftware opgeven?",
+        "a": "Nee. ReadyYet vervangt uw kassa of beheersoftware niet, het voegt de opvolging voor uw klanten toe. U registreert het stuk in enkele seconden aan de toonbank en werkt verder zoals voorheen."
       },
       "notified": {
         "q": "Hoe krijgt mijn klant bericht?",
