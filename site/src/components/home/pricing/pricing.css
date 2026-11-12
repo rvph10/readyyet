@@ -148,26 +148,3 @@
   background-color: var(--color-ink);
   color: var(--color-text-white);
 }
-
-[data-temlis="nexio-641"] .pricing-compare {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-bg-accent);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-
-.pricing-compare svg {
-  width: 1rem;
-  height: 1rem;
-  transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .pricing-compare:hover svg {
-    translate: 0.25rem 0;
-  }
-}

@@ -21,15 +21,14 @@ const LOCALES: Record<string, string> = { fr: "fr-BE", nl: "nl-BE", en: "en-IE" 
 // plans in Ledger's look (pricing.css), with Ledger's buttons in place of its
 // own. Its switch turns the prices on reels, /temlis/nexio-641/script.js; it
 // enters like every section, through data-entrance (lib/motion/reveal.ts).
-// On the home it leads to the full comparison (/pricing). Its small images load
-// at once: lazy, Chrome never loaded those in a panel the switch shows.
-export async function Pricing({ heading = "h2", compare = true }: { heading?: "h1" | "h2"; compare?: boolean }) {
+// Its small images load at once: lazy, Chrome never loaded those in a panel the
+// switch shows.
+export async function Pricing() {
   const [t, signUp, locale] = await Promise.all([getTranslations("home.pricing"), signInUrl(), getLocale()]);
   const euros = (amount: number) =>
     new Intl.NumberFormat(LOCALES[locale], { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(
       amount,
     );
-  const Heading = heading;
 
   return (
     <div className="container container--bleed pricing-frame" id="pricing">
@@ -54,9 +53,9 @@ export async function Pricing({ heading = "h2", compare = true }: { heading?: "h
                     </div>
                   </div>
                   <div className="header">
-                    <Heading className="heading-style-h1" data-entrance="title">
+                    <h2 className="heading-style-h1" data-entrance="title">
                       {t("title")}
-                    </Heading>
+                    </h2>
                     <div className="description" data-entrance="">
                       <div>{t("intro")}</div>
                     </div>
@@ -143,20 +142,6 @@ export async function Pricing({ heading = "h2", compare = true }: { heading?: "h
                     ))}
                   </div>
                 </div>
-                {compare && (
-                  <a className="pricing-compare" href={`/${locale}/pricing`}>
-                    {t("compare")}
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M5 12h14m-6-6 6 6-6 6"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-                )}
               </div>
             </div>
           </div>

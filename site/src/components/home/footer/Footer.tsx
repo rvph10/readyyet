@@ -56,7 +56,7 @@ export async function Footer() {
       links: [
         { label: t("howItWorks"), href: `/${locale}#how-it-works` },
         { label: t("features"), href: `/${locale}#features` },
-        { label: t("pricing"), href: `/${locale}/pricing` },
+        { label: t("pricing"), href: `/${locale}#pricing` },
         { label: t("faq"), href: `/${locale}#faq` },
       ],
     },
