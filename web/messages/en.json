@@ -200,7 +200,12 @@
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
-      "customerGone": "This Customer is no longer in your list. Find or add them again."
+      "customerGone": "This Customer is no longer in your list. Find or add them again.",
+      "noEmailTitle": "This Customer won't hear from you",
+      "noEmailBody": "Without an email address they get nothing: no tracking link, no email when it's ready. Add their email, or hand them their tracking code right after creating it, by QR code, printed slip or WhatsApp.",
+      "noEmailFailingBody": "Emails to this address have already failed, so they get nothing. Hand them their tracking code right after creating it, and check their address with them.",
+      "createAnyway": "Create without email",
+      "addEmail": "Add an email"
     },
     "seeAll": "See all results",
     "resultsFor": "Results for “{query}”",

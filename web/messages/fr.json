@@ -200,7 +200,12 @@
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
-      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau."
+      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau.",
+      "noEmailTitle": "Ce client ne sera pas prévenu",
+      "noEmailBody": "Sans adresse e-mail, il ne reçoit aucune nouvelle : ni le lien de suivi, ni l'e-mail quand c'est prêt. Ajoutez son e-mail, ou donnez-lui son code de suivi juste après la création, par QR code, bon imprimé ou WhatsApp.",
+      "noEmailFailingBody": "Les e-mails à cette adresse ont déjà échoué, il ne reçoit donc aucune nouvelle. Donnez-lui son code de suivi juste après la création, et vérifiez son adresse avec lui.",
+      "createAnyway": "Créer sans e-mail",
+      "addEmail": "Ajouter un e-mail"
     },
     "seeAll": "Voir tous les résultats",
     "resultsFor": "Résultats pour « {query} »",
