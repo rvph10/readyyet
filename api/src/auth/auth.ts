@@ -10,6 +10,7 @@ import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
 import { isDisposableEmail } from "./disposable-email";
+import { SIGN_IN_CODES_PER_HOUR } from "../email/email-limits";
 
 // Given to the plugin and quoted in the email, so the two can't disagree.
 const OTP_EXPIRES_IN_MINUTES = 5;
@@ -112,6 +113,18 @@ export const auth: Auth<any> = betterAuth({
         // regardless), nothing in this app calls them, forget-password
         // is meaningless with no password to reset.
         if (type !== "sign-in") {
+          return;
+        }
+        // ADR 0140: the form can't be used to flood an inbox. The page says
+        // the code was sent either way, like for an address it doesn't know.
+        const sentLastHour = await prisma.emailLog.count({
+          where: {
+            to: email,
+            type: "auth_otp",
+            createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+          },
+        });
+        if (sentLastHour >= SIGN_IN_CODES_PER_HOUR) {
           return;
         }
         const { subject, react } = buildSignInCodeEmail({

@@ -28,6 +28,7 @@ import { TicketPhotoService } from "./ticket-photo.service";
 import { STATUS_NOTIFICATION_DELAY_MS, STATUS_UNDO_WINDOW_MS } from "./status-rules";
 import { generateTrackingCode } from "./tracking-code";
 import { NEEDS_FOLLOW_UP } from "../feedback/asks-for-feedback";
+import { customerEmailsToday } from "../email/email-limits";
 
 const DEFAULT_LIST_TAKE = 50;
 const OVERVIEW_TICKETS = 100;
@@ -262,6 +263,7 @@ export class TicketService {
       where: { id: locationId },
       select: { timeZone: true },
     });
+    const [emailsToday] = await this.prisma.$queryRaw<{ limited: number }[]>(customerEmailsToday(locationId));
     const now = new Date();
     const today = calendarDateIn(now, timeZone);
     const tomorrow = addDays(today, 1);
@@ -325,6 +327,7 @@ export class TicketService {
             addDays(calendarDateIn(row.statusSince, timeZone), LONG_WAIT_DAYS) <= today,
         ),
       },
+      customerEmailsLimited: emailsToday.limited > 0,
     };
   }
 

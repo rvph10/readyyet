@@ -13,7 +13,7 @@ const FIRST_RETRY_DELAY_MS = 60_000;
 const LONGEST_RETRY_DELAY_MS = 2 * 60 * 60 * 1000;
 const ATTEMPTS_PER_ROUND = 3;
 
-export type TicketEmailProblem = "RETRYING" | "GAVE_UP";
+export type TicketEmailProblem = "RETRYING" | "GAVE_UP" | "LIMITED";
 
 const STUCK_INCLUDE = {
   ticket: {
@@ -106,6 +106,9 @@ export class EmailRetryService {
     // retry a bounced email, so nothing else would tell staff.
     if (latest.status === EmailStatus.BOUNCED) {
       return "GAVE_UP";
+    }
+    if (latest.status === EmailStatus.LIMITED) {
+      return "LIMITED";
     }
     if (latest.status !== EmailStatus.FAILED) {
       return null;
