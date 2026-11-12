@@ -147,7 +147,7 @@ describe("Customer feedback", () => {
     });
     await prisma.location.update({
       where: { id: locationId },
-      data: { googleReviewUrl: REVIEW_URL, feedbackEmails: true },
+      data: { googleReviewUrl: REVIEW_URL, feedbackEmailsSince: new Date() },
     });
   });
 
@@ -222,7 +222,7 @@ describe("Customer feedback", () => {
   describe("the feedback email", () => {
     // ADR 0131.
     it("is off until the shop turns it on, with nothing said at drop-off", async () => {
-      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmails: false } });
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
       const ticket = await createTicket("not-chosen");
       await complete(ticket.id);
 
@@ -233,8 +233,20 @@ describe("Customer feedback", () => {
       expect(await emailsTo("not-chosen", "ticket_feedback_request")).toHaveLength(0);
     });
 
+    // ADR 0139: its drop-off email didn't announce it.
+    it("isn't sent for a Ticket created before it was turned on", async () => {
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
+      const ticket = await createTicket("before-on");
+      await patchLocation({ feedbackEmails: true });
+      await complete(ticket.id);
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await emailsTo("before-on", "ticket_feedback_request")).toHaveLength(0);
+    });
+
     it("is turned on with Pro only, and off on any plan", async () => {
-      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmails: false } });
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
       const on = await patchLocation({ feedbackEmails: true });
       await setSubscription({ status: SubscriptionStatus.ACTIVE, plan: Plan.ESSENTIEL, trialEndsAt: null });
 
@@ -360,7 +372,7 @@ describe("Customer feedback", () => {
 
     // ADR 0131: offered, not sent, so it isn't the email's choice.
     it("takes feedback when the shop doesn't email for it", async () => {
-      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmails: false } });
+      await prisma.location.update({ where: { id: locationId }, data: { feedbackEmailsSince: null } });
       const ticket = await createTicket("page-no-email");
       await complete(ticket.id);
 

@@ -230,11 +230,12 @@ model Location {
   // empty. 1 to 60, a CHECK enforces it (ADR 0036).
   turnaroundDays     Int?      @map("turnaround_days")
   // Google's "write a review" link, offered after good feedback (ADR 0027).
-  // The feedback email is feedbackEmails' choice, not this link's (ADR 0131).
+  // The feedback email is feedbackEmailsSince's choice, not this link's (ADR 0131).
   googleReviewUrl    String?   @map("google_review_url")
   // Emails a Customer for feedback once their Ticket is done, the shop's
-  // choice and off until it makes it (ADR 0131).
-  feedbackEmails     Boolean   @default(false) @map("feedback_emails")
+  // choice and off until it makes it (ADR 0131). When it was turned on: only
+  // Tickets created since, whose drop-off email said so, get it (ADR 0139).
+  feedbackEmailsSince DateTime? @map("feedback_emails_since")
   deletedAt          DateTime? @map("deleted_at")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")

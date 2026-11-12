@@ -183,7 +183,7 @@ export class NotificationService {
   // ADR 0131: decided when due, with the Location's plan and switch then.
   // Claimed first, a Ticket completed again never gets a second one.
   private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
-    if (!emailsForFeedback(ticket.location)) {
+    if (!emailsForFeedback(ticket.location, ticket.createdAt)) {
       return;
     }
     const { count } = await this.prisma.ticket.updateMany({
@@ -366,7 +366,7 @@ export class NotificationService {
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
       ratingUrl: ratingUrl(ticket.trackingCode),
-      asksForFeedback: emailsForFeedback(ticket.location),
+      asksForFeedback: emailsForFeedback(ticket.location, ticket.createdAt),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
       reply,
     });

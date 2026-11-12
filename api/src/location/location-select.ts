@@ -21,7 +21,7 @@ export const locationSelect = {
     openingHours: true,
     turnaroundDays: true,
     googleReviewUrl: true,
-    feedbackEmails: true,
+    feedbackEmailsSince: true,
     createdAt: true,
     updatedAt: true,
     businessType: { select: { code: true } },
@@ -37,10 +37,12 @@ export function toLocationResponse({
   addressCountry,
   openingHours,
   business,
+  feedbackEmailsSince,
   ...location
 }: Prisma.LocationGetPayload<typeof locationSelect>) {
   return {
     ...location,
+    feedbackEmails: feedbackEmailsSince !== null,
     businessTypeCode: businessType.code,
     // The Business's, the same for all its Locations (ADR 0051).
     logoUrl: publicImageUrl(business.logoKey),
