@@ -12,8 +12,9 @@ const star = (cx: number, cy: number, r: number) =>
     return `${(cx + d * Math.cos(angle)).toFixed(2)},${(cy + d * Math.sin(angle)).toFixed(2)}`;
   }).join(" ");
 
-// What reaches the Customer while the phone plays: the quote email, a photo
-// the Location adds, the email saying it's ready, and the review after pickup.
+// What reaches the Customer while the phone plays: the email asking to approve
+// a quote, a photo the Location adds, the email saying it's ready, and the
+// review after pickup. ReadyYet keeps no quote amounts (ADR 0007), so none shows.
 export async function HeroFloats() {
   const t = await getTranslations("home.hero.phone");
 
@@ -26,9 +27,6 @@ export async function HeroFloats() {
           <path stroke={PINE} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m27 30 9 7 9-7" />
           <text x="70" y="32" fill={INK} fontSize="15" fontWeight="600">
             {t("quoteTitle")}
-          </text>
-          <text x="286" y="32" fill={INK} fontSize="15" fontWeight="600" textAnchor="end">
-            {t("quoteAmount")}
           </text>
           <text x="70" y="51" fill={SOFT} fontSize="12.5">
             {t("quoteText")}
