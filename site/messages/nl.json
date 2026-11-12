@@ -290,8 +290,8 @@
     "questions": "Een vraag over deze teksten?"
   },
   "cookies": {
-    "title": "Mogen we uw bezoeken meten?",
-    "body": "Met uw toestemming telt ReadyYet de bekeken pagina's met PostHog, gehost in de EU, om te zien hoe de dienst gevonden en gebruikt wordt. Weigeren verandert niets voor u. U kunt uw keuze altijd wijzigen via Cookie-instellingen. <link>Meer weten</link>",
+    "title": "Cookies",
+    "body": "We gebruiken analysecookies om ReadyYet te verbeteren, alleen met uw toestemming. Weigeren verandert niets voor u. <link>Meer weten</link>",
     "accept": "Accepteren",
     "refuse": "Weigeren",
     "settings": "Cookie-instellingen"
