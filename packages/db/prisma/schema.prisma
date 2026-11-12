@@ -203,42 +203,42 @@ model BusinessTypeTranslation {
 }
 
 model Location {
-  id                 String    @id @default(uuid()) @db.Uuid
-  businessId         String    @map("business_id") @db.Uuid
-  businessTypeId     Int       @map("business_type_id")
+  id                  String    @id @default(uuid()) @db.Uuid
+  businessId          String    @map("business_id") @db.Uuid
+  businessTypeId      Int       @map("business_type_id")
   // What an OTHER Location does, in the owner's words, optional and set
   // with no other type (ADR 0071).
-  businessTypeDetail String?   @map("business_type_detail")
-  name               String
-  contactPhone       String    @map("contact_phone")
-  contactEmail       String    @map("contact_email")
+  businessTypeDetail  String?   @map("business_type_detail")
+  name                String
+  contactPhone        String    @map("contact_phone")
+  contactEmail        String    @map("contact_email")
   // Default language for this Location's customer emails and tracking
   // page, a Customer's own locale overrides it. See ADR 0015.
-  locale             Locale
+  locale              Locale
   // ADR 0034: schema.org's PostalAddress fields, all four or none.
-  streetAddress      String?   @map("street_address")
-  postalCode         String?   @map("postal_code")
-  addressLocality    String?   @map("address_locality")
+  streetAddress       String?   @map("street_address")
+  postalCode          String?   @map("postal_code")
+  addressLocality     String?   @map("address_locality")
   // ISO 3166-1 alpha-2.
-  addressCountry     String?   @map("address_country")
+  addressCountry      String?   @map("address_country")
   // A region's IANA name, never an offset, opening hours are wall-clock
   // times in it.
-  timeZone           String    @map("time_zone")
+  timeZone            String    @map("time_zone")
   // schema.org OpeningHoursSpecification entries, see ADR 0034.
-  openingHours       Json      @default("[]") @map("opening_hours")
+  openingHours        Json      @default("[]") @map("opening_hours")
   // Open days to a new Ticket's estimated ready date, null leaves it
   // empty. 1 to 60, a CHECK enforces it (ADR 0036).
-  turnaroundDays     Int?      @map("turnaround_days")
+  turnaroundDays      Int?      @map("turnaround_days")
   // Google's "write a review" link, offered after good feedback (ADR 0027).
   // The feedback email is feedbackEmailsSince's choice, not this link's (ADR 0131).
-  googleReviewUrl    String?   @map("google_review_url")
+  googleReviewUrl     String?   @map("google_review_url")
   // Emails a Customer for feedback once their Ticket is done, the shop's
   // choice and off until it makes it (ADR 0131). When it was turned on: only
   // Tickets created since, whose drop-off email said so, get it (ADR 0139).
   feedbackEmailsSince DateTime? @map("feedback_emails_since")
-  deletedAt          DateTime? @map("deleted_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
   businessType BusinessType  @relation(fields: [businessTypeId], references: [id], onDelete: Restrict)
