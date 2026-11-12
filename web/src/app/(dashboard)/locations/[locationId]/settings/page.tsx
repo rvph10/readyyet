@@ -67,6 +67,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
       <PageHeader title={t("sections.settings")} />
       <SheetShell
         label={tSettings("navLabel")}
+        back={t("sections.settings")}
         start={parseSection(search.section, allowed)}
         sections={allowed.map((name) => {
           const [title, hint, groups] = HEADINGS[name];

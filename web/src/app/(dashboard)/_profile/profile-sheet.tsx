@@ -26,6 +26,7 @@ export async function ProfileSheet({ me, here, section }: { me: Me; here: string
   return (
     <SheetShell
       label={t("navLabel")}
+      back={t("title")}
       start={SECTIONS.find(([name]) => name === section)?.[0] ?? "details"}
       sections={SECTIONS.map(([name, icon]) => ({
         name,
