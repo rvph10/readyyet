@@ -4,8 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TrackingBento, TrackingGrid } from "./tracking-grid";
 
 // The page's shape in its most common state, an open Ticket with an estimated
-// date, no photos and a shop without a banner, so its tiles stay where they
-// are when the data arrives.
+// date, no photos and a shop with a banner, so its tiles stay where they are
+// when the data arrives.
 export function TrackingSkeleton() {
   const t = useTranslations("tracking");
   return (
@@ -13,9 +13,10 @@ export function TrackingSkeleton() {
       <p className="sr-only" role="status">
         {t("loading")}
       </p>
-      <header className="flex items-center gap-3 px-1">
-        <Skeleton className="size-20 shrink-0 rounded-3xl!" />
-        <Skeleton className="h-6 w-44 md:h-7 md:w-56" />
+      <Skeleton className="aspect-[3/1] w-full rounded-sheet! lg:aspect-auto lg:h-64" />
+      <header className="-mt-14 flex items-end gap-3 px-1 pl-5 lg:-mt-15 lg:pl-7">
+        <Skeleton className="relative size-20 shrink-0 rounded-3xl! ring-4 ring-canvas" />
+        <Skeleton className="mb-1 h-6 w-44 md:h-7 md:w-56" />
       </header>
       <TrackingBento photos={false}>
         <div className="flex flex-col gap-6 rounded-sheet border border-border bg-surface p-6 sm:flex-row sm:items-center sm:justify-between md:p-8 lg:col-span-2">
