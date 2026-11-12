@@ -1,0 +1,98 @@
+/* Corevia's comparison table in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/corevia-762. Two plans
+   instead of three, a pine header band, lime checks. */
+
+[data-temlis="corevia-762"] {
+  --bg-color--bg-subtle: var(--color-surface-muted);
+  --base--blue: var(--color-bg-accent);
+  --_typography---font-family--headers: var(--font-body);
+
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: transparent;
+}
+
+[data-temlis="corevia-762"] .section_plans {
+  padding-block: var(--section-space);
+}
+
+.comparison-head {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+[data-temlis="corevia-762"] .container-medium {
+  max-width: var(--section-max);
+}
+
+[data-temlis="corevia-762"] .block_plan-wrap {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+[data-temlis="corevia-762"] .block_plan-top {
+  background-color: transparent;
+}
+
+[data-temlis="corevia-762"] .pricing_list-top {
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+}
+
+[data-temlis="corevia-762"] .block_plan-top .text-xl {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="corevia-762"] .block_features .text-xl {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+[data-temlis="corevia-762"] .text-base {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+[data-temlis="corevia-762"] .pricing_icon {
+  color: var(--color-ink);
+}
+
+.comparison-none {
+  color: var(--color-text-secondary);
+}
+
+/* Two plans fit a phone's width: Corevia sizes its cells for three and
+   scrolls them sideways, which here only hid half of the second plan. */
+@media (max-width: 479px) {
+  [data-temlis="corevia-762"] .pricing_table {
+    min-width: 0;
+  }
+
+  [data-temlis="corevia-762"] .block_features,
+  [data-temlis="corevia-762"] .block_features-top {
+    flex: 1;
+    min-width: 0;
+  }
+
+  [data-temlis="corevia-762"] .block_plan-wrap {
+    flex: none;
+    width: 11rem;
+  }
+
+  [data-temlis="corevia-762"] .block_plan,
+  [data-temlis="corevia-762"] .block_plan-top {
+    min-width: 0;
+  }
+
+  [data-temlis="corevia-762"] .block_features .text-xl,
+  [data-temlis="corevia-762"] .text-base {
+    font-size: 0.875rem;
+  }
+
+  [data-temlis="corevia-762"] .block_plan-top .text-xl {
+    font-size: 1.125rem;
+  }
+}

@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/site-url";
 import { TRADE_KEYS, tradePath } from "@/lib/trades";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", ...LEGAL_DOCS.map((doc) => `/${doc}`)].flatMap((page) => {
+  const pages = ["", "/pricing", ...LEGAL_DOCS.map((doc) => `/${doc}`)].flatMap((page) => {
     const languages = Object.fromEntries(routing.locales.map((l) => [l, `${SITE_URL}/${l}${page}`]));
     return routing.locales.map((locale) => ({ url: `${SITE_URL}/${locale}${page}`, alternates: { languages } }));
   });

@@ -25,7 +25,8 @@ export async function Nav() {
       <ul className="nav__links">
         {SECTIONS.map(([label, anchor]) => (
           <li key={anchor}>
-            <a className="nav__link" href={`/${locale}#${anchor}`}>
+            {/* Pricing has a page of its own, the rest are parts of the home. */}
+            <a className="nav__link" href={anchor === "pricing" ? `/${locale}/pricing` : `/${locale}#${anchor}`}>
               {t(label)}
             </a>
           </li>

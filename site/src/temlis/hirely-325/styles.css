@@ -232,11 +232,13 @@
 /* ===== tokens.css ===== */
 /* Design tokens — copied literally from the Webflow Client-First export. */
 :where([data-temlis="hirely-325"]) {
-  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>
+  );
   --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
   --new-base---base--black\<deleted\|variable-2b5a5786-d08f-9106-d24d-5f6d91aa7da6\>: #1d1d1d;
   --bg-color--bg-default: var(--base--beige);
-  --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+  --_typography---font-family--secondary: "Roboto Variable", Roboto, sans-serif;
   --text-color--text-primary: var(--base--green-dark);
   --_sizes---fixed--1rem: 1rem;
   --_typography---font-weight--regular: 400;
@@ -272,7 +274,7 @@
   --_typography---h6--font-weight: var(--_typography---font-weight--regular);
   --_typography---h6--letter-spacing: 0em;
   --_sizes---fixed--1-5rem: 1.5rem;
-  --_sizes---fixed--0-25rem: .25rem;
+  --_sizes---fixed--0-25rem: 0.25rem;
   --_sizes---fixed--1-25rem: 1.25rem;
   --bg-color--bg-blue: var(--base--blue-500);
   --_sizes---fixed--2-5rem: 2.5rem;
@@ -290,7 +292,7 @@
   --_typography---base--font-size: var(--_sizes---fixed--1rem);
   --_typography---base--line-height: 1.5;
   --_typography---base--letter-spacing: 0em;
-  --_sizes---fixed--0-5rem: .5rem;
+  --_sizes---fixed--0-5rem: 0.5rem;
   --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
   --_typography---lg--line-height: 1.5;
   --_typography---lg--letter-spacing: 0em;
@@ -298,7 +300,7 @@
   --_typography---font-family--primary: Anton, sans-serif;
   --_sizes---fixed--3rem: 3rem;
   --bg-color--bg-dark: var(--base--green-dark);
-  --_sizes---fixed--0-75rem: .75rem;
+  --_sizes---fixed--0-75rem: 0.75rem;
   --grey--grey-350: #7f7f7f;
   --base--white: #fff;
   --grey--grey-300: #b7b7b7;
@@ -318,7 +320,7 @@
   --_typography---sm--line-height: 1.42;
   --_typography---sm--letter-spacing: 0em;
   --_sizes---padding-section--medium: var(--_sizes---fixed--6-25rem);
-  --_sizes---fixed--0-125rem: .125rem;
+  --_sizes---fixed--0-125rem: 0.125rem;
   --_sizes---fixed--1-75rem: 1.75rem;
   --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
   --_typography---2xl--line-height: 1.5;
@@ -342,11 +344,11 @@
   --bg-color--bg-purple: var(--base--purple-300);
   --_sizes---fixed--3-25rem: 3.25rem;
   --main--primary: var(--base--blue-500);
-  --_sizes---border--border-size: .0625rem;
+  --_sizes---border--border-size: 0.0625rem;
   --_sizes---fixed--5rem: 5rem;
   --bg-color--bg-green: var(--base--green);
   --grey--grey-100: #f7f7f7;
-  --_sizes---fixed--0-875rem: .875rem;
+  --_sizes---fixed--0-875rem: 0.875rem;
   --base--orange: #fe5f41;
   --base--pink-300: #fe7aca;
   --base--green-600: #093639;
@@ -391,33 +393,14 @@
   --_sizes---fixed--9rem: 9rem;
   --grey--grey-600: #292929;
   --_sizes---fixed--10rem: 10rem;
-  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: 0.75rem;
 }
 
 /* ===== webflow.css ===== */
 
-
 /* Tipografías autoalojadas (T-57): Anton, Inter, Roboto desde @fontsource.
    Solo el estilo normal: la URL de Google no pedía el eje ital.
  */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 [data-temlis="hirely-325"] * {
   -webkit-box-sizing: border-box;
@@ -472,7 +455,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 }
 [data-temlis="hirely-325"] .w-input:focus,
 [data-temlis="hirely-325"] .w-select:focus {
-  border-color: #3898EC;
+  border-color: #3898ec;
   outline: 0;
 }
 [data-temlis="hirely-325"] .w-slider-dot:focus {
@@ -561,7 +544,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   top: 100%;
   left: 0;
   right: 0;
-  background: #C8C8C8;
+  background: #c8c8c8;
   text-align: center;
   overflow: visible;
   min-width: 200px;
@@ -601,11 +584,13 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   }
 }
 :where([data-temlis="hirely-325"]) {
-  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>
+  );
   --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
   --new-base---base--black\<deleted\|variable-2b5a5786-d08f-9106-d24d-5f6d91aa7da6\>: #1d1d1d;
   --bg-color--bg-default: var(--base--beige);
-  --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+  --_typography---font-family--secondary: "Roboto Variable", Roboto, sans-serif;
   --text-color--text-primary: var(--base--green-dark);
   --_sizes---fixed--1rem: 1rem;
   --_typography---font-weight--regular: 400;
@@ -641,7 +626,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --_typography---h6--font-weight: var(--_typography---font-weight--regular);
   --_typography---h6--letter-spacing: 0em;
   --_sizes---fixed--1-5rem: 1.5rem;
-  --_sizes---fixed--0-25rem: .25rem;
+  --_sizes---fixed--0-25rem: 0.25rem;
   --_sizes---fixed--1-25rem: 1.25rem;
   --bg-color--bg-blue: var(--base--blue-500);
   --_sizes---fixed--2-5rem: 2.5rem;
@@ -659,7 +644,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --_typography---base--font-size: var(--_sizes---fixed--1rem);
   --_typography---base--line-height: 1.5;
   --_typography---base--letter-spacing: 0em;
-  --_sizes---fixed--0-5rem: .5rem;
+  --_sizes---fixed--0-5rem: 0.5rem;
   --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
   --_typography---lg--line-height: 1.5;
   --_typography---lg--letter-spacing: 0em;
@@ -667,7 +652,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --_typography---font-family--primary: Anton, sans-serif;
   --_sizes---fixed--3rem: 3rem;
   --bg-color--bg-dark: var(--base--green-dark);
-  --_sizes---fixed--0-75rem: .75rem;
+  --_sizes---fixed--0-75rem: 0.75rem;
   --grey--grey-350: #7f7f7f;
   --base--white: #fff;
   --grey--grey-300: #b7b7b7;
@@ -687,7 +672,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --_typography---sm--line-height: 1.42;
   --_typography---sm--letter-spacing: 0em;
   --_sizes---padding-section--medium: var(--_sizes---fixed--6-25rem);
-  --_sizes---fixed--0-125rem: .125rem;
+  --_sizes---fixed--0-125rem: 0.125rem;
   --_sizes---fixed--1-75rem: 1.75rem;
   --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
   --_typography---2xl--line-height: 1.5;
@@ -711,11 +696,11 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --bg-color--bg-purple: var(--base--purple-300);
   --_sizes---fixed--3-25rem: 3.25rem;
   --main--primary: var(--base--blue-500);
-  --_sizes---border--border-size: .0625rem;
+  --_sizes---border--border-size: 0.0625rem;
   --_sizes---fixed--5rem: 5rem;
   --bg-color--bg-green: var(--base--green);
   --grey--grey-100: #f7f7f7;
-  --_sizes---fixed--0-875rem: .875rem;
+  --_sizes---fixed--0-875rem: 0.875rem;
   --base--orange: #fe5f41;
   --base--pink-300: #fe7aca;
   --base--green-600: #093639;
@@ -760,16 +745,16 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   --_sizes---fixed--9rem: 9rem;
   --grey--grey-600: #292929;
   --_sizes---fixed--10rem: 10rem;
-  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: 0.75rem;
 }
 
 [data-temlis="hirely-325"] .new-base--t-button-secondary:hover {
   background-color: #1c1c1c;
-  transform: scale(.95);
+  transform: scale(0.95);
 }
 
 [data-temlis="hirely-325"] .new-base--t-button:hover {
-  transform: scale(.95);
+  transform: scale(0.95);
 }
 
 [data-temlis="hirely-325"] {
@@ -893,18 +878,19 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 }
 
 [data-temlis="hirely-325"] .arrow:hover {
-  transform: scale(.97)translate(-60%);
+  transform: scale(0.97) translate(-60%);
 }
 
 [data-temlis="hirely-325"] .arrow.is-right:hover {
-  transform: scale(.97)translate(60%);
+  transform: scale(0.97) translate(60%);
 }
 
 [data-temlis="hirely-325"] .spacer {
   opacity: 0;
 }
 
-[data-temlis="hirely-325"] .spacer-tablet, [data-temlis="hirely-325"] .spacer-mobile {
+[data-temlis="hirely-325"] .spacer-tablet,
+[data-temlis="hirely-325"] .spacer-mobile {
   display: none;
 }
 
@@ -924,7 +910,8 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 
 [data-temlis="hirely-325"] .button_main {
   z-index: 1;
-  padding: var(--_sizes---fixed--0-5rem) var(--_sizes---fixed--1-5rem) var(--_sizes---fixed--0-5rem) var(--_sizes---fixed--0-5rem);
+  padding: var(--_sizes---fixed--0-5rem) var(--_sizes---fixed--1-5rem) var(--_sizes---fixed--0-5rem)
+    var(--_sizes---fixed--0-5rem);
   grid-column-gap: var(--_sizes---fixed--1rem);
   grid-row-gap: var(--_sizes---fixed--1rem);
   border: var(--_sizes---border--border-size) solid var(--base--white);
@@ -942,7 +929,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   display: flex;
   position: relative;
   overflow: visible;
-  transform: translate(-.3125rem, -.3125rem);
+  transform: translate(-0.3125rem, -0.3125rem);
 }
 
 [data-temlis="hirely-325"] .button_wrap {
@@ -994,7 +981,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 
 [data-temlis="hirely-325"] .features_description {
   grid-column-gap: 1rem;
-  grid-row-gap: .3rem;
+  grid-row-gap: 0.3rem;
   flex-flow: wrap;
   justify-content: center;
   align-items: center;
@@ -1069,31 +1056,33 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 
 @media screen and (max-width: 991px) {
   [data-temlis="hirely-325"] {
-    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
-    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: 0.75rem;
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(
+      --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>
+    );
     --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
     --_sizes---fixed--1rem: 1rem;
     --_sizes---fixed--0rem: 0rem;
     --_sizes---fixed--1-5rem: 1.5rem;
-    --_sizes---fixed--0-25rem: .25rem;
+    --_sizes---fixed--0-25rem: 0.25rem;
     --_sizes---fixed--1-25rem: 1.25rem;
     --_sizes---fixed--2-5rem: 2.5rem;
     --_sizes---fixed--2rem: 2rem;
     --_sizes---padding-section--small: var(--_sizes---fixed--2-5rem);
-    --_sizes---fixed--0-5rem: .5rem;
+    --_sizes---fixed--0-5rem: 0.5rem;
     --_sizes---fixed--3rem: 3rem;
-    --_sizes---fixed--0-75rem: .75rem;
+    --_sizes---fixed--0-75rem: 0.75rem;
     --_sizes---padding-section--large: var(--_sizes---fixed--6rem);
     --_sizes---fixed--6rem: 6rem;
     --_sizes---fixed--4rem: 4rem;
     --_sizes---padding-section--medium: var(--_sizes---fixed--4rem);
-    --_sizes---fixed--0-125rem: .125rem;
+    --_sizes---fixed--0-125rem: 0.125rem;
     --_sizes---fixed--1-75rem: 1.75rem;
     --_sizes---fixed--2-75rem: 2.75rem;
     --_sizes---fixed--3-25rem: 3.25rem;
-    --_sizes---border--border-size: .0625rem;
+    --_sizes---border--border-size: 0.0625rem;
     --_sizes---fixed--5rem: 5rem;
-    --_sizes---fixed--0-875rem: .875rem;
+    --_sizes---fixed--0-875rem: 0.875rem;
     --_sizes---fixed--1-125rem: 1.125rem;
     --_sizes---fixed--2-25rem: 2.25rem;
     --_sizes---fixed--3-5rem: 3.5rem;
@@ -1106,7 +1095,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
     --_sizes---fixed--8rem: 8rem;
     --_sizes---fixed--9rem: 9rem;
     --_sizes---fixed--10rem: 10rem;
-    --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+    --_typography---font-family--secondary: "Roboto Variable", Roboto, sans-serif;
     --_typography---font-weight--regular: 400;
     --_typography---h1--font-family: var(--_typography---font-family--primary);
     --_typography---h1--font-size: var(--_sizes---fixed--4-5rem);
@@ -1199,37 +1188,39 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 
   [data-temlis="hirely-325"] .thumb-img {
     margin-bottom: auto;
-    margin-left: -.5rem;
+    margin-left: -0.5rem;
   }
 }
 
 @media screen and (max-width: 767px) {
   [data-temlis="hirely-325"] {
-    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(
+      --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>
+    );
     --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
-    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: 0.75rem;
     --_sizes---fixed--1rem: 1rem;
     --_sizes---fixed--0rem: 0rem;
     --_sizes---fixed--1-5rem: 1.5rem;
-    --_sizes---fixed--0-25rem: .25rem;
+    --_sizes---fixed--0-25rem: 0.25rem;
     --_sizes---fixed--1-25rem: 1.25rem;
     --_sizes---fixed--2-5rem: 2.5rem;
     --_sizes---fixed--2rem: 2rem;
     --_sizes---padding-section--small: var(--_sizes---fixed--2rem);
-    --_sizes---fixed--0-5rem: .5rem;
+    --_sizes---fixed--0-5rem: 0.5rem;
     --_sizes---fixed--3rem: 3rem;
-    --_sizes---fixed--0-75rem: .75rem;
+    --_sizes---fixed--0-75rem: 0.75rem;
     --_sizes---padding-section--large: var(--_sizes---fixed--4rem);
     --_sizes---fixed--6rem: 6rem;
     --_sizes---fixed--4rem: 4rem;
     --_sizes---padding-section--medium: var(--_sizes---fixed--3rem);
-    --_sizes---fixed--0-125rem: .125rem;
+    --_sizes---fixed--0-125rem: 0.125rem;
     --_sizes---fixed--1-75rem: 1.75rem;
     --_sizes---fixed--2-75rem: 2.75rem;
     --_sizes---fixed--3-25rem: 3.25rem;
-    --_sizes---border--border-size: .0625rem;
+    --_sizes---border--border-size: 0.0625rem;
     --_sizes---fixed--5rem: 5rem;
-    --_sizes---fixed--0-875rem: .875rem;
+    --_sizes---fixed--0-875rem: 0.875rem;
     --_sizes---fixed--1-125rem: 1.125rem;
     --_sizes---fixed--2-25rem: 2.25rem;
     --_sizes---fixed--3-5rem: 3.5rem;
@@ -1242,7 +1233,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
     --_sizes---fixed--8rem: 8rem;
     --_sizes---fixed--9rem: 9rem;
     --_sizes---fixed--10rem: 10rem;
-    --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+    --_typography---font-family--secondary: "Roboto Variable", Roboto, sans-serif;
     --_typography---font-weight--regular: 400;
     --_typography---h1--font-family: var(--_typography---font-family--primary);
     --_typography---h1--font-size: var(--_sizes---fixed--4rem);
@@ -1344,7 +1335,7 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   }
 
   [data-temlis="hirely-325"] .features_description {
-    grid-column-gap: .5rem;
+    grid-column-gap: 0.5rem;
   }
 
   [data-temlis="hirely-325"] .cta_img {
@@ -1365,8 +1356,10 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 
 @media screen and (max-width: 479px) {
   [data-temlis="hirely-325"] {
-    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
-    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: 0.75rem;
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(
+      --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>
+    );
     --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
   }
 
@@ -1380,16 +1373,14 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
   }
 
   [data-temlis="hirely-325"] .cta_header-row {
-    grid-column-gap: .5rem;
-    grid-row-gap: .5rem;
+    grid-column-gap: 0.5rem;
+    grid-row-gap: 0.5rem;
   }
 
   [data-temlis="hirely-325"] .feature_img {
     padding-top: 88%;
   }
 }
-
-
 
 /* ===== global-styles.css ===== */
 /* Global embed styles (extracted verbatim from the Webflow export head). */
@@ -1405,8 +1396,8 @@ html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
 /* Get rid of top margin on first element in any rich text element */
 /* Get rid of bottom margin on last element in any rich text element */
 /* Make sure containers never lose their center alignment */
- [data-temlis="hirely-325"] .container-large {
-	margin-right: auto !important;
+[data-temlis="hirely-325"] .container-large {
+  margin-right: auto !important;
   margin-left: auto !important;
 }
 /* 
@@ -1436,13 +1427,15 @@ a,
   display: none !important;
 }
 @media screen and (max-width: 991px) {
-    [data-temlis="hirely-325"] .hide {
-        display: none !important;
-    }
+  [data-temlis="hirely-325"] .hide {
+    display: none !important;
+  }
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
 /* Hide scrollbar for IE, Edge and Firefox */
-[data-temlis="hirely-325"] .spacer * { padding: 0 }
+[data-temlis="hirely-325"] .spacer * {
+  padding: 0;
+}
 
 /* ===== hamburger-nav.css ===== */
 /* =============================================================================
@@ -1559,15 +1552,23 @@ a,
 /* transform-only animation: no layout/paint, just compositor. set 2 lands
    exactly where set 1 began, so the loop is invisible. */
 @keyframes hirely-325-marquee-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 /* Reverse direction — add `data-marquee-reverse` (or a modifier class) and the
    track scrolls the other way. Same period, same seamlessness. */
 @keyframes hirely-325-marquee-scroll-reverse {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* PAUSE-ON-HOVER — pausing the animation (not the layer) keeps it cheap.
@@ -1766,8 +1767,12 @@ a,
    --------------------------------------------------------------------------- */
 
 @keyframes hirely-325-loop-logos {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% - var(--loop-gap))); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--loop-gap)));
+  }
 }
 
 /* Pause on hover / keyboard focus. */
@@ -1783,8 +1788,12 @@ a,
    --------------------------------------------------------------------------- */
 
 @keyframes hirely-325-carousel-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% - var(--carousel-gap))); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--carousel-gap)));
+  }
 }
 
 [data-temlis="hirely-325"] .carousel-wrap:hover .carousel {
@@ -1833,4 +1842,3 @@ a,
     transition: none;
   }
 }
-

@@ -616,5 +616,33 @@
         }
       ]
     }
+  },
+  "pricingPage": {
+    "metaTitle": "Tarifs | ReadyYet",
+    "metaDescription": "Essentiel à 29 € ou Pro à 49 € par mois et par magasin, sans engagement. Comparez tout ce que chaque plan contient. Essai gratuit de 14 jours.",
+    "tableTitle": "Tout comparer",
+    "feature": "Fonctionnalité",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "values": {
+      "unlimited": "Illimité",
+      "two": "2 membres",
+      "tradeSteps": "Celles du métier",
+      "yourSteps": "Les vôtres, dans votre ordre"
+    },
+    "rows": {
+      "tickets": "Tickets",
+      "tracking": "Page de suivi, sans compte ni application",
+      "handover": "Lien par e-mail, WhatsApp ou QR code",
+      "emails": "E-mails à chaque étape qui compte",
+      "reminders": "Rappels après 3 et 10 jours",
+      "photos": "Photos des articles",
+      "team": "Membres de l'équipe",
+      "profiles": "Profils et activité de l'équipe",
+      "steps": "Étapes des tickets",
+      "copySteps": "Étapes copiées d'un magasin à l'autre",
+      "reviews": "Retours privés et demandes d'avis Google",
+      "export": "Export de toutes vos données"
+    }
   }
 }

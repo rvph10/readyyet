@@ -6,7 +6,7 @@ import { ChipButton } from "@/components/home/ChipButton";
 import { FillButton } from "@/components/home/FillButton";
 import { Footer } from "@/components/home/footer/Footer";
 import { Nav } from "@/components/home/Nav";
-import { TradeMotion } from "@/components/trade/TradeMotion";
+import { PageMotion } from "@/components/PageMotion";
 import { routing } from "@/i18n/routing";
 import { signInUrl } from "@/lib/sign-in-url";
 import { SITE_URL } from "@/lib/site-url";
@@ -94,7 +94,7 @@ export default async function TradePage({ params }: Props) {
           </p>
           <div className="cta trade-hero__cta" data-entrance="">
             <ChipButton href={signIn}>{page("start")}</ChipButton>
-            <FillButton href={`/${locale}#pricing`} className="btn--muted">
+            <FillButton href={`/${locale}/pricing`} className="btn--muted">
               {page("pricing")}
             </FillButton>
           </div>
@@ -171,7 +171,7 @@ export default async function TradePage({ params }: Props) {
         </section>
       </main>
       <Footer />
-      <TradeMotion />
+      <PageMotion />
     </>
   );
 }
