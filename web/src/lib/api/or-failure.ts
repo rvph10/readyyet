@@ -1,5 +1,5 @@
 import { ErrorCode } from "@readyyet/shared";
-import { unstable_rethrow } from "next/navigation";
+import { unstable_isUnrecognizedActionError, unstable_rethrow } from "next/navigation";
 import type { ActionFailure } from "./errors";
 
 // For a form calling a server action. A 5xx is thrown so the server reports it
@@ -11,6 +11,13 @@ export async function orFailure<T>(action: Promise<T>): Promise<T | ActionFailur
     return await action;
   } catch (error) {
     unstable_rethrow(error);
+    // A page loaded before a deploy calls actions by ids the new build no
+    // longer has, and every click would fail until a reload. Next.js reloads
+    // on its own for navigations, not for actions.
+    if (unstable_isUnrecognizedActionError(error)) {
+      window.location.reload();
+      return new Promise<never>(() => {});
+    }
     return { ok: false, code: ErrorCode.INTERNAL_ERROR };
   }
 }
