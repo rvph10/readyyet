@@ -1,6 +1,6 @@
 # Your data as a customer of a shop using ReadyYet
 
-You are reading this because a shop is working on your item (a repair, a cleaning, an alteration…) and uses ReadyYet to keep you informed.
+You are reading this because a shop is working on your item (a repair, cleaning or alteration, for example) and uses ReadyYet to keep you informed.
 
 ## Who is responsible
 
@@ -19,15 +19,16 @@ ReadyYet does not use any of this for its own purposes, does not sell it, and do
 
 ## The emails you receive
 
-The shop sends you emails through ReadyYet when your item is registered, when its status changes, when a ready date is set or approaches, and, if the shop turned it on, a request for feedback once the work is done.
+The shop sends you emails through ReadyYet when your item is registered, at key status changes (for example when it is ready, or when the shop needs your approval), when the expected date is pushed back, as a reminder if your item is ready and you have not collected it yet, if the shop turned it on, a request for feedback once the work is done, and the shop's answer if you left feedback.
 
-**Every email has a "Stop updates" link.** It stops all further emails about that item at once.
+**Every email has a "Stop email updates" link.** It stops the automatic emails about that item at once. If you leave feedback afterwards, the shop can still answer you by email, and it can send you the tracking link again if you ask for it.
 
 ## How long it is kept
 
+- Your tracking page: stops working 30 days after the work ended.
 - Photos: deleted 30 days after the work on the item ended.
 - The content of emails: deleted after 30 days.
-- Everything else: deleted 24 months after your last item at that shop was closed, or earlier if the shop deletes it or closes its account.
+- Everything else: erased 24 months after the last change on your last item at that shop, never while an item is still in progress, or earlier if the shop deletes it or stops using ReadyYet.
 
 ## Your rights
 
@@ -37,4 +38,4 @@ You can also complain to the Belgian Data Protection Authority: Rue de la Presse
 
 ## Where the data is
 
-In the European Union: hosted in Amsterdam (the Netherlands), emails sent from Ireland, error reports in Germany, all stripped of your details where possible. The providers are listed in our [Terms of Service, Annex 3](terms#annex-3).
+In the European Union: stored in Amsterdam (the Netherlands), with emails sent from Ireland. Error reports go to Germany, with your details removed. The providers are listed in [Annex 3 of our Terms of Service](terms#annex-3).

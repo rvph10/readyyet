@@ -15,13 +15,13 @@ VAT: BE1034448184. Special franchise scheme for small enterprises; VAT not appli
 
 ## Reporting illegal content
 
-To report content stored on ReadyYet that you believe is illegal, write to legal@readyyet.app with: why you think it is illegal, where it is (for example the tracking link), your name and email address, and a statement that you make the report in good faith. We confirm receipt and tell you what we decided.
+To report content stored on ReadyYet that you believe is illegal, write to legal@readyyet.app with: why you think it is illegal, where it is (for example the tracking link), your name and email address, and a statement that you believe in good faith that the information in your report is accurate and complete. We confirm receipt and tell you, without undue delay, what we decided and how you can contest it.
 
 ## Infrastructure {#infrastructure}
 
-- **Hosting:** Railway Corporation, 548 Market St PMB 68956, San Francisco, California 94104, United States (railway.com, privacy@railway.com). The service, its database and its files are hosted in Railway's EU West region, in Amsterdam, the Netherlands, on Google Cloud infrastructure.
+- **Hosting:** Railway Corporation, 548 Market St PMB 68956, San Francisco, California 94104, United States (railway.com, privacy@railway.com). The service, its database and its files are hosted in Railway's EU West region, in Amsterdam, the Netherlands.
 - **Emails** are sent through Resend from Ireland; **error reports** go to Sentry in Germany. Both are US companies.
-- **Protection against unlawful access by foreign authorities:** data stays in the EU and is encrypted; our providers are bound by the European Commission's standard contractual clauses, under which they must challenge unlawful requests from authorities and tell us about them where allowed; we answer an authority only when EU or Belgian law requires it, and tell the customer concerned unless the law forbids it.
+- **Protection against unlawful access by foreign authorities:** the service's data (database, files, emails and error reports) stays in the EU and is encrypted; our providers are bound by the European Commission's standard contractual clauses, under which they must challenge unlawful requests from authorities and tell us about them where allowed; we answer an authority only when EU or Belgian law requires it, and tell the Business concerned unless the law forbids it.
 
 ## Other documents
 
