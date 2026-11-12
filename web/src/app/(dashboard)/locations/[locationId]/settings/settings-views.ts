@@ -57,7 +57,7 @@ export function dayName(day: Day, locale: string) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-export const SETTINGS_SECTIONS = ["shop", "hours", "tickets", "reviews", "delete"] as const;
+export const SETTINGS_SECTIONS = ["shop", "hours", "tickets", "reviews", "export", "delete"] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export function parseSection(value: unknown, sections: readonly SettingsSection[]): SettingsSection {

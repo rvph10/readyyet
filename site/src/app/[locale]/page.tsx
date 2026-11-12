@@ -1,39 +1,56 @@
-import Image, { type StaticImageData } from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
-import logo from "../icon.svg";
-
-// Next.js types *.svg imports as any, in case an SVGR plugin turns them
-// into components. Without one they are plain static images.
-const logoImage = logo as StaticImageData;
+import { SITE_URL } from "@/lib/site-url";
+import { Hero } from "@/components/home/hero/Hero";
+import { Faq } from "@/components/home/faq/Faq";
+import { Features } from "@/components/home/features/Features";
+import { Footer } from "@/components/home/footer/Footer";
+import { FinalCta } from "@/components/home/final-cta/FinalCta";
+import { HomeMotion } from "@/components/home/HomeMotion";
+import { Trades } from "@/components/home/trades/Trades";
+import { Pricing } from "@/components/home/pricing/Pricing";
+import { PromiseBand } from "@/components/home/promise/PromiseBand";
+import { Steps } from "@/components/home/steps/Steps";
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("home");
+  const t = await getTranslations("metadata");
+
+  const product = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "ReadyYet",
+    url: `${SITE_URL}/${locale}`,
+    description: t("description"),
+    inLanguage: locale,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: [
+      { "@type": "Offer", name: "Essentiel", price: "29", priceCurrency: "EUR" },
+      { "@type": "Offer", name: "Pro", price: "49", priceCurrency: "EUR" },
+    ],
+  };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-2 px-4">
-      <div className="flex items-center gap-3">
-        {/* Decorative, the heading next to it already says the name. */}
-        <Image src={logoImage} alt="" className="size-10" />
-        <h1 className="text-3xl font-semibold">{t("title")}</h1>
-      </div>
-      <p className="text-muted">{t("tagline")}</p>
-      <nav aria-label={t("languages")} className="flex gap-3 pt-4 text-sm">
-        {routing.locales.map((other) => (
-          <Link
-            key={other}
-            href="/"
-            locale={other}
-            aria-current={other === locale ? "page" : undefined}
-            className="text-muted uppercase hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
-          >
-            {other}
-          </Link>
-        ))}
-      </nav>
-    </main>
+    <>
+      {/* Data for search engines, never run. "<" is escaped so the text
+          can't close the tag. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(product).replace(/</g, "\\u003c") }}
+      />
+      <main id="main-content">
+        <Hero />
+        <Steps />
+        <Features />
+        <Trades />
+        <PromiseBand />
+        <Pricing />
+        <Faq />
+        <FinalCta />
+        <HomeMotion />
+      </main>
+      <Footer />
+    </>
   );
 }

@@ -1,0 +1,53 @@
+/* Serenium's stats band in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/serenium-587. */
+
+[data-temlis="serenium-587"] {
+  /* Ledger's fixed rem instead of Serenium's size that grows with the window. */
+  --temlis-rem: 1rem;
+  --background-color--bg-secondary: var(--color-bg-dark);
+  --background-color--bg-primary: rgba(255, 255, 255, 0.24);
+  --text-color--text-secondary: var(--color-text-white);
+  --text-color--text-tertiary: var(--color-bg-accent);
+  --link-color--link-alternate: var(--color-text-white);
+
+  font-family: var(--font-body);
+}
+
+/* A panel inset like the hero's, with the page's content width inside. */
+[data-temlis="serenium-587"] .section_statistics {
+  margin-inline: var(--container-bleed);
+  border-radius: var(--radius-container);
+}
+
+[data-temlis="serenium-587"] .container-large {
+  max-width: calc(var(--section-max) + 2 * var(--section-gutter));
+}
+
+[data-temlis="serenium-587"] .padding-global {
+  padding-inline: var(--section-gutter);
+}
+
+[data-temlis="serenium-587"] .stats_number {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+[data-temlis="serenium-587"] .description_wrapper {
+  max-width: 28rem;
+}
+
+[data-temlis="serenium-587"] .description_wrapper .text-base {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+[data-temlis="serenium-587"] .section-label {
+  color: var(--color-bg-accent);
+}
+
+@media (max-width: 767px) {
+  [data-temlis="serenium-587"] .description_wrapper {
+    max-width: none;
+  }
+}

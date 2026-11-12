@@ -1,0 +1,1836 @@
+/*! Temlis · Hirely Call to Action · licensed to tmfp_abvkdjg4m5jh437s · temlis.com/license */
+/* =============================================================================
+   hirely/styles.css — SHARED ENGINE for all Hirely section ports.
+   Flattened merge of the template's 9-file CSS cascade in BaseLayout order.
+   No Tailwind @theme in the source -> tokens live in :root (tokens.css) and
+   survive the merge intact; no :root mirror needed. All /hirely/images/ paths were
+   rewritten to /hirely/hirely/images/. DO NOT hand-edit; regenerate from source.
+   ============================================================================= */
+
+/* ===== normalize.css ===== */
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS and IE text size adjust after device orientation change,
+ *    without disabling user zoom.
+ */
+:where([data-temlis="hirely-325"]) {
+  font-family: sans-serif;
+  /* 1 */
+  /* 2 */
+  /* 2 */
+}
+/**
+ * Remove default margin.
+ */
+[data-temlis="hirely-325"] {
+  margin: 0;
+}
+/* HTML5 display definitions
+   ========================================================================== */
+/**
+ * Correct `block` display not defined for any HTML5 element in IE 8/9.
+ * Correct `block` display not defined for `details` or `summary` in IE 10/11
+ * and Firefox.
+ * Correct `block` display not defined for `main` in IE 11.
+ */
+
+[data-temlis="hirely-325"] main,
+[data-temlis="hirely-325"] section {
+  display: block;
+}
+/**
+ * 1. Correct `inline-block` display not defined in IE 8/9.
+ * 2. Normalize vertical alignment of `progress` in Chrome, Firefox, and Opera.
+ */
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+/**
+ * Address `[hidden]` styling not present in IE 8/9/10.
+ * Hide the `template` element in IE 8/9/10/11, Safari, and Firefox < 22.
+ */
+/* Links
+   ========================================================================== */
+/**
+ * Remove the gray background color from active links in IE 10.
+ */
+[data-temlis="hirely-325"] a {
+  background-color: transparent;
+}
+/**
+ * Improve readability of focused elements when they are also in an
+ * active/hover state.
+ */
+[data-temlis="hirely-325"] a:active,
+[data-temlis="hirely-325"] a:hover {
+  outline: 0;
+}
+/* Text-level semantics
+   ========================================================================== */
+/**
+ * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
+ */
+/**
+ * Address style set to `bolder` in Firefox 4+, Safari, and Chrome.
+ */
+/**
+ * Address styling not present in Safari and Chrome.
+ */
+/**
+ * Address variable `h1` font-size and margin within `section` and `article`
+ * contexts in Firefox 4+, Safari, and Chrome.
+ */
+[data-temlis="hirely-325"] h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+/**
+ * Address styling not present in IE 8/9.
+ */
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+/* Embedded content
+   ========================================================================== */
+/**
+ * Remove border when inside `a` element in IE 8/9/10.
+ */
+[data-temlis="hirely-325"] img {
+  border: 0;
+}
+/**
+ * Correct overflow not hidden in IE 9/10/11.
+ */
+[data-temlis="hirely-325"] svg:not(:root) {
+  overflow: hidden;
+}
+/* Grouping content
+   ========================================================================== */
+/**
+ * Address margin not present in IE 8/9 and Safari.
+ */
+/**
+ * Address differences between Firefox and other browsers.
+ */
+/**
+ * Contain overflow in all browsers.
+ */
+/**
+ * Address odd `em`-unit font size rendering in all browsers.
+ */
+/* Forms
+   ========================================================================== */
+/**
+ * Known limitation: by default, Chrome and Safari on OS X allow very limited
+ * styling of `select`, unless a `border` property is set.
+ */
+/**
+ * 1. Correct color not being inherited.
+ *    Known issue: affects color of disabled elements.
+ * 2. Correct font properties not being inherited.
+ * 3. Address margins set differently in Firefox 4+, Safari, and Chrome.
+ */
+[data-temlis="hirely-325"] button {
+  color: inherit;
+  /* 1 */
+  font: inherit;
+  /* 2 */
+  margin: 0;
+  /* 3 */
+}
+/**
+ * Address `overflow` set to `hidden` in IE 8/9/10/11.
+ */
+[data-temlis="hirely-325"] button {
+  overflow: visible;
+}
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Firefox, IE 8/9/10/11, and Opera.
+ * Correct `select` style inheritance in Firefox.
+ */
+[data-temlis="hirely-325"] button {
+  text-transform: none;
+}
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. CUSTOM FOR WEBFLOW: Removed the input[type="submit"] selector to reduce
+ *    specificity and defer to the .w-button selector
+ */
+[data-temlis="hirely-325"] button {
+  -webkit-appearance: button;
+  /* 2 */
+  cursor: pointer;
+  /* 3 */
+}
+/**
+ * Re-set default cursor for disabled elements.
+ */
+/**
+ * Remove inner padding and border in Firefox 4+.
+ */
+[data-temlis="hirely-325"] button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+/**
+ * Address Firefox 4+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+/**
+ * It's recommended that you don't attempt to style these elements.
+ * Firefox's implementation doesn't respect box-sizing, padding, or width.
+ *
+ * 1. Address box sizing set to `content-box` in IE 8/9/10.
+ * 2. Remove excess padding in IE 8/9/10.
+ */
+/**
+ * Fix the cursor style for Chrome's increment/decrement buttons. For certain
+ * `font-size` values of the `input`, it causes the cursor style of the
+ * decrement button to change from `default` to `text`.
+ */
+/**
+ * 1. CUSTOM FOR WEBFLOW: changed from `textfield` to `none` to normalize iOS rounded input
+ * 2. CUSTOM FOR WEBFLOW: box-sizing: content-box rule removed
+ *    (similar to normalize.css >=4.0.0)
+ */
+/**
+ * Remove inner padding and search cancel button in Safari and Chrome on OS X.
+ * Safari (but not Chrome) clips the cancel button when the search input has
+ * padding (and `textfield` appearance).
+ */
+/**
+ * Define consistent border, margin, and padding.
+ */
+/**
+ * 1. Correct `color` not being inherited in IE 8/9/10/11.
+ * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+ */
+/**
+ * Remove default vertical scrollbar in IE 8/9/10/11.
+ */
+/**
+ * Don't inherit the `font-weight` (applied by a rule above).
+ * NOTE: the default cannot safely be changed in Chrome and Safari on OS X.
+ */
+/* Tables
+   ========================================================================== */
+/**
+ * Remove most spacing between table cells.
+ */
+
+/* ===== tokens.css ===== */
+/* Design tokens — copied literally from the Webflow Client-First export. */
+:where([data-temlis="hirely-325"]) {
+  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+  --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
+  --new-base---base--black\<deleted\|variable-2b5a5786-d08f-9106-d24d-5f6d91aa7da6\>: #1d1d1d;
+  --bg-color--bg-default: var(--base--beige);
+  --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+  --text-color--text-primary: var(--base--green-dark);
+  --_sizes---fixed--1rem: 1rem;
+  --_typography---font-weight--regular: 400;
+  --_sizes---fixed--0rem: 0rem;
+  --_typography---h1--font-family: var(--_typography---font-family--primary);
+  --_typography---h1--font-size: var(--_sizes---fixed--5-5rem);
+  --_typography---h1--line-height: 1.2;
+  --_typography---h1--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h1--letter-spacing: 0em;
+  --_typography---h2--font-family: var(--_typography---font-family--primary);
+  --_typography---h2--font-size: var(--_sizes---fixed--4-75rem);
+  --_typography---h2--line-height: 1.2;
+  --_typography---h2--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h2--letter-spacing: 0em;
+  --_typography---h3--font-family: var(--_typography---font-family--primary);
+  --_typography---h3--font-size: var(--_sizes---fixed--4rem);
+  --_typography---h3--line-height: 1.2;
+  --_typography---h3--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h3--letter-spacing: 0em;
+  --_typography---h4--font-family: var(--_typography---font-family--primary);
+  --_typography---h4--font-size: var(--_sizes---fixed--3rem);
+  --_typography---h4--line-height: 1.1;
+  --_typography---h4--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h4--letter-spacing: 0em;
+  --_typography---h5--font-family: var(--_typography---font-family--primary);
+  --_typography---h5--font-size: var(--_sizes---fixed--2-75rem);
+  --_typography---h5--line-height: 1.15;
+  --_typography---h5--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h5--letter-spacing: 0em;
+  --_typography---h6--font-family: var(--_typography---font-family--primary);
+  --_typography---h6--font-size: var(--_sizes---fixed--2-5rem);
+  --_typography---h6--line-height: 1.5;
+  --_typography---h6--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h6--letter-spacing: 0em;
+  --_sizes---fixed--1-5rem: 1.5rem;
+  --_sizes---fixed--0-25rem: .25rem;
+  --_sizes---fixed--1-25rem: 1.25rem;
+  --bg-color--bg-blue: var(--base--blue-500);
+  --_sizes---fixed--2-5rem: 2.5rem;
+  --_sizes---fixed--2rem: 2rem;
+  --_typography---font-weight--semibold: 600;
+  --bg-color--bg-primary: var(--base--blue-500);
+  --text-color--text-secondary: var(--grey--grey-400);
+  --_sizes---padding-section--small: var(--_sizes---fixed--2-5rem);
+  --_typography---font-weight--medium: 500;
+  --_typography---xl--font-family: var(--_typography---font-family--primary);
+  --_typography---xl--font-size: var(--_sizes---fixed--1-25rem);
+  --_typography---xl--line-height: 1.5;
+  --_typography---xl--letter-spacing: 0em;
+  --_typography---font-weight--light: 300;
+  --_typography---base--font-size: var(--_sizes---fixed--1rem);
+  --_typography---base--line-height: 1.5;
+  --_typography---base--letter-spacing: 0em;
+  --_sizes---fixed--0-5rem: .5rem;
+  --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
+  --_typography---lg--line-height: 1.5;
+  --_typography---lg--letter-spacing: 0em;
+  --text-color--text-white: var(--base--white);
+  --_typography---font-family--primary: Anton, sans-serif;
+  --_sizes---fixed--3rem: 3rem;
+  --bg-color--bg-dark: var(--base--green-dark);
+  --_sizes---fixed--0-75rem: .75rem;
+  --grey--grey-350: #7f7f7f;
+  --base--white: #fff;
+  --grey--grey-300: #b7b7b7;
+  --_sizes---padding-section--large: var(--_sizes---fixed--8rem);
+  --_sizes---fixed--6rem: 6rem;
+  --_sizes---fixed--4rem: 4rem;
+  --_typography---xs--font-size: var(--_sizes---fixed--0-75rem);
+  --_typography---xs--line-height: 1.5;
+  --_typography---xs--letter-spacing: 0em;
+  --_typography---button--font-family: var(--_typography---font-family--secondary);
+  --_typography---button--font-size: var(--_sizes---fixed--1rem);
+  --_typography---button--line-height: 1.5;
+  --_typography---button--font-weight: var(--_typography---font-weight--regular);
+  --_typography---button--letter-spacing: 0em;
+  --base--blue-500: #5546ff;
+  --_typography---sm--font-size: var(--_sizes---fixed--0-875rem);
+  --_typography---sm--line-height: 1.42;
+  --_typography---sm--letter-spacing: 0em;
+  --_sizes---padding-section--medium: var(--_sizes---fixed--6-25rem);
+  --_sizes---fixed--0-125rem: .125rem;
+  --_sizes---fixed--1-75rem: 1.75rem;
+  --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
+  --_typography---2xl--line-height: 1.5;
+  --_typography---2xl--letter-spacing: 0em;
+  --_typography---3xl--font-size: var(--_sizes---fixed--1-75rem);
+  --_typography---3xl--line-height: 1.5;
+  --_typography---3xl--letter-spacing: 0em;
+  --_typography---4xl--font-size: var(--_sizes---fixed--2-5rem);
+  --_typography---4xl--line-height: 1.5;
+  --_typography---4xl--letter-spacing: 0em;
+  --_typography---5xl--font-size: var(--_sizes---fixed--3rem);
+  --_typography---5xl--line-height: 1.5;
+  --_typography---5xl--letter-spacing: 0em;
+  --_typography---font-weight--bold: 700;
+  --_sizes---fixed--2-75rem: 2.75rem;
+  --base--green-dark: #062325;
+  --bg-color--bg-yellow: var(--base--yellow-300);
+  --text-color--text-on-primary: var(--grey--grey-300);
+  --bg-color--bg-pink: var(--base--pink-300);
+  --bg-color--bg-lime: var(--base--lime-300);
+  --bg-color--bg-purple: var(--base--purple-300);
+  --_sizes---fixed--3-25rem: 3.25rem;
+  --main--primary: var(--base--blue-500);
+  --_sizes---border--border-size: .0625rem;
+  --_sizes---fixed--5rem: 5rem;
+  --bg-color--bg-green: var(--base--green);
+  --grey--grey-100: #f7f7f7;
+  --_sizes---fixed--0-875rem: .875rem;
+  --base--orange: #fe5f41;
+  --base--pink-300: #fe7aca;
+  --base--green-600: #093639;
+  --new-base---accent-violet: #7c3aed;
+  --new-base---text-primary: #fff;
+  --new-base---accent-indigo: #4f46e5;
+  --new-base---bg-secondary: #0f0f0f;
+  --new-base---bg-primary: #0a0a0f;
+  --new-base---border-subtle: #ffffff1f;
+  --new-base---accent-sky: #0ea5e9;
+  --new-base---black: #050505;
+  --new-base---text-tertiary: #ffffff4d;
+  --new-base---text-secondary: #ffffff80;
+  --new-base---white: #fff;
+  --new-base---accent-cyan: #06b6d4;
+  --new-base---border-default: #ffffff14;
+  --base--yellow-300: #fed652;
+  --base--green: #03844e;
+  --base--lime-300: #c0ff0a;
+  --base--purple-300: #9a91fe;
+  --_typography---5xl--font-family: var(--_typography---font-family--primary);
+  --_typography---4xl--font-family: var(--_typography---font-family--primary);
+  --_typography---3xl--font-family: var(--_typography---font-family--primary);
+  --base--black: #000;
+  --base--beige: #e8e1d1;
+  --_typography---font-weight--thin: 100;
+  --_typography---font-weight--extra-light: 200;
+  --_sizes---fixed--1-125rem: 1.125rem;
+  --_typography---font-weight--extra-bold: 800;
+  --_typography---font-weight--black: 900;
+  --_sizes---fixed--2-25rem: 2.25rem;
+  --_sizes---fixed--3-5rem: 3.5rem;
+  --_sizes---fixed--4-5rem: 4.5rem;
+  --_sizes---fixed--4-75rem: 4.75rem;
+  --_sizes---fixed--5-5rem: 5.5rem;
+  --_sizes---fixed--6-25rem: 6.25rem;
+  --grey--grey-200: #b6b6b6;
+  --_sizes---fixed--6-5rem: 6.5rem;
+  --_sizes---fixed--7rem: 7rem;
+  --_sizes---fixed--8rem: 8rem;
+  --grey--grey-400: #444;
+  --_sizes---fixed--9rem: 9rem;
+  --grey--grey-600: #292929;
+  --_sizes---fixed--10rem: 10rem;
+  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+}
+
+/* ===== webflow.css ===== */
+
+
+/* Tipografías autoalojadas (T-57): Anton, Inter, Roboto desde @fontsource.
+   Solo el estilo normal: la URL de Google no pedía el eje ital.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[data-temlis="hirely-325"] * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+[data-temlis="hirely-325"] {
+  margin: 0;
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #333;
+}
+[data-temlis="hirely-325"] img {
+  max-width: 100%;
+  vertical-align: middle;
+  display: inline-block;
+}
+[data-temlis="hirely-325"] .w-inline-block {
+  max-width: 100%;
+  display: inline-block;
+}
+html[data-w-dynpage] [data-temlis="hirely-325"] [data-w-cloak] {
+  color: transparent !important;
+}
+[data-temlis="hirely-325"] h1 {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+[data-temlis="hirely-325"] h1 {
+  font-size: 38px;
+  line-height: 44px;
+  margin-top: 20px;
+}
+[data-temlis="hirely-325"] button {
+  border: 0;
+  cursor: pointer;
+  -webkit-appearance: button;
+}
+[data-temlis="hirely-325"] .w-form-done {
+  display: none;
+  padding: 20px;
+  text-align: center;
+  background-color: #dddddd;
+}
+[data-temlis="hirely-325"] .w-form-fail {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #ffdede;
+}
+[data-temlis="hirely-325"] .w-input:focus,
+[data-temlis="hirely-325"] .w-select:focus {
+  border-color: #3898EC;
+  outline: 0;
+}
+[data-temlis="hirely-325"] .w-slider-dot:focus {
+  outline: none;
+  box-shadow: 0px 0px 0px 2px #fff;
+}
+[data-temlis="hirely-325"] .w-slider-dot:focus.w-active {
+  box-shadow: none;
+}
+[data-temlis="hirely-325"] .w-slider-arrow-left:focus,
+[data-temlis="hirely-325"] .w-slider-arrow-right:focus {
+  outline: 0;
+}
+[data-temlis="hirely-325"] .w-dropdown-toggle:focus {
+  outline: 0;
+}
+[data-temlis="hirely-325"] .w-dropdown-link:focus {
+  outline: 0;
+}
+/**
+ * ## Note
+ * Safari (on both iOS and OS X) does not handle viewport units (vh, vw) well.
+ * For example percentage units do not work on descendants of elements that
+ * have any dimensions expressed in viewport units. It also doesn’t handle them at
+ * all in `calc()`.
+ */
+/**
+ * Wrapper around all lightbox elements
+ *
+ * 1. Since the lightbox can receive focus, IE also gives it an outline.
+ * 2. Fixes flickering on Chrome when a transition is in progress
+ *    underneath the lightbox.
+ */
+/**
+ * Neat trick to bind the rubberband effect to our canvas instead of the whole
+ * document on iOS. It also prevents a bug that causes the document underneath to scroll.
+ */
+/* .w-lightbox-content */
+/*
+ * 1. Remove default margin set by user-agent on the <figure> element.
+ */
+/**
+ * IE adds image dimensions as width and height attributes on the IMG tag,
+ * but we need both width and height to be set to auto to enable scaling.
+ */
+/**
+ * 1. Reset if style is set by user on "All Images"
+ */
+/*
+ * Without specifying the with and height inside the SVG, all versions of IE render the icon too small.
+ * The bug does not seem to manifest itself if the elements are tall enough such as the above arrows.
+ * (http://stackoverflow.com/questions/16092114/background-size-differs-in-internet-explorer)
+ */
+/**
+ * 1. All IE versions add extra space at the bottom without this.
+ */
+/*
+ * 1. We use content-box to avoid having to do `width: calc(10vh + 2vw)`
+ *    which doesn’t work in Safari anyway.
+ * 2. Chrome renders images pixelated when switching to GPU. Making sure
+ *    the parent is also rendered on the GPU (by setting translate3d for
+ *    example) fixes this behavior.
+ */
+/*
+ * Spinner
+ *
+ * Absolute pixel values are used to avoid rounding errors that would cause
+ * the white spinning element to be misaligned with the track.
+ */
+/*
+ * Utility classes
+ */
+@media (min-width: 768px) {
+  /* .w-lightbox-content */
+  [data-temlis="hirely-325"] .w-lightbox-control:hover {
+    opacity: 1;
+  }
+}
+
+[data-temlis="hirely-325"] .w-lightbox-inactive:hover {
+  opacity: 0;
+}
+[data-temlis="hirely-325"] [data-nav-menu-open] {
+  display: block !important;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #C8C8C8;
+  text-align: center;
+  overflow: visible;
+  min-width: 200px;
+}
+[data-temlis="hirely-325"] .w--nav-link-open {
+  display: block;
+  position: relative;
+}
+[data-temlis="hirely-325"] .w-nav-button:focus {
+  outline: 0;
+}
+[data-temlis="hirely-325"] .w--nav-dropdown-open {
+  display: block;
+}
+[data-temlis="hirely-325"] .w--nav-dropdown-toggle-open {
+  display: block;
+}
+[data-temlis="hirely-325"] .w--nav-dropdown-list-open {
+  position: static;
+}
+/**
+ * NOTE: These rules are overridden in site-designer.less to use container queries instead of media queries
+ * when the navbar is inside a Frame on the Open Canvas.
+ */
+[data-temlis="hirely-325"] .w-tab-link:focus {
+  outline: 0;
+}
+[data-temlis="hirely-325"] .w--tab-active {
+  display: block;
+}
+@keyframes hirely-325-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+:where([data-temlis="hirely-325"]) {
+  --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+  --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
+  --new-base---base--black\<deleted\|variable-2b5a5786-d08f-9106-d24d-5f6d91aa7da6\>: #1d1d1d;
+  --bg-color--bg-default: var(--base--beige);
+  --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+  --text-color--text-primary: var(--base--green-dark);
+  --_sizes---fixed--1rem: 1rem;
+  --_typography---font-weight--regular: 400;
+  --_sizes---fixed--0rem: 0rem;
+  --_typography---h1--font-family: var(--_typography---font-family--primary);
+  --_typography---h1--font-size: var(--_sizes---fixed--5-5rem);
+  --_typography---h1--line-height: 1.2;
+  --_typography---h1--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h1--letter-spacing: 0em;
+  --_typography---h2--font-family: var(--_typography---font-family--primary);
+  --_typography---h2--font-size: var(--_sizes---fixed--4-75rem);
+  --_typography---h2--line-height: 1.2;
+  --_typography---h2--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h2--letter-spacing: 0em;
+  --_typography---h3--font-family: var(--_typography---font-family--primary);
+  --_typography---h3--font-size: var(--_sizes---fixed--4rem);
+  --_typography---h3--line-height: 1.2;
+  --_typography---h3--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h3--letter-spacing: 0em;
+  --_typography---h4--font-family: var(--_typography---font-family--primary);
+  --_typography---h4--font-size: var(--_sizes---fixed--3rem);
+  --_typography---h4--line-height: 1.1;
+  --_typography---h4--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h4--letter-spacing: 0em;
+  --_typography---h5--font-family: var(--_typography---font-family--primary);
+  --_typography---h5--font-size: var(--_sizes---fixed--2-75rem);
+  --_typography---h5--line-height: 1.15;
+  --_typography---h5--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h5--letter-spacing: 0em;
+  --_typography---h6--font-family: var(--_typography---font-family--primary);
+  --_typography---h6--font-size: var(--_sizes---fixed--2-5rem);
+  --_typography---h6--line-height: 1.5;
+  --_typography---h6--font-weight: var(--_typography---font-weight--regular);
+  --_typography---h6--letter-spacing: 0em;
+  --_sizes---fixed--1-5rem: 1.5rem;
+  --_sizes---fixed--0-25rem: .25rem;
+  --_sizes---fixed--1-25rem: 1.25rem;
+  --bg-color--bg-blue: var(--base--blue-500);
+  --_sizes---fixed--2-5rem: 2.5rem;
+  --_sizes---fixed--2rem: 2rem;
+  --_typography---font-weight--semibold: 600;
+  --bg-color--bg-primary: var(--base--blue-500);
+  --text-color--text-secondary: var(--grey--grey-400);
+  --_sizes---padding-section--small: var(--_sizes---fixed--2-5rem);
+  --_typography---font-weight--medium: 500;
+  --_typography---xl--font-family: var(--_typography---font-family--primary);
+  --_typography---xl--font-size: var(--_sizes---fixed--1-25rem);
+  --_typography---xl--line-height: 1.5;
+  --_typography---xl--letter-spacing: 0em;
+  --_typography---font-weight--light: 300;
+  --_typography---base--font-size: var(--_sizes---fixed--1rem);
+  --_typography---base--line-height: 1.5;
+  --_typography---base--letter-spacing: 0em;
+  --_sizes---fixed--0-5rem: .5rem;
+  --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
+  --_typography---lg--line-height: 1.5;
+  --_typography---lg--letter-spacing: 0em;
+  --text-color--text-white: var(--base--white);
+  --_typography---font-family--primary: Anton, sans-serif;
+  --_sizes---fixed--3rem: 3rem;
+  --bg-color--bg-dark: var(--base--green-dark);
+  --_sizes---fixed--0-75rem: .75rem;
+  --grey--grey-350: #7f7f7f;
+  --base--white: #fff;
+  --grey--grey-300: #b7b7b7;
+  --_sizes---padding-section--large: var(--_sizes---fixed--8rem);
+  --_sizes---fixed--6rem: 6rem;
+  --_sizes---fixed--4rem: 4rem;
+  --_typography---xs--font-size: var(--_sizes---fixed--0-75rem);
+  --_typography---xs--line-height: 1.5;
+  --_typography---xs--letter-spacing: 0em;
+  --_typography---button--font-family: var(--_typography---font-family--secondary);
+  --_typography---button--font-size: var(--_sizes---fixed--1rem);
+  --_typography---button--line-height: 1.5;
+  --_typography---button--font-weight: var(--_typography---font-weight--regular);
+  --_typography---button--letter-spacing: 0em;
+  --base--blue-500: #5546ff;
+  --_typography---sm--font-size: var(--_sizes---fixed--0-875rem);
+  --_typography---sm--line-height: 1.42;
+  --_typography---sm--letter-spacing: 0em;
+  --_sizes---padding-section--medium: var(--_sizes---fixed--6-25rem);
+  --_sizes---fixed--0-125rem: .125rem;
+  --_sizes---fixed--1-75rem: 1.75rem;
+  --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
+  --_typography---2xl--line-height: 1.5;
+  --_typography---2xl--letter-spacing: 0em;
+  --_typography---3xl--font-size: var(--_sizes---fixed--1-75rem);
+  --_typography---3xl--line-height: 1.5;
+  --_typography---3xl--letter-spacing: 0em;
+  --_typography---4xl--font-size: var(--_sizes---fixed--2-5rem);
+  --_typography---4xl--line-height: 1.5;
+  --_typography---4xl--letter-spacing: 0em;
+  --_typography---5xl--font-size: var(--_sizes---fixed--3rem);
+  --_typography---5xl--line-height: 1.5;
+  --_typography---5xl--letter-spacing: 0em;
+  --_typography---font-weight--bold: 700;
+  --_sizes---fixed--2-75rem: 2.75rem;
+  --base--green-dark: #062325;
+  --bg-color--bg-yellow: var(--base--yellow-300);
+  --text-color--text-on-primary: var(--grey--grey-300);
+  --bg-color--bg-pink: var(--base--pink-300);
+  --bg-color--bg-lime: var(--base--lime-300);
+  --bg-color--bg-purple: var(--base--purple-300);
+  --_sizes---fixed--3-25rem: 3.25rem;
+  --main--primary: var(--base--blue-500);
+  --_sizes---border--border-size: .0625rem;
+  --_sizes---fixed--5rem: 5rem;
+  --bg-color--bg-green: var(--base--green);
+  --grey--grey-100: #f7f7f7;
+  --_sizes---fixed--0-875rem: .875rem;
+  --base--orange: #fe5f41;
+  --base--pink-300: #fe7aca;
+  --base--green-600: #093639;
+  --new-base---accent-violet: #7c3aed;
+  --new-base---text-primary: #fff;
+  --new-base---accent-indigo: #4f46e5;
+  --new-base---bg-secondary: #0f0f0f;
+  --new-base---bg-primary: #0a0a0f;
+  --new-base---border-subtle: #ffffff1f;
+  --new-base---accent-sky: #0ea5e9;
+  --new-base---black: #050505;
+  --new-base---text-tertiary: #ffffff4d;
+  --new-base---text-secondary: #ffffff80;
+  --new-base---white: #fff;
+  --new-base---accent-cyan: #06b6d4;
+  --new-base---border-default: #ffffff14;
+  --base--yellow-300: #fed652;
+  --base--green: #03844e;
+  --base--lime-300: #c0ff0a;
+  --base--purple-300: #9a91fe;
+  --_typography---5xl--font-family: var(--_typography---font-family--primary);
+  --_typography---4xl--font-family: var(--_typography---font-family--primary);
+  --_typography---3xl--font-family: var(--_typography---font-family--primary);
+  --base--black: #000;
+  --base--beige: #e8e1d1;
+  --_typography---font-weight--thin: 100;
+  --_typography---font-weight--extra-light: 200;
+  --_sizes---fixed--1-125rem: 1.125rem;
+  --_typography---font-weight--extra-bold: 800;
+  --_typography---font-weight--black: 900;
+  --_sizes---fixed--2-25rem: 2.25rem;
+  --_sizes---fixed--3-5rem: 3.5rem;
+  --_sizes---fixed--4-5rem: 4.5rem;
+  --_sizes---fixed--4-75rem: 4.75rem;
+  --_sizes---fixed--5-5rem: 5.5rem;
+  --_sizes---fixed--6-25rem: 6.25rem;
+  --grey--grey-200: #b6b6b6;
+  --_sizes---fixed--6-5rem: 6.5rem;
+  --_sizes---fixed--7rem: 7rem;
+  --_sizes---fixed--8rem: 8rem;
+  --grey--grey-400: #444;
+  --_sizes---fixed--9rem: 9rem;
+  --grey--grey-600: #292929;
+  --_sizes---fixed--10rem: 10rem;
+  --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+}
+
+[data-temlis="hirely-325"] .new-base--t-button-secondary:hover {
+  background-color: #1c1c1c;
+  transform: scale(.95);
+}
+
+[data-temlis="hirely-325"] .new-base--t-button:hover {
+  transform: scale(.95);
+}
+
+[data-temlis="hirely-325"] {
+  background-color: var(--bg-color--bg-default);
+  font-family: var(--_typography---font-family--secondary);
+  color: var(--text-color--text-primary);
+  font-size: var(--_sizes---fixed--1rem);
+  line-height: 1.5;
+  font-weight: var(--_typography---font-weight--regular);
+}
+
+[data-temlis="hirely-325"] h1 {
+  margin-top: var(--_sizes---fixed--0rem);
+  margin-bottom: var(--_sizes---fixed--0rem);
+  font-family: var(--_typography---h1--font-family);
+  font-size: var(--_typography---h1--font-size);
+  line-height: var(--_typography---h1--line-height);
+  font-weight: var(--_typography---h1--font-weight);
+  letter-spacing: var(--_typography---h1--letter-spacing);
+}
+
+[data-temlis="hirely-325"] a {
+  color: inherit;
+  text-decoration: none;
+}
+
+[data-temlis="hirely-325"] img {
+  max-width: 100%;
+  display: inline-block;
+}
+
+[data-temlis="hirely-325"] .icon-1x1-medium {
+  width: var(--_sizes---fixed--1-5rem);
+  height: var(--_sizes---fixed--1-5rem);
+}
+
+[data-temlis="hirely-325"] .icon-1x1-medium.is-1 {
+  position: absolute;
+}
+
+[data-temlis="hirely-325"] .icon-1x1-medium.is-2 {
+  position: absolute;
+  transform: translate(-100%);
+}
+
+[data-temlis="hirely-325"] .h1 {
+  font-family: var(--_typography---h1--font-family);
+  font-size: var(--_typography---h1--font-size);
+  line-height: var(--_typography---h1--line-height);
+  font-weight: var(--_typography---h1--font-weight);
+  letter-spacing: var(--_typography---h1--letter-spacing);
+}
+
+[data-temlis="hirely-325"] .padding-global {
+  padding-right: var(--_sizes---fixed--2-5rem);
+  padding-left: var(--_sizes---fixed--2-5rem);
+}
+
+[data-temlis="hirely-325"] .bg-dark {
+  background-color: var(--bg-color--bg-dark);
+}
+
+[data-temlis="hirely-325"] .page-wrapper {
+  overflow: clip;
+}
+
+[data-temlis="hirely-325"] .container-large {
+  width: 100%;
+  max-width: 70.5rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[data-temlis="hirely-325"] .button {
+  padding: var(--_sizes---fixed--0-75rem) var(--_sizes---fixed--1-5rem);
+  grid-column-gap: var(--_sizes---fixed--1rem);
+  grid-row-gap: var(--_sizes---fixed--1rem);
+  border-radius: var(--_sizes---fixed--3rem);
+  background-color: var(--bg-color--bg-primary);
+  font-family: var(--_typography---button--font-family);
+  color: var(--base--white);
+  font-size: var(--_typography---button--font-size);
+  line-height: var(--_typography---button--line-height);
+  font-weight: var(--_typography---button--font-weight);
+  letter-spacing: var(--_typography---button--letter-spacing);
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+[data-temlis="hirely-325"] .button.is-white {
+  padding-top: var(--_sizes---fixed--0-5rem);
+  padding-bottom: var(--_sizes---fixed--0-5rem);
+  background-color: var(--base--white);
+  color: var(--base--blue-500);
+}
+
+[data-temlis="hirely-325"] .hide {
+  display: none;
+}
+
+[data-temlis="hirely-325"] .padding-section-medium {
+  padding-top: var(--_sizes---padding-section--medium);
+}
+
+[data-temlis="hirely-325"] .img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0%;
+}
+
+[data-temlis="hirely-325"] .nav_links:hover {
+  opacity: 1;
+}
+
+[data-temlis="hirely-325"] .nav_dropdown-link:hover {
+  opacity: 100;
+}
+
+[data-temlis="hirely-325"] .arrow:hover {
+  transform: scale(.97)translate(-60%);
+}
+
+[data-temlis="hirely-325"] .arrow.is-right:hover {
+  transform: scale(.97)translate(60%);
+}
+
+[data-temlis="hirely-325"] .spacer {
+  opacity: 0;
+}
+
+[data-temlis="hirely-325"] .spacer-tablet, [data-temlis="hirely-325"] .spacer-mobile {
+  display: none;
+}
+
+[data-temlis="hirely-325"] .button_icon {
+  width: var(--_sizes---fixed--2-5rem);
+  height: var(--_sizes---fixed--2-5rem);
+  border-radius: var(--_sizes---fixed--3-25rem);
+  background-color: var(--base--white);
+  color: var(--main--primary);
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+  overflow: clip;
+}
+
+[data-temlis="hirely-325"] .button_main {
+  z-index: 1;
+  padding: var(--_sizes---fixed--0-5rem) var(--_sizes---fixed--1-5rem) var(--_sizes---fixed--0-5rem) var(--_sizes---fixed--0-5rem);
+  grid-column-gap: var(--_sizes---fixed--1rem);
+  grid-row-gap: var(--_sizes---fixed--1rem);
+  border: var(--_sizes---border--border-size) solid var(--base--white);
+  border-radius: var(--_sizes---fixed--3rem);
+  background-color: var(--bg-color--bg-primary);
+  font-family: var(--_typography---button--font-family);
+  color: var(--base--white);
+  font-size: var(--_typography---button--font-size);
+  line-height: var(--_typography---button--line-height);
+  font-weight: var(--_typography---button--font-weight);
+  letter-spacing: var(--_typography---button--letter-spacing);
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+  overflow: visible;
+  transform: translate(-.3125rem, -.3125rem);
+}
+
+[data-temlis="hirely-325"] .button_wrap {
+  position: relative;
+  overflow: visible;
+}
+
+[data-temlis="hirely-325"] .button_shadow {
+  z-index: 0;
+  border-radius: var(--_sizes---fixed--3rem);
+  background-color: var(--base--white);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0%;
+}
+
+[data-temlis="hirely-325"] .vertical-center {
+  text-align: center;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+[data-temlis="hirely-325"] .inline {
+  display: inline;
+}
+
+[data-temlis="hirely-325"] .footer_logo:hover {
+  transform: rotate(15deg);
+}
+
+[data-temlis="hirely-325"] .social_icon:hover {
+  transform: scale(1.1);
+}
+
+[data-temlis="hirely-325"] .footer_link:hover {
+  color: var(--grey--grey-100);
+}
+
+[data-temlis="hirely-325"] .thumb-img {
+  width: 4.375rem;
+  height: 4.375rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  position: relative;
+}
+
+[data-temlis="hirely-325"] .features_description {
+  grid-column-gap: 1rem;
+  grid-row-gap: .3rem;
+  flex-flow: wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 50rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+}
+
+[data-temlis="hirely-325"] .features_description.is-left {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+[data-temlis="hirely-325"] .picture-img {
+  width: 5.5rem;
+  height: 3rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  position: relative;
+}
+
+[data-temlis="hirely-325"] .section_cta {
+  color: var(--text-color--text-white);
+}
+
+[data-temlis="hirely-325"] .cta_header {
+  flex-flow: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 44.375rem;
+  display: flex;
+}
+
+[data-temlis="hirely-325"] .cta_header-row {
+  grid-column-gap: 1rem;
+  grid-row-gap: 1rem;
+  flex-flow: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+[data-temlis="hirely-325"] .cta_img {
+  width: 5rem;
+  height: 5rem;
+  position: relative;
+}
+
+[data-temlis="hirely-325"] .feature_img {
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  padding-top: 88%;
+  position: relative;
+  overflow: clip;
+}
+
+[data-temlis="hirely-325"] .feature_content {
+  grid-column-gap: 2rem;
+  grid-row-gap: 2rem;
+  background-color: var(--bg-color--bg-dark);
+  border-radius: 2rem;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-top: -2.5rem;
+  padding: 2.5rem;
+  display: flex;
+  position: relative;
+}
+
+@media screen and (max-width: 991px) {
+  [data-temlis="hirely-325"] {
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
+    --_sizes---fixed--1rem: 1rem;
+    --_sizes---fixed--0rem: 0rem;
+    --_sizes---fixed--1-5rem: 1.5rem;
+    --_sizes---fixed--0-25rem: .25rem;
+    --_sizes---fixed--1-25rem: 1.25rem;
+    --_sizes---fixed--2-5rem: 2.5rem;
+    --_sizes---fixed--2rem: 2rem;
+    --_sizes---padding-section--small: var(--_sizes---fixed--2-5rem);
+    --_sizes---fixed--0-5rem: .5rem;
+    --_sizes---fixed--3rem: 3rem;
+    --_sizes---fixed--0-75rem: .75rem;
+    --_sizes---padding-section--large: var(--_sizes---fixed--6rem);
+    --_sizes---fixed--6rem: 6rem;
+    --_sizes---fixed--4rem: 4rem;
+    --_sizes---padding-section--medium: var(--_sizes---fixed--4rem);
+    --_sizes---fixed--0-125rem: .125rem;
+    --_sizes---fixed--1-75rem: 1.75rem;
+    --_sizes---fixed--2-75rem: 2.75rem;
+    --_sizes---fixed--3-25rem: 3.25rem;
+    --_sizes---border--border-size: .0625rem;
+    --_sizes---fixed--5rem: 5rem;
+    --_sizes---fixed--0-875rem: .875rem;
+    --_sizes---fixed--1-125rem: 1.125rem;
+    --_sizes---fixed--2-25rem: 2.25rem;
+    --_sizes---fixed--3-5rem: 3.5rem;
+    --_sizes---fixed--4-5rem: 4.5rem;
+    --_sizes---fixed--4-75rem: 4.75rem;
+    --_sizes---fixed--5-5rem: 5.5rem;
+    --_sizes---fixed--6-25rem: 6.25rem;
+    --_sizes---fixed--6-5rem: 6.5rem;
+    --_sizes---fixed--7rem: 7rem;
+    --_sizes---fixed--8rem: 8rem;
+    --_sizes---fixed--9rem: 9rem;
+    --_sizes---fixed--10rem: 10rem;
+    --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+    --_typography---font-weight--regular: 400;
+    --_typography---h1--font-family: var(--_typography---font-family--primary);
+    --_typography---h1--font-size: var(--_sizes---fixed--4-5rem);
+    --_typography---h1--line-height: 1.2;
+    --_typography---h1--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h1--letter-spacing: 0em;
+    --_typography---h2--font-family: var(--_typography---font-family--primary);
+    --_typography---h2--font-size: var(--_sizes---fixed--4rem);
+    --_typography---h2--line-height: 1.2;
+    --_typography---h2--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h2--letter-spacing: 0em;
+    --_typography---h3--font-family: var(--_typography---font-family--primary);
+    --_typography---h3--font-size: var(--_sizes---fixed--3-5rem);
+    --_typography---h3--line-height: 1.2;
+    --_typography---h3--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h3--letter-spacing: 0em;
+    --_typography---h4--font-family: var(--_typography---font-family--primary);
+    --_typography---h4--font-size: var(--_sizes---fixed--3rem);
+    --_typography---h4--line-height: 1.1;
+    --_typography---h4--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h4--letter-spacing: 0em;
+    --_typography---h5--font-family: var(--_typography---font-family--primary);
+    --_typography---h5--font-size: var(--_sizes---fixed--2-5rem);
+    --_typography---h5--line-height: 1.15;
+    --_typography---h5--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h5--letter-spacing: 0em;
+    --_typography---h6--font-family: var(--_typography---font-family--primary);
+    --_typography---h6--font-size: var(--_sizes---fixed--2rem);
+    --_typography---h6--line-height: 1.5;
+    --_typography---h6--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h6--letter-spacing: 0em;
+    --_typography---font-weight--semibold: 600;
+    --_typography---font-weight--medium: 500;
+    --_typography---xl--font-family: var(--_typography---font-family--primary);
+    --_typography---xl--font-size: var(--_sizes---fixed--1-25rem);
+    --_typography---xl--line-height: 1.5;
+    --_typography---xl--letter-spacing: 0em;
+    --_typography---font-weight--light: 300;
+    --_typography---base--font-size: var(--_sizes---fixed--1rem);
+    --_typography---base--line-height: 1.5;
+    --_typography---base--letter-spacing: 0em;
+    --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
+    --_typography---lg--line-height: 1.5;
+    --_typography---lg--letter-spacing: 0em;
+    --_typography---font-family--primary: Anton, sans-serif;
+    --_typography---xs--font-size: var(--_sizes---fixed--0-75rem);
+    --_typography---xs--line-height: 1.5;
+    --_typography---xs--letter-spacing: 0em;
+    --_typography---button--font-family: var(--_typography---font-family--secondary);
+    --_typography---button--font-size: var(--_sizes---fixed--1rem);
+    --_typography---button--line-height: 1.5;
+    --_typography---button--font-weight: var(--_typography---font-weight--regular);
+    --_typography---button--letter-spacing: 0em;
+    --_typography---sm--font-size: var(--_sizes---fixed--0-875rem);
+    --_typography---sm--line-height: 1.42;
+    --_typography---sm--letter-spacing: 0em;
+    --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
+    --_typography---2xl--line-height: 1.5;
+    --_typography---2xl--letter-spacing: 0em;
+    --_typography---3xl--font-size: var(--_sizes---fixed--1-75rem);
+    --_typography---3xl--line-height: 1.5;
+    --_typography---3xl--letter-spacing: 0em;
+    --_typography---4xl--font-size: var(--_sizes---fixed--2-5rem);
+    --_typography---4xl--line-height: 1.5;
+    --_typography---4xl--letter-spacing: 0em;
+    --_typography---5xl--font-size: var(--_sizes---fixed--2-5rem);
+    --_typography---5xl--line-height: 1.5;
+    --_typography---5xl--letter-spacing: 0em;
+    --_typography---font-weight--bold: 700;
+    --_typography---5xl--font-family: var(--_typography---font-family--primary);
+    --_typography---4xl--font-family: var(--_typography---font-family--primary);
+    --_typography---3xl--font-family: var(--_typography---font-family--primary);
+    --_typography---font-weight--thin: 100;
+    --_typography---font-weight--extra-light: 200;
+    --_typography---font-weight--extra-bold: 800;
+    --_typography---font-weight--black: 900;
+  }
+
+  [data-temlis="hirely-325"] .padding-section-medium {
+    padding-top: var(--_sizes---fixed--4rem);
+  }
+
+  [data-temlis="hirely-325"] .spacer-desktop {
+    display: none;
+  }
+
+  [data-temlis="hirely-325"] .spacer-tablet {
+    display: block;
+  }
+
+  [data-temlis="hirely-325"] .thumb-img {
+    margin-bottom: auto;
+    margin-left: -.5rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  [data-temlis="hirely-325"] {
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+    --_sizes---fixed--1rem: 1rem;
+    --_sizes---fixed--0rem: 0rem;
+    --_sizes---fixed--1-5rem: 1.5rem;
+    --_sizes---fixed--0-25rem: .25rem;
+    --_sizes---fixed--1-25rem: 1.25rem;
+    --_sizes---fixed--2-5rem: 2.5rem;
+    --_sizes---fixed--2rem: 2rem;
+    --_sizes---padding-section--small: var(--_sizes---fixed--2rem);
+    --_sizes---fixed--0-5rem: .5rem;
+    --_sizes---fixed--3rem: 3rem;
+    --_sizes---fixed--0-75rem: .75rem;
+    --_sizes---padding-section--large: var(--_sizes---fixed--4rem);
+    --_sizes---fixed--6rem: 6rem;
+    --_sizes---fixed--4rem: 4rem;
+    --_sizes---padding-section--medium: var(--_sizes---fixed--3rem);
+    --_sizes---fixed--0-125rem: .125rem;
+    --_sizes---fixed--1-75rem: 1.75rem;
+    --_sizes---fixed--2-75rem: 2.75rem;
+    --_sizes---fixed--3-25rem: 3.25rem;
+    --_sizes---border--border-size: .0625rem;
+    --_sizes---fixed--5rem: 5rem;
+    --_sizes---fixed--0-875rem: .875rem;
+    --_sizes---fixed--1-125rem: 1.125rem;
+    --_sizes---fixed--2-25rem: 2.25rem;
+    --_sizes---fixed--3-5rem: 3.5rem;
+    --_sizes---fixed--4-5rem: 4.5rem;
+    --_sizes---fixed--4-75rem: 4.75rem;
+    --_sizes---fixed--5-5rem: 5.5rem;
+    --_sizes---fixed--6-25rem: 6.25rem;
+    --_sizes---fixed--6-5rem: 6.5rem;
+    --_sizes---fixed--7rem: 7rem;
+    --_sizes---fixed--8rem: 8rem;
+    --_sizes---fixed--9rem: 9rem;
+    --_sizes---fixed--10rem: 10rem;
+    --_typography---font-family--secondary: 'Roboto Variable', Roboto, sans-serif;
+    --_typography---font-weight--regular: 400;
+    --_typography---h1--font-family: var(--_typography---font-family--primary);
+    --_typography---h1--font-size: var(--_sizes---fixed--4rem);
+    --_typography---h1--line-height: 1.2;
+    --_typography---h1--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h1--letter-spacing: 0em;
+    --_typography---h2--font-family: var(--_typography---font-family--primary);
+    --_typography---h2--font-size: var(--_sizes---fixed--3-25rem);
+    --_typography---h2--line-height: 1.2;
+    --_typography---h2--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h2--letter-spacing: 0em;
+    --_typography---h3--font-family: var(--_typography---font-family--primary);
+    --_typography---h3--font-size: var(--_sizes---fixed--3rem);
+    --_typography---h3--line-height: 1.2;
+    --_typography---h3--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h3--letter-spacing: 0em;
+    --_typography---h4--font-family: var(--_typography---font-family--primary);
+    --_typography---h4--font-size: var(--_sizes---fixed--2-5rem);
+    --_typography---h4--line-height: 1.1;
+    --_typography---h4--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h4--letter-spacing: 0em;
+    --_typography---h5--font-family: var(--_typography---font-family--primary);
+    --_typography---h5--font-size: var(--_sizes---fixed--2-25rem);
+    --_typography---h5--line-height: 1.15;
+    --_typography---h5--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h5--letter-spacing: 0em;
+    --_typography---h6--font-family: var(--_typography---font-family--primary);
+    --_typography---h6--font-size: var(--_sizes---fixed--1-75rem);
+    --_typography---h6--line-height: 1.5;
+    --_typography---h6--font-weight: var(--_typography---font-weight--regular);
+    --_typography---h6--letter-spacing: 0em;
+    --_typography---font-weight--semibold: 600;
+    --_typography---font-weight--medium: 500;
+    --_typography---xl--font-family: var(--_typography---font-family--primary);
+    --_typography---xl--font-size: var(--_sizes---fixed--1-25rem);
+    --_typography---xl--line-height: 1.5;
+    --_typography---xl--letter-spacing: 0em;
+    --_typography---font-weight--light: 300;
+    --_typography---base--font-size: var(--_sizes---fixed--1rem);
+    --_typography---base--line-height: 1.5;
+    --_typography---base--letter-spacing: 0em;
+    --_typography---lg--font-size: var(--_sizes---fixed--1-125rem);
+    --_typography---lg--line-height: 1.5;
+    --_typography---lg--letter-spacing: 0em;
+    --_typography---font-family--primary: Anton, sans-serif;
+    --_typography---xs--font-size: var(--_sizes---fixed--0-75rem);
+    --_typography---xs--line-height: 1.5;
+    --_typography---xs--letter-spacing: 0em;
+    --_typography---button--font-family: var(--_typography---font-family--secondary);
+    --_typography---button--font-size: var(--_sizes---fixed--1rem);
+    --_typography---button--line-height: 1.5;
+    --_typography---button--font-weight: var(--_typography---font-weight--regular);
+    --_typography---button--letter-spacing: 0em;
+    --_typography---sm--font-size: var(--_sizes---fixed--0-875rem);
+    --_typography---sm--line-height: 1.42;
+    --_typography---sm--letter-spacing: 0em;
+    --_typography---2xl--font-size: var(--_sizes---fixed--1-5rem);
+    --_typography---2xl--line-height: 1.5;
+    --_typography---2xl--letter-spacing: 0em;
+    --_typography---3xl--font-size: var(--_sizes---fixed--1-75rem);
+    --_typography---3xl--line-height: 1.5;
+    --_typography---3xl--letter-spacing: 0em;
+    --_typography---4xl--font-size: var(--_sizes---fixed--2-5rem);
+    --_typography---4xl--line-height: 1.5;
+    --_typography---4xl--letter-spacing: 0em;
+    --_typography---5xl--font-size: var(--_sizes---fixed--2rem);
+    --_typography---5xl--line-height: 1.5;
+    --_typography---5xl--letter-spacing: 0em;
+    --_typography---font-weight--bold: 700;
+    --_typography---5xl--font-family: var(--_typography---font-family--primary);
+    --_typography---4xl--font-family: var(--_typography---font-family--primary);
+    --_typography---3xl--font-family: var(--_typography---font-family--primary);
+    --_typography---font-weight--thin: 100;
+    --_typography---font-weight--extra-light: 200;
+    --_typography---font-weight--extra-bold: 800;
+    --_typography---font-weight--black: 900;
+  }
+
+  [data-temlis="hirely-325"] .padding-global {
+    padding-right: var(--_sizes---fixed--1rem);
+    padding-left: var(--_sizes---fixed--1rem);
+  }
+
+  [data-temlis="hirely-325"] .padding-section-medium {
+    padding-top: var(--_sizes---fixed--3rem);
+  }
+
+  [data-temlis="hirely-325"] .spacer-tablet {
+    display: none;
+  }
+
+  [data-temlis="hirely-325"] .spacer-mobile {
+    display: block;
+  }
+
+  [data-temlis="hirely-325"] .button_main {
+    grid-column-gap: var(--_sizes---fixed--0-5rem);
+    grid-row-gap: var(--_sizes---fixed--0-5rem);
+  }
+
+  [data-temlis="hirely-325"] .features_description {
+    grid-column-gap: .5rem;
+  }
+
+  [data-temlis="hirely-325"] .cta_img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  [data-temlis="hirely-325"] .feature_img {
+    padding-top: 60%;
+  }
+
+  [data-temlis="hirely-325"] .feature_content {
+    grid-column-gap: 1.5rem;
+    grid-row-gap: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  [data-temlis="hirely-325"] {
+    --new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>: .75rem;
+    --new-base_typography---xs--font-size\<deleted\|variable-96c714d6-113d-36bb-d685-fb350402fce8\>: var(--new-base_sizes---fixed--0-75rem\<deleted\|variable-59b1dbc8-8761-417d-b470-3ab105dd385f\>);
+    --new-base_typography---font-weight--semibold\<deleted\|variable-f7181e8b-5c83-9648-721c-48d81a0c3809\>: 600;
+  }
+
+  [data-temlis="hirely-325"] .container-large {
+    max-width: 100%;
+  }
+
+  [data-temlis="hirely-325"] .thumb-img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  [data-temlis="hirely-325"] .cta_header-row {
+    grid-column-gap: .5rem;
+    grid-row-gap: .5rem;
+  }
+
+  [data-temlis="hirely-325"] .feature_img {
+    padding-top: 88%;
+  }
+}
+
+
+
+/* ===== global-styles.css ===== */
+/* Global embed styles (extracted verbatim from the Webflow export head). */
+/* Make text look crisper and more legible in all browsers */
+[data-temlis="hirely-325"] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* Focus state style for keyboard navigation for the focusable elements */
+/* Set color style to inherit */
+/* Get rid of top margin on first element in any rich text element */
+/* Get rid of bottom margin on last element in any rich text element */
+/* Make sure containers never lose their center alignment */
+ [data-temlis="hirely-325"] .container-large {
+	margin-right: auto !important;
+  margin-left: auto !important;
+}
+/* 
+Make the following elements inherit typography styles from the parent and not have hardcoded values. 
+Important: You will not be able to style for example "All Links" in Designer with this CSS applied.
+Uncomment this CSS to use it in the project. Leave this message for future hand-off.
+*/
+/*
+a,
+.w-input,
+.w-select,
+.w-tab-link,
+.w-nav-link,
+.w-dropdown-btn,
+.w-dropdown-toggle,
+.w-dropdown-link {
+  color: inherit;
+  text-decoration: inherit;
+  font-size: inherit;
+}
+*/
+/* Apply "..." after 3 lines of text */
+/* Apply "..." after 2 lines of text */
+/* Adds inline flex display */
+/* These classes are never overwritten */
+[data-temlis="hirely-325"] .hide {
+  display: none !important;
+}
+@media screen and (max-width: 991px) {
+    [data-temlis="hirely-325"] .hide {
+        display: none !important;
+    }
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+/* Hide scrollbar for IE, Edge and Firefox */
+[data-temlis="hirely-325"] .spacer * { padding: 0 }
+
+/* ===== hamburger-nav.css ===== */
+/* =============================================================================
+   hamburger-nav.css — scaling hamburger menu (self-contained, CSS-only)
+   -----------------------------------------------------------------------------
+   Colors are read from CSS vars with fallbacks — override them from the project:
+     --navbar-menu-bg     pill / card background    (default #101604)
+     --navbar-menu-fg     menu text                 (default #ffffff)
+     --navbar-accent      active-page dot           (default #b7fe02)
+     --navbar-menu-font   menu font family          (default sans-serif)
+     --navbar-menu-font-mono  "Menu" label font     (default monospace)
+
+   MECHANICS (CSS-only, no GSAP): the state lives on <html data-navigation-status>
+   ("active" / "not-active"), set by navbar.ts. Everything else is CSS transitions
+   keyed off that attribute:
+     - .hamburger-nav__bg     pill 2.75em → card 100% (bg scale)
+     - .hamburger-nav__group  content scale(0.15) → scale(1) (content scale)
+     - .hamburger-nav__toggle two bars → X (rotate 45/-45)
+     - .hamburger-nav__dot    appears scale(1) on the aria-current / hover link
+   Shared easing: cubic-bezier(0.5, 0.5, 0, 1).
+
+   HOOKS (markup → CSS/JS):
+     .hamburger-anchor          element that reserves space in the flex row
+     [data-navigation-toggle="toggle"]  button (open/close) — navbar.ts
+     [data-navigation-toggle="close"]   backdrop (close)    — navbar.ts
+     [data-navigation-status] on <html>  global state — navbar.ts
+   ============================================================================= */
+
+/* --- Responsive visibility: hamburger + backdrop only ≤991 ---
+   Desktop (≥992) uses the inline links, so the hamburger is hidden there.
+   .navigation__dark-bg is the dim backdrop (fixed sibling of the navbar). */
+
+/* --- Anchor: reserves 2.75em in the flex row; the card grows outside it (overflow visible) --- */
+
+/* --- Backdrop: fixed, dims the page when the menu opens --- */
+
+/* --- The pill --- */
+
+/* bg scale: the 2.75em pill expands to 100% (covers the whole card) when active */
+
+/* content scale: the menu content scales(0.15)→scale(1) from the top-right corner */
+
+/* label "Menu" (mono, uppercase) */
+/* active-page link: dimmed text (a11y: aria-current="page") */
+
+/* dot accent: hidden by default (scale 0); appears on aria-current and on hover */
+/* hovering any link hides the active-page dot... */
+/* ...and shows it on the hovered link */
+[data-temlis="hirely-325"] .hamburger-nav .hamburger-nav__a:hover .hamburger-nav__dot {
+  transform: scale(1);
+  opacity: 0.5;
+}
+
+/* --- Toggle: dos barras → X --- */
+/* when open, the button tucks inside the card (top-right padding) */
+[data-temlis="hirely-325"] .hamburger-nav__toggle:hover .hamburger-nav__toggle-bar {
+  transform: translateY(0.15em);
+}
+[data-temlis="hirely-325"] .hamburger-nav__toggle:hover .hamburger-nav__toggle-bar:nth-child(2) {
+  transform: translateY(-0.15em);
+}
+
+/* --- Responsive heading scale: the menu shrinks the title on mobile portrait --- */
+
+/* ===== marquee.css ===== */
+/* =============================================================================
+   marquee.css — seamless continuous-scroll marquee (CSS-only, default variant)
+   Pairs with marquee.ts (optional JS for constant px/s speed + auto-fill).
+
+   PROBLEM IT SOLVES
+   A continuous-loop marquee translates a track forever. This reproduces it
+   with @keyframes + `animation: <n>s linear infinite` — no JS, no jank. This
+   file is the reusable skeleton: copy it, swap `marquee` for your component
+   prefix, and (if needed) layer marquee.ts on top for constant-speed + auto-fill.
+
+   MARKUP CONTRACT (see marquee.ts header for the JS-driven version)
+     <div class="marquee" data-marquee>            ← clip + hover target
+       <div class="marquee_track">                 ← the animated element
+         <div class="marquee_set">…items…</div>     ← set 1 (real content)
+         <div class="marquee_set" aria-hidden="true">…items…</div>  ← set 2 = exact dup
+       </div>
+     </div>
+
+   SEAMLESS-LOOP MATH (the #1 gotcha)
+   translateX(-50%) is a PERFECT repeat ONLY if the track is a uniformly
+   periodic strip: every item — INCLUDING the last of each set — must be
+   followed by the SAME gap, so width = 2 × (N items + N gaps).
+   A pure flex `gap` sits only BETWEEN items, so the last item of set 2 has
+   NO trailing gap → -50% lands half-a-gap short → a visible jump on reset.
+   FIX: render the gap as `margin-right` on every item (last included) and
+   zero the flex `gap`. Now the strip is exactly periodic and -50% is exact.
+
+   SPEED: see --marquee-duration. Hardcoding seconds gives inconsistent
+   velocity when item count / content width changes. For constant px/s across
+   any width, let marquee.ts compute and set
+   --marquee-duration at runtime (duration = contentWidth / pxPerSecond), or
+   keep --marquee-duration here as a sensible static fallback.
+   ============================================================================= */
+
+/* Tunables — override per component via inline style or a scoped rule.
+   --marquee-duration : seconds for ONE set to scroll past (the loop period).
+                        Static fallback; marquee.ts overrides for constant px/s.
+   --marquee-gap      : space between items. Applied as margin-right (see math). */
+
+/* The animated element. `width: max-content` lets it be as wide as both sets.
+   `will-change: transform` promotes it to its own layer (GPU) → smooth. */
+
+/* Each set is a flex row of items. Zero the flex gap — the spacing is carried
+   by margin-right on the items so the strip stays uniformly periodic (see math). */
+
+/* The gap as a TRAILING margin on every item (last item of each set included).
+   This is what makes translateX(-50%) seamless. Same visual spacing as a gap. */
+
+/* transform-only animation: no layout/paint, just compositor. set 2 lands
+   exactly where set 1 began, so the loop is invisible. */
+@keyframes hirely-325-marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Reverse direction — add `data-marquee-reverse` (or a modifier class) and the
+   track scrolls the other way. Same period, same seamlessness. */
+@keyframes hirely-325-marquee-scroll-reverse {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* PAUSE-ON-HOVER — pausing the animation (not the layer) keeps it cheap.
+   Opt OUT per instance with `data-marquee-nohover` if it feels jarring
+   mid-read. */
+[data-temlis="hirely-325"] .marquee:not([data-marquee-nohover]):hover .marquee_track {
+  animation-play-state: paused;
+}
+/* Also pause on keyboard focus inside the track (accessibility parity). */
+
+/* PREFERS-REDUCED-MOTION — stop animating entirely. The track stays at its
+   start position so set 1 (the real content) is fully readable; set 2 is
+   aria-hidden so SR users don't hear duplicates. */
+
+/* ===== grid-slider.css ===== */
+/* =========================================================================
+   grid-slider.css — responsive grid→slider enhancement (generic, reusable)
+
+   ADDITIVE. Some grids degrade to a plain `display:flex; overflow:auto` drag
+   strip on tablet/mobile (no arrows). We upgrade those to a real Swiper slider
+   WITH arrows below each grid's own degrade breakpoint, while the desktop CSS
+   grid is left exactly as-is and is NEVER driven by Swiper. Init/destroy is
+   handled by grid-slider.ts.
+
+   Two breakpoint families, matching where the grid degrades:
+     • default              → slider ≤991 / grid ≥992   [no data-slider-mq]
+     • narrower (4-col etc.) → slider ≤767 / grid ≥768   [data-slider-mq="767"]
+
+   GAP: the desktop grid gap is your component's own value (you choose it).
+   Set it via the `--grid-slider-gap` custom property on
+   the grid (or hardcode it in your component CSS). It is declared below with a
+   fallback so this file works standalone:
+       .your-grid { --grid-slider-gap: 1rem; }
+
+   Markup contract — see grid-slider.ts header.
+   ========================================================================= */
+
+/* === Family A: default grids — slider ≤991, plain grid ≥992 ============== */
+@media screen and (min-width: 992px) {
+  /* Stay a grid on desktop. Swiper's swiper.css sets .swiper{display:block} and
+     .swiper-wrapper{display:flex}; undo BOTH so the grid layout applies
+     straight to the cards. Targets WITHOUT a 767 override (the 991 family). */
+}
+
+/* === Family B: narrower grids — slider ≤767, plain grid ≥768 ============= */
+
+/* ---- Preserve item display under Swiper --------------------------------- */
+/* Swiper's swiper.css sets .swiper-slide{display:block}, which can flatten a
+   card whose layout relies on `display:flex; flex-flow:column` (its internal
+   row-gap collapses to 0 on all viewports). If your card is a flex column,
+   restore it with HIGHER specificity than `.swiper-slide`. Replace
+   `.your-item` with your card class and the gap with your value:
+
+   .your-item.swiper-slide {
+     display: flex;
+     flex-direction: column;
+   }
+*/
+
+/* ---- Arrow buttons ------------------------------------------------------ */
+/* Swiper's swiper.css absolutely-positions .swiper-button-prev/next and gives
+   them their own ::after glyph. Re-anchor them into the static arrow-group row
+   and suppress the default glyph so YOUR arrow SVGs show (match the look of any
+   other slider arrows in the template). Breakpoint-agnostic: only ever visible
+   inside a displayed .arrow-group (gated above). Tune width/height to taste. */
+[data-temlis="hirely-325"] [data-grid-slider] > .arrow-group > .swiper-button-prev::after,
+[data-temlis="hirely-325"] [data-grid-slider] > .arrow-group > .swiper-button-next::after {
+  content: none;
+}
+
+/* ===== components.css ===== */
+/* Component-scoped overrides. Loaded last in the cascade. */
+
+/* Hamburger menu theming (mobile) — inverted: a light card with dark text,
+   so the closed pill reads as white with dark bars over the frosted navbar. */
+:where([data-temlis="hirely-325"]) {
+  --navbar-menu-bg: #ffffff;
+  --navbar-menu-fg: #062325; /* base--green-dark */
+  --navbar-accent: #5546ff; /* base--blue-500 */
+}
+
+/* The dim backdrop stays dark to darken the page (the menu card itself is light). */
+
+/* The base navbar sits at z-index 99 — below the dim backdrop (1000), which
+   would darken the open hamburger card too. Lift the navbar (and its menu) above
+   the backdrop so only the page behind gets dimmed. */
+
+/* --- Nav links: all white by default. Hovering one dims the rest to grey
+   (the hovered link stays white). The active link gets no special emphasis —
+   just white like the others. --- */
+
+/* --- Contact form: the Message field spans the full 2-column grid (and 2 rows),
+   so the textarea is full-width and the submit button drops to its own row below
+   — bottom-left. Restores the grid placement that a generated `#w-node-…` id
+   provided in the original markup. In the 1-col mobile grid the span clamps to
+   a single column automatically. --- */
+
+/* Form inputs: keep typed text light in EVERY state. The base styles only
+   set the text colour on `:focus-visible`, so a filled-but-unfocused input fell
+   back to the dark inherited colour (rgb 51,51,51) over the dark form — the
+   text went illegible the moment you tabbed away. Pin it to the same white the
+   focus state uses, so there's no colour jump on focus/blur. */
+/* At ≤479 the grid collapses to ONE column — keep the message at span 1 there,
+   or `span 2` would spawn an implicit 2nd column (grid-auto-columns:1fr) and
+   force every field back into two cramped columns. Matches the
+   `span 2 / span 1` mobile override. */
+
+/* --- Nav logo hover: rotate 15deg, matching the footer logo. Only
+   `.footer_logo` had this hover originally; we add it to the navbar logo so
+   both clickable logos behave the same. --- */
+[data-temlis="hirely-325"] .navbar_logo-link:hover {
+  transform: rotate(15deg);
+}
+
+/* --- Button hover: subtle press (scale down to 0.95). --- */
+[data-temlis="hirely-325"] .button {
+  transition: transform 0.3s ease;
+}
+[data-temlis="hirely-325"] .button:hover {
+  transform: scale(0.95);
+}
+
+/* Scroll-reveal baseline: elements are visible by default; the reveal script
+   sets the start state only when motion is allowed (avoids invisible content
+   if JS fails or for reduced-motion users). */
+[data-temlis="hirely-325"] [data-reveal] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-temlis="hirely-325"] [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Testimonial slider (Swiper) — full-container slide + centered arrow pair.
+
+   The Webflow base staggers the two arrows via relative + absolute positioning
+   with `translate(±60%)`, so they land on a diagonal. We re-lay them as one
+   centered row. Overflow stays `visible` (source behaviour) so the next slide
+   peeks past the container. The inter-slide gap is owned by Swiper's
+   `spaceBetween` (1.5rem) — NOT a CSS slide margin, because a CSS margin-right
+   is not folded into Swiper's translate and drifts the active slide off the
+   container edge by the margin on every step (verified). So we zero the
+   source `.slide-item` margin and let `spaceBetween` place the gap.
+   Scoped to `.section_testimonial-slider` so no other slider is affected.
+   --------------------------------------------------------------------------- */
+
+/* Centered arrow pair, below the slide. */
+
+/* Undo the Webflow base arrow offsets (relative/absolute + translate). */
+[data-temlis="hirely-325"] .section_testimonial-slider .arrow:hover,
+[data-temlis="hirely-325"] .section_testimonial-slider .arrow.is-right:hover {
+  transform: scale(0.95);
+}
+
+/* ===== animations.css ===== */
+/* =============================================================================
+   animations.css — decorative animation layer (CSS pieces)
+   Imported in BaseLayout AFTER components.css so these win the cascade.
+
+   Contains:
+     1. (Hero entrance moved to src/scripts/hero-enter.ts — GSAP timeline.)
+     2. Marquees — `.loop` (home/services logo strip) + `.carousel` (about
+        testimonial loop). Seamless, constant-speed, pause-on-hover.
+     3. Button hover icon-swap (`.button_wrap` dual chevron).
+   Every block has a `prefers-reduced-motion: reduce` reset.
+
+   GUARD NOTE: the `.scroll-animation` first-paint guard lives in BaseLayout
+   (`html.has-js .scroll-animation { opacity: 0 }`) and is cleared by
+   scroll-reveal.ts. It is intentionally NOT in this file so it cannot strand
+   content if this stylesheet loads but the script does not.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. HERO ENTRANCE — handled in JS (src/scripts/hero-enter.ts), NOT here.
+   The entrance needs character scale-pop on the h1, width-grow on the svg/img
+   and a staggered image-bar slide-in — beyond what CSS keyframes can express
+   faithfully — so it is a GSAP timeline. The first-paint guard
+   (`html.hero-loading`) lives in BaseLayout and is owned/cleared by that
+   script. Reduced-motion is handled there too (guard never added → hero
+   visible, no animation).
+   --------------------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   2a. MARQUEE — `.loop` logo strip (home hero banner + services hero)
+   3 identical `.loop_logo` groups in a flex row with a 2rem gap. Animate the
+   groups (NOT `.loop` — its gradient masks are position:absolute children and
+   would translate with it). Sliding all 3 groups left by exactly ONE unit
+   (group width + gap) lands group-2 in group-1's slot → seamless, because the
+   groups are identical. Distance is expressed responsively as
+   `calc(-100% - var(--loop-gap))`: -100% auto-tracks the per-breakpoint group
+   width, the gap constant matches `.loop`'s flex gap (2rem everywhere).
+   --------------------------------------------------------------------------- */
+
+@keyframes hirely-325-loop-logos {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--loop-gap))); }
+}
+
+/* Pause on hover / keyboard focus. */
+[data-temlis="hirely-325"] .loop:hover .loop_logo {
+  animation-play-state: paused;
+}
+
+/* -----------------------------------------------------------------------------
+   2b. MARQUEE — `.carousel` testimonial loop (about page)
+   `.carousel-wrap` holds 2 identical `.carousel` halves (8 cards each) split by
+   a 1.5rem gap. Slide both halves left by one full half = `-100%` minus one
+   wrap-gap (-100.56%). Slow crawl (~80s).
+   --------------------------------------------------------------------------- */
+
+@keyframes hirely-325-carousel-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--carousel-gap))); }
+}
+
+[data-temlis="hirely-325"] .carousel-wrap:hover .carousel {
+  animation-play-state: paused;
+}
+
+/* -----------------------------------------------------------------------------
+   3. BUTTON HOVER — dual-chevron icon swap (currentColor)
+   `.button_icon` clips (overflow:clip). It holds two stacked chevrons:
+     .is-1 — visible at rest (position:absolute, x:0)
+     .is-2 — parked off-screen left (position:absolute, translate(-100%))
+   On hover the pair slides one icon-width right: .is-1 exits right, .is-2
+   enters from the left. Also nudges `.button_main` from its resting
+   translate(-.3125rem,-.3125rem) to (0,0) so the button "presses" toward its
+   shadow. Transform-only → no box reflow.
+   --------------------------------------------------------------------------- */
+[data-temlis="hirely-325"] .button_icon .icon-1x1-medium {
+  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+[data-temlis="hirely-325"] .button_main {
+  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* .is-1 starts at x:0, .is-2 at translate(-100%) (from webflow.css). On hover,
+   shift both right by 100% of the icon box: .is-1 → +100% (exits right,
+   clipped), .is-2 → 0 (slides into view). */
+[data-temlis="hirely-325"] .button_wrap:hover .button_main {
+  transform: translate(0, 0);
+}
+[data-temlis="hirely-325"] .button_wrap:hover .icon-1x1-medium.is-1 {
+  transform: translate(100%);
+}
+[data-temlis="hirely-325"] .button_wrap:hover .icon-1x1-medium.is-2 {
+  transform: translate(0);
+}
+
+/* -----------------------------------------------------------------------------
+   REDUCED MOTION — disable every decorative animation; show all content.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Hero entrance reduced-motion is handled in hero-enter.ts (guard never
+     added → hero visible, no animation). Nothing to reset here. */
+
+  [data-temlis="hirely-325"] .button_icon .icon-1x1-medium,
+  [data-temlis="hirely-325"] .button_main {
+    transition: none;
+  }
+}
+
