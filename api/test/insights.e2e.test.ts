@@ -130,6 +130,42 @@ describe("Insights", () => {
     expect((await insights()).setup.team).toBe(false);
   });
 
+  it("counts what a member did, this month and in all, for any colleague to see", async () => {
+    const { body: me } = await request(app.getHttpServer()).get("/me").set("Cookie", cookie).expect(200);
+    const employeeEmail = `delivered+insights-employee-${stamp}@resend.dev`;
+    const employee = await signInViaOtp(app, prisma, employeeEmail);
+    const { body: invitation } = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", cookie)
+      .send({ email: employeeEmail, role: "EMPLOYEE" })
+      .expect(201);
+    await request(app.getHttpServer()).post(`/invitations/${invitation.id}/accept`).set("Cookie", employee).expect(201);
+
+    const { body } = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/insights/members/${me.id}`)
+      .set("Cookie", employee)
+      .expect(200);
+
+    // Four Tickets, one of them from 70 days ago, and one taken to Ready then Completed.
+    expect(body).toMatchObject({
+      userId: me.id,
+      role: "OWNER",
+      total: { created: 4, moved: 2, ready: 1, completed: 1 },
+      month: { created: 3, moved: 2, ready: 1, completed: 1 },
+    });
+  });
+
+  it("knows no one who isn't a member", async () => {
+    const outsider = await prisma.user.findFirstOrThrow({
+      where: { memberships: { none: { locationId } } },
+      select: { id: true },
+    });
+    await request(app.getHttpServer())
+      .get(`/locations/${locationId}/insights/members/${outsider.id}`)
+      .set("Cookie", cookie)
+      .expect(404);
+  });
+
   it("is refused to someone outside the Location", async () => {
     const stranger = await signInViaOtp(app, prisma, `delivered+insights-stranger-${stamp}@resend.dev`);
     const { status } = await request(app.getHttpServer())
