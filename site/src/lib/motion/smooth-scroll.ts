@@ -19,6 +19,17 @@ export function startSmoothScroll() {
   gsap.ticker.lagSmoothing(0);
 
   linkAnchors(lenis);
+
+  // Arriving on a section's link (/fr#pricing from a legal page or an email):
+  // the page is laid out from the top for the hero, so it goes there once the
+  // hero's pin has added its length above every section.
+  const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+  if (target) {
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+      lenis.scrollTo(target, { immediate: true });
+    });
+  }
 }
 
 function linkAnchors(lenis: Lenis) {
