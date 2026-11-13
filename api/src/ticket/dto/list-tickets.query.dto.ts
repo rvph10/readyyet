@@ -14,8 +14,8 @@ export class ListTicketsQueryDto {
   @IsIn(["asc", "desc"])
   dir?: "asc" | "desc";
 
-  // One search box: matched against title, description, tracking code and
-  // the customer's name, email and phone.
+  // One search box: matched against the number, title, description,
+  // tracking code and the customer's name, email and phone.
   @IsOptional()
   @IsString()
   @MaxLength(100)

@@ -28,6 +28,7 @@ export class TrackingService {
       where: { trackingCode: code },
       select: {
         trackingCode: true,
+        number: true,
         title: true,
         estimatedReadyDate: true,
         customerCollectedAt: true,
@@ -81,6 +82,7 @@ export class TrackingService {
     const address = toPostalAddress(ticket.location);
     return {
       trackingCode: ticket.trackingCode,
+      number: ticket.number,
       title: ticket.title,
       estimatedReadyDate: showsEstimatedReadyDate(ticket.currentStatus.code)
         ? toCalendarDate(ticket.estimatedReadyDate)

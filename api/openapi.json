@@ -10647,6 +10647,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10681,6 +10684,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "description",
@@ -10723,6 +10727,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10752,6 +10759,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "customerCollectedAt",
@@ -10829,6 +10837,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10870,6 +10881,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "customerCollectedAt",
@@ -11039,6 +11051,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -11079,6 +11094,7 @@
           "trackingUrl",
           "trackingLinkExpired",
           "id",
+          "number",
           "trackingCode",
           "title",
           "description",
@@ -11942,6 +11958,9 @@
           "trackingCode": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "title": {
             "type": "string"
           },
@@ -11999,6 +12018,7 @@
           "estimatedReadyDate",
           "locale",
           "trackingCode",
+          "number",
           "title",
           "customerCollectedAt",
           "createdAt",

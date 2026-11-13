@@ -6,6 +6,8 @@ import { WorkflowStepDto } from "../../workflow/dto/workflow.response.dto";
 
 export class TicketDto {
   id!: string;
+  // 1, 2, 3 per Location, what screens show (ADR 0154).
+  number!: number;
   trackingCode!: string;
   title!: string;
   description!: string | null;
@@ -62,6 +64,7 @@ export class TicketListCustomerDto {
 
 export class TicketListItemDto {
   id!: string;
+  number!: number;
   trackingCode!: string;
   title!: string;
   @ApiProperty({ type: String, format: "date", nullable: true })

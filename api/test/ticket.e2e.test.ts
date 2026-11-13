@@ -57,6 +57,7 @@ describe("Tickets", () => {
       });
 
     expect(response.status).toBe(201);
+    expect(response.body.number).toBe(1);
     expect(response.body.trackingCode).toMatch(/^[\w-]{12}$/);
     expect(response.body.currentStatus.code).toBe("RECEIVED");
     expect(response.body.customer.fullName).toBe("Alice Driver");
@@ -75,6 +76,7 @@ describe("Tickets", () => {
       .send({ title: "Tire rotation", customerId });
 
     expect(second.status).toBe(201);
+    expect(second.body.number).toBe(first.body.number + 1);
     expect(second.body.customer.id).toBe(customerId);
     expect(second.body.customer.fullName).toBe("Bob Returner");
   });
