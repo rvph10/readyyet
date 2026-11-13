@@ -762,7 +762,7 @@
       "alreadyPaying": "Ce site a déjà un plan. Actualisez la page dans un instant."
     },
     "startPro": "Démarrer Pro, 49 €/mois",
-    "yearlyNoRefund": "Un abonnement annuel se paie un an d'avance et n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
+    "yearlyNoRefund": "Payé un an d'avance, un abonnement annuel n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
@@ -1541,7 +1541,7 @@
     "since": "Dans l'équipe depuis le {date}",
     "thisMonth": "Ce mois-ci",
     "movedHint": "Chaque étape franchie par un ticket compte, jusqu'au retrait.",
-    "total": "Depuis son arrivée",
+    "sinceJoining": "{count} depuis son arrivée",
     "counts": {
       "moved": "Étapes avancées",
       "created": "Tickets créés",

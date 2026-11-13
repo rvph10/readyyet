@@ -25,7 +25,8 @@ const stamp = (instant: Date) => `${instant.toISOString().replace(/[-:]/g, "").s
 
 // ADR 0127: the ready date as an all-day event, attached to the emails that
 // state it, which mail apps offer to add to the calendar. One UID per
-// Ticket and a growing SEQUENCE, so a new date replaces the old one.
+// Ticket and a growing SEQUENCE, so a new date replaces the old one, and a
+// cancelled Ticket's event marks the one already added as cancelled.
 export function readyDateEvent(input: {
   trackingCode: string;
   date: CalendarDate;
@@ -33,6 +34,7 @@ export function readyDateEvent(input: {
   location: string;
   address: string | null;
   trackingUrl: string;
+  cancelled?: boolean;
   now?: Date;
 }): EmailAttachment {
   const now = input.now ?? new Date();
@@ -54,6 +56,7 @@ export function readyDateEvent(input: {
     `DESCRIPTION:${escape(input.trackingUrl)}`,
     `URL:${input.trackingUrl}`,
     "TRANSP:TRANSPARENT",
+    ...(input.cancelled ? ["STATUS:CANCELLED"] : []),
     "END:VEVENT",
     "END:VCALENDAR",
   ];

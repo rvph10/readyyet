@@ -14,14 +14,14 @@
     "marked": "18.2.0",
     "next": "16.4.5",
     "next-intl": "4.14.9",
-    "posthog-js": "1.446.3",
+    "posthog-js": "1.447.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "swiper": "14.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.4",
-    "@types/node": "22.20.4",
+    "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "tailwindcss": "4.3.4",

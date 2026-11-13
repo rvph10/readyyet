@@ -63,4 +63,20 @@ describe("Ready date event", () => {
     expect(sequence(decode(later.content))).toBeGreaterThan(sequence(ics));
     expect(decode(later.content)).not.toContain("LOCATION:");
   });
+
+  it("marks the event cancelled for a Ticket that ended, and only then", () => {
+    const cancelled = readyDateEvent({
+      trackingCode: "AbC123",
+      date: "2026-11-14",
+      title: "t",
+      location: "l",
+      address: null,
+      trackingUrl: "https://x",
+      cancelled: true,
+    });
+
+    expect(decode(cancelled.content)).toContain("UID:AbC123-ready@readyyet.app\r\nSEQUENCE:");
+    expect(decode(cancelled.content)).toContain("STATUS:CANCELLED\r\n");
+    expect(ics).not.toContain("STATUS:");
+  });
 });

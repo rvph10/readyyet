@@ -377,6 +377,11 @@ export class NotificationService {
     const address = toPostalAddress(ticket.location);
     // The emails that state the date carry it as a calendar event too.
     const statesDate = estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED");
+    // A Customer told a date may have it in their calendar: the email
+    // ending the Ticket takes it back out (ADR 0152).
+    const toldDate = toCalendarDate(ticket.customerToldReadyDate);
+    const cancelsDate = toldDate && (kind === "CANCELLED" || kind === "REJECTED");
+    const eventDate = statesDate ? estimatedReadyDate : cancelsDate ? toldDate : null;
     const { subject, react } = buildCustomerEmail({
       kind,
       locale,
@@ -411,15 +416,16 @@ export class NotificationService {
         "List-Unsubscribe": `<${oneClickStopUrl(ticket.trackingCode)}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
-      ...(statesDate && {
+      ...(eventDate && {
         attachments: [
           readyDateEvent({
             trackingCode: ticket.trackingCode,
-            date: estimatedReadyDate,
+            date: eventDate,
             title: calendarTitle(locale, ticket.location.businessType.code, ticket.location.name),
             location: ticket.location.name,
             address: address && `${address.streetAddress}, ${address.postalCode} ${address.addressLocality}`,
             trackingUrl: trackingUrl(ticket.trackingCode),
+            cancelled: !statesDate,
           }),
         ],
       }),
