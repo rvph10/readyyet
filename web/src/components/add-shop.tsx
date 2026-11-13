@@ -13,7 +13,14 @@ import {
   type TransitionStartFunction,
 } from "react";
 import { newLocation } from "@/app/(create-business)/businesses/new/schema";
-import { PRICES } from "@/app/(dashboard)/locations/[locationId]/plan-prices";
+import { IntervalToggle } from "@/app/(dashboard)/locations/[locationId]/plan-chooser";
+import {
+  PLAN_FEATURES,
+  PLAN_NAMES,
+  PRICES,
+  type Interval,
+  type Plan,
+} from "@/app/(dashboard)/locations/[locationId]/plan-prices";
 import { PhoneField } from "@/components/phone-field";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -29,8 +36,12 @@ import { browserTimeZone, FALLBACK_COUNTRY } from "@/lib/browser-region";
 import { fieldErrors } from "@/lib/validation";
 import { addLocation, addShopData } from "./add-shop-actions";
 
-// What each step asks, so Next only stops on what's in front of the Owner.
-const STEPS = [["name"], ["businessTypeCode", "businessTypeDetail"], ["contactPhone", "contactEmail"]];
+// What each step asks, so Next only stops on what's in front of the Owner. The
+// plan has nothing to get wrong, one is always chosen.
+const STEPS = [["name"], ["businessTypeCode", "businessTypeDetail"], ["contactPhone", "contactEmail"], []];
+
+// The trade's own steps, rather than another shop's to copy.
+const DEFAULT_STEPS = "default";
 
 const AddShopContext = createContext<() => void>(() => undefined);
 
@@ -51,14 +62,21 @@ interface FormProps {
 function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormProps) {
   const t = useTranslations("createBusiness");
   const tNew = useTranslations("business.newLocation");
+  const tPlans = useTranslations("plans");
+  const tBilling = useTranslations("billing");
   const format = useFormatter();
   const locale = useLocale();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
-  const [businessTypeCode, setBusinessTypeCode] = useState("");
-  const [businessTypeDetail, setBusinessTypeDetail] = useState("");
+  const [businessTypeCode, setBusinessTypeCode] = useState(data.businessType?.code ?? "");
+  const [businessTypeDetail, setBusinessTypeDetail] = useState(data.businessType?.detail ?? "");
+  // The other shops' trade is kept folded, opened only for a shop doing another.
+  const [choosingType, setChoosingType] = useState(!data.businessType);
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState(data.email);
+  const [plan, setPlan] = useState<Plan>("PRO");
+  const [interval, setInterval] = useState<Interval>("MONTH");
+  const [workflowFrom, setWorkflowFrom] = useState(DEFAULT_STEPS);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const otherType = data.businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
@@ -90,12 +108,17 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
     setFailure(null);
     startSubmit(async () => {
       const result = await orFailure(
-        addLocation(businessId, {
-          ...location.data,
-          // Both changed later in the Location's settings (ADR 0047).
-          locale: locale.toUpperCase() as "EN" | "FR",
-          timeZone: browserTimeZone(),
-        }),
+        addLocation(
+          businessId,
+          {
+            ...location.data,
+            // Both changed later in the Location's settings (ADR 0047).
+            locale: locale.toUpperCase() as "EN" | "FR",
+            timeZone: browserTimeZone(),
+            ...(plan === "PRO" && workflowFrom !== DEFAULT_STEPS && { copyWorkflowFrom: workflowFrom }),
+          },
+          { plan, interval },
+        ),
       );
       if (result.ok) return;
       const refused = STEPS.flat().filter((field) => result.fields?.[field]);
@@ -113,7 +136,7 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
     <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-4 md:px-7">
         <Steps
-          steps={[tNew("stepName"), tNew("stepType"), tNew("stepContact")]}
+          steps={[tNew("stepName"), tNew("stepType"), tNew("stepContact"), tNew("stepPlan")]}
           current={step + 1}
           label={t("stepOf", { step: step + 1, steps: STEPS.length })}
         />
@@ -142,31 +165,47 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
           <>
             <div>
               <p className="text-title-h6">{tNew("typeTitle")}</p>
-              <p className="mt-1 text-p-sm text-muted">{tNew("typeHint")}</p>
+              <p className="mt-1 text-p-sm text-muted">{tNew(choosingType ? "typeHint" : "sameTypeHint")}</p>
             </div>
-            <RadioCards
-              legend={t("businessType")}
-              name="businessTypeCode"
-              options={data.businessTypes
-                .filter(({ code }) => code !== OTHER_BUSINESS_TYPE)
-                .map(({ code, label }) => ({ value: code, label }))}
-              other={
-                otherType && {
-                  value: otherType.code,
-                  label: otherType.label,
-                  placeholder: t("businessTypeDetail"),
-                  text: businessTypeDetail,
-                  onTextChange: setBusinessTypeDetail,
-                  maxLength: NAME_MAX_LENGTH,
+            {choosingType ? (
+              <RadioCards
+                legend={t("businessType")}
+                name="businessTypeCode"
+                options={data.businessTypes
+                  .filter(({ code }) => code !== OTHER_BUSINESS_TYPE)
+                  .map(({ code, label }) => ({ value: code, label }))}
+                other={
+                  otherType && {
+                    value: otherType.code,
+                    label: otherType.label,
+                    placeholder: t("businessTypeDetail"),
+                    text: businessTypeDetail,
+                    onTextChange: setBusinessTypeDetail,
+                    maxLength: NAME_MAX_LENGTH,
+                  }
                 }
-              }
-              value={businessTypeCode}
-              onChange={(code) => {
-                setBusinessTypeCode(code);
-                edited("businessTypeCode");
-              }}
-              error={errors.businessTypeCode}
-            />
+                value={businessTypeCode}
+                onChange={(code) => {
+                  setBusinessTypeCode(code);
+                  edited("businessTypeCode");
+                }}
+                error={errors.businessTypeCode}
+              />
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-strong p-4">
+                <div className="min-w-0">
+                  <p className="text-label-xs text-muted">{tNew("sameType")}</p>
+                  <p className="mt-0.5 text-title-h6 wrap-anywhere">
+                    {isOther
+                      ? businessTypeDetail
+                      : data.businessTypes.find(({ code }) => code === businessTypeCode)?.label}
+                  </p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => setChoosingType(true)}>
+                  {tNew("otherType")}
+                </Button>
+              </div>
+            )}
           </>
         )}
         {step === 2 && (
@@ -197,15 +236,50 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
               }}
               error={errors.contactEmail}
             />
-            <p className="rounded-2xl bg-brand px-4 py-3 text-p-sm text-ink">
-              {tNew("planNotice", {
-                price: format.number(PRICES.ESSENTIEL.MONTH, {
+          </>
+        )}
+        {step === 3 && (
+          <>
+            <div>
+              <p className="text-title-h6">{tNew("planTitle")}</p>
+              <p className="mt-1 text-p-sm text-muted">{tNew("planHint")}</p>
+            </div>
+            <div>
+              <IntervalToggle interval={interval} onChange={setInterval} />
+              {interval === "YEAR" && <p className="mt-3 text-p-sm font-semibold">{tBilling("yearlyNoRefund")}</p>}
+            </div>
+            <RadioCards
+              legend={tNew("planLegend")}
+              name="plan"
+              columns={1}
+              options={(["PRO", "ESSENTIEL"] as const).map((option) => ({
+                value: option,
+                label: `${PLAN_NAMES[option]} · ${format.number(PRICES[option][interval], {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
-                }),
-              })}
-            </p>
+                })}${tPlans(interval === "YEAR" ? "perYear" : "perMonth")}`,
+                description: PLAN_FEATURES[option].map((feature) => tBilling(`features.${feature}`)).join(" · "),
+              }))}
+              value={plan}
+              onChange={(value) => setPlan(value as Plan)}
+            />
+            {plan === "PRO" && data.customWorkflows.length > 0 && (
+              <RadioCards
+                legend={tNew("workflowLegend")}
+                name="workflowFrom"
+                columns={1}
+                options={[
+                  { value: DEFAULT_STEPS, label: tNew("workflowDefault") },
+                  ...data.customWorkflows.map(({ id, name }) => ({
+                    value: id,
+                    label: tNew("workflowCopy", { shop: name }),
+                  })),
+                ]}
+                value={workflowFrom}
+                onChange={setWorkflowFrom}
+              />
+            )}
           </>
         )}
       </div>

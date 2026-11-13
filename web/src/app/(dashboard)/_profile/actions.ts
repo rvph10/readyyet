@@ -7,8 +7,7 @@ import { redirect } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { actionResult } from "@/lib/api/errors";
 import { LOCALE_COOKIE } from "@/lib/locale";
-
-const YEAR_SECONDS = 365 * 24 * 60 * 60;
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
 
 // ADR 0118: one language for a User, their emails' and the app's, so the cookie
 // ?lang= sets (ADR 0047) follows the saved one.
@@ -16,7 +15,7 @@ export async function setLanguage(locale: SupportedLocale) {
   const outcome = await actionResult(await (await api()).PATCH("/me", { body: { locale } }));
   if (!outcome.ok) return outcome;
   (await cookies()).set(LOCALE_COOKIE, locale, {
-    maxAge: YEAR_SECONDS,
+    maxAge: COOKIE_MAX_AGE_SECONDS,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });

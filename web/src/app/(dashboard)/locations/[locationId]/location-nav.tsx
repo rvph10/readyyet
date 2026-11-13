@@ -118,6 +118,43 @@ function TrialCard({ daysLeft }: { daysLeft: number }) {
   );
 }
 
+// Only Stripe's retries stand between a failed payment and a paused shop, and
+// the Billing page alone said so (ADR 0127 sends no email for it).
+function PastDueCard({ props }: { props: Props }) {
+  const t = useTranslations("billing");
+  const tDashboard = useTranslations("dashboard");
+  const collapsed = useContext(CollapsedContext);
+  const { location, role } = props.current;
+  const owner = role === "OWNER";
+  const billingHref = managerSections(props).some(({ key }) => key === "billing")
+    ? `/locations/${location.id}/billing`
+    : `/businesses/${location.business.id}/billing`;
+  return (
+    <>
+      <div className={`on-pine rounded-card bg-danger p-3.5 text-surface ${wide(collapsed)}`}>
+        <p className="text-label-sm">{t("pastDueTitle")}</p>
+        <p className="mt-2 text-p-xs">{t(owner ? "pastDueBody" : "pastDueBodyAdmin")}</p>
+        <Link
+          href={billingHref}
+          className="mt-3 flex min-h-10 w-full items-center justify-center rounded-full bg-surface px-3 text-label-xs font-bold text-ink transition-[background-color,scale] hover:bg-subtle active:scale-[0.97]"
+        >
+          {owner ? t("updateCard") : tDashboard("sections.billing")}
+        </Link>
+      </div>
+      <Link
+        href={billingHref}
+        aria-label={t("pastDueTitle")}
+        title={t("pastDueTitle")}
+        className={`mx-auto size-11 items-center justify-center rounded-full bg-danger text-label-xs font-bold text-surface ${
+          collapsed ? "flex" : "flex xl:hidden"
+        }`}
+      >
+        !
+      </Link>
+    </>
+  );
+}
+
 function NavLinks({ props }: { props: Props }) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
@@ -173,8 +210,9 @@ function Sidebar({ props, collapsed, onToggle }: { props: Props; collapsed: bool
     <SidebarFrame collapsed={collapsed} onToggle={onToggle}>
       <NavLinks props={props} />
       {props.trialDaysLeft !== null && <TrialCard daysLeft={props.trialDaysLeft} />}
-      {/* One ask at a time: choosing a plan comes first. */}
-      {props.trialDaysLeft === null && props.inviteLink && <InviteBusiness link={props.inviteLink} />}
+      {props.pastDue && <PastDueCard props={props} />}
+      {/* One ask at a time: paying comes first. */}
+      {props.trialDaysLeft === null && !props.pastDue && props.inviteLink && <InviteBusiness link={props.inviteLink} />}
       <UserRow me={props.me} detail={t(`roles.${props.current.role}`)} />
     </SidebarFrame>
   );
@@ -303,6 +341,8 @@ interface Props {
   trialDaysLeft: number | null;
   // Owners only.
   inviteLink: string | null;
+  // The last payment failed, for the Roles that see the billing.
+  pastDue: boolean;
   needsYou: NeedsYouItems;
 }
 

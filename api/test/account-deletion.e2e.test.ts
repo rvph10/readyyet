@@ -9,6 +9,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0018: an account is anonymised, not deleted.
 describe("Deleting your account", () => {
@@ -38,6 +39,7 @@ describe("Deleting your account", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Deletion Test",
         location: {
           name: "Shop",
@@ -163,6 +165,7 @@ describe("Invitations sent by a deleted account", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Inviter Test",
         location: {
           name: "Shop",

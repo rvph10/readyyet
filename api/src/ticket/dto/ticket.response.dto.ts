@@ -49,8 +49,8 @@ export class TicketDetailDto extends TicketDto {
   trackingUrl!: string;
   trackingLinkExpired!: boolean;
   // The latest email to the Customer failed, and is being retried or was given
-  // up on (ADR 0081).
-  @ApiProperty({ enum: ["RETRYING", "GAVE_UP"], nullable: true })
+  // up on (ADR 0081), or was held back by the daily limit (ADR 0140).
+  @ApiProperty({ enum: ["RETRYING", "GAVE_UP", "LIMITED"], nullable: true })
   emailProblem!: TicketEmailProblem | null;
 }
 
@@ -110,6 +110,14 @@ export class TicketOverviewDto {
   tickets!: OverviewTicketDto[];
   // What a person has to settle, among every open Ticket (ADR 0113).
   needsYou!: OverviewNeedsYouDto;
+  // An email to a Customer was held back today, the Location reached its
+  // daily limit (ADR 0140).
+  customerEmailsLimited!: boolean;
+  // Every member sees it, not only those who can read the billing: an
+  // Employee learns before filling a Ticket in that it can't be created.
+  frozen!: boolean;
+  // The last payment failed, Stripe is retrying it.
+  pastDue!: boolean;
 }
 
 export class TicketPageDto {

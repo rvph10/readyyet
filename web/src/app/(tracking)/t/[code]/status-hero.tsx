@@ -47,6 +47,7 @@ interface Props {
   tracking: Tracking;
   locale: string;
   now: Date;
+  demo?: boolean;
   // For placing it in the page's grid.
   className: string;
 }
@@ -56,7 +57,7 @@ interface Props {
 // it's unmistakable at a glance. The answer comes first, since a title can be
 // 200 characters, and it wraps rather than truncates: it's how the Customer
 // knows which item this is.
-export async function StatusHero({ tracking, locale, now, className }: Props) {
+export async function StatusHero({ tracking, locale, now, demo = false, className }: Props) {
   const t = await getTranslations("tracking");
   const { currentStatus, location, title, estimatedReadyDate, customerCollectedAt } = tracking;
   const { code } = currentStatus;
@@ -95,14 +96,25 @@ export async function StatusHero({ tracking, locale, now, className }: Props) {
           </p>
         )}
 
+        {/* The demo's buttons lead nowhere, so they don't answer the pointer. */}
         {ready && (
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className={`mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap ${demo ? "pointer-events-none" : ""}`}>
             {location.mapsUrl && (
-              <a href={location.mapsUrl} target="_blank" rel="noopener noreferrer" className={buttonClass()}>
+              <a
+                href={demo ? undefined : location.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClass()}
+              >
                 {t("directions")}
               </a>
             )}
-            <PickedUpButton code={tracking.trackingCode} variant="secondary" label={t("pickedUp")} />
+            {demo ? (
+              // Not a button, so the keyboard doesn't stop on one that does nothing.
+              <span className={buttonClass({ variant: "secondary" })}>{t("pickedUp")}</span>
+            ) : (
+              <PickedUpButton code={tracking.trackingCode} variant="secondary" label={t("pickedUp")} />
+            )}
           </div>
         )}
 
@@ -117,12 +129,15 @@ export async function StatusHero({ tracking, locale, now, className }: Props) {
         )}
 
         {NEEDS_CUSTOMER.includes(code) && (
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a href={`tel:${location.contactPhone}`} className={buttonClass()}>
+          <div className={`mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap ${demo ? "pointer-events-none" : ""}`}>
+            <a href={demo ? undefined : `tel:${location.contactPhone}`} className={buttonClass()}>
               <Icon name="phone" className="size-3.5" />
               {t("callLocation")}
             </a>
-            <a href={`mailto:${location.contactEmail}`} className={buttonClass({ variant: "secondary" })}>
+            <a
+              href={demo ? undefined : `mailto:${location.contactEmail}`}
+              className={buttonClass({ variant: "secondary" })}
+            >
               <Icon name="message" className="size-3.5" />
               {t("emailLocation")}
             </a>

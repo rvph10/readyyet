@@ -8,6 +8,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("Memberships", () => {
   let app: INestApplication;
@@ -32,6 +33,7 @@ describe("Memberships", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Membership Test Garage",
         location: {
           name: "Shop",

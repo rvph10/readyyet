@@ -75,8 +75,53 @@ describe("fetchWithRetry", () => {
     await fetchWithRetry(request);
 
     expect(fetchMock.mock.calls).toEqual([
-      [request, { keepalive: true }],
-      [request, { keepalive: true }],
+      [request, expect.objectContaining({ keepalive: true })],
+      [request, expect.objectContaining({ keepalive: true })],
     ]);
+  });
+
+  describe("when the API doesn't answer", () => {
+    // Answers only by rejecting, once its signal aborts, as fetch does.
+    const hang = (_input: RequestInfo | URL, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(init.signal!.reason as Error));
+      });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("gives up on a read after 15 seconds, without a second try", async () => {
+      vi.useFakeTimers();
+      fetchMock.mockImplementation(hang);
+      const result = expect(fetchWithRetry(new Request("http://api/tracking/abc"))).rejects.toThrow(
+        "No answer from the API",
+      );
+      await vi.advanceTimersByTimeAsync(15_000);
+      await result;
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("gives up on a write after 15 seconds", async () => {
+      vi.useFakeTimers();
+      fetchMock.mockImplementation(hang);
+      const result = expect(
+        fetchWithRetry(new Request("http://api/tracking/abc/collected", { method: "POST" })),
+      ).rejects.toThrow("No answer from the API");
+      await vi.advanceTimersByTimeAsync(15_000);
+      await result;
+    });
+
+    it("leaves the body of an answer that came in time to be read for as long as it takes", async () => {
+      vi.useFakeTimers();
+      let signal: AbortSignal | undefined;
+      fetchMock.mockImplementationOnce((_input, init) => {
+        signal = init?.signal ?? undefined;
+        return Promise.resolve(new Response("zip"));
+      });
+      await fetchWithRetry(new Request("http://api/locations/abc/export"));
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(signal?.aborted).toBe(false);
+    });
   });
 });

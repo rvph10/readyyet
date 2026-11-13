@@ -9,6 +9,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0015: a notifying status queues an email that's only sent once the
 // undo window has passed, and only if the ticket is still at that status.
@@ -74,6 +75,7 @@ describe("Customer status emails", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Status Email Test",
         location: {
           name: "Maroquinerie Lumière",
@@ -198,6 +200,23 @@ describe("Customer status emails", () => {
     await Promise.all([notification.sendDueStatusEmails(), notification.sendDueStatusEmails()]);
 
     expect(await statusEmailsTo("concurrent")).toHaveLength(1);
+  });
+
+  it("doesn't send it again when the process stopped before forgetting it", async () => {
+    const ticket = await createTicket("crashed");
+    await setStatus(ticket.id, "READY");
+    const [pending] = await pendingFor(ticket.id);
+    await makeDueAndSweep(ticket.id);
+    // As if the process had died after the send, before deleting the row: the
+    // lease expires and the next sweep claims it again.
+    await prisma.pendingStatusNotification.create({
+      data: { statusEventId: pending.statusEventId, sendAfter: new Date(Date.now() - 1000) },
+    });
+
+    await notification.sendDueStatusEmails();
+
+    expect(await statusEmailsTo("crashed")).toHaveLength(1);
+    expect(await pendingFor(ticket.id)).toHaveLength(0);
   });
 
   it("sends to an email address added while the change was waiting", async () => {

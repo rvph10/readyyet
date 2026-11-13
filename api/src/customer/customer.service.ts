@@ -1,16 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, type Locale } from "@readyyet/db";
-import { ERASED_CUSTOMER_NAME } from "@readyyet/shared";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
+import { customerErasure, photoKeysOfCustomers } from "./customer-erasure";
 import { customerIdsMatching } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 const DEFAULT_LIST_TAKE = 20;
-const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 
 function customerOrder({ sort, dir = "asc" }: ListCustomersQueryDto): Prisma.CustomerOrderByWithRelationInput[] {
   const orders = {
@@ -73,42 +72,9 @@ export class CustomerService {
 
   async remove(locationId: string, customerId: string) {
     const customer = await this.loadActive(locationId, customerId);
-    // Erasure, not a plain soft-delete flag: redact PII, not just mark
-    // it gone, a Ticket referencing this customer can't be deleted
-    // (onDelete: Restrict) so the row itself has to survive.
-    // See docs/architecture/data-model.md#gdpr-erasure.
-    // Their Tickets' photos can show them too: a face, a number plate.
-    const photos = await this.prisma.ticketPhoto.findMany({
-      where: { ticket: { customerId: customer.id } },
-      select: { objectKey: true },
-    });
-    await this.prisma.$transaction([
-      this.prisma.customer.update({
-        where: { id: customer.id },
-        data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
-      }),
-      this.prisma.ticketPhoto.deleteMany({ where: { ticket: { customerId: customer.id } } }),
-      // Their own words (ADR 0039).
-      this.prisma.ticketFeedback.deleteMany({ where: { ticket: { customerId: customer.id } } }),
-      // What was sent about them: their address, their name, the staff copy of
-      // their feedback. Through the Ticket, the same address at another
-      // Location is another Customer.
-      this.prisma.emailLog.updateMany({
-        where: { ticket: { customerId: customer.id } },
-        data: {
-          to: ERASED_EMAIL_ADDRESS,
-          subject: ERASED_CUSTOMER_NAME,
-          html: null,
-          text: null,
-          lastError: null,
-          lastEvent: Prisma.DbNull,
-          // The calendar event names where and when (ADR 0127).
-          attachments: Prisma.DbNull,
-          gaveUpAt: new Date(),
-        },
-      }),
-    ]);
-    await this.storage.delete(photos.map((photo) => photo.objectKey));
+    const photoKeys = await photoKeysOfCustomers(this.prisma, [customer.id]);
+    await this.prisma.$transaction(customerErasure(this.prisma, { id: customer.id }));
+    await this.storage.delete(photoKeys);
   }
 
   private async loadActive(locationId: string, customerId: string) {

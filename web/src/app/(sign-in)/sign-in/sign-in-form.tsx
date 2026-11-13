@@ -12,8 +12,8 @@ import { useToast } from "@/components/ui/toast";
 import { Tooltip } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/locale";
-
-const YEAR_SECONDS = 365 * 24 * 60 * 60;
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
+import { track } from "@/lib/analytics";
 
 type Step = "email" | "code" | "name";
 
@@ -179,7 +179,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
       // ADR 0118: the app speaks the User's own language, on this device too.
       const saved = parseLocale((data.user as { locale?: string }).locale);
       if (saved && saved.toLowerCase() !== locale) {
-        document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${YEAR_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
+        document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
         // A full load, as the root layout holds the page's language and its
         // messages, which a soft navigation keeps.
         window.location.assign(next);
@@ -198,6 +198,9 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
 
   async function saveName(name: string) {
     if (await call("saveName", () => authClient.updateUser({ name }))) {
+      // Only a first sign-in asks for the name (ADR 0011). Someone invited
+      // joins an existing Business, which isn't a sign-up.
+      if (!next.startsWith("/invitations/")) track("signed_up");
       router.replace(next);
     }
   }

@@ -8,6 +8,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0017: an Admin manages Employees only, Admins are the Owner's to manage.
 describe("What an admin can do to the team", () => {
@@ -62,6 +63,7 @@ describe("What an admin can do to the team", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Team Limits Test",
         location: {
           name: "Shop",

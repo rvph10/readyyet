@@ -21,7 +21,7 @@ import { isManager } from "../sections";
 import { daysBetween, formatMoment } from "../tickets/ticket-views";
 import { FeedbackBoard } from "./feedback-board";
 import { FeedbackInsights } from "./feedback-insights";
-import { asksForFeedback, feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
+import { feedbackHref, parseView, VIEWS, type View } from "./feedback-views";
 import { Reveal } from "@/components/reveal";
 
 // Someone may be waiting on an answer, so a tab left open has to show it.
@@ -90,9 +90,10 @@ function ViewTabs({ locationId, view, waiting }: { locationId: string; view: Vie
 }
 
 async function FeedbackContent({ locationId, view, page }: { locationId: string; view: View; page: number }) {
-  const [t, tDetail, locale, client] = await Promise.all([
+  const [t, tDetail, tLock, locale, client] = await Promise.all([
     getTranslations("feedback"),
     getTranslations("ticketDetail"),
+    getTranslations("planLock"),
     getLocale(),
     api(),
   ]);
@@ -116,7 +117,8 @@ async function FeedbackContent({ locationId, view, page }: { locationId: string;
   const today = calendarDateIn(new Date(), timeZone);
   const moment = (instant: string) =>
     formatMoment(new Date(instant), timeZone, today, locale, (parts) => tDetail("moment", parts));
-  const asks = asksForFeedback(billing);
+  // Whether new answers can arrive, Pro's feature (ADR 0031).
+  const asks = billing.hasPro;
 
   const tabs = <ViewTabs locationId={locationId} view={view} waiting={overview.counts.unhandledFeedback} />;
 
@@ -136,7 +138,7 @@ async function FeedbackContent({ locationId, view, page }: { locationId: string;
           description={t("plan.description")}
           action={
             <Link href={`/locations/${locationId}/billing`} className={buttonClass()}>
-              {t("plan.action")}
+              {tLock(billing.frozen ? "choose" : "upgrade")}
             </Link>
           }
         />
@@ -145,8 +147,10 @@ async function FeedbackContent({ locationId, view, page }: { locationId: string;
   ) : (
     <>
       {!asks && (
-        <Banner action={{ href: `/locations/${locationId}/billing`, label: t("plan.action") }}>
-          {t("plan.notice")}
+        <Banner
+          action={{ href: `/locations/${locationId}/billing`, label: tLock(billing.frozen ? "choose" : "upgrade") }}
+        >
+          {t(billing.frozen ? "plan.noticeFrozen" : "plan.notice")}
         </Banner>
       )}
       <FeedbackBoard

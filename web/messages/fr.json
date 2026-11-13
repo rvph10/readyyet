@@ -61,7 +61,21 @@
           "title": "Une liste pour votre équipe",
           "text": "Tout le monde au comptoir voit les mêmes tickets, dans chaque magasin."
         }
-      ]
+      ],
+      "showcase": {
+        "shop": "Atelier Lemaire",
+        "item": "Montre, remplacement du verre",
+        "progress": "Avancement",
+        "steps": ["Reçu", "Diagnostic", "Devis à accepter", "Réparation", "Prêt"],
+        "quote": {
+          "title": "Devis à accepter",
+          "text": "E-mail envoyé au client"
+        },
+        "ready": {
+          "title": "C'est prêt !",
+          "text": "E-mail : venez la chercher"
+        }
+      }
     },
     "emailPlaceholder": "Entrez votre e-mail",
     "namePlaceholder": "Entrez votre nom",
@@ -136,6 +150,7 @@
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
     "erasedCustomer": "Client effacé",
+    "erasedTicket": "Objet effacé",
     "empty": {
       "open": {
         "title": "Aucun ticket en cours",
@@ -195,11 +210,16 @@
       "notesTooLong": "5000 caractères maximum.",
       "datePast": "Choisissez aujourd'hui ou une date ultérieure.",
       "invalid": "Vérifiez ce champ.",
-      "frozen": "Les nouveaux tickets sont suspendus dans ce magasin car son abonnement a pris fin. Un propriétaire ou un administrateur peut le relancer dans Facturation.",
+      "frozen": "Ce magasin n'a pas de plan actif, il ne peut donc pas créer de tickets. Un propriétaire ou un administrateur peut en choisir un dans Facturation.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Le ticket n'a pas été créé. Veuillez réessayer.",
       "notConfirmed": "Impossible de confirmer que le ticket a été enregistré. Vérifiez la liste des tickets avant de réessayer.",
-      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau."
+      "customerGone": "Ce client n'est plus dans votre liste. Retrouvez-le ou ajoutez-le à nouveau.",
+      "noEmailTitle": "Ce client ne sera pas prévenu",
+      "noEmailBody": "Sans adresse e-mail, il ne reçoit aucune nouvelle : ni le lien de suivi, ni l'e-mail quand c'est prêt. Ajoutez son e-mail, ou donnez-lui son code de suivi juste après la création, par QR code, bon imprimé ou WhatsApp.",
+      "noEmailFailingBody": "Les e-mails à cette adresse ont déjà échoué, il ne reçoit donc aucune nouvelle. Donnez-lui son code de suivi juste après la création, et vérifiez son adresse avec lui.",
+      "createAnyway": "Créer sans e-mail",
+      "addEmail": "Ajouter un e-mail"
     },
     "seeAll": "Voir tous les résultats",
     "resultsFor": "Résultats pour « {query} »",
@@ -217,7 +237,8 @@
       "qrLabel": "Code QR du lien de suivi pour {name}",
       "done": "Terminé",
       "open": "Ouvrir le ticket"
-    }
+    },
+    "recent": "Derniers tickets"
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
@@ -231,9 +252,11 @@
     "businessTypeDetail": "Précisez votre activité, ex. : trottinettes",
     "contactPhone": "Numéro de téléphone",
     "contactEmail": "E-mail de contact",
+    "terms": "En cliquant sur « Créer », vous acceptez les <terms>conditions générales</terms> de ReadyYet, y compris l''<dpa>accord de traitement des données</dpa> de vos clients.",
     "submit": "Créer",
     "invalid": "Vérifiez ce champ.",
     "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
+    "termsChanged": "Nos conditions ont changé pendant que cette page était ouverte. Rechargez la page pour les lire.",
     "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
     "stepOf": "Étape {step} sur {steps}",
     "stepBusiness": "Entreprise",
@@ -448,6 +471,7 @@
       "unexpected": "L'e-mail n'a pas été envoyé. Veuillez réessayer."
     },
     "linkExpired": "Le lien de suivi de ce ticket a expiré.",
+    "emailLimited": "Le dernier e-mail à {name} n'est pas parti : ce magasin a atteint sa limite d'e-mails du jour. Montrez-lui le QR code, les e-mails reprennent demain.",
     "emailGaveUp": "Le dernier e-mail à {name} n'a pas pu être remis, et nous avons cessé d'essayer. Montrez-lui le QR code ou vérifiez son adresse.",
     "emailRetrying": "Le dernier e-mail à {name} n'est pas encore parti. Nous réessayons pendant une journée. Si cette personne est encore là, montrez-lui le QR code.",
     "emailFails": "Les e-mails à {email} échouent, {name} n'en reçoit donc aucun. Vérifiez l'adresse avec cette personne.",
@@ -482,6 +506,7 @@
     "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article."
   },
   "today": {
+    "emailLimit": "La limite d'e-mails du jour est atteinte pour ce magasin : les e-mails à vos clients reprennent demain. Les Tickets et les pages de suivi fonctionnent normalement. Si cela vous surprend, écrivez à support@readyyet.app.",
     "greeting": {
       "morning": "Bonjour, {name}",
       "afternoon": "Bonjour, {name}",
@@ -512,7 +537,7 @@
     "emailFailed": "Email non abouti",
     "waiting": "Attend {days} jours",
     "trialEnds": "{days, plural, one {Votre essai se termine demain} other {Votre essai se termine dans # jours}}",
-    "trialEnded": "Nouveaux tickets en pause",
+    "trialEnded": "Pas de plan actif",
     "allTickets": "Tous les tickets",
     "first": {
       "title": "Créez votre premier ticket",
@@ -592,7 +617,7 @@
       },
       "reviewLink": {
         "title": "Ajoutez votre lien d'avis Google",
-        "body": "Une fois l'article récupéré, les clients sont invités à laisser un avis. Sans ce lien, personne n'est invité.",
+        "body": "Les clients satisfaits se voient proposer votre page Google. Sans ce lien, leur avis reste ici.",
         "action": "Ajouter le lien",
         "short": "Avis Google"
       },
@@ -625,9 +650,8 @@
     },
     "activity": {
       "title": "Activité",
-      "you": "Vous",
-      "created": "a créé",
-      "moved": "a fait avancer",
+      "created": "A créé",
+      "moved": "A fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
     }
@@ -635,7 +659,7 @@
   "plans": {
     "keepPlan": "Garder {plan}",
     "startPlan": "Choisir {plan}",
-    "onTrial": "Votre formule actuelle",
+    "onTrial": "Votre plan actuel",
     "billedMonthly": "Résiliable à tout moment",
     "billedYearly": "{amount} une fois par an, vous économisez {saved}",
     "timelineToday": "Aujourd'hui",
@@ -644,7 +668,7 @@
     "noReviews": "Pas de retours privés ni de demandes d'avis",
     "title": "Gardez ReadyYet actif",
     "chargedLater": "{days, plural, one {Votre carte est débitée à la fin de l'essai, demain. Annulez à tout moment avant.} other {Votre carte est débitée à la fin de l'essai, dans # jours. Annulez à tout moment avant.}}",
-    "resume": "Choisissez un plan pour créer à nouveau des tickets. Rien n'est perdu.",
+    "resume": "Choisissez un plan pour créer des tickets dans ce magasin. Rien n'est perdu.",
     "billedEvery": "Fréquence de paiement",
     "monthly": "Mensuel",
     "yearly": "Annuel",
@@ -658,9 +682,9 @@
       "unexpected": "La page de paiement ne s'est pas ouverte. Veuillez réessayer."
     },
     "daysLeft": "{days, plural, one {Encore # jour de Pro} other {Encore # jours de Pro}}",
-    "ended": "Les nouveaux tickets sont en pause",
+    "ended": "Pas de plan actif",
     "cardBody": "Gardez votre workflow et vos avis. Vous ne payez qu'à la fin de l'essai.",
-    "endedBody": "Choisissez un plan, rien n'est perdu.",
+    "endedBody": "Choisissez un plan pour créer des tickets. Rien n'est perdu.",
     "keepPro": "Garder Pro, 49 €/mois",
     "choosePlan": "Choisir un plan",
     "daysShort": "{days} j",
@@ -670,11 +694,11 @@
   "billing": {
     "yourPlan": "Votre plan",
     "trialBody": "Votre essai se termine le {date}. Choisissez un plan maintenant et vous gardez les jours restants : votre carte n'est débitée qu'à la fin.",
-    "pausedTitle": "Les nouveaux tickets sont en pause",
-    "pausedBody": "Choisissez un plan pour reprendre. Rien n'est perdu, les tickets ouverts continuent d'avancer et les liens de suivi restent actifs.",
+    "pausedTitle": "Ce magasin n'a pas de plan actif",
+    "pausedBody": "Choisissez un plan pour créer des tickets. Rien n'est perdu, les tickets ouverts continuent d'avancer et les liens de suivi restent actifs.",
     "pastDueTitle": "Votre dernier paiement a échoué",
-    "pastDueBody": "Stripe réessaie pendant 2 semaines maximum et votre site continue de fonctionner. Mettez la carte à jour pour éviter l'arrêt.",
-    "pastDueBodyAdmin": "Stripe réessaie pendant 2 semaines maximum et votre site continue de fonctionner. Demandez au propriétaire de mettre la carte à jour.",
+    "pastDueBody": "Stripe réessaie pendant 2 semaines maximum et votre commerce continue de fonctionner. Mettez la carte à jour pour éviter l'arrêt.",
+    "pastDueBodyAdmin": "Stripe réessaie pendant 2 semaines maximum et votre commerce continue de fonctionner. Demandez au propriétaire de mettre la carte à jour.",
     "stoppingTitle": "{plan} s'arrête le {date}",
     "stoppingBody": "Vous gardez tout jusque-là. Ensuite, les nouveaux tickets sont en pause et les liens de suivi restent actifs.",
     "waitingBody": "Vous passez à {plan} à {price} le {date}.",
@@ -735,11 +759,12 @@
       "alreadyPaying": "Ce site a déjà un plan. Actualisez la page dans un instant."
     },
     "startPro": "Démarrer Pro, 49 €/mois",
+    "yearlyNoRefund": "Un abonnement annuel se paie un an d'avance et n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
     "haveCode": "Vous avez un code promo ?",
-    "trialBodyNow": "Votre essai se termine le {date}. Choisissez une formule maintenant : votre carte est débitée aujourd'hui.",
+    "trialBodyNow": "Votre essai se termine le {date}. Choisissez un plan maintenant : votre carte est débitée aujourd'hui.",
     "pastDueShort": "Paiement échoué",
     "retrying": "Stripe réessaie"
   },
@@ -771,7 +796,7 @@
       "title": "Les avis clients sont inclus dans Pro",
       "description": "Avec Pro, chaque client reçoit une demande d'avis après avoir récupéré son article. Vous voyez sa note, ce qui l'a marqué et ce qu'il écrit.",
       "notice": "Ce magasin n'est plus sur Pro, les clients ne sont donc plus sollicités. Ce qu'ils ont déjà envoyé reste ici.",
-      "action": "Voir les formules"
+      "noticeFrozen": "Ce magasin n'a plus de plan actif, les clients ne sont donc plus sollicités. Ce qu'ils ont déjà envoyé reste ici."
     },
     "insights": {
       "label": "Ce mois-ci",
@@ -922,15 +947,50 @@
     "opensOn": "{day}, ouvre à",
     "closesOn": "{day}, ferme à",
     "hoursInvalid": "Chaque ouverture doit précéder sa fermeture, et les deux plages ne peuvent pas se chevaucher.",
-    "reviewMissing": "Les clients ne sont pas encore sollicités. Ajoutez votre lien d'avis Google.",
-    "reviewOn": "Les clients sont sollicités après le retrait.",
-    "reviewPaused": "Votre lien est enregistré, mais les clients ne sont sollicités qu'avec Pro.",
+    "reviewMissing": "Ajoutez votre lien d'avis Google, pour que vos clients puissent aussi y laisser leur avis.",
+    "reviewOn": "Votre lien d'avis Google est enregistré.",
+    "reviewPaused": "Votre lien est enregistré, mais les avis ne sont demandés qu'avec Pro.",
     "reviewNeedsPro": "Demander leur avis aux clients est inclus dans Pro.",
     "reviewLabel": "Lien d'avis Google",
     "reviewInvalid": "Ce n'est pas un lien d'avis Google. Il ressemble à https://g.page/r/.../review.",
     "turnaroundTitle": "Délai habituel",
     "turnaroundUnit": "{count, plural, one {jour d'ouverture} other {jours d'ouverture}}",
     "turnaroundPreviewBody": "Un Ticket créé aujourd'hui est prêt pour le",
+    "export": {
+      "title": "Exporter vos données",
+      "hint": "Tout ce que ce magasin contient, à garder ou à reprendre dans un autre outil. Vous pouvez le télécharger quand vous voulez, gratuitement.",
+      "contents": {
+        "customers": {
+          "title": "Clients",
+          "detail": "Nom, e-mail, téléphone, langue"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Objet, notes, statut, date prévue, lien de suivi"
+        },
+        "history": {
+          "title": "Historique",
+          "detail": "Chaque changement de statut, par qui et quand"
+        },
+        "feedback": {
+          "title": "Avis",
+          "detail": "Notes, étiquettes, messages et vos réponses"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Celles encore gardées, 30 jours après la fin du Ticket"
+        },
+        "team": {
+          "title": "Équipe et réglages",
+          "detail": "Membres, rôles, horaires et Workflows"
+        }
+      },
+      "format": "Un fichier ZIP : un CSV par type de données, qui s'ouvre dans Excel, et tout en JSON.",
+      "download": "Télécharger l'export",
+      "failed": "L'export n'a pas pu être préparé. Réessayez dans quelques minutes.",
+      "started": "Téléchargement en cours…",
+      "limit": "Ce magasin a déjà été exporté cinq fois cette heure-ci. Réessayez dans une heure."
+    },
     "deleteTitle": "Supprimer ce magasin",
     "deleteAction": "Supprimer ce magasin",
     "deleteConfirmTitle": "Supprimer {name} ?",
@@ -945,6 +1005,7 @@
       "hours": "Horaires d'ouverture",
       "tickets": "Tickets",
       "reviews": "Avis Google",
+      "export": "Exporter",
       "delete": "Supprimer"
     },
     "off": "Désactivé",
@@ -959,7 +1020,11 @@
     "to": "à",
     "ticketsHint": "Le temps que prend habituellement votre travail.",
     "turnaroundRowHint": "Vous pouvez toujours la changer sur un Ticket.",
-    "reviewHint": "Demandez à chaque client comment ça s'est passé une fois son article récupéré.",
+    "feedbackEmailsSwitch": "Demander un avis par email",
+    "feedbackEmailsHint": "Une fois le travail terminé, vos clients reçoivent un email qui leur demande comment ça s'est passé. Prévenez-les au dépôt : c'est vous qui décidez de les solliciter.",
+    "feedbackEmailsOn": "Les emails d'avis sont activés.",
+    "feedbackEmailsOff": "Les emails d'avis sont désactivés.",
+    "reviewHint": "Demandez à vos clients comment ça s'est passé, et proposez-leur votre fiche Google.",
     "deleteHint": "Définitif, pour ce magasin seulement. Vos autres magasins ne changent pas.",
     "emailHint": "L'adresse à laquelle vos clients vous écrivent. Leurs réponses à nos e-mails arrivent aussi ici.",
     "reviewStep1": "Ouvrez votre fiche Google Business.",
@@ -993,7 +1058,8 @@
     "deleteLoses": {
       "tracking": "Les liens de suivi cessent de fonctionner",
       "photos": "Les photos des Tickets sont supprimées",
-      "plan": "Sa formule est annulée immédiatement",
+      "customers": "Ses clients sont effacés",
+      "plan": "Son plan est annulé immédiatement",
       "team": "Plus personne n'y a accès"
     },
     "deleteFinal": "Cette action est irréversible.",
@@ -1025,7 +1091,9 @@
       "change": "Modifier",
       "keep": "Garder ce lien",
       "noPublicAddress": "Se déplace chez ses clients, sans adresse publique"
-    }
+    },
+    "exportFirst": "Gardez une copie de vos clients et de vos Tickets avant de supprimer :",
+    "exportFirstLink": "exporter vos données"
   },
   "workflow": {
     "pathTitle": "Le parcours d'un ticket",
@@ -1069,14 +1137,14 @@
     },
     "plan": {
       "trial": "{days, plural, one {Essai, # jour restant} other {Essai, # jours restants}}",
-      "paused": "En pause",
+      "paused": "Sans plan",
       "failed": "Paiement échoué",
       "stopping": "Arrêt prévu",
-      "changing": "Changement de formule"
+      "changing": "Changement de plan"
     },
     "overview": {
       "location": "Magasin",
-      "plan": "Formule"
+      "plan": "Plan"
     },
     "billing": {
       "nextPayment": "Prochain paiement",
@@ -1084,19 +1152,18 @@
       "renewsOn": "Renouvellement le {date}",
       "stopsOn": "S'arrête le {date}",
       "trialEnds": "Fin le {date}",
-      "choosePlan": "Choisir une formule",
+      "choosePlan": "Choisir un plan",
       "fixPayment": "Régler le paiement",
-      "manage": "Gérer la formule",
-      "pausedHint": "Nouveaux tickets en pause",
+      "manage": "Gérer le plan",
+      "pausedHint": "Pas de plan actif",
       "failedHint": "Mettez la carte à jour",
       "price": "Prix",
       "nothingDueHint": "Aucun renouvellement prévu"
     },
     "newLocation": {
       "nameHint": "Les clients le voient sur leur page de suivi.",
-      "planNotice": "Chaque magasin a sa propre formule, à partir de {price}/mois. Vous la choisissez juste après, et les nouveaux tickets démarrent une fois payée.",
       "cancel": "Annuler",
-      "submit": "Créer et choisir une formule",
+      "submit": "Créer et payer",
       "stepName": "Nom",
       "stepType": "Métier",
       "stepContact": "Contact",
@@ -1104,7 +1171,17 @@
       "typeTitle": "Que fait-il ?",
       "typeHint": "Cela définit les étapes de ses Tickets. Vous pourrez les changer plus tard.",
       "contactTitle": "Comment les clients le joignent-ils ?",
-      "contactHint": "Affiché sur les pages de suivi et dans les emails."
+      "contactHint": "Affiché sur les pages de suivi et dans les emails.",
+      "stepPlan": "Plan",
+      "planTitle": "Quel plan pour ce magasin ?",
+      "planHint": "Chaque magasin a son propre plan. Il n'y a pas d'essai pour un magasin de plus : les tickets démarrent dès le paiement.",
+      "planLegend": "Plan",
+      "sameType": "Le même que vos autres magasins",
+      "sameTypeHint": "Ses tickets suivent les étapes de ce métier. Changez-le seulement si ce magasin en fait un autre.",
+      "otherType": "Il fait un autre métier",
+      "workflowLegend": "Étapes des tickets",
+      "workflowDefault": "Celles du métier, à personnaliser ensuite",
+      "workflowCopy": "Les mêmes que {shop}"
     },
     "settings": {
       "name": "Nom de l'entreprise",
@@ -1134,8 +1211,8 @@
       "stopped": "{count, plural, one {# magasin ne peut plus prendre de tickets, ou a un paiement échoué.} other {# magasins ne peuvent plus prendre de tickets, ou ont un paiement échoué.}}",
       "seeBilling": "Voir la facturation",
       "emptyTitle": "Ajoutez votre premier magasin",
-      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et sa formule.",
-      "addHint": "Ses propres Tickets, équipe et formule."
+      "emptyHint": "Chaque magasin a ses propres Tickets, son équipe et son plan.",
+      "addHint": "Ses propres Tickets, équipe et plan."
     },
     "team": {
       "people": "{count, plural, one {# personne} other {# personnes}}",
@@ -1147,7 +1224,7 @@
       "whichLocations": "Quels magasins ?",
       "pickLocation": "Choisissez au moins un magasin.",
       "blocked": {
-        "frozen": "Pas de formule active",
+        "frozen": "Pas de plan actif",
         "full": "Plus de place sur Essentiel"
       },
       "byShop": "L'équipe de chaque magasin"
@@ -1158,7 +1235,7 @@
       "actionHint": "Gagnez un mois offert",
       "lead": "Vous connaissez un magasin qui répond encore « c'est prêt ? » au téléphone ? Envoyez-lui votre lien.",
       "youLabel": "Vous recevez",
-      "you": "Un mois de sa formule en crédit",
+      "you": "Un mois de son plan en crédit",
       "theyLabel": "Il reçoit",
       "they": "Un demi-mois de réduction sur sa première facture",
       "copy": "Copier mon lien d'invitation",
@@ -1167,7 +1244,9 @@
       "when": "Votre crédit arrive 14 jours après son premier paiement.",
       "subject": "Essayez ReadyYet pour votre magasin",
       "message": "J'utilise ReadyYet pour que mes clients suivent leur réparation sans appeler. Vous avez un demi-mois de réduction avec mon lien : {link}"
-    }
+    },
+    "createAnother": "Nouvelle entreprise",
+    "manage": "Magasins et réglages"
   },
   "profile": {
     "title": "Votre profil",
@@ -1417,5 +1496,54 @@
     "PRICE": "Plus cher que prévu",
     "NOT_FIXED": "Problème pas entièrement réglé",
     "HARD_TO_REACH": "Difficile à joindre"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "Nous utilisons des cookies de mesure d'audience pour améliorer ReadyYet, uniquement avec votre accord. Refuser ne change rien pour vous. <link>En savoir plus</link>",
+    "accept": "Accepter",
+    "refuse": "Refuser",
+    "settings": "Paramètres des cookies"
+  },
+  "terms": {
+    "title": "Nos conditions générales",
+    "ask": "Pour continuer à utiliser ReadyYet pour {name}, acceptez nos <terms>conditions générales</terms>, y compris l''<dpa>accord de traitement des données</dpa> de vos clients.",
+    "accept": "J'accepte",
+    "accepting": "Enregistrement…",
+    "failed": "Votre acceptation n'a pas été enregistrée. Réessayez.",
+    "changed": "Les conditions ont changé pendant que cette page était ouverte. Rechargez-la pour les lire, puis acceptez."
+  },
+  "demo": {
+    "title": "Démo de la page de suivi",
+    "label": "Démo",
+    "intro": "La page que vos clients ouvrent depuis leur e-mail ou le QR code. Choisissez un moment pour la voir évoluer.",
+    "moments": "Moments du suivi",
+    "steps": {
+      "received": "Reçu",
+      "approval": "Devis à accepter",
+      "repair": "En réparation",
+      "ready": "Prêt"
+    },
+    "item": "Montre automatique, remplacement du verre",
+    "start": "Commencer l'essai gratuit"
+  },
+  "planLock": {
+    "badge": "Pro",
+    "upgrade": "Passer à Pro",
+    "choose": "Choisir un plan",
+    "frozen": "Ce magasin n'a plus de plan actif. Choisissez-en un pour retrouver cette fonction, rien de ce que vous aviez n'est perdu."
+  },
+  "member": {
+    "open": "Voir la carte de {name}",
+    "profile": "Voir son profil",
+    "since": "Dans l'équipe depuis le {date}",
+    "thisMonth": "Ce mois-ci",
+    "movedHint": "Chaque étape franchie par un ticket compte, jusqu'au retrait.",
+    "total": "Depuis son arrivée",
+    "counts": {
+      "moved": "Étapes avancées",
+      "created": "Tickets créés",
+      "ready": "Marqués prêts",
+      "completed": "Remis au client"
+    }
   }
 }

@@ -23,8 +23,9 @@ import { ImageUpload } from "../storage/image-upload.decorator";
 import { BusinessOwnerGuard } from "./business-owner.guard";
 import { BusinessService } from "./business.service";
 import { BusinessDto, BusinessWithLocationsDto, CreatedBusinessDto } from "./dto/business.response.dto";
-import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
+import { AddLocationDto, CreateBusinessDto } from "./dto/create-business.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
+import { AcceptTermsDto } from "./dto/accept-terms.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
 @ApiTags("Businesses")
@@ -71,6 +72,19 @@ export class BusinessController {
     return this.business.setLogo(businessId, file.buffer);
   }
 
+  @Post(":businessId/terms-acceptance")
+  @UseGuards(BusinessOwnerGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Accept the terms in force for the business (owner only, ADR 0130)" })
+  @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+  acceptTerms(
+    @Param("businessId") businessId: string,
+    @CurrentUser() user: User,
+    @Body() dto: AcceptTermsDto,
+  ): Promise<void> {
+    return this.business.acceptTerms(businessId, user.id, dto.termsVersion);
+  }
+
   @Delete(":businessId/logo")
   @ApiOperation({ summary: "Remove the business's logo (owner only)" })
   @ApiErrors(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
@@ -103,7 +117,7 @@ export class BusinessController {
   addLocation(
     @Param("businessId") businessId: string,
     @CurrentUser() user: User,
-    @Body() dto: CreateLocationDto,
+    @Body() dto: AddLocationDto,
   ): Promise<LocationDto> {
     return this.business.addLocation(businessId, user.id, dto);
   }

@@ -2,18 +2,20 @@
 
 import { calendarDateIn, DESCRIPTION_MAX_LENGTH, LOCALES, NAME_MAX_LENGTH, TITLE_MAX_LENGTH } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DateField } from "@/components/ui/date-field";
+import { Dialog } from "@/components/ui/dialog";
 import { Field, SelectField, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import type { ActionFailure } from "@/lib/api/errors";
 import { orFailure } from "@/lib/api/or-failure";
 import type { components } from "@/lib/api/schema";
 import { fieldErrors } from "@/lib/validation";
+import { track } from "@/lib/analytics";
 import { createTicket } from "./actions";
 import type { CreatedTicket, NewTicketProps } from "./new-ticket-panel";
 import { newCustomerSchema, ticketSchema } from "./schema";
@@ -149,6 +151,31 @@ export function TicketForm({
     clearCustomerErrors();
   }
 
+  const emailed = chosen ? chosen.email : email.trim();
+  const emailFails = chosen && (chosen.emailBouncedAt || chosen.emailComplainedAt);
+  const form = useRef<HTMLFormElement>(null);
+  // Without an email the Customer hears nothing: said before creating, once.
+  const [askingNoEmail, setAskingNoEmail] = useState(false);
+  const noEmailAccepted = useRef(false);
+  // After the dialog closed, as closing gives focus back to what had it.
+  const focusEmailNext = useRef(false);
+  useEffect(() => {
+    if (askingNoEmail || !focusEmailNext.current) return;
+    focusEmailNext.current = false;
+    form.current?.querySelector<HTMLInputElement>('input[type="email"]')?.focus();
+  }, [askingNoEmail]);
+
+  function createWithoutEmail() {
+    noEmailAccepted.current = true;
+    setAskingNoEmail(false);
+    form.current?.requestSubmit();
+  }
+
+  function addEmail() {
+    focusEmailNext.current = true;
+    setAskingNoEmail(false);
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Now, not when the page opened: it may have stayed open overnight.
@@ -162,6 +189,10 @@ export function TicketForm({
     setFailure(null);
     setCustomerGone(false);
     if (!ticket.success || (customer && !customer.success)) return;
+    if ((!emailed || emailFails) && !noEmailAccepted.current) {
+      setAskingNoEmail(true);
+      return;
+    }
     startTransition(async () => {
       const result = await orFailure(
         createTicket(locationId, {
@@ -178,6 +209,7 @@ export function TicketForm({
         }),
       );
       if (result.ok) {
+        track("ticket_created");
         onCreated(result);
         return;
       }
@@ -190,8 +222,6 @@ export function TicketForm({
     });
   }
 
-  const emailed = chosen ? chosen.email : email.trim();
-  const emailFails = chosen && (chosen.emailBouncedAt || chosen.emailComplainedAt);
   // A refusal of a field nothing here shows still has to say something.
   const failureMessage = customerGone
     ? t("customerGone")
@@ -219,7 +249,7 @@ export function TicketForm({
   );
 
   return (
-    <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+    <form ref={form} onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 py-3 md:px-7">
         {failureMessage && <FormAlert>{failureMessage}</FormAlert>}
         <section aria-labelledby="ticket-customer" className="min-w-0">
@@ -351,6 +381,16 @@ export function TicketForm({
           </Button>
         </div>
       </div>
+      <Dialog open={askingNoEmail} onClose={() => setAskingNoEmail(false)} title={t("noEmailTitle")}>
+        <p className="text-p-md text-pretty">{t(emailFails ? "noEmailFailingBody" : "noEmailBody")}</p>
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={createWithoutEmail}>
+            {t("createAnyway")}
+          </Button>
+          {/* A chosen Customer's address is changed on their page, not here. */}
+          {!chosen && <Button onClick={addEmail}>{t("addEmail")}</Button>}
+        </div>
+      </Dialog>
     </form>
   );
 }

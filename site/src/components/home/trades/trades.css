@@ -1,0 +1,114 @@
+/* Lumoras' trade slider in Ledger's look (ADR 0133), overridden on its
+   wrapper. Its own rules stay as bought, in src/temlis/lumoras-699. */
+
+[data-temlis="lumoras-699"] {
+  --_typography---font-family--body: var(--font-inter), system-ui, sans-serif;
+  --_typography---font-family--headers: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --base--black: #1e1e1e;
+  --base--yellow: #d6ff53;
+  --bg-color--bg-secondary: var(--color-bg-page);
+  --bg-color--bg-dark: var(--color-bg-dark);
+  --text-color--text-secondary: var(--color-text-secondary);
+}
+
+/* The page's rhythm (globals.css): the features above end on their own
+   section space, so the slider starts without one, and its header lines up
+   with the other sections. */
+[data-temlis="lumoras-699"] .section_solutions > .padding-section-medium:first-child {
+  display: none;
+}
+
+[data-temlis="lumoras-699"] .section_solutions > .padding-section-medium:last-child {
+  padding-top: var(--section-space);
+}
+
+[data-temlis="lumoras-699"] .padding-global {
+  padding-inline: var(--section-gutter);
+}
+
+[data-temlis="lumoras-699"] .container-large {
+  max-width: var(--section-max);
+}
+
+/* Room for the heading on two lines at the page's heading size. */
+[data-temlis="lumoras-699"] .max-heading.is-38rem {
+  max-width: 48rem;
+}
+
+[data-temlis="lumoras-699"] h2 {
+  font-size: var(--section-heading);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+[data-temlis="lumoras-699"] .h5 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+/* The template set these heights inline. */
+[data-temlis="lumoras-699"] .spacer-desktop {
+  height: 3.75rem;
+}
+
+[data-temlis="lumoras-699"] .spacer-tablet {
+  height: 2.75rem;
+}
+
+[data-temlis="lumoras-699"] .spacer-mobile {
+  height: 2rem;
+}
+
+/* Lumoras resets every link to a transparent background, which would strip
+   Ledger's button of its pine. */
+[data-temlis="lumoras-699"] .btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  [data-temlis="lumoras-699"] .btn--dark.btn--chip:hover {
+    color: var(--color-ink);
+  }
+}
+
+/* Every card as tall as the tallest, whatever the length of its trade's text. */
+[data-temlis="lumoras-699"] .swiper-slide {
+  display: flex;
+  height: auto;
+}
+
+[data-temlis="lumoras-699"] .solutions_card {
+  flex: 1;
+}
+
+/* Each card leads to its trade's page, its title's link stretched over it. */
+[data-temlis="lumoras-699"] .solutions_card {
+  position: relative;
+  transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-temlis="lumoras-699"] .solutions_card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+[data-temlis="lumoras-699"] .solutions_card-link:focus-visible {
+  outline: none;
+}
+
+[data-temlis="lumoras-699"] .solutions_card:has(.solutions_card-link:focus-visible) {
+  outline: 2px solid var(--color-bg-dark);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-temlis="lumoras-699"] .solutions_card:hover {
+    background-color: var(--color-bg-accent);
+  }
+}

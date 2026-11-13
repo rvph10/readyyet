@@ -1,0 +1,359 @@
+/* The legal pages: a plain heading under the nav, then the text on white
+   beside a contents list that stays in view. */
+
+.legal-hero,
+.legal {
+  --legal-width: 69.5rem;
+}
+
+.legal-hero {
+  padding-top: var(--container-bleed);
+}
+
+.legal-hero__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* The same column as the text below it. */
+  padding: 9rem max(var(--container-padding), (100% - var(--legal-width)) / 2) 0;
+  color: var(--color-ink);
+}
+
+.legal-hero__label {
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background-color: var(--color-bg-accent);
+  border-radius: 999px;
+}
+
+.legal-hero__title {
+  position: relative;
+  max-width: 14em;
+  color: var(--color-ink);
+}
+
+.legal-hero__since {
+  position: relative;
+  margin-top: 1rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.legal-hero__docs {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+.legal-hero__doc {
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius-btn);
+  transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.legal-hero__doc:hover {
+  background-color: var(--color-surface-muted);
+}
+
+.legal-hero__doc[aria-current] {
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+}
+
+.legal {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+  max-width: calc(var(--legal-width) + 2 * var(--container-padding));
+  padding-block: 3rem var(--section-space);
+}
+
+.legal__side {
+  position: sticky;
+  top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: calc(100dvh - 3rem);
+}
+
+.legal__toc {
+  min-height: 0;
+  padding: 1.5rem 1rem 1rem;
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius-card);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-soft) transparent;
+}
+
+.legal__toc-title {
+  padding-inline: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.legal__toc a {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  border-radius: var(--radius-sm);
+}
+
+.legal__toc a:hover {
+  background-color: var(--color-bg-page);
+}
+
+.legal__toc-num {
+  flex: none;
+  min-width: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.legal__toc-part {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.legal__toc-part a {
+  font-weight: 600;
+}
+
+.legal__ask {
+  flex: none;
+  padding: 1.25rem 1.5rem;
+  color: var(--color-ink);
+  background-color: var(--color-bg-accent);
+  border-radius: var(--radius-card);
+}
+
+.legal__ask-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.legal__ask a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* The text itself, as the Markdown gives it. */
+
+.legal__body {
+  max-width: 50rem;
+  padding: 3.5rem 4rem;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-ink);
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius-panel);
+}
+
+.legal__body > :first-child {
+  margin-top: 0;
+}
+
+.legal__body :is(h2, h3) {
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+  scroll-margin-top: 1.5rem;
+}
+
+.legal__body h2 {
+  margin: 3rem 0 1rem;
+  font-size: 1.875rem;
+}
+
+.legal__body h3 {
+  margin: 2.25rem 0 0.75rem;
+  font-size: 1.375rem;
+}
+
+/* An annex opens on a band of its own. */
+.legal__body .legal__part {
+  margin: 4rem -2rem 1.5rem;
+  padding: 1.5rem 2rem;
+  font-size: 2rem;
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+  border-radius: var(--radius-card);
+}
+
+.legal__body :is(p, ul, ol, .legal__table) {
+  margin-bottom: 1rem;
+}
+
+.legal__body :is(ul, ol) {
+  padding-left: 1.5rem;
+}
+
+.legal__body ul {
+  list-style: none;
+}
+
+.legal__body ul > li {
+  position: relative;
+}
+
+.legal__body ul > li::before {
+  content: "";
+  position: absolute;
+  top: 0.68em;
+  left: -1.125rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  background-color: var(--color-bg-dark);
+  border-radius: 2px;
+}
+
+.legal__body ol {
+  list-style: decimal;
+}
+
+.legal__body li + li {
+  margin-top: 0.5rem;
+}
+
+.legal__body strong {
+  font-weight: 650;
+}
+
+.legal__body a {
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--color-bg-dark);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+.legal__body a:hover {
+  background-color: var(--color-bg-accent);
+}
+
+.legal__table {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+}
+
+.legal__body table {
+  width: 100%;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  border-collapse: collapse;
+}
+
+.legal__body th {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: bottom;
+  background-color: var(--color-bg-accent);
+}
+
+.legal__body td {
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.legal__body code {
+  font-size: 0.9em;
+}
+
+@media (max-width: 991px) {
+  .legal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* On a narrow screen the contents would push the text a full screen down:
+     the text comes first and the question card after it. */
+  .legal__side {
+    position: static;
+    order: 1;
+    max-height: none;
+  }
+
+  .legal__toc {
+    display: none;
+  }
+
+  .legal__body {
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .legal-hero__panel {
+    padding-top: 7rem;
+  }
+
+  /* One row that scrolls sideways, instead of four rows of pills. */
+  .legal-hero__docs {
+    flex-wrap: nowrap;
+    align-self: stretch;
+    margin-top: 2rem;
+    margin-inline: calc(-1 * var(--container-padding));
+    padding-inline: var(--container-padding);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .legal-hero__doc {
+    flex: none;
+  }
+
+  .legal {
+    padding-top: 1.5rem;
+  }
+
+  .legal__body {
+    padding: 2rem 1.25rem;
+    font-size: 1rem;
+  }
+
+  .legal__body h2 {
+    margin-top: 2.25rem;
+    font-size: 1.5rem;
+  }
+
+  .legal__body h3 {
+    font-size: 1.1875rem;
+  }
+
+  .legal__body .legal__part {
+    margin-inline: -0.5rem;
+    padding: 1.25rem 1rem;
+    font-size: 1.5rem;
+  }
+}

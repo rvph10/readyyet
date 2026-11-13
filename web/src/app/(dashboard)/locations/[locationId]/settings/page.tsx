@@ -8,6 +8,7 @@ import { getBilling, getLocation, getOverview } from "../location-data";
 import { PageHeader } from "../page-header";
 import { isManager } from "../sections";
 import { DeleteLocation } from "./delete-location";
+import { ExportData } from "./export-data";
 import { OpeningHours } from "./opening-hours";
 import { ReviewLink } from "./review-link";
 import { SectionLoading } from "./section-form";
@@ -21,6 +22,7 @@ const ICONS: Record<SettingsSection, IconName> = {
   hours: "time",
   tickets: "tag",
   reviews: "comment",
+  export: "layers",
   delete: "info-triangle",
 };
 
@@ -30,6 +32,7 @@ const HEADINGS: Record<SettingsSection, [title: string, hint: string, groups: nu
   hours: ["nav.hours", "hoursHint", 2],
   tickets: ["nav.tickets", "ticketsHint", 1],
   reviews: ["nav.reviews", "reviewHint", 1],
+  export: ["export.title", "export.hint", 1],
   delete: ["deleteTitle", "deleteHint", 1],
 };
 
@@ -48,12 +51,16 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
     notFound();
   }
   const owner = membership.role === "OWNER";
-  const allowed = SETTINGS_SECTIONS.filter((section) => section !== "delete" || owner);
+  // The export holds every Customer at once (ADR 0129), deleting is final.
+  const allowed = SETTINGS_SECTIONS.filter((section) => (section !== "delete" && section !== "export") || owner);
   const sections: Record<SettingsSection, ReactNode> = {
     shop: <ShopSection locationId={locationId} />,
     hours: <HoursSection locationId={locationId} />,
     tickets: <TicketsSection locationId={locationId} />,
     reviews: <ReviewsSection locationId={locationId} />,
+    export: (
+      <ExportData locationId={locationId} failed={typeof search.failed === "string" ? search.failed : undefined} />
+    ),
     delete: <DeleteSection locationId={locationId} businessId={membership.location.business.id} />,
   };
 
@@ -62,6 +69,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
       <PageHeader title={t("sections.settings")} />
       <SheetShell
         label={tSettings("navLabel")}
+        back={t("sections.settings")}
         start={parseSection(search.section, allowed)}
         sections={allowed.map((name) => {
           const [title, hint, groups] = HEADINGS[name];
@@ -88,24 +96,34 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   );
 }
 
-// Said in the menu while Customers aren't being asked.
+// Said in the menu while Customers aren't emailed for feedback (ADR 0131).
 async function ReviewsOff({ locationId }: { locationId: string }) {
   const [location, billing, t] = await Promise.all([
     getLocation(locationId),
     getBilling(locationId),
     getTranslations("settings"),
   ]);
-  const hasPro = billing.plan === "PRO" && !billing.frozen;
-  return hasPro && !location.googleReviewUrl ? <MenuBadge>{t("off")}</MenuBadge> : null;
+  return billing.hasPro && !location.feedbackEmails ? <MenuBadge>{t("off")}</MenuBadge> : null;
 }
 
+// Both forms start from what is saved. Finding the shop on Google saves an
+// address and hours from another section, so a change remounts them, or they
+// would keep showing what they first loaded.
 async function ShopSection({ locationId }: { locationId: string }) {
-  return <ShopDetails location={await getLocation(locationId)} />;
+  const location = await getLocation(locationId);
+  return <ShopDetails key={JSON.stringify(location.address)} location={location} />;
 }
 
 async function HoursSection({ locationId }: { locationId: string }) {
   const location = await getLocation(locationId);
-  return <OpeningHours locationId={locationId} hours={location.openingHours} timeZone={location.timeZone} />;
+  return (
+    <OpeningHours
+      key={JSON.stringify(location.openingHours)}
+      locationId={locationId}
+      hours={location.openingHours}
+      timeZone={location.timeZone}
+    />
+  );
 }
 
 async function TicketsSection({ locationId }: { locationId: string }) {
@@ -122,7 +140,7 @@ async function TicketsSection({ locationId }: { locationId: string }) {
 
 async function ReviewsSection({ locationId }: { locationId: string }) {
   const [location, billing] = await Promise.all([getLocation(locationId), getBilling(locationId)]);
-  return <ReviewLink location={location} hasPro={billing.plan === "PRO" && !billing.frozen} />;
+  return <ReviewLink location={location} hasPro={billing.hasPro} frozen={billing.frozen} />;
 }
 
 async function DeleteSection({ locationId, businessId }: { locationId: string; businessId: string }) {

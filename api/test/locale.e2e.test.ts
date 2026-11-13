@@ -7,6 +7,7 @@ import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 const location = {
   name: "Locale Shop",
@@ -41,7 +42,7 @@ describe("Locale", () => {
     const created = await request(app.getHttpServer())
       .post("/businesses")
       .set("Cookie", ownerCookie)
-      .send({ name: "Locale Test Pressing", location: { ...location, locale: "FR" } });
+      .send({ termsVersion: TERMS_VERSION, name: "Locale Test Pressing", location: { ...location, locale: "FR" } });
     locationId = created.body.locations[0].id;
   });
 
@@ -54,7 +55,7 @@ describe("Locale", () => {
       const response = await request(app.getHttpServer())
         .post("/businesses")
         .set("Cookie", ownerCookie)
-        .send({ name: "No Locale", location: payload });
+        .send({ termsVersion: TERMS_VERSION, name: "No Locale", location: payload });
       expect(response.status).toBe(400);
     }
   });

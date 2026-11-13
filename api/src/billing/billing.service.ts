@@ -6,7 +6,7 @@ import { PrismaService } from "../database/prisma.service";
 import { CheckoutDto, ChoosePlanDto } from "./dto/choose-plan.dto";
 import { BillingDto, PromotionCodePreviewDto } from "./dto/billing.response.dto";
 import { RedirectDto } from "./dto/redirect.response.dto";
-import { ESSENTIEL_MEMBER_LIMIT, isFrozen, lookupKey, memberLimit, referralCoupon } from "./plans";
+import { ESSENTIEL_MEMBER_LIMIT, hasPro, isFrozen, lookupKey, memberLimit, referralCoupon } from "./plans";
 import { getStripeClient } from "./stripe-client";
 import { scheduledLookupKey, toSubscriptionRow } from "./stripe-sync";
 
@@ -60,6 +60,7 @@ export class BillingService {
       scheduledPlan: subscription.scheduledPlan,
       scheduledInterval: subscription.scheduledInterval,
       frozen: isFrozen(subscription),
+      hasPro: hasPro(subscription),
       memberLimit: memberLimit(subscription),
       referralDiscount: hasReferralDiscount(subscription.location.business),
     };
@@ -81,8 +82,11 @@ export class BillingService {
 
     const customer = location.business.stripeCustomerId ?? (await this.createCustomer(location.business));
     // Our row hears of a completed checkout only through its webhook. A
-    // second checkout before then would bill the Location twice.
-    if ((await this.liveSubscriptions(customer, locationId)).length > 0) {
+    // second checkout before then would bill the Location twice. When that
+    // webhook was lost, the Owner's try brings the row up to date instead.
+    const live = await this.liveSubscriptions(customer, locationId);
+    if (live.length > 0) {
+      await Promise.all(live.map((subscription) => this.sync(subscription.id)));
       throw new ConflictError("This location already has a subscription, change its plan instead");
     }
     await this.expireOpenCheckouts(customer, locationId);

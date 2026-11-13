@@ -4,11 +4,12 @@ import * as Sentry from "@sentry/nestjs";
 import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { EmailStatus } from "@readyyet/db";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
 import { GIVE_UP_AFTER_MS } from "../email/email-status";
 import { EmailService } from "../email/email.service";
-import { asksForFeedback } from "../feedback/asks-for-feedback";
+import { emailsForFeedback } from "../feedback/asks-for-feedback";
 import { toPostalAddress } from "../location/location-info";
 import { publicImageUrl } from "../storage/image";
 import {
@@ -125,7 +126,10 @@ export class NotificationService {
     if (isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)) {
       throw new ConflictError("This ticket's tracking link has expired");
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    const log = await this.sendCustomerEmail(ticket, ticket.customer.email, "TICKET_CREATED", "ticket_tracking_link");
+    if (log?.status === EmailStatus.LIMITED) {
+      throw new ConflictError("This shop reached its daily email limit, show the customer the QR code");
+    }
     return { sentTo: ticket.customer.email };
   }
 
@@ -151,7 +155,9 @@ export class NotificationService {
       // Claimed by pushing sendAfter out, conditional on the value just
       // read: a concurrent sweep (an overlapping run, another instance)
       // claims nothing and skips it. If this process dies mid-send, the
-      // lease simply expires and the email is retried, never dropped.
+      // lease simply expires and the email is retried, never dropped. Its
+      // dedupe key keeps that retry from being a second email when the first
+      // one had gone out.
       const { count } = await this.prisma.pendingStatusNotification.updateMany({
         where: { statusEventId: statusEvent.id, sendAfter },
         data: { sendAfter: new Date(Date.now() + CLAIM_LEASE_MS) },
@@ -176,14 +182,20 @@ export class NotificationService {
     if (event.status.code === "COMPLETED") {
       await this.sendFeedbackRequest(ticket, ticket.customer.email);
     } else if (isNotifyingStatus(event.status.code)) {
-      await this.sendCustomerEmail(ticket, ticket.customer.email, event.status.code, "ticket_status_update");
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        event.status.code,
+        "ticket_status_update",
+        `status-event:${event.id}`,
+      );
     }
   }
 
-  // ADR 0039: decided when due, with the Location's plan and link then.
+  // ADR 0131: decided when due, with the Location's plan and switch then.
   // Claimed first, a Ticket completed again never gets a second one.
   private async sendFeedbackRequest(ticket: LoadedTicket, to: string) {
-    if (!asksForFeedback(ticket.location)) {
+    if (!emailsForFeedback(ticket.location, ticket.createdAt)) {
       return;
     }
     const { count } = await this.prisma.ticket.updateMany({
@@ -245,7 +257,13 @@ export class NotificationService {
     ) {
       return;
     }
-    await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_DATE_CHANGED", "ticket_ready_date_changed");
+    await this.sendCustomerEmail(
+      ticket,
+      ticket.customer.email,
+      "READY_DATE_CHANGED",
+      "ticket_ready_date_changed",
+      `ready-date:${ticketId}:${date}`,
+    );
   }
 
   // Reminders for items still waiting at READY (ADR 0028, ADR 0037).
@@ -295,13 +313,21 @@ export class NotificationService {
         });
         continue;
       }
+      const sent = ticket.readyRemindersSent + 1;
       if (canEmail(ticket.customer)) {
-        await this.sendCustomerEmail(ticket, ticket.customer.email, "READY_REMINDER", "ticket_ready_reminder");
+        // Keyed on the READY event, as a Ticket that is READY again counts its
+        // reminders from zero.
+        await this.sendCustomerEmail(
+          ticket,
+          ticket.customer.email,
+          "READY_REMINDER",
+          "ticket_ready_reminder",
+          `ready-reminder:${ticket.statusEvents[0].id}:${sent}`,
+        );
       }
       // Counted even when there was no one to email, so the next one is
       // scheduled rather than retried every sweep. A READY reached during
       // the send rescheduled it already, and wins.
-      const sent = ticket.readyRemindersSent + 1;
       await this.prisma.ticket.updateMany({
         where: { id, nextReadyReminderAt: lease },
         data: {
@@ -366,11 +392,11 @@ export class NotificationService {
       trackingUrl: trackingUrl(ticket.trackingCode),
       collectedUrl: collectedUrl(ticket.trackingCode),
       ratingUrl: ratingUrl(ticket.trackingCode),
-      asksForFeedback: asksForFeedback(ticket.location),
+      asksForFeedback: emailsForFeedback(ticket.location, ticket.createdAt),
       stopUpdatesUrl: stopUpdatesUrl(ticket.trackingCode),
       reply,
     });
-    await this.email.send({
+    const log = await this.email.send({
       to,
       subject,
       react,
@@ -400,11 +426,13 @@ export class NotificationService {
     });
     // What a later date is compared to. Only the emails that state the date
     // tell it, a status email doesn't.
-    if (statesDate) {
+    // Held back by the daily limit (ADR 0140), it told the Customer nothing.
+    if (statesDate && log?.status !== EmailStatus.LIMITED) {
       await this.prisma.ticket.update({
         where: { id: ticket.id },
         data: { customerToldReadyDate: ticket.estimatedReadyDate },
       });
     }
+    return log;
   }
 }

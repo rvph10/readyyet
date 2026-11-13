@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition, type ReactNode } from "react";
 import { statusTone, toneIcons } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
+import { Notice } from "@/components/ui/notice";
 import { Dialog } from "@/components/ui/dialog";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Icon } from "@/components/ui/icon";
@@ -160,18 +161,23 @@ export function StatusPanel({
       <div className="mt-5 lg:mt-6">{track}</div>
 
       {collectedAt && (
-        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-2xl bg-warning-subtle p-3">
-          <p className="min-w-0 flex-1 text-p-sm">{t("collectedNotice")}</p>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={pending}
-            pending={pending && running === "dismiss"}
-            onClick={() => run("dismiss", () => dismissCollected(locationId, ticketId))}
-          >
-            {t("collectedDismiss")}
-          </Button>
-        </div>
+        <Notice
+          tone="warning"
+          className="mt-5"
+          actions={
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={pending}
+              pending={pending && running === "dismiss"}
+              onClick={() => run("dismiss", () => dismissCollected(locationId, ticketId))}
+            >
+              {t("collectedDismiss")}
+            </Button>
+          }
+        >
+          {t("collectedNotice")}
+        </Notice>
       )}
 
       <Dialog

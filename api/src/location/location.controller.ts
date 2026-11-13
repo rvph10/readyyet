@@ -3,17 +3,21 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
   Query,
+  Res,
+  StreamableFile,
   UseGuards,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { ApiCookieAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role } from "@readyyet/db";
+import type { Response } from "express";
 import { ApiError, ApiErrors } from "../common/decorators/api-errors.decorator";
 import { LocationRoles } from "../common/decorators/location-roles.decorator";
 import { LocationMembershipGuard } from "../common/guards/location-membership.guard";
@@ -21,6 +25,7 @@ import { CheckReviewLinkDto, ReviewLinkCheckDto } from "./dto/check-review-link.
 import { GooglePlacesDto, SearchGooglePlacesQueryDto } from "./dto/google-places.dto";
 import { LocationDto } from "./dto/location.response.dto";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { LocationExportService } from "./location-export";
 import { LocationService } from "./location.service";
 import { checkReviewLink } from "./review-link-check";
 
@@ -29,7 +34,10 @@ import { checkReviewLink } from "./review-link-check";
 @ApiCookieAuth()
 @Controller("locations")
 export class LocationController {
-  constructor(private readonly location: LocationService) {}
+  constructor(
+    private readonly location: LocationService,
+    private readonly locationExport: LocationExportService,
+  ) {}
 
   @Get(":locationId")
   // Asked on every load of the Ticket list, so the same room as that route.
@@ -78,6 +86,24 @@ export class LocationController {
   @ApiErrors(HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
   async checkReviewLink(@Body() dto: CheckReviewLinkDto): Promise<ReviewLinkCheckDto> {
     return { result: await checkReviewLink(dto.url) };
+  }
+
+  @Get(":locationId/export")
+  @LocationRoles(Role.OWNER)
+  @UseGuards(LocationMembershipGuard)
+  // Held to five an hour for the Location, in LocationExportService.
+  @Header("Cache-Control", "no-store")
+  @ApiParam({ name: "locationId" })
+  @ApiOperation({ summary: "Download everything the Location holds, CSV and JSON in a ZIP, owner only (ADR 0129)" })
+  @ApiOkResponse({ content: { "application/zip": { schema: { type: "string", format: "binary" } } } })
+  async export(
+    @Param("locationId") locationId: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const { stream, filename } = await this.locationExport.zip(locationId);
+    // Nest doesn't stop the archive when the Owner cancels the download.
+    response.on("close", () => stream.destroy());
+    return new StreamableFile(stream, { type: "application/zip", disposition: `attachment; filename="${filename}"` });
   }
 
   @Delete(":locationId")

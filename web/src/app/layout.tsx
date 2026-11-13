@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Figtree, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { CookieConsent } from "@/components/cookie-consent";
 import { ToastProvider } from "@/components/ui/toast";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -24,6 +25,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="bg-canvas font-sans text-p-sm text-ink antialiased">
         <NextIntlClientProvider>
           <ToastProvider>{children}</ToastProvider>
+          <CookieConsent privacyUrl={new URL(`/${locale}/privacy#cookies`, process.env.SITE_URL).href} />
         </NextIntlClientProvider>
       </body>
     </html>

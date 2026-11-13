@@ -10,6 +10,7 @@ import { StorageService } from "../src/storage/storage.service";
 import { createTestApp } from "./support/create-test-app";
 import { imageFile } from "./support/images";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 // ADR 0026: an avatar is uploaded, stored as a 256px WebP square, and
 // served publicly from the API like a logo.
@@ -65,6 +66,7 @@ describe("User avatar", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Avatar Test",
         location: {
           name: "Atelier",

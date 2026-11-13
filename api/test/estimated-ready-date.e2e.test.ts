@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Role } from "@readyyet/db";
-import { calendarDateIn, turnaroundReadyDate } from "@readyyet/shared";
+import { calendarDateIn, TERMS_VERSION, turnaroundReadyDate } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -81,6 +81,7 @@ describe("Estimated ready date", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Ready Date Test",
         location: {
           name: "Maroquinerie Lumière",
@@ -254,6 +255,22 @@ describe("Estimated ready date", () => {
       const row = await ticketRow(ticket.id);
       expect(row.customerToldReadyDate).toEqual(new Date(inDays(5)));
       expect(row.readyDateEmailDueAt).toBeNull();
+    });
+
+    it("doesn't email the date again when the process stopped before recording it", async () => {
+      const ticket = (await createTicket({ email: address("crashed"), estimatedReadyDate: inDays(2) })).body;
+      await patchTicket(ticket.id, inDays(5));
+      await makeDueAndSweep(ticket.id);
+      // As if the process had died after the send: neither the told date nor
+      // the due marker were written.
+      await prisma.ticket.update({
+        where: { id: BigInt(ticket.id) },
+        data: { customerToldReadyDate: new Date(inDays(2)), readyDateEmailDueAt: new Date(Date.now() - 1000) },
+      });
+
+      await notification.sendDueReadyDateEmails();
+
+      expect(await emailsTo("crashed", "ticket_ready_date_changed")).toHaveLength(1);
     });
 
     it("sends nothing for a later date corrected back within the delay", async () => {

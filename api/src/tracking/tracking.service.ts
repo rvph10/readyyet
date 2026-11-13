@@ -52,8 +52,9 @@ export class TrackingService {
           },
         },
         feedback: { select: { stars: true, tags: true, message: true, reply: true } },
-        // Only to resolve the page's language, never returned as is.
-        customer: { select: { locale: true } },
+        // Only to resolve the page's language and to know they weren't
+        // erased, never returned as is.
+        customer: { select: { locale: true, deletedAt: true } },
         currentStatus: publicStatusSelect,
         workflow: {
           select: { steps: { orderBy: { position: "asc" }, select: { position: true, status: publicStatusSelect } } },
@@ -66,7 +67,7 @@ export class TrackingService {
       },
     });
 
-    if (!ticket || ticket.location.deletedAt) {
+    if (!ticket || ticket.location.deletedAt || ticket.customer.deletedAt) {
       throw new NotFoundError("Tracking link not found");
     }
     // Same response as an unknown code on purpose, see ADR 0013.
@@ -173,14 +174,17 @@ export class TrackingService {
         id: true,
         locationId: true,
         location: { select: { deletedAt: true } },
+        customer: { select: { deletedAt: true } },
         currentStatus: { select: { code: true } },
         statusEvents: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1, select: { createdAt: true } },
       },
     });
-    // Same 404 as the tracking page, see ADR 0013.
+    // Same 404 as the tracking page, see ADR 0013. An erased Customer's
+    // Ticket takes nothing more from them (ADR 0128).
     if (
       !ticket ||
       ticket.location.deletedAt ||
+      ticket.customer.deletedAt ||
       isTrackingLinkExpired(ticket.currentStatus.code, ticket.statusEvents[0].createdAt)
     ) {
       throw new NotFoundError("Tracking link not found");

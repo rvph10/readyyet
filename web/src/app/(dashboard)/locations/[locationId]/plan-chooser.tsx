@@ -28,6 +28,46 @@ function Feature({ children, check }: { children: ReactNode; check: string }) {
   );
 }
 
+// Monthly or yearly, the yearly side saying what it saves. Also in the drawer
+// that adds a shop (add-shop.tsx).
+export function IntervalToggle({
+  interval,
+  onChange,
+  className = "",
+}: {
+  interval: Interval;
+  onChange: (interval: Interval) => void;
+  className?: string;
+}) {
+  const t = useTranslations("plans");
+  return (
+    <div
+      role="group"
+      aria-label={t("billedEvery")}
+      className={`inline-flex w-full rounded-full bg-subtle p-1 sm:w-auto ${className}`}
+    >
+      {(["MONTH", "YEAR"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={interval === option}
+          onClick={() => onChange(option)}
+          className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-4 text-label-sm whitespace-nowrap transition-colors sm:flex-none sm:px-5 ${
+            option === "YEAR" ? "flex-1" : "flex-none"
+          } ${interval === option ? "bg-pine text-surface" : "text-muted hover:text-ink"}`}
+        >
+          {t(option === "MONTH" ? "monthly" : "yearly")}
+          {option === "YEAR" && (
+            <span className="rounded-full bg-brand px-2 py-0.5 text-label-xs font-bold text-ink">
+              {t("twoMonthsFree")}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // What choosing today means, for a trial with days left: paying nothing yet is the
 // thing most likely to hold someone back, so it's drawn rather than footnoted.
 function ChargeTimeline({ days, price }: { days: number; price: string }) {
@@ -83,30 +123,9 @@ export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string;
         {trialDaysLeft ? (paysLater ? t("chargedLater", { days: trialDaysLeft }) : t("chargedNow")) : t("resume")}
       </p>
 
-      <div
-        role="group"
-        aria-label={t("billedEvery")}
-        className="mt-5 inline-flex w-full rounded-full bg-subtle p-1 sm:w-auto"
-      >
-        {(["MONTH", "YEAR"] as const).map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={interval === option}
-            onClick={() => setInterval(option)}
-            className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-4 text-label-sm whitespace-nowrap transition-colors sm:flex-none sm:px-5 ${
-              option === "YEAR" ? "flex-1" : "flex-none"
-            } ${interval === option ? "bg-pine text-surface" : "text-muted hover:text-ink"}`}
-          >
-            {t(option === "MONTH" ? "monthly" : "yearly")}
-            {option === "YEAR" && (
-              <span className="rounded-full bg-brand px-2 py-0.5 text-label-xs font-bold text-ink">
-                {t("twoMonthsFree")}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <IntervalToggle interval={interval} onChange={setInterval} className="mt-5" />
+      {/* The other way to a yearly payment, said here too (billing-board.tsx). */}
+      {yearly && <p className="mt-3 text-p-sm font-semibold">{tBilling("yearlyNoRefund")}</p>}
 
       {failure && (
         <div className="mt-4">

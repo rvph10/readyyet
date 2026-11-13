@@ -8,6 +8,7 @@ import { TrialReminderService } from "../src/billing/trial-reminder.service";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -22,6 +23,7 @@ describe("Trial reminders", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Reminder Co",
         location: {
           name,

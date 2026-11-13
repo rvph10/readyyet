@@ -5,6 +5,7 @@ import Stripe from "stripe";
 let client: Stripe | undefined;
 
 export function getStripeClient(): Stripe {
-  client ??= new Stripe(process.env.STRIPE_SECRET_KEY as string);
+  // Stripe's default is 80 s, held by an Owner waiting on checkout.
+  client ??= new Stripe(process.env.STRIPE_SECRET_KEY as string, { timeout: 20_000 });
   return client;
 }

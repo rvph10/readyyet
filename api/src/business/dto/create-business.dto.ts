@@ -11,10 +11,12 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  IsUUID,
   MaxLength,
   ValidateNested,
 } from "class-validator";
 import { NAME_MAX_LENGTH } from "@readyyet/shared";
+import { AcceptTermsDto } from "./accept-terms.dto";
 import { OpeningHoursSpecificationDto, PostalAddressDto } from "../../location/dto/location-info.dto";
 import { canonicalTimeZone, IsRegionTimeZone, IsWeeklyOpeningHours } from "../../location/location-info";
 
@@ -65,7 +67,15 @@ export class CreateLocationDto {
   openingHours?: OpeningHoursSpecificationDto[];
 }
 
-export class CreateBusinessDto {
+// A Business's next Location, which can start from another one's custom
+// Workflow. Used once it's on Pro, like any custom Workflow (ADR 0031).
+export class AddLocationDto extends CreateLocationDto {
+  @IsOptional()
+  @IsUUID()
+  copyWorkflowFrom?: string;
+}
+
+export class CreateBusinessDto extends AcceptTermsDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(NAME_MAX_LENGTH)

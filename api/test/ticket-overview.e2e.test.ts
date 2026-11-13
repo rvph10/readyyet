@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { calendarDateIn, LONG_WAIT_DAYS } from "@readyyet/shared";
+import { calendarDateIn, LONG_WAIT_DAYS, TERMS_VERSION } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -72,6 +72,7 @@ describe("Ticket overview", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Overview Test Garage",
         location: {
           name: "Main Shop",
@@ -198,6 +199,21 @@ describe("Ticket overview", () => {
       const { needsYou } = await overview();
       expect(ids(needsYou.longWaits)).not.toContain(quiet.fresh);
       expect(ids(needsYou.longWaits)).not.toContain(quiet.waiting);
+    });
+  });
+
+  it("says when the Location is frozen or its payment failed", async () => {
+    expect(await overview()).toMatchObject({ frozen: false, pastDue: false });
+
+    await prisma.subscription.update({ where: { locationId }, data: { trialEndsAt: new Date(Date.now() - 1000) } });
+    expect(await overview()).toMatchObject({ frozen: true, pastDue: false });
+
+    await prisma.subscription.update({ where: { locationId }, data: { status: "PAST_DUE", plan: "PRO" } });
+    expect(await overview()).toMatchObject({ frozen: false, pastDue: true });
+
+    await prisma.subscription.update({
+      where: { locationId },
+      data: { status: "TRIAL", trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) },
     });
   });
 

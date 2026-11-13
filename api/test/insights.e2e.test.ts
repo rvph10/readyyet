@@ -2,7 +2,7 @@
 // at module-evaluation time, so DATABASE_URL has to already be set.
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
-import { calendarDateIn } from "@readyyet/shared";
+import { calendarDateIn, TERMS_VERSION } from "@readyyet/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
@@ -16,7 +16,13 @@ interface Insights {
   setup: Record<string, boolean>;
   received: { months: { month: string; received: number }[]; lastMonthSoFar: number };
   customers: { new: number; returning: number };
-  activity: { ticketTitle: string; changedByName: string; status: { code: string } }[];
+  activity: {
+    ticketTitle: string;
+    changedByName: string;
+    changedBy: string;
+    changedByMember: boolean;
+    status: { code: string };
+  }[];
 }
 
 // ADR 0116.
@@ -56,6 +62,7 @@ describe("Insights", () => {
       .post("/businesses")
       .set("Cookie", cookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Insights Test Garage",
         location: {
           name: "Main Shop",
@@ -114,7 +121,7 @@ describe("Insights", () => {
     const { activity, setup } = await insights();
     expect(activity.map(({ status }) => status.code).slice(0, 3)).toEqual(["COMPLETED", "READY", "RECEIVED"]);
     expect(activity[0]).toMatchObject({ ticketTitle: "Handed over" });
-    expect(activity[0].changedByName).toBeTruthy();
+    expect(activity[0]).toMatchObject({ changedByName: expect.any(String), changedByMember: true });
     expect(setup.firstHandover).toBe(true);
   });
 
@@ -127,6 +134,61 @@ describe("Insights", () => {
     expect((await insights()).setup.team).toBe(true);
     await prisma.invitation.updateMany({ where: { locationId }, data: { expiresAt: new Date(Date.now() - DAY_MS) } });
     expect((await insights()).setup.team).toBe(false);
+  });
+
+  it("counts what a member did, this month and in all, for any colleague to see", async () => {
+    const { body: me } = await request(app.getHttpServer()).get("/me").set("Cookie", cookie).expect(200);
+    const employeeEmail = `delivered+insights-employee-${stamp}@resend.dev`;
+    const employee = await signInViaOtp(app, prisma, employeeEmail);
+    const { body: invitation } = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/invitations`)
+      .set("Cookie", cookie)
+      .send({ email: employeeEmail, role: "EMPLOYEE" })
+      .expect(201);
+    await request(app.getHttpServer()).post(`/invitations/${invitation.id}/accept`).set("Cookie", employee).expect(201);
+
+    const { body } = await request(app.getHttpServer())
+      .get(`/locations/${locationId}/insights/members/${me.id}`)
+      .set("Cookie", employee)
+      .expect(200);
+
+    // Four Tickets, one of them from 70 days ago, and one taken to Ready then Completed.
+    expect(body).toMatchObject({
+      userId: me.id,
+      role: "OWNER",
+      total: { created: 4, moved: 2, ready: 1, completed: 1 },
+      month: { created: 3, moved: 2, ready: 1, completed: 1 },
+    });
+  });
+
+  it("knows no one who isn't a member", async () => {
+    const outsider = await prisma.user.findFirstOrThrow({
+      where: { memberships: { none: { locationId } } },
+      select: { id: true },
+    });
+    await request(app.getHttpServer())
+      .get(`/locations/${locationId}/insights/members/${outsider.id}`)
+      .set("Cookie", cookie)
+      .expect(404);
+  });
+
+  it("says who in the activity has left, as they have no profile here", async () => {
+    const formerMember = await prisma.user.findFirstOrThrow({
+      where: { memberships: { none: { locationId } } },
+      select: { id: true },
+    });
+    const ticket = await prisma.ticket.findFirstOrThrow({
+      where: { locationId },
+      select: { id: true, workflowId: true },
+    });
+    const ready = await prisma.status.findUniqueOrThrow({ where: { code: "READY" } });
+    await prisma.ticketStatusEvent.create({
+      data: { ticketId: ticket.id, workflowId: ticket.workflowId, statusId: ready.id, changedBy: formerMember.id },
+    });
+
+    const { activity } = await insights();
+    expect(activity[0]).toMatchObject({ changedBy: formerMember.id, changedByMember: false });
+    expect(activity.slice(1).every(({ changedByMember }) => changedByMember)).toBe(true);
   });
 
   it("is refused to someone outside the Location", async () => {

@@ -1,111 +1,371 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
-/* The palette of ADR 0042, by role. Olive values are Tailwind's own olive
-   scale, brand is the logo's lime, ink the logo's near-black. */
-@theme {
-  --color-canvas: #fbfbf9;
-  --color-surface: #ffffff;
-  --color-subtle: #f4f4f0;
-  --color-border: #e8e8e3;
-  /* Tailwind's olive-300: outlines of controls on hover (ADR 0049). */
-  --color-border-strong: oklch(88% 0.011 106.6);
+/* The Ledger template's foundation (ADR 0133), with ReadyYet's lime and pine
+   in place of its yellow and black. Unlayered, so it wins over Tailwind's
+   utilities of the same name, such as .container. */
+
+:root {
+  --container-max: 1440px;
+  --container-padding: 5rem;
+  --container-bleed: 1rem;
+
+  --radius-container: 1.5rem;
+  --radius-card: 1.25rem;
+  --radius-panel: 2rem;
+
+  /* The rhythm every home section follows, whatever template it comes from:
+     Payable's spacing and Ledger's display size (.t-display), brought to each
+     section on its wrapper. */
+  --section-space: 6.5rem;
+  --section-max: 71.25rem;
+  --section-gutter: 2.5rem;
+  --section-heading: 4rem;
+
+  /* The entrance every home section shares, mirrored for the section scripts
+     in lib/motion/reveal.ts. */
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-duration: 0.9s;
+  --reveal-duration-small: 0.6s;
+  --reveal-rise: 24px;
+  --reveal-stagger: 80ms;
+}
+
+@media (max-width: 991px) {
+  :root {
+    --container-padding: 2.5rem;
+    --radius-panel: 1.5rem;
+    --section-space: 4rem;
+    --section-heading: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --container-padding: 1.5rem;
+    --container-bleed: 0.75rem;
+    --radius-container: 1.25rem;
+    --radius-card: 1rem;
+    --radius-panel: 1.25rem;
+    --section-space: 3rem;
+    --section-gutter: 1rem;
+    --section-heading: 2.5rem;
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --container-padding: 1.25rem;
+    --radius-container: 1.25rem;
+    --radius-card: 1rem;
+    --radius-panel: 1rem;
+    --section-heading: 2rem;
+  }
+}
+
+:root {
   --color-ink: #1e1e1e;
-  --color-muted: #5b5b4b;
-  /* 1.45:1 on white: a fill under ink text, never text itself. */
-  --color-brand: #d6ff53;
-  --color-brand-text: #556e18;
-  --color-highlight: #7f22fe;
+  --color-ink-soft: #1e1e1e;
+  --color-text-secondary: #565656;
+  --color-text-tertiary: #5b5b5b;
+  --color-text-muted: #8d8d8d;
+  --color-text-white: #ffffff;
 
-  /* ADR 0049: panels barely lift off the canvas, menus float. Tinted toward
-     ink, Tailwind's pure black shadows look grey on the olive neutrals. */
-  --shadow-panel: 0 0 20px rgb(30 30 20 / 0.03);
-  --shadow-float: 0 1px 2px rgb(30 30 20 / 0.06), 0 4px 12px rgb(30 30 20 / 0.08);
+  --color-bg-page: #f3f3f3;
+  --color-bg-white: #ffffff;
+  --color-bg-dark: #17423a;
+  --color-bg-accent: #d6ff53;
+  --color-surface-muted: #e1e1e1;
 
-  --default-transition-duration: 200ms;
+  --color-border-soft: rgba(30, 30, 30, 0.12);
 
-  /* The type scale of ADR 0049. */
-  --text-title-h1: 4rem;
-  --text-title-h1--line-height: 1.09;
-  --text-title-h1--letter-spacing: -0.01em;
-  --text-title-h1--font-weight: 700;
-  --text-title-h3: 2.5rem;
-  --text-title-h3--line-height: 1.2;
-  --text-title-h3--letter-spacing: -0.01em;
-  --text-title-h3--font-weight: 500;
-  --text-title-h4: 2rem;
-  --text-title-h4--line-height: 1.25;
-  --text-title-h4--letter-spacing: -0.01em;
-  --text-title-h4--font-weight: 500;
-  --text-title-h5: 1.75rem;
-  --text-title-h5--line-height: 1.5;
-  --text-title-h5--font-weight: 700;
-  --text-title-h6: 1.25rem;
-  --text-title-h6--line-height: 1.5;
-  --text-title-h6--font-weight: 500;
-  --text-label-xl: 1.5rem;
-  --text-label-xl--line-height: 1.33;
-  --text-label-xl--letter-spacing: -0.015em;
-  --text-label-xl--font-weight: 500;
-  --text-label-lg: 1.125rem;
-  --text-label-lg--line-height: 1.5;
-  --text-label-lg--letter-spacing: -0.015em;
-  --text-label-lg--font-weight: 500;
-  --text-label-md: 1rem;
-  --text-label-md--line-height: 1.5;
-  --text-label-md--letter-spacing: -0.011em;
-  --text-label-md--font-weight: 500;
-  --text-label-sm: 0.875rem;
-  --text-label-sm--line-height: 1.43;
-  --text-label-sm--letter-spacing: -0.006em;
-  --text-label-sm--font-weight: 500;
-  --text-label-xs: 0.75rem;
-  --text-label-xs--line-height: 1.33;
-  --text-label-xs--font-weight: 500;
-  --text-p-lg: 1.125rem;
-  --text-p-lg--line-height: 1.33;
-  --text-p-lg--letter-spacing: -0.015em;
-  --text-p-lg--font-weight: 400;
-  --text-p-md: 1rem;
-  --text-p-md--line-height: 1.5;
-  --text-p-md--letter-spacing: -0.011em;
-  --text-p-md--font-weight: 400;
-  --text-p-sm: 0.875rem;
-  --text-p-sm--line-height: 1.5;
-  --text-p-sm--letter-spacing: -0.006em;
-  --text-p-sm--font-weight: 400;
-  --text-p-xs: 0.75rem;
-  --text-p-xs--line-height: 1.33;
-  --text-p-xs--font-weight: 400;
+  --font-display: var(--font-momo), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+
+  --shadow-float:
+    0 24px 48px -16px rgba(30, 30, 30, 0.28), 0 2px 8px rgba(30, 30, 30, 0.06), inset 0 0 0 1px var(--color-border-soft);
+
+  --radius-sm: 0.5rem;
+  --radius-btn: 1rem;
 }
 
-@layer base {
-  /* ADR 0049: from 1900px wide everything, sized in rem, grows with the
-     window, so a 2K or 4K screen doesn't show a small island. */
-  @media (width >= 1900px) {
-    html {
-      font-size: calc(0.7rem + 0.28vw);
-    }
-  }
-  @media (width >= 2150px) {
-    html {
-      font-size: calc(0.7rem + 0.32vw);
-    }
-  }
-  @media (width >= 2300px) {
-    html {
-      font-size: calc(0.7rem + 0.35vw);
-    }
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
-  :focus-visible {
-    outline: 2px solid var(--color-highlight);
-    outline-offset: 2px;
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+p {
+  overflow-wrap: break-word;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-bg-dark);
+  outline-offset: 2px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+}
+
+.container--padded {
+  padding-inline: var(--container-padding);
+}
+
+.container--bleed {
+  padding-inline: var(--container-bleed);
+}
+
+.sr-only:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  clip: auto;
+  background-color: var(--color-bg-white);
+  color: var(--color-ink);
+  border-radius: var(--radius-btn);
+  z-index: 9999;
+}
+
+/* Type */
+
+.t-display {
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  font-size: 4rem !important;
+  line-height: 1 !important;
+  letter-spacing: -0.03em !important;
+}
+
+@media (max-width: 991px) {
+  .t-display {
+    font-size: 3rem !important;
   }
 }
 
-/* inline, so the utilities use next/font's variables, set on <html>. */
-@theme inline {
-  --font-sans: var(--font-figtree);
-  --font-display: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
+@media (max-width: 767px) {
+  .t-display {
+    font-size: 2.5rem !important;
+  }
+}
+
+@media (max-width: 479px) {
+  .t-display {
+    font-size: 2rem !important;
+  }
+}
+
+.section-label {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: currentcolor;
+}
+
+.body-text {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.03em;
+}
+
+/* Entrances. The page is served with data-enter on <html>, so what has an
+   entrance is hidden from the first paint instead of flashing in place before
+   it plays; entrances.ts reveals each one as its timeline starts. Should the
+   scripts never run, the fallback shows everything after 4 s. Reduced motion
+   holds nothing back. */
+
+@keyframes enter-fallback {
+  to {
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-enter]
+    :is(.hero .nav, .hero__title, .hero__lede, .hero .cta, .hero__assure, .hero__panelbox):not(.is-revealed) {
+    visibility: hidden;
+    animation: enter-fallback 0s 4s forwards;
+  }
+}
+
+/* Buttons. The chip button's lime fill slides in from its arrow, the fill
+   button's dark fill grows from where the pointer enters (fill-buttons.ts). */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: 3rem;
+  padding-inline: 1.5rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.03em;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  overflow: clip;
+  transition: scale 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn--chip,
+.btn--fill {
+  position: relative;
+  isolation: isolate;
+  transition:
+    scale 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn--chip {
+  padding-inline: 1.5rem 4.5rem;
+}
+
+.btn--chip .btn__label {
+  transition: translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn--chip .btn__chip {
+  position: absolute;
+  inset-block: 0;
+  right: 0.5rem;
+  margin-block: auto;
+  transition: right 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn--chip::before {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  z-index: -1;
+  background-color: var(--color-bg-accent);
+  clip-path: inset(0 0 0 calc(100% - 2rem) round var(--radius-sm));
+  transition: clip-path 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@property --fill-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.btn--fill > * {
+  pointer-events: none;
+}
+
+.btn__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: inherit;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+  clip-path: circle(var(--fill-r) at var(--fill-x, 50%) var(--fill-y, 50%));
+  transition: --fill-r 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-white);
+}
+
+/* On a pine button, the fill is lime, as the chip button's is. */
+.btn--dark .btn__overlay {
+  background-color: var(--color-bg-accent);
+  color: var(--color-ink);
+}
+
+.btn--muted {
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink);
+}
+
+.btn--sm {
+  height: 2.5rem;
+  padding-inline: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn__chip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  overflow: clip;
+}
+
+.btn__chip img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    scale: 0.97;
+  }
+
+  .btn--chip:hover::before {
+    clip-path: inset(0 round var(--radius-sm));
+  }
+
+  .btn--dark.btn--chip:hover {
+    color: var(--color-ink);
+  }
+
+  .btn--chip:hover .btn__label {
+    translate: 1.5rem 0;
+  }
+
+  .btn--chip:hover .btn__chip {
+    right: calc(100% - 2.5rem);
+  }
+}
+
+@media (max-width: 991px) {
+  .btn--sm {
+    height: 2.75rem;
+  }
 }

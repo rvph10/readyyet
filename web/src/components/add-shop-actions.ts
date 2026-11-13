@@ -18,29 +18,51 @@ export async function addShopData(businessId: string) {
     getMe(),
     getBusinessTypeOptions(),
   ]);
-  // A second shop is most likely in the same country as the first.
+  // A second shop is most likely in the same country as the first, and in the
+  // same trade: a chain's shops share one.
   const [first] = business.locations;
-  const country = first && (await getLocation(first.id)).address?.addressCountry;
+  const client = await api();
+  const [shop, workflows] = await Promise.all([
+    first && getLocation(first.id),
+    Promise.all(
+      business.locations.map(async ({ id, name }) => {
+        const { data } = await client.GET("/locations/{locationId}/workflow", { params: { path: { locationId: id } } });
+        return data?.custom ? { id, name } : null;
+      }),
+    ),
+  ]);
   return {
     businessName: business.name,
     email: me.email,
-    country: country as Country | undefined,
+    country: shop?.address?.addressCountry as Country | undefined,
+    businessType: shop && { code: shop.businessTypeCode, detail: shop.businessTypeDetail ?? "" },
     businessTypes: businessTypes.map(({ code, label }) => ({ code, label })),
+    // The shops whose own steps a new one can start from, on Pro.
+    customWorkflows: workflows.filter((workflow) => workflow !== null),
   };
 }
 
-// ADR 0082: a later Location has no trial, so it goes straight to choosing a
-// plan, the only way it can take Tickets.
+// ADR 0082: a later Location has no trial, so the plan is chosen in the same
+// drawer and it goes straight to paying, the only way it can take Tickets. A
+// checkout that doesn't open leaves the shop on its billing page, to finish.
 export async function addLocation(
   businessId: string,
-  location: components["schemas"]["CreateLocationDto"],
+  location: components["schemas"]["AddLocationDto"],
+  plan: components["schemas"]["CheckoutDto"],
 ): Promise<ActionResult> {
-  const result = await (
-    await api()
-  ).POST("/businesses/{businessId}/locations", { params: { path: { businessId } }, body: location });
-  if (result.data) {
-    revalidatePath("/", "layout");
-    redirect(`/locations/${result.data.id}/billing`);
+  const client = await api();
+  const result = await client.POST("/businesses/{businessId}/locations", {
+    params: { path: { businessId } },
+    body: location,
+  });
+  if (!result.data) {
+    return actionResult(result);
   }
-  return actionResult(result);
+  const locationId = result.data.id;
+  revalidatePath("/", "layout");
+  const checkout = await client.POST("/locations/{locationId}/billing/checkout", {
+    params: { path: { locationId } },
+    body: plan,
+  });
+  redirect(checkout.data?.url ?? `/locations/${locationId}/billing`);
 }

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import type { components } from "@/lib/api/schema";
 import { NewTicketPanel, type NewTicketProps } from "./new-ticket/new-ticket-panel";
@@ -27,12 +28,15 @@ export function useLocationActions() {
 
 interface Props extends NewTicketProps {
   locationName: string;
+  // No new Tickets until a plan is chosen (ADR 0031).
+  frozen: boolean;
+  canChoosePlan: boolean;
   // Days left of the trial, 0 once it's over, null when there's no plan to choose.
   trialDaysLeft: number | null;
   children: ReactNode;
 }
 
-export function LocationActions({ locationName, trialDaysLeft, children, ...newTicket }: Props) {
+export function LocationActions({ locationName, frozen, canChoosePlan, trialDaysLeft, children, ...newTicket }: Props) {
   const t = useTranslations("plans");
   const tTickets = useTranslations("tickets");
   const [creating, setCreating] = useState(false);
@@ -58,11 +62,39 @@ export function LocationActions({ locationName, trialDaysLeft, children, ...newT
     <ActionsContext.Provider value={actions}>
       {children}
       <Dialog open={creating} onClose={() => setCreating(false)} title={tTickets("new")} variant="panel">
-        {creating && <NewTicketPanel key={run} {...newTicket} customer={customer} onClose={() => setCreating(false)} />}
+        {creating &&
+          (frozen ? (
+            <PausedNotice
+              onChoosePlan={
+                canChoosePlan
+                  ? () => {
+                      setCreating(false);
+                      setChoosing(true);
+                    }
+                  : null
+              }
+            />
+          ) : (
+            <NewTicketPanel key={run} {...newTicket} customer={customer} onClose={() => setCreating(false)} />
+          ))}
       </Dialog>
       <Dialog open={choosing} onClose={() => setChoosing(false)} title={t("title")} variant="pricing">
         {choosing && <PlanChooser locationId={newTicket.locationId} trialDaysLeft={trialDaysLeft} />}
       </Dialog>
     </ActionsContext.Provider>
+  );
+}
+
+// Said before the form, not after it's filled in and refused.
+function PausedNotice({ onChoosePlan }: { onChoosePlan: (() => void) | null }) {
+  const t = useTranslations("billing");
+  const tPlans = useTranslations("plans");
+  const tForm = useTranslations("tickets.form");
+  return (
+    <div className="flex flex-col gap-4 px-6 py-6 md:px-7">
+      <p className="text-title-h4">{t("pausedTitle")}</p>
+      <p className="text-p-md">{onChoosePlan ? t("pausedBody") : tForm("frozen")}</p>
+      {onChoosePlan && <Button onClick={onChoosePlan}>{tPlans("choosePlan")}</Button>}
+    </div>
   );
 }

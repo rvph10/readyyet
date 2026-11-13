@@ -8,6 +8,7 @@ import { PrismaService } from "../src/database/prisma.service";
 import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 async function createTicketWithCustomer(app: INestApplication, cookie: string, locationId: string, fullName: string) {
   const response = await request(app.getHttpServer())
@@ -38,6 +39,7 @@ describe("Customers", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Customer Test Garage",
         location: {
           name: "Main Shop",
@@ -312,6 +314,34 @@ describe("Customers", () => {
     expect(ticket.status).toBe(404);
   });
 
+  // ADR 0128: staff describe the item in their own words.
+  it("clears what an erased Customer's Tickets say, and their tracking link stops", async () => {
+    const prisma = app.get(PrismaService);
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Robe de Julie", description: "Julie passe jeudi", customer: { fullName: "Julie Erased" } });
+    expect(created.status).toBe(201);
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    await expect(prisma.ticket.findUniqueOrThrow({ where: { id: BigInt(created.body.id) } })).resolves.toMatchObject({
+      title: "[deleted]",
+      description: null,
+    });
+    await request(app.getHttpServer()).get(`/tracking/${created.body.trackingCode}`).expect(404);
+    // Nothing new comes in from them, and staff can't write the words back.
+    await request(app.getHttpServer()).post(`/tracking/${created.body.trackingCode}/collected`).expect(404);
+    await request(app.getHttpServer())
+      .patch(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Robe de Julie" })
+      .expect(409);
+  });
+
   it("finds a customer by part of their email or phone, however the number is written", async () => {
     const path = `/locations/${locationId}/customers`;
     const found = await request(app.getHttpServer())
@@ -365,6 +395,7 @@ describe("Customers", () => {
       .post("/businesses")
       .set("Cookie", otherCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Other Garage",
         location: {
           name: "Other Shop",

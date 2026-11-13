@@ -61,7 +61,21 @@
           "title": "One list for your team",
           "text": "Everyone at the counter sees the same Tickets, at every shop."
         }
-      ]
+      ],
+      "showcase": {
+        "shop": "Atelier Lemaire",
+        "item": "Watch, new glass",
+        "progress": "Progress",
+        "steps": ["Received", "Diagnosing", "Quote to approve", "Repairing", "Ready"],
+        "quote": {
+          "title": "Quote to approve",
+          "text": "Email sent to the customer"
+        },
+        "ready": {
+          "title": "It's ready!",
+          "text": "Email: come and collect it"
+        }
+      }
     },
     "emailPlaceholder": "Enter your email",
     "namePlaceholder": "Enter your name",
@@ -136,6 +150,7 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "erasedCustomer": "Erased Customer",
+    "erasedTicket": "Erased item",
     "empty": {
       "open": {
         "title": "No open Tickets",
@@ -195,11 +210,16 @@
       "notesTooLong": "Keep it to 5000 characters.",
       "datePast": "Choose today or a later date.",
       "invalid": "Check this field.",
-      "frozen": "New Tickets are paused at this shop because its plan has ended. An Owner or Admin can restart it under Billing.",
+      "frozen": "This shop has no active plan, so it can't create Tickets. An Owner or Admin can choose one under Billing.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "The Ticket wasn't created. Please try again.",
       "notConfirmed": "We couldn't confirm the Ticket was saved. Check the Ticket list before trying again.",
-      "customerGone": "This Customer is no longer in your list. Find or add them again."
+      "customerGone": "This Customer is no longer in your list. Find or add them again.",
+      "noEmailTitle": "This Customer won't hear from you",
+      "noEmailBody": "Without an email address they get nothing: no tracking link, no email when it's ready. Add their email, or hand them their tracking code right after creating it, by QR code, printed slip or WhatsApp.",
+      "noEmailFailingBody": "Emails to this address have already failed, so they get nothing. Hand them their tracking code right after creating it, and check their address with them.",
+      "createAnyway": "Create without email",
+      "addEmail": "Add an email"
     },
     "seeAll": "See all results",
     "resultsFor": "Results for “{query}”",
@@ -217,7 +237,8 @@
       "qrLabel": "QR code of the tracking link for {name}",
       "done": "Done",
       "open": "Open Ticket"
-    }
+    },
+    "recent": "Latest Tickets"
   },
   "createBusiness": {
     "title": "Create your Business",
@@ -231,9 +252,11 @@
     "businessTypeDetail": "What do you do? e.g. Scooter repair",
     "contactPhone": "Phone number",
     "contactEmail": "Contact email",
+    "terms": "By clicking Create, you accept ReadyYet's <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
     "submit": "Create",
     "invalid": "Check this field.",
     "rateLimited": "Too many attempts. Wait a minute, then try again.",
+    "termsChanged": "Our terms changed while this page was open. Reload the page to read them.",
     "unexpected": "Something went wrong. Please try again.",
     "stepOf": "Step {step} of {steps}",
     "stepBusiness": "Business",
@@ -448,6 +471,7 @@
       "unexpected": "The email wasn't sent. Please try again."
     },
     "linkExpired": "This Ticket's tracking link has expired.",
+    "emailLimited": "The last email to {name} wasn't sent: this shop reached its daily email limit. Show them the QR code, emails start again tomorrow.",
     "emailGaveUp": "The last email to {name} couldn't be delivered, and we've stopped trying. Show them the QR code, or check their address.",
     "emailRetrying": "The last email to {name} hasn't gone out yet. We keep trying for a day. If they're still here, show them the QR code.",
     "emailFails": "Emails to {email} fail, so {name} gets none. Check the address with them.",
@@ -482,6 +506,7 @@
     "scanToFollow": "Scan this with your phone's camera to follow your item."
   },
   "today": {
+    "emailLimit": "Today's email limit for this shop is reached: emails to your customers start again tomorrow. Tickets and tracking pages work as usual. If this surprises you, write to support@readyyet.app.",
     "greeting": {
       "morning": "Good morning, {name}",
       "afternoon": "Good afternoon, {name}",
@@ -512,7 +537,7 @@
     "emailFailed": "Email didn't arrive",
     "waiting": "Waiting {days} days",
     "trialEnds": "{days, plural, one {Your trial ends tomorrow} other {Your trial ends in # days}}",
-    "trialEnded": "New Tickets are paused",
+    "trialEnded": "No active plan",
     "allTickets": "All Tickets",
     "first": {
       "title": "Create your first Ticket",
@@ -592,7 +617,7 @@
       },
       "reviewLink": {
         "title": "Add your Google review link",
-        "body": "Once an item is collected, Customers are asked for a review. Without this link, nobody is asked.",
+        "body": "Customers who leave good feedback are offered your Google page. Without this link, they can only leave it here.",
         "action": "Add review link",
         "short": "Google reviews"
       },
@@ -625,9 +650,8 @@
     },
     "activity": {
       "title": "Activity",
-      "you": "You",
-      "created": "created",
-      "moved": "moved",
+      "created": "Created",
+      "moved": "Moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
     }
@@ -644,7 +668,7 @@
     "noReviews": "No private feedback or review requests",
     "title": "Keep ReadyYet running",
     "chargedLater": "{days, plural, one {Your card is charged when the trial ends, tomorrow. Cancel any time before then.} other {Your card is charged when the trial ends, in # days. Cancel any time before then.}}",
-    "resume": "Choose a plan to create new Tickets again. Nothing was lost.",
+    "resume": "Choose a plan to create Tickets at this shop. Nothing is lost.",
     "billedEvery": "How often you pay",
     "monthly": "Monthly",
     "yearly": "Yearly",
@@ -658,9 +682,9 @@
       "unexpected": "The payment page didn't open. Please try again."
     },
     "daysLeft": "{days, plural, one {# day left of Pro} other {# days left of Pro}}",
-    "ended": "New Tickets are paused",
+    "ended": "No active plan",
     "cardBody": "Keep your Workflow and reviews. You pay only when the trial ends.",
-    "endedBody": "Choose a plan and nothing is lost.",
+    "endedBody": "Choose a plan to create Tickets. Nothing is lost.",
     "keepPro": "Keep Pro, €49/month",
     "choosePlan": "Choose a plan",
     "daysShort": "{days}d",
@@ -670,8 +694,8 @@
   "billing": {
     "yourPlan": "Your plan",
     "trialBody": "Your trial ends on {date}. Choose a plan now and you keep the days left: your card is only charged when it ends.",
-    "pausedTitle": "New Tickets are paused",
-    "pausedBody": "Choose a plan to start again. Nothing is lost, open Tickets keep moving and tracking links keep working.",
+    "pausedTitle": "This shop has no active plan",
+    "pausedBody": "Choose a plan to create Tickets. Nothing is lost, open Tickets keep moving and tracking links keep working.",
     "pastDueTitle": "Your last payment failed",
     "pastDueBody": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Update the card so it doesn't stop.",
     "pastDueBodyAdmin": "Stripe keeps trying for up to 2 weeks and your shop keeps working. Ask the Owner to update the card.",
@@ -735,6 +759,7 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
+    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -771,7 +796,7 @@
       "title": "Customer feedback comes with Pro",
       "description": "On Pro, each Customer is asked how it went after collecting their item. You see their rating, what stood out, and anything they write.",
       "notice": "This shop is no longer on Pro, so Customers aren't asked any more. What they already sent stays here.",
-      "action": "See plans"
+      "noticeFrozen": "This shop has no active plan, so Customers aren't asked any more. What they already sent stays here."
     },
     "insights": {
       "label": "This month",
@@ -922,15 +947,50 @@
     "opensOn": "{day}, opens at",
     "closesOn": "{day}, closes at",
     "hoursInvalid": "Each time must open before it closes, and the two can't overlap.",
-    "reviewMissing": "Customers aren't being asked yet. Add your Google review link.",
-    "reviewOn": "Customers are being asked after pickup.",
-    "reviewPaused": "Your link is saved, but Customers are only asked on Pro.",
+    "reviewMissing": "Add your Google review link, so Customers can leave their review there too.",
+    "reviewOn": "Your Google review link is saved.",
+    "reviewPaused": "Your link is saved, but feedback is only asked for on Pro.",
     "reviewNeedsPro": "Asking Customers how it went comes with Pro.",
     "reviewLabel": "Google review link",
     "reviewInvalid": "That isn't a Google review link. It looks like https://g.page/r/.../review.",
     "turnaroundTitle": "Usual turnaround",
     "turnaroundUnit": "{count, plural, one {open day} other {open days}}",
     "turnaroundPreviewBody": "A Ticket created today is ready by",
+    "export": {
+      "title": "Export your data",
+      "hint": "Everything this shop holds, to keep or to take to another tool. Download it whenever you like, free of charge.",
+      "contents": {
+        "customers": {
+          "title": "Customers",
+          "detail": "Name, email, phone, language"
+        },
+        "tickets": {
+          "title": "Tickets",
+          "detail": "Item, notes, status, expected date, tracking link"
+        },
+        "history": {
+          "title": "History",
+          "detail": "Every status change, who made it and when"
+        },
+        "feedback": {
+          "title": "Feedback",
+          "detail": "Ratings, tags, messages and your replies"
+        },
+        "photos": {
+          "title": "Photos",
+          "detail": "Those still kept, up to 30 days after the Ticket ends"
+        },
+        "team": {
+          "title": "Team and settings",
+          "detail": "Members, roles, opening hours and Workflows"
+        }
+      },
+      "format": "One ZIP file: a CSV for each kind of data, which opens in Excel, and everything as JSON.",
+      "download": "Download the export",
+      "failed": "The export couldn't be prepared. Try again in a few minutes.",
+      "started": "Downloading…",
+      "limit": "This shop has already been exported five times this hour. Try again in an hour."
+    },
     "deleteTitle": "Delete this shop",
     "deleteAction": "Delete this shop",
     "deleteConfirmTitle": "Delete {name}?",
@@ -945,6 +1005,7 @@
       "hours": "Opening hours",
       "tickets": "Tickets",
       "reviews": "Google reviews",
+      "export": "Export",
       "delete": "Delete"
     },
     "off": "Off",
@@ -959,7 +1020,11 @@
     "to": "to",
     "ticketsHint": "How long your work usually takes.",
     "turnaroundRowHint": "You can always change it on a Ticket.",
-    "reviewHint": "Ask each Customer how it went once they have their item.",
+    "feedbackEmailsSwitch": "Ask for feedback by email",
+    "feedbackEmailsHint": "Once the work is done, your Customers get an email asking how it went. Tell them when they drop off their item: asking them is your decision.",
+    "feedbackEmailsOn": "Feedback emails turned on.",
+    "feedbackEmailsOff": "Feedback emails turned off.",
+    "reviewHint": "Ask your Customers how it went, and offer them your Google listing.",
     "deleteHint": "Permanent, for this shop only. Your other shops stay as they are.",
     "emailHint": "The address Customers write to. Their replies to our emails also come here.",
     "reviewStep1": "Open your Google Business Profile.",
@@ -993,6 +1058,7 @@
     "deleteLoses": {
       "tracking": "Tracking links stop working",
       "photos": "Ticket photos are deleted",
+      "customers": "Its Customers are erased",
       "plan": "Its plan is cancelled at once",
       "team": "Everyone loses access"
     },
@@ -1025,7 +1091,9 @@
       "change": "Change",
       "keep": "Keep this link",
       "noPublicAddress": "Goes to its customers, no public address"
-    }
+    },
+    "exportFirst": "Keep a copy of your Customers and Tickets before deleting:",
+    "exportFirstLink": "export your data"
   },
   "workflow": {
     "pathTitle": "The path of a Ticket",
@@ -1069,7 +1137,7 @@
     },
     "plan": {
       "trial": "{days, plural, one {Trial, # day left} other {Trial, # days left}}",
-      "paused": "Paused",
+      "paused": "No plan",
       "failed": "Payment failed",
       "stopping": "Stopping",
       "changing": "Changing plan"
@@ -1087,16 +1155,15 @@
       "choosePlan": "Choose a plan",
       "fixPayment": "Fix payment",
       "manage": "Manage plan",
-      "pausedHint": "New Tickets paused",
+      "pausedHint": "No active plan",
       "failedHint": "Update the card",
       "price": "Price",
       "nothingDueHint": "No shop renews soon"
     },
     "newLocation": {
       "nameHint": "Customers see it on their tracking page.",
-      "planNotice": "Each shop has its own plan, from {price}/month. You choose it right after this, and new Tickets start once it's paid.",
       "cancel": "Cancel",
-      "submit": "Create and choose a plan",
+      "submit": "Create and pay",
       "stepName": "Name",
       "stepType": "Trade",
       "stepContact": "Contact",
@@ -1104,7 +1171,17 @@
       "typeTitle": "What does it do?",
       "typeHint": "This sets the steps its Tickets follow. You can change them later.",
       "contactTitle": "How do Customers reach it?",
-      "contactHint": "Shown on tracking pages and in emails."
+      "contactHint": "Shown on tracking pages and in emails.",
+      "stepPlan": "Plan",
+      "planTitle": "Which plan for this shop?",
+      "planHint": "Each shop has its own plan. There's no trial for another shop: Tickets start as soon as it's paid.",
+      "planLegend": "Plan",
+      "sameType": "The same as your other shops",
+      "sameTypeHint": "Its Tickets follow this trade's steps. Change it only if this shop does something else.",
+      "otherType": "It does something else",
+      "workflowLegend": "Ticket steps",
+      "workflowDefault": "The trade's own, to make yours later",
+      "workflowCopy": "The same as {shop}"
     },
     "settings": {
       "name": "Business name",
@@ -1167,7 +1244,9 @@
       "when": "Your credit arrives 14 days after their first payment.",
       "subject": "Try ReadyYet for your shop",
       "message": "I use ReadyYet so my customers can follow their repair without calling. You get half a month off with my link: {link}"
-    }
+    },
+    "createAnother": "New business",
+    "manage": "Shops and settings"
   },
   "profile": {
     "title": "Your profile",
@@ -1417,5 +1496,54 @@
     "PRICE": "Higher price than expected",
     "NOT_FIXED": "Problem not fully fixed",
     "HARD_TO_REACH": "Hard to reach"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "body": "We use analytics cookies to improve ReadyYet, only if you agree. Refusing changes nothing for you. <link>Read more</link>",
+    "accept": "Accept",
+    "refuse": "Refuse",
+    "settings": "Cookie settings"
+  },
+  "terms": {
+    "title": "Our terms of service",
+    "ask": "To keep using ReadyYet for {name}, please accept our <terms>terms of service</terms>, including the <dpa>data processing agreement</dpa> for your customers' data.",
+    "accept": "I accept",
+    "accepting": "Saving…",
+    "failed": "Your acceptance wasn't saved. Please try again.",
+    "changed": "The terms changed while this page was open. Reload it to read them, then accept."
+  },
+  "demo": {
+    "title": "Tracking page demo",
+    "label": "Demo",
+    "intro": "The page your customers open from their email or the QR code. Pick a moment to see it change.",
+    "moments": "Tracking moments",
+    "steps": {
+      "received": "Received",
+      "approval": "Quote to approve",
+      "repair": "In repair",
+      "ready": "Ready"
+    },
+    "item": "Automatic watch, new glass",
+    "start": "Start free trial"
+  },
+  "planLock": {
+    "badge": "Pro",
+    "upgrade": "Move to Pro",
+    "choose": "Choose a plan",
+    "frozen": "This shop has no active plan. Choose one to get this back, nothing you had is lost."
+  },
+  "member": {
+    "open": "See {name}'s card",
+    "profile": "See their profile",
+    "since": "On the team since {date}",
+    "thisMonth": "This month",
+    "movedHint": "Every step a Ticket takes counts, up to its collection.",
+    "total": "Since joining",
+    "counts": {
+      "moved": "Steps moved on",
+      "created": "Tickets created",
+      "ready": "Marked ready",
+      "completed": "Handed back"
+    }
   }
 }

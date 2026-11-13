@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Role, type Prisma } from "@readyyet/db";
-import { OTHER_BUSINESS_TYPE } from "@readyyet/shared";
+import { OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { isUUID } from "class-validator";
 import { PrismaService } from "../database/prisma.service";
 import { BillingService } from "../billing/billing.service";
@@ -16,8 +16,9 @@ import { toAddressColumns, toOpeningHoursJson } from "../location/location-info"
 import { locationSelect, toLocationResponse } from "../location/location-select";
 import { processImage, publicImageUrl } from "../storage/image";
 import { StorageService } from "../storage/storage.service";
-import { CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
+import { AddLocationDto, CreateBusinessDto, CreateLocationDto } from "./dto/create-business.dto";
 import { generateReferralCode } from "./referral-code";
+import { acceptedByOwner } from "./terms-accepted";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 
@@ -65,6 +66,8 @@ export class BusinessService {
         name: dto.name,
         referralCode: generateReferralCode(),
         ...(await this.findReferrer(dto.referralCode, ownerId)),
+        // Creating it is accepting the terms shown above the button (ADR 0130).
+        termsAcceptances: { create: { userId: ownerId, version: dto.termsVersion } },
         locations: {
           create: {
             ...(await this.buildLocationWithOwnerMembership(dto.location, ownerId)),
@@ -81,6 +84,16 @@ export class BusinessService {
       });
     }
     return { ...toBusinessResponse(business), locations: business.locations.map(toLocationResponse) };
+  }
+
+  // An Owner from before the terms, or from before a version they must
+  // accept again (ADR 0130). Accepting twice changes nothing.
+  async acceptTerms(businessId: string, userId: string, version: string) {
+    await this.prisma.termsAcceptance.upsert({
+      where: { businessId_version_userId: { businessId, version, userId } },
+      create: { businessId, userId, version },
+      update: {},
+    });
   }
 
   // ADR 0127: once, with an Owner's first shop and its trial.
@@ -127,9 +140,11 @@ export class BusinessService {
           orderBy: { createdAt: "asc" },
           select: { id: true, name: true, createdAt: true },
         },
+        termsAcceptances: { where: { version: TERMS_VERSION }, select: { userId: true } },
       },
     });
-    return toBusinessResponse(business);
+    const { termsAcceptances, ...rest } = business;
+    return { ...toBusinessResponse(rest), termsAccepted: acceptedByOwner(termsAcceptances, business.ownerId) };
   }
 
   async update(businessId: string, userId: string, dto: UpdateBusinessDto) {
@@ -192,18 +207,39 @@ export class BusinessService {
     return toBusinessResponse(business);
   }
 
-  async addLocation(businessId: string, userId: string, dto: CreateLocationDto) {
+  async addLocation(businessId: string, userId: string, { copyWorkflowFrom, ...dto }: AddLocationDto) {
     await this.loadOwned(businessId, userId, "Only the business owner can add a location");
+    const workflow = copyWorkflowFrom && (await this.findCustomWorkflow(businessId, copyWorkflowFrom));
 
     const location = await this.prisma.location.create({
       data: {
         businessId,
         ...(await this.buildLocationWithOwnerMembership(dto, userId)),
         subscription: { create: UNPAID_SUBSCRIPTION },
+        ...(workflow && {
+          workflows: {
+            create: {
+              name: workflow.name,
+              steps: { create: workflow.steps.map(({ position, statusId }) => ({ position, statusId })) },
+            },
+          },
+        }),
       },
       ...locationSelect,
     });
     return toLocationResponse(location);
+  }
+
+  // Another live Location of the same Business, with a custom Workflow.
+  private async findCustomWorkflow(businessId: string, locationId: string) {
+    const workflow = await this.prisma.workflow.findFirst({
+      where: { locationId, isActive: true, location: { businessId, deletedAt: null } },
+      select: { name: true, steps: { select: { position: true, statusId: true } } },
+    });
+    if (!workflow) {
+      throw new ValidationError("That location has no custom workflow to copy");
+    }
+    return workflow;
   }
 
   async billingPortal(businessId: string, userId: string) {

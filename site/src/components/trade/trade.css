@@ -1,0 +1,283 @@
+/* A trade's page (ADR 0145): the home's look, its heading under the nav, then
+   what changes, the steps, questions and the other trades. */
+
+.trade-hero {
+  padding-top: var(--container-bleed);
+}
+
+.trade-hero__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 9rem var(--container-padding) var(--section-space);
+  text-align: center;
+  color: var(--color-ink);
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius-panel);
+}
+
+.trade-hero__label {
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  background-color: var(--color-bg-accent);
+  border-radius: 999px;
+}
+
+.trade-hero__title {
+  max-width: 16em;
+  text-wrap: balance;
+}
+
+.trade-hero__lead {
+  max-width: 38rem;
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+.trade-hero__cta {
+  margin-top: 2rem;
+}
+
+/* The panel is the muted grey the secondary button is, so it's white here. */
+.trade-hero .btn--muted {
+  background-color: var(--color-bg-white);
+}
+
+.trade-section {
+  padding-top: var(--section-space);
+  color: var(--color-ink);
+}
+
+.trade-section .t-display {
+  max-width: 14em;
+  text-wrap: balance;
+}
+
+.trade-pains {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0;
+  margin: 2.5rem 0 0;
+  list-style: none;
+}
+
+.trade-pain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius-panel);
+}
+
+.trade-pain--lime {
+  background-color: var(--color-bg-accent);
+}
+
+.trade-pain__title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.trade-steps {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--section-space) var(--container-padding);
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+  border-radius: var(--radius-panel);
+}
+
+.trade-steps__hint {
+  max-width: 34rem;
+  margin-top: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.trade-steps__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 2.5rem 0 0;
+  list-style: none;
+}
+
+.trade-step {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.trade-step__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+}
+
+.trade-step--done .trade-step__dot {
+  background-color: var(--color-bg-accent);
+  border-color: var(--color-bg-accent);
+}
+
+.trade-step--now {
+  color: var(--color-ink);
+  background-color: var(--color-bg-accent);
+}
+
+.trade-step--now .trade-step__dot {
+  border-color: var(--color-ink);
+  box-shadow: inset 0 0 0 2px var(--color-bg-accent);
+  background-color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trade-step--now .trade-step__dot {
+    animation: trade-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes trade-pulse {
+  50% {
+    scale: 1.35;
+  }
+}
+
+.trade-faq {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.trade-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.trade-faq__item {
+  padding: 1.5rem 1.75rem;
+  background-color: var(--color-surface-muted);
+  border-radius: 1.25rem;
+}
+
+.trade-faq__item summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  list-style: none;
+}
+
+.trade-faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.trade-faq__item summary::after {
+  content: "+";
+  flex: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: rotate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trade-faq__item[open] summary::after {
+  rotate: 45deg;
+}
+
+.trade-faq__item p {
+  margin-top: 0.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.trade-others__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.trade-others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 1rem 0 var(--section-space);
+  list-style: none;
+}
+
+.trade-others a {
+  display: block;
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius-btn);
+  transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trade-others a:hover {
+    background-color: var(--color-bg-accent);
+  }
+}
+
+@media (max-width: 991px) {
+  .trade-pains,
+  .trade-faq {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trade-faq {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .trade-hero__panel {
+    padding-top: 7rem;
+  }
+
+  .trade-steps {
+    padding-inline: 1.5rem;
+  }
+
+  .trade-pain {
+    padding: 1.5rem;
+  }
+}

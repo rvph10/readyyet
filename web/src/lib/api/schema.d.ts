@@ -73,6 +73,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/businesses/{businessId}/terms-acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept the terms in force for the business (owner only, ADR 0130) */
+        post: operations["BusinessController_acceptTerms"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/businesses/{businessId}/banner": {
         parameters: {
             query?: never;
@@ -314,6 +331,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/locations/{locationId}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download everything the Location holds, CSV and JSON in a ZIP, owner only (ADR 0129) */
+        get: operations["LocationController_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me": {
         parameters: {
             query?: never;
@@ -537,6 +571,23 @@ export interface paths {
         };
         /** A Location's setup, month in numbers and latest activity, for Today (ADR 0116) */
         get: operations["InsightsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/locations/{locationId}/insights/members/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What a current member did at this Location, this month and in all (ADR 0142) */
+        get: operations["InsightsController_member"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1092,6 +1143,7 @@ export interface components {
             name: string;
             location: components["schemas"]["CreateLocationDto"];
             referralCode?: string;
+            termsVersion: string;
         };
         LocationDto: {
             /** @enum {string} */
@@ -1109,6 +1161,7 @@ export interface components {
             openingHours: components["schemas"]["OpeningHoursSpecificationDto"][];
             turnaroundDays: number | null;
             googleReviewUrl: string | null;
+            feedbackEmails: boolean;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -1135,6 +1188,7 @@ export interface components {
         };
         BusinessWithLocationsDto: {
             locations: components["schemas"]["BusinessLocationSummaryDto"][];
+            termsAccepted: boolean;
             id: string;
             name: string;
             ownerId: string;
@@ -1161,6 +1215,24 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        AcceptTermsDto: {
+            termsVersion: string;
+        };
+        AddLocationDto: {
+            name: string;
+            businessTypeCode: string;
+            businessTypeDetail?: string;
+            contactPhone: string;
+            /** Format: email */
+            contactEmail: string;
+            /** @enum {string} */
+            locale: "EN" | "FR";
+            timeZone: string;
+            address?: components["schemas"]["PostalAddressDto"];
+            openingHours?: components["schemas"]["OpeningHoursSpecificationDto"][];
+            /** Format: uuid */
+            copyWorkflowFrom?: string;
+        };
         TransferOwnershipDto: {
             userId: string;
         };
@@ -1184,6 +1256,7 @@ export interface components {
             currentPeriodEnd: string | null;
             cancelAtPeriodEnd: boolean;
             frozen: boolean;
+            hasPro: boolean;
             memberLimit: number | null;
             referralDiscount: boolean;
         };
@@ -1219,6 +1292,7 @@ export interface components {
             openingHours?: components["schemas"]["OpeningHoursSpecificationDto"][];
             turnaroundDays?: number | null;
             googleReviewUrl?: string | null;
+            feedbackEmails?: boolean;
         };
         GooglePlaceDto: {
             formattedAddress: string | null;
@@ -1244,6 +1318,7 @@ export interface components {
             id: string;
             name: string;
             logoUrl: string | null;
+            termsAccepted: boolean;
         };
         MyLocationDto: {
             id: string;
@@ -1300,6 +1375,7 @@ export interface components {
         WorkflowDto: {
             id: string;
             name: string;
+            custom: boolean;
             steps: components["schemas"]["WorkflowStepDto"][];
         };
         UpdateWorkflowDto: {
@@ -1411,6 +1487,9 @@ export interface components {
             counts: components["schemas"]["OverviewCountsDto"];
             tickets: components["schemas"]["OverviewTicketDto"][];
             needsYou: components["schemas"]["OverviewNeedsYouDto"];
+            customerEmailsLimited: boolean;
+            frozen: boolean;
+            pastDue: boolean;
         };
         TicketStatusEventDto: {
             id: string;
@@ -1431,7 +1510,7 @@ export interface components {
             /** Format: date */
             estimatedReadyDate: string | null;
             /** @enum {string|null} */
-            emailProblem: "RETRYING" | "GAVE_UP" | null;
+            emailProblem: "RETRYING" | "GAVE_UP" | "LIMITED" | null;
             statusEvents: components["schemas"]["TicketStatusEventDto"][];
             photos: components["schemas"]["TicketPhotoDto"][];
             steps: components["schemas"]["WorkflowStepDto"][];
@@ -1492,6 +1571,8 @@ export interface components {
             status: components["schemas"]["StatusDto"];
             changedBy: string;
             changedByName: string;
+            changedByAvatarUrl: string | null;
+            changedByMember: boolean;
             /** Format: date-time */
             createdAt: string;
         };
@@ -1500,6 +1581,23 @@ export interface components {
             received: components["schemas"]["InsightsReceivedDto"];
             customers: components["schemas"]["InsightsCustomersDto"];
             activity: components["schemas"]["InsightsActivityDto"][];
+        };
+        MemberCountsDto: {
+            created: number;
+            moved: number;
+            ready: number;
+            completed: number;
+        };
+        MemberInsightsDto: {
+            /** @enum {string} */
+            role: "OWNER" | "ADMIN" | "EMPLOYEE";
+            userId: string;
+            name: string;
+            avatarUrl: string | null;
+            /** Format: date-time */
+            memberSince: string;
+            month: components["schemas"]["MemberCountsDto"];
+            total: components["schemas"]["MemberCountsDto"];
         };
         CustomerPageDto: {
             items: components["schemas"]["CustomerDto"][];
@@ -2409,6 +2507,101 @@ export interface operations {
             };
         };
     };
+    BusinessController_acceptTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                businessId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptTermsDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VALIDATION_ERROR: the request is invalid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
     BusinessController_setBanner: {
         parameters: {
             query?: never;
@@ -2607,7 +2800,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateLocationDto"];
+                "application/json": components["schemas"]["AddLocationDto"];
             };
         };
         responses: {
@@ -3956,6 +4149,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    LocationController_export: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": string;
                 };
             };
             /** @description UNAUTHENTICATED: no valid session */
@@ -5764,6 +6041,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InsightsDto"];
+                };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    InsightsController_member: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberInsightsDto"];
                 };
             };
             /** @description UNAUTHENTICATED: no valid session */

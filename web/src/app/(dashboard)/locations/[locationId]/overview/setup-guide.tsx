@@ -18,12 +18,12 @@ import { ShopDetails } from "../settings/shop-details";
 import { Turnaround } from "../settings/turnaround";
 import { InviteForm } from "../team/invite-form";
 import { foldedCookie, setupSteps, type StepKey } from "./setup-steps";
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
 
 type Location = components["schemas"]["LocationDto"];
 type Setup = components["schemas"]["InsightsSetupDto"];
 // What opens in the side panel rather than somewhere else.
 type PanelKey = Exclude<StepKey, "firstTicket" | "firstHandover">;
-const YEAR_S = 60 * 60 * 24 * 365;
 
 interface Props {
   location: Location;
@@ -32,13 +32,14 @@ interface Props {
   // The logo is the Business's, which only its Owner changes.
   owner: boolean;
   hasPro: boolean;
+  frozen: boolean;
   folded: boolean;
 }
 
 // ADR 0117: on Today until the shop is fully set up. The tasks as a track, the
 // one to do as a card beside it, each done in a side panel and ticked off from
 // the shop's own data once saved.
-export function SetupGuide({ location, businessName, setup, owner, hasPro, folded: foldedAtFirst }: Props) {
+export function SetupGuide({ location, businessName, setup, owner, hasPro, frozen, folded: foldedAtFirst }: Props) {
   const t = useTranslations("today.setup");
   const { newTicket } = useLocationActions();
   const steps = setupSteps(setup, owner);
@@ -54,7 +55,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
   function fold(next: boolean) {
     setFolded(next);
     // Both ways, as a running shop's guide starts folded (ADR 0117).
-    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : "0"}; path=/; max-age=${YEAR_S}; samesite=lax`;
+    document.cookie = `${foldedCookie(location.id)}=${next ? "1" : "0"}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
   }
 
   function act(key: StepKey) {
@@ -82,7 +83,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, folde
         onSaved={close}
       />
     ),
-    reviewLink: <ReviewLink location={location} hasPro={hasPro} onSaved={close} />,
+    reviewLink: <ReviewLink location={location} hasPro={hasPro} frozen={frozen} onSaved={close} />,
     team: <InviteForm locationId={location.id} ownerActs={owner} onDone={close} onCancel={close} />,
     logo: <LogoPicker businessId={location.businessId} name={businessName} logoUrl={location.logoUrl} onDone={close} />,
   };

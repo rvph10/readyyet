@@ -8,6 +8,7 @@ import { Role } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
+import { TERMS_VERSION } from "@readyyet/shared";
 
 describe("GET /locations/:locationId/workflow", () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe("GET /locations/:locationId/workflow", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Workflow Test Garage",
         location: {
           name: "Main Shop",
@@ -77,9 +79,10 @@ describe("GET /locations/:locationId/workflow", () => {
     const workflow = () =>
       request(app.getHttpServer()).get(`/locations/${locationId}/workflow`).set("Cookie", ownerCookie);
 
-    expect((await workflow()).body.name).toBe("Quick");
+    expect((await workflow()).body).toMatchObject({ name: "Quick", custom: true });
 
     await prisma.subscription.update({ where: { locationId }, data: { status: "ACTIVE", plan: "ESSENTIEL" } });
+    expect((await workflow()).body).toMatchObject({ custom: false });
     expect((await workflow()).body.name).not.toBe("Quick");
   });
 
@@ -140,6 +143,7 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
       .post("/businesses")
       .set("Cookie", ownerCookie)
       .send({
+        termsVersion: TERMS_VERSION,
         name: "Workflow Edit Garage",
         location: {
           name: "Main Shop",
@@ -253,5 +257,18 @@ describe("PUT and DELETE /locations/:locationId/workflow", () => {
       .set("Cookie", ownerCookie);
     expect(reset.status).toBe(204);
     expect(await activeCustom()).toEqual([]);
+  });
+
+  // A trial keeps plan PRO once it ended, the plan alone let it through.
+  it.each([
+    ["a trial that ended", { status: "TRIAL" as const, trialEndsAt: new Date(Date.now() - 60_000) }],
+    ["a subscription that ended", { status: "ENDED" as const, trialEndsAt: null }],
+  ])("is refused with PLAN_REQUIRED on %s", async (_, subscription) => {
+    await prisma.subscription.update({ where: { locationId }, data: { plan: "PRO", ...subscription } });
+
+    const response = await replace(["REPAIRING"]);
+
+    expect(response.status).toBe(402);
+    expect(response.body.error.code).toBe("PLAN_REQUIRED");
   });
 });

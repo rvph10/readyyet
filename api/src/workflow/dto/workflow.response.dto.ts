@@ -8,5 +8,7 @@ export class WorkflowStepDto {
 export class WorkflowDto {
   id!: string;
   name!: string;
+  // The Location's own, rather than its trade's default (ADR 0035).
+  custom!: boolean;
   steps!: WorkflowStepDto[];
 }

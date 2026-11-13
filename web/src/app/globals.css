@@ -468,6 +468,14 @@
   .switcher-popover {
     position-area: bottom span-right;
   }
+  /* A colleague's card, under their picture (ADR 0142). */
+  .member-popover {
+    inset: auto;
+    margin: 0.375rem 0;
+    width: min(18rem, calc(100vw - 2rem));
+    position-area: bottom span-right;
+    position-try-fallbacks: flip-block, flip-inline;
+  }
   /* The top bar's: exactly its button's width, as one control that opens,
      unless a tablet's bar squeezes the button too narrow to read a name. */
   .bar-popover {
@@ -559,7 +567,8 @@
   .bar-popover,
   .date-popover,
   .needs-popover,
-  .menu-popover {
+  .menu-popover,
+  .member-popover {
     opacity: 0;
     scale: 0.97;
     transition-property: opacity, scale, translate, display, overlay;
@@ -572,7 +581,8 @@
   .bar-popover:popover-open,
   .date-popover:popover-open,
   .needs-popover:popover-open,
-  .menu-popover:popover-open {
+  .menu-popover:popover-open,
+  .member-popover:popover-open {
     opacity: 1;
     scale: 1;
     transition-duration: var(--duration-base);
@@ -965,5 +975,13 @@
   to {
     transform: translateY(26rem) rotate(540deg);
     opacity: 0;
+  }
+}
+
+/* The sign-in showcase's Status, rising in as it changes (showcase.tsx). */
+@keyframes showcase-in {
+  from {
+    opacity: 0;
+    translate: 0 0.5rem;
   }
 }

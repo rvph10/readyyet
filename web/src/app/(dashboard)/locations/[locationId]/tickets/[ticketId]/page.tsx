@@ -1,6 +1,7 @@
 import {
   calendarDateIn,
   ERASED_CUSTOMER_NAME,
+  ERASED_TICKET_TITLE,
   isEndedStatus,
   STATUS_UNDO_WINDOW_MS,
   LONG_WAIT_DAYS,
@@ -87,6 +88,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
   const ended = isEndedStatus(status.code);
   const erased = customer.fullName === ERASED_CUSTOMER_NAME;
   const name = erased ? t("erasedCustomer") : customer.fullName;
+  const title = ticket.title === ERASED_TICKET_TITLE ? tTickets("erasedTicket") : ticket.title;
   const emailFails = Boolean(customer.emailBouncedAt || customer.emailComplainedAt);
   const emailWorks = Boolean(customer.email) && !emailFails;
   const stoppedUpdates = Boolean(ticket.notificationsStoppedAt);
@@ -119,11 +121,12 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
 
   return (
     <>
-      <PageHeader title={ticket.title} crumb={`#${ticket.id}`} />
+      <PageHeader title={title} crumb={`#${ticket.id}`} />
 
       {ticket.emailProblem === "GAVE_UP" && (
         <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>
       )}
+      {ticket.emailProblem === "LIMITED" && <Banner tone="error">{t("emailLimited", { name })}</Banner>}
       {ticket.emailProblem === "RETRYING" && (
         <Banner>{t(ended ? "emailRetryingEnded" : "emailRetrying", { name })}</Banner>
       )}
@@ -163,7 +166,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
               <TicketDetails
                 locationId={locationId}
                 ticketId={ticketId}
-                title={ticket.title}
+                title={title}
                 notes={ticket.description}
                 date={ticket.estimatedReadyDate}
                 dateShown={ticket.estimatedReadyDate && formatDay(ticket.estimatedReadyDate, today, locale)}
@@ -172,6 +175,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
                 today={today}
                 dateEditable={!ended}
                 dateLate={late}
+                erased={erased}
               />
             </Panel>
 
@@ -255,7 +259,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
                     code={ticket.trackingCode}
                     qr={<QrCode value={ticket.trackingUrl} label={t("qrLabel", { name })} className="w-full" />}
                     shopName={location.name}
-                    title={ticket.title}
+                    title={title}
                     customerName={name}
                     shareText={tCustomer("shareText", {
                       name: customer.fullName,

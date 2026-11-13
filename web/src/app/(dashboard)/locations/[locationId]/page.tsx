@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { Reveal } from "@/components/reveal";
+import { Banner } from "@/components/ui/banner";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { greetingKey } from "@/lib/greeting";
 import { getMe } from "@/lib/me";
@@ -32,7 +33,6 @@ interface Today {
   manager: boolean;
   owner: boolean;
   businessName: string;
-  meId: string;
   greeting: string;
   date: string;
   timeZone: string;
@@ -72,7 +72,6 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/lo
     manager: isManager(membership.role),
     owner: membership.role === "OWNER",
     businessName: membership.location.business.name,
-    meId: me.id,
     greeting: t(`greeting.${greetingKey(now, timeZone)}`, { name: me.name.split(" ")[0] }),
     date: date.charAt(0).toUpperCase() + date.slice(1),
     timeZone,
@@ -125,6 +124,7 @@ function Running({ page, overview }: { page: Today; overview: Overview | null })
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
       {overview && <Celebration page={page} />}
+      {overview?.customerEmailsLimited && page.manager && <EmailLimitBanner />}
       <Hero page={page} overview={overview} />
       {overview && page.manager && (
         <Suspense>
@@ -147,13 +147,7 @@ function Running({ page, overview }: { page: Today; overview: Overview | null })
         <Waiting
           ready={overview !== null}
           fallback={
-            <ActivityTile
-              activity={null}
-              locationId={page.locationId}
-              meId={page.meId}
-              when={page.when}
-              className={activityClass}
-            />
+            <ActivityTile activity={null} locationId={page.locationId} when={page.when} className={activityClass} />
           }
         >
           <Activity page={page} className={activityClass} />
@@ -243,15 +237,7 @@ async function Month({ page }: { page: Today }) {
 
 async function Activity({ page, className }: { page: Today; className: string }) {
   const { activity } = await getInsights(page.locationId);
-  return (
-    <ActivityTile
-      activity={activity}
-      locationId={page.locationId}
-      meId={page.meId}
-      when={page.when}
-      className={className}
-    />
-  );
+  return <ActivityTile activity={activity} locationId={page.locationId} when={page.when} className={className} />;
 }
 
 // ADR 0117: a manager's, until the shop is fully set up.
@@ -268,12 +254,19 @@ async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) 
       businessName={page.businessName}
       setup={setup}
       owner={page.owner}
-      hasPro={billing.plan === "PRO" && !billing.frozen}
+      hasPro={billing.hasPro}
+      frozen={billing.frozen}
       // A shop already taking Tickets has its day to see first, an empty one
       // has nothing else: until someone folds or opens it themselves.
       folded={(page.folded ?? (setup.firstTicket ? "1" : "0")) === "1"}
     />
   );
+}
+
+// ADR 0140: the day's emails to Customers stopped, nothing else did.
+function EmailLimitBanner() {
+  const t = useTranslations("today");
+  return <Banner tone="error">{t("emailLimit")}</Banner>;
 }
 
 // After Checkout. The webhook can still be on its way, but the trial's end
