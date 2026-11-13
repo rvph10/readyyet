@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { TERMS_VERSION } from "@readyyet/shared";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { trialSubscription } from "../src/billing/plans";
 import { PrismaService } from "../src/database/prisma.service";
 import { DAILY_CUSTOMER_EMAILS, SIGN_IN_CODES_PER_HOUR } from "../src/email/email-limits";
@@ -125,16 +125,18 @@ describe("Email limits", () => {
         .post("/api/auth/email-otp/send-verification-otp")
         .set("X-Real-IP", `198.19.0.${i + 1}`)
         .send({ email: address, type: "sign-in" });
+    const codesSent = () => prisma.emailLog.count({ where: { to: address, type: "auth_otp" } });
+    // Each code is emailed after the answer (ADR 0047) and the limit counts
+    // the codes already logged, so the next ask waits for the last one's row.
     for (let i = 0; i < SIGN_IN_CODES_PER_HOUR; i++) {
       await ask(i).expect(200);
+      await vi.waitFor(async () => expect(await codesSent()).toBe(i + 1), { timeout: 10_000, interval: 200 });
     }
     const code = await prisma.verification.findFirstOrThrow({ where: { identifier: `sign-in-otp-${address}` } });
 
     await ask(SIGN_IN_CODES_PER_HOUR).expect(429);
 
-    await expect(prisma.emailLog.count({ where: { to: address, type: "auth_otp" } })).resolves.toBe(
-      SIGN_IN_CODES_PER_HOUR,
-    );
+    await expect(codesSent()).resolves.toBe(SIGN_IN_CODES_PER_HOUR);
     await expect(
       prisma.verification.findFirstOrThrow({ where: { identifier: `sign-in-otp-${address}` } }),
     ).resolves.toMatchObject({ value: code.value });
