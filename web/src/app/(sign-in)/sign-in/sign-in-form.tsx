@@ -86,9 +86,13 @@ export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Prop
 
   // Coming back from Stripe, iOS Safari can leave the session cookie off the first
   // request, which is what brought a signed-in User here. This call carries it.
+  // A User without a name stays for the name step: the dashboard would send
+  // them straight back here.
   useEffect(() => {
     void authClient.getSession().then(({ data }) => {
-      if (data) window.location.replace(next);
+      if (!data) return;
+      if (data.user.name) window.location.replace(next);
+      else setStep("name");
     });
   }, [next]);
 
