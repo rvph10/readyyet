@@ -143,5 +143,5 @@ The Ticket, Customer and private feedback lists are paged by number with a total
 
 - **Row-Level Security**: application-level `location_id` scoping in the API service layer is sufficient with one trusted backend. RLS is real future hardening (defense-in-depth against an application bug), not a day-one requirement, and it adds real operational complexity with Prisma's connection pooling on Railway.
 - **Partitioning**: `ticket_status_event` will be the fastest-growing table, worth partitioning by `created_at` range only if it reaches tens of millions of rows. Not before.
-- **No `deleted_at` on `Ticket`**: it's a permanent business record, there's no deletion flow and none should exist. A considered omission, not an oversight.
+- **No `deleted_at` on `Ticket`**: an Owner or admin can delete a Ticket outright, with its history, photos and feedback (ADR 0155, which replaced the rule that a Ticket is never deleted). There's no soft delete to undo it.
 - **No Postgres enum for `Status`/`BusinessType`**: both are extensible, translated catalogues the developer seeds over time, an enum would mean a schema migration every time a new one is added.

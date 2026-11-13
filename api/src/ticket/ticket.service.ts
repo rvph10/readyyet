@@ -16,6 +16,7 @@ import { parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
+import { StorageService } from "../storage/storage.service";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
 import { isFrozen } from "../billing/plans";
@@ -154,6 +155,7 @@ export class TicketService {
     private readonly billing: BillingService,
     private readonly photos: TicketPhotoService,
     private readonly emailRetry: EmailRetryService,
+    private readonly storage: StorageService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -220,6 +222,35 @@ export class TicketService {
     });
 
     return this.mapDetail(ticket);
+  }
+
+  // ADR 0155: gone for good, with its history, photos, feedback and queued
+  // emails. The Customer stays, unless this was their only Ticket and they
+  // have no email or phone, like a sample's, as nothing of them is left to
+  // keep. The number goes back only if it was the newest, so a sample tried
+  // and deleted leaves the first real Ticket #1.
+  async remove(locationId: string, ticketId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({
+      where: { id, locationId },
+      select: { number: true, customerId: true, photos: { select: { objectKey: true } } },
+    });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+    await this.prisma.$transaction([
+      this.prisma.ticketFeedback.deleteMany({ where: { ticketId: id } }),
+      this.prisma.ticketPhoto.deleteMany({ where: { ticketId: id } }),
+      this.prisma.ticket.delete({ where: { id } }),
+      this.prisma.location.updateMany({
+        where: { id: locationId, ticketCount: ticket.number },
+        data: { ticketCount: { decrement: 1 } },
+      }),
+      this.prisma.customer.deleteMany({
+        where: { id: ticket.customerId, email: null, phone: null, tickets: { none: {} } },
+      }),
+    ]);
+    await this.storage.delete(ticket.photos.map(({ objectKey }) => objectKey));
   }
 
   async resendTrackingLink(locationId: string, ticketId: string) {
