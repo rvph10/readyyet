@@ -124,6 +124,7 @@ export function demoTracking(moment: Moment, title: string, locale: string, now:
 
   return {
     trackingCode: "demo",
+    number: 128,
     title,
     locale: locale.toUpperCase() === "FR" ? "FR" : "EN",
     createdAt: at(history[0][1]),

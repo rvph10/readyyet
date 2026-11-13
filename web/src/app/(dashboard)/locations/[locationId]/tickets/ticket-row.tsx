@@ -108,7 +108,7 @@ export function TicketRow({ ticket, locationId, timeZone, today, list }: Props) 
         aria-label={title}
         className="absolute inset-0 outline-ink -outline-offset-2 focus-visible:outline-2"
       />
-      {list && <span className="hidden text-label-sm text-muted lg:block">#{ticket.id}</span>}
+      {list && <span className="hidden text-label-sm text-muted lg:block">#{ticket.number}</span>}
       <div className="col-span-2 flex min-w-0 items-center gap-3 lg:col-span-1">
         <Avatar id={customer.fullName} name={name} src={null} className="lg:size-12! lg:text-base!" />
         <span className="min-w-0">

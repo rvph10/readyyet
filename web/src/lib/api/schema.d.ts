@@ -1415,6 +1415,7 @@ export interface components {
             /** Format: date */
             estimatedReadyDate: string | null;
             id: string;
+            number: number;
             trackingCode: string;
             title: string;
             description: string | null;
@@ -1436,6 +1437,7 @@ export interface components {
             /** Format: date */
             estimatedReadyDate: string | null;
             id: string;
+            number: number;
             trackingCode: string;
             title: string;
             /** Format: date-time */
@@ -1465,6 +1467,7 @@ export interface components {
             /** Format: date */
             estimatedReadyDate: string | null;
             id: string;
+            number: number;
             trackingCode: string;
             title: string;
             /** Format: date-time */
@@ -1517,6 +1520,7 @@ export interface components {
             trackingUrl: string;
             trackingLinkExpired: boolean;
             id: string;
+            number: number;
             trackingCode: string;
             title: string;
             description: string | null;
@@ -1750,6 +1754,7 @@ export interface components {
             /** @enum {string} */
             locale: "EN" | "FR";
             trackingCode: string;
+            number: number;
             title: string;
             /** Format: date-time */
             customerCollectedAt: string | null;

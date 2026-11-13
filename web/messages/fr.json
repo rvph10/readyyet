@@ -135,7 +135,7 @@
     "title": "Tickets",
     "new": "Nouveau ticket",
     "search": "Rechercher des tickets",
-    "searchPlaceholder": "Nom, téléphone, code ou travail",
+    "searchPlaceholder": "Nom, téléphone, numéro, code ou travail",
     "viewsLabel": "Filtrer les tickets",
     "views": {
       "open": "En cours",
