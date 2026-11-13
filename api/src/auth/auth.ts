@@ -13,6 +13,9 @@ import { isDisposableEmail } from "./disposable-email";
 import { isAllowedToSignIn } from "./sign-in-allowlist";
 import { SIGN_IN_CODES_PER_HOUR } from "../email/email-limits";
 
+const notAllowedToSignIn = () =>
+  new APIError("FORBIDDEN", { code: "NOT_ALLOWED_TO_SIGN_IN", message: "This address isn't allowed to sign in here." });
+
 // Given to the plugin and quoted in the email, so the two can't disagree.
 const OTP_EXPIRES_IN_MINUTES = 5;
 
@@ -65,9 +68,14 @@ export const auth: Auth<any> = betterAuth({
       create: {
         // An account is created by its first sign-in, whose browser
         // language is the best first guess at the User's.
+        // A Google sign-up brings its own profile picture URL, but the avatar
+        // is a bucket key only PUT /me/avatar sets (ADR 0026), so it's dropped.
         before(user, ctx) {
+          if (!isAllowedToSignIn(user.email)) {
+            throw notAllowedToSignIn();
+          }
           const locale = localeFromAcceptLanguage(ctx?.headers?.get("accept-language"));
-          return Promise.resolve({ data: { ...user, locale } });
+          return Promise.resolve({ data: { ...user, image: undefined, locale } });
         },
       },
       update: {
@@ -77,6 +85,24 @@ export const auth: Auth<any> = betterAuth({
         // its own data, so dropping the key wouldn't be enough.
         before(user) {
           return Promise.resolve({ data: { ...user, image: undefined } });
+        },
+      },
+    },
+    // ADR 0150: a User created before the allowlist, or signing in with
+    // Google, never asks for a code, so the session itself is refused.
+    session: {
+      create: {
+        async before(session) {
+          if (process.env.SIGN_IN_ALLOWLIST) {
+            const user = await prisma.user.findUniqueOrThrow({
+              where: { id: session.userId },
+              select: { email: true },
+            });
+            if (!isAllowedToSignIn(user.email)) {
+              throw notAllowedToSignIn();
+            }
+          }
+          return { data: session };
         },
       },
     },
@@ -90,10 +116,7 @@ export const auth: Auth<any> = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       const email = (ctx.body as { email?: unknown } | undefined)?.email;
       if (ctx.path === "/email-otp/send-verification-otp" && typeof email === "string" && !isAllowedToSignIn(email)) {
-        throw new APIError("FORBIDDEN", {
-          code: "NOT_ALLOWED_TO_SIGN_IN",
-          message: "This address isn't allowed to sign in here.",
-        });
+        throw notAllowedToSignIn();
       }
       if (
         ctx.path === "/email-otp/send-verification-otp" &&
@@ -125,6 +148,15 @@ export const auth: Auth<any> = betterAuth({
         });
       }
     }),
+  },
+  // ADR 0151: Google as a second way in. Google confirms the address, so an
+  // existing User with the same email gets the Google account linked.
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      prompt: "select_account",
+    },
   },
   // No password auth: sign-in is by emailed OTP, which confirms the
   // email as a side effect and removes the need for a separate

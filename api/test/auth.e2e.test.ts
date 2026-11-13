@@ -141,6 +141,34 @@ describe("Better Auth email OTP", () => {
     }
   });
 
+  it.each([
+    ["creates no User", false],
+    ["refuses a session to an existing User", true],
+  ])("off the allowlist, %s, as a Google sign-in sends no code", async (_, existing) => {
+    const email = `off-list-${existing}-${Date.now()}@example.com`;
+    if (existing) {
+      await signInViaOtp(app, prisma, email);
+    }
+    await sendFromOwnIp(email);
+    const { value } = await prisma.verification.findFirstOrThrow({
+      where: { identifier: `sign-in-otp-${email}` },
+      orderBy: { createdAt: "desc" },
+    });
+    process.env.SIGN_IN_ALLOWLIST = "@resend.dev";
+    try {
+      const response = await request(app.getHttpServer())
+        .post("/api/auth/sign-in/email-otp")
+        .set("X-Real-IP", "203.0.113.51")
+        .send({ email, otp: value.split(":")[0] });
+
+      expect(response.status).toBe(403);
+      expect(response.body.code).toBe("NOT_ALLOWED_TO_SIGN_IN");
+      expect(await prisma.user.count({ where: { email } })).toBe(existing ? 1 : 0);
+    } finally {
+      delete process.env.SIGN_IN_ALLOWLIST;
+    }
+  });
+
   it("refuses a disposable address before sending a code", async () => {
     const email = `someone-${Date.now()}@yopmail.com`;
 
