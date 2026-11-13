@@ -12,6 +12,7 @@ import { routing } from "@/i18n/routing";
 import { signInUrl } from "@/lib/sign-in-url";
 import { SITE_URL } from "@/lib/site-url";
 import { TRADE_KEYS, TRADES, tradeFromSlug, tradePath, type SiteLocale } from "@/lib/trades";
+import { noOrphan } from "@/lib/typography";
 import "@/components/trade/trade.css";
 
 type Props = PageProps<"/[locale]/[trade]">;
@@ -239,7 +240,7 @@ export default async function TradePage({ params }: Props) {
             <div className="trade-faq__list">
               {faq.map(({ q, a }) => (
                 <details key={q} className="trade-faq__item" data-entrance="">
-                  <summary>{q}</summary>
+                  <summary>{noOrphan(q)}</summary>
                   <p>{a}</p>
                 </details>
               ))}
