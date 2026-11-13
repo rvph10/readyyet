@@ -48,7 +48,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
       <Reveal
         fallback={
           <>
-            <PageHeader title={null} crumb={`#${ticketId}`} />
+            <PageHeader title={null} />
             <TicketLoading />
           </>
         }
@@ -121,7 +121,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
 
   return (
     <>
-      <PageHeader title={title} crumb={`#${ticket.id}`} />
+      <PageHeader title={title} crumb={`#${ticket.number}`} />
 
       {ticket.emailProblem === "GAVE_UP" && (
         <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>

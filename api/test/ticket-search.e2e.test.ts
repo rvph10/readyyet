@@ -150,6 +150,12 @@ describe("Ticket search and filters", () => {
     expect((await list({ sort: "price" })).status).toBe(400);
   });
 
+  it("finds a Ticket by its number in this Location, and sorts by it", async () => {
+    expect(await titles({ q: "#2" })).toEqual(["Oil change"]);
+    const { items } = (await list({ sort: "number", dir: "asc" })).body as { items: { number: number }[] };
+    expect(items.map(({ number }) => number)).toEqual([1, 2, 3, 4]);
+  });
+
   it("treats % and _ in the search as plain characters", async () => {
     expect(await titles({ q: "100%" })).toEqual(["Tire rotation 100% free"]);
     expect(await titles({ q: "%" })).toEqual(["Tire rotation 100% free"]);

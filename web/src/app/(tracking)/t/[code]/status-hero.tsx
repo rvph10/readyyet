@@ -87,7 +87,10 @@ export async function StatusHero({ tracking, locale, now, demo = false, classNam
           {statusLabel(currentStatus, locale)}
         </h1>
         <p className="mt-2 max-w-2xl text-p-md md:text-p-lg">{t(`meaning.${state}`)}</p>
-        <p className={`mt-4 max-w-2xl text-label-sm wrap-anywhere ${ready ? "text-ink/70" : "text-muted"}`}>{title}</p>
+        <p className={`mt-4 max-w-2xl text-label-sm wrap-anywhere ${ready ? "text-ink/70" : "text-muted"}`}>
+          {/* The shop's number for it, which the Customer can quote (ADR 0154). */}
+          {title} · #{tracking.number}
+        </p>
 
         {expected && (
           <p className="mt-5 inline-flex items-start gap-2 rounded-xl bg-subtle px-3.5 py-2.5 text-label-sm">

@@ -388,6 +388,7 @@ export class NotificationService {
       businessTypeCode: ticket.location.businessType.code,
       customerName: ticket.customer.fullName,
       ticketTitle: ticket.title,
+      ticketNumber: ticket.number,
       estimatedReadyDate,
       location: {
         ...ticket.location,

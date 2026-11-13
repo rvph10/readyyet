@@ -123,6 +123,7 @@ describe("Public tracking", () => {
     expect(response.headers["cache-control"]).toBe("no-store");
     expect(response.body.trackingCode).toBe(ticket.trackingCode);
     expect(response.body.title).toBe("Brake pads");
+    expect(response.body.number).toEqual(expect.any(Number));
     expect(response.body.location).toEqual({
       name: "Tracking Shop",
       contactPhone: "+12125550199",

@@ -221,7 +221,7 @@ async function TicketList({ locationId, customerId, page }: { locationId: string
                   {ticket.title}
                 </span>
                 <span className="block truncate text-p-xs text-muted">
-                  #{ticket.id} · {t("received", { date: day(ticket.createdAt) })}
+                  #{ticket.number} · {t("received", { date: day(ticket.createdAt) })}
                 </span>
               </span>
               <StatusPill code={ticket.currentStatus.code} label={statusLabel(ticket.currentStatus, locale)} />

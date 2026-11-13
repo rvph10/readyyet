@@ -47,7 +47,7 @@ type ListTicket = Prisma.TicketGetPayload<{ include: typeof LIST_INCLUDE }>;
 
 function ticketOrder({ sort, dir = "asc" }: ListTicketsQueryDto): Prisma.TicketOrderByWithRelationInput[] {
   const orders = {
-    number: { id: dir },
+    number: { number: dir },
     customer: { customer: { fullName: dir } },
     title: { title: dir },
     // A Workflow's order lives on its steps, which a sort can't reach, so this
@@ -63,6 +63,7 @@ function ticketOrder({ sort, dir = "asc" }: ListTicketsQueryDto): Prisma.TicketO
 function listItem(ticket: ListTicket) {
   return {
     id: ticket.id.toString(),
+    number: ticket.number,
     trackingCode: ticket.trackingCode,
     title: ticket.title,
     estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
@@ -356,8 +357,11 @@ export class TicketService {
     if (query.q) {
       const contains = { contains: escapeLike(query.q), mode: "insensitive" } as const;
       const digits = phoneDigits(query.q);
+      // "12" or "#12", the number on the Ticket's screens (ADR 0154).
+      const number = /^#?(\d{1,9})$/.exec(query.q)?.[1];
       filters.push({
         OR: [
+          ...(number ? [{ number: Number(number) }] : []),
           // An erased Customer's Tickets have a placeholder title (ADR 0128).
           { title: contains, customer: { deletedAt: null } },
           { description: contains },
@@ -661,6 +665,7 @@ export class TicketService {
 
   private mapDetail(ticket: {
     id: bigint;
+    number: number;
     trackingCode: string;
     title: string;
     description: string | null;
@@ -682,6 +687,7 @@ export class TicketService {
   }) {
     return {
       id: ticket.id.toString(),
+      number: ticket.number,
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       description: ticket.description,
