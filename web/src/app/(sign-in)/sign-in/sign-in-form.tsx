@@ -170,13 +170,18 @@ export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Prop
     }
   }
 
-  // ADR 0151: Google signs the User in on the API, then sends them on to the
-  // page they were going to, or back here with the reason it failed.
+  // ADR 0151: Google signs the User in on the API, then sends them back here,
+  // signed in (GoogleReturn) or with the reason it failed.
   async function signInWithGoogle() {
     const here = `${location.origin}/sign-in?next=${encodeURIComponent(next)}`;
     const started = await call("google", () =>
       authClient.signIn.social(
-        { provider: "google", callbackURL: new URL(next, location.origin).href, errorCallbackURL: here },
+        {
+          provider: "google",
+          callbackURL: `${here}&google=back`,
+          newUserCallbackURL: `${here}&google=new`,
+          errorCallbackURL: here,
+        },
         inPageLanguage,
       ),
     );
@@ -201,16 +206,7 @@ export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Prop
     }
     // A first sign-in creates the User without a name (ADR 0011).
     if (data.user.name) {
-      // ADR 0118: the app speaks the User's own language, on this device too.
-      const saved = parseLocale((data.user as { locale?: string }).locale);
-      if (saved && saved.toLowerCase() !== locale) {
-        document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
-        // A full load, as the root layout holds the page's language and its
-        // messages, which a soft navigation keeps.
-        window.location.assign(next);
-        return;
-      }
-      router.replace(next);
+      goOn(next, (data.user as { locale?: string }).locale, locale, router);
     } else {
       setStep("name");
     }
@@ -223,9 +219,8 @@ export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Prop
 
   async function saveName(name: string) {
     if (await call("saveName", () => authClient.updateUser({ name }))) {
-      // Only a first sign-in asks for the name (ADR 0011). Someone invited
-      // joins an existing Business, which isn't a sign-up.
-      if (!next.startsWith("/invitations/")) track("signed_up");
+      // Only a first sign-in asks for the name (ADR 0011).
+      trackSignUp(next);
       router.replace(next);
     }
   }
@@ -400,4 +395,40 @@ function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string
       </Tooltip>
     </button>
   );
+}
+
+// Someone invited joins an existing Business, which isn't a sign-up.
+function trackSignUp(next: string) {
+  if (!next.startsWith("/invitations/")) track("signed_up");
+}
+
+// ADR 0118: the app speaks the User's own language, on this device too.
+function goOn(next: string, savedLocale: string | undefined, pageLocale: string, router: ReturnType<typeof useRouter>) {
+  const saved = parseLocale(savedLocale);
+  if (saved && saved.toLowerCase() !== pageLocale) {
+    document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
+    // A full load, as the root layout holds the page's language and its
+    // messages, which a soft navigation keeps.
+    window.location.assign(next);
+    return;
+  }
+  router.replace(next);
+}
+
+// Back from Google signed in: what a code sign-in does once the code is right,
+// as Google skips the code and the name steps (ADR 0151).
+export function GoogleReturn({ next, savedLocale, isNew }: { next: string; savedLocale: string; isNew: boolean }) {
+  const locale = useLocale();
+  const router = useRouter();
+  useEffect(() => {
+    // A new User was saved in the browser's language, not a choice of theirs
+    // yet, so the page's language stays.
+    if (isNew) {
+      trackSignUp(next);
+      router.replace(next);
+    } else {
+      goOn(next, savedLocale, locale, router);
+    }
+  }, [next, savedLocale, isNew, locale, router]);
+  return null;
 }

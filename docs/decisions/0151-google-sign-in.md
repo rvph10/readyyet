@@ -6,7 +6,7 @@ Builds on ADR 0011 (sign-in by emailed code), which stays the default.
 
 ## Decision
 
-The sign-in page offers "Continue with Google" under the email field, through Better Auth's Google provider. The API handles the whole exchange and sends the User back to the page they were going to, or to the sign-in page with the reason it failed.
+The sign-in page offers "Continue with Google" under the email field, through Better Auth's Google provider. The API handles the whole exchange and sends the User back to the sign-in page, with the reason when it failed. Signed in, the page does what it does after a right code, then goes on to where they were going: it counts a new User's sign-up and, for a returning User, switches the device to their own language (ADR 0118).
 
 - An existing User whose address Google confirms gets the Google account linked to them: one person, one User, whichever way they come in.
 - Only name, email and the Google account ID are asked for. Google's profile picture isn't kept, as the avatar is a file the User uploads (ADR 0026).
