@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Illustration } from "@/components/illustration";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { useLocationActions } from "../location-actions";
+import { SampleTicket } from "./sample-ticket";
 
 const STEPS: [IconName, "create" | "show" | "move"][] = [
   ["tag", "create"],
@@ -12,7 +13,8 @@ const STEPS: [IconName, "create" | "show" | "move"][] = [
 ];
 
 // A Location with no Tickets has nothing to overview, so it says how it starts.
-export function FirstTicket() {
+// The sample is for those who can delete it (ADR 0155).
+export function FirstTicket({ sample = false }: { sample?: boolean }) {
   const t = useTranslations("today.first");
   const { newTicket } = useLocationActions();
   return (
@@ -21,14 +23,19 @@ export function FirstTicket() {
         <div>
           <h2 className="text-title-h4 lg:text-title-h3">{t("title")}</h2>
           <p className="mt-2 max-w-xl text-p-lg">{t("body")}</p>
-          <button
-            type="button"
-            onClick={newTicket}
-            className="mt-7 inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-brand px-5 text-label-sm text-ink transition-[background-color,scale] hover:bg-brand-hover active:scale-[0.97]"
-          >
-            <Icon name="add" className="size-3.5" />
-            {t("action")}
-          </button>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={newTicket}
+              className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-brand px-5 text-label-sm text-ink transition-[background-color,scale] hover:bg-brand-hover active:scale-[0.97]"
+            >
+              <Icon name="add" className="size-3.5" />
+              {t("action")}
+            </button>
+            {sample && (
+              <SampleTicket className="inline-flex h-12 cursor-pointer items-center rounded-full bg-surface/10 px-5 text-label-sm transition-colors hover:bg-surface/16 aria-busy:cursor-progress aria-busy:opacity-70" />
+            )}
+          </div>
         </div>
         <Illustration name="progress-on-pine" className="hidden h-56 w-auto shrink-0 md:block" />
       </div>

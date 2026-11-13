@@ -453,7 +453,8 @@ export interface paths {
         get: operations["TicketController_findOne"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a ticket for good, its tracking link stops working (ADR 0155) */
+        delete: operations["TicketController_remove"];
         options?: never;
         head?: never;
         /** Edit a ticket's title, description or estimated ready date */
@@ -5270,6 +5271,89 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TicketDetailDto"];
                 };
+            };
+            /** @description UNAUTHENTICATED: no valid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description UNAUTHORIZED: signed in, but not allowed to do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description NOT_FOUND: the resource doesn't exist, or isn't visible to you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body is over the size limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description VALIDATION_ERROR: the request body's charset or encoding isn't supported */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description RATE_LIMITED: too many requests, retry after the Retry-After header's seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            /** @description INTERNAL_ERROR: something went wrong on our side, the message is always generic */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    TicketController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                locationId: string;
+                ticketId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description UNAUTHENTICATED: no valid session */
             401: {

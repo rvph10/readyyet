@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { IllustrationName } from "@/components/illustration";
 import { RefreshWhileOpen } from "@/components/refresh-while-open";
 import { RowsPlaceholder } from "@/components/rows-placeholder";
+import { Banner } from "@/components/ui/banner";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
@@ -62,6 +63,7 @@ export default async function TicketsPage({ params, searchParams }: PageProps<"/
     <>
       <RefreshWhileOpen every={REFRESH_EVERY_MS} />
       <PageHeader title={t("title")} subtitle={q ? t("resultsFor", { query: q }) : undefined} />
+      {search.deleted && <Banner>{t("deleted")}</Banner>}
       <Panel padding="none" className="flex flex-1 flex-col overflow-clip">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 lg:px-7 lg:pt-6">
           <Reveal fallback={<ViewTabs query={query} counts={null} />}>
