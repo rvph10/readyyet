@@ -13,7 +13,7 @@
   "signIn": {
     "pageTitle": "Sign in",
     "title": "Welcome to ReadyYet",
-    "emailIntro": "Sign in or create an account with just your email.",
+    "emailIntro": "Sign in or create an account with your email or Google.",
     "email": "Email address",
     "continue": "Continue",
     "codeTitle": "Check your email",
@@ -35,6 +35,7 @@
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "disposableEmail": "Disposable email addresses can't be used. Use your work or personal email.",
       "notAllowed": "This address can't sign in here.",
+      "googleFailed": "Signing in with Google didn't work. Try again, or use your email.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "Something went wrong. Please try again.",
       "unreachable": "We couldn't reach ReadyYet. Check your connection and try again."
@@ -83,7 +84,10 @@
     "sendingCode": "Sending the code…",
     "signingIn": "Signing in…",
     "saving": "Saving…",
-    "codeResent": "We sent a new code to {email}."
+    "codeResent": "We sent a new code to {email}.",
+    "or": "or",
+    "google": "Continue with Google",
+    "openingGoogle": "Opening Google…"
   },
   "dashboard": {
     "signOut": "Sign out",
