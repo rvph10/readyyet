@@ -1,56 +1,19 @@
-/* A trade's page (ADR 0145): the home's look, its heading under the nav, then
-   what changes, the steps, the trade in its own words, prices, questions
-   and the other trades. */
+/* A trade's page (ADR 0145): the home's colours and type, one layout for
+   every trade. The hero puts the Customer's tracking page on a phone, then
+   come the change at the counter, how it works, the features, the numbers,
+   the trade in its own words, prices, questions and a closing call. */
 
-.trade-hero {
-  padding-top: var(--container-bleed);
-}
-
-.trade-hero__panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 9rem var(--container-padding) var(--section-space);
-  text-align: center;
-  color: var(--color-ink);
-  background-color: var(--color-surface-muted);
-  border-radius: var(--radius-panel);
-}
-
-.trade-hero__label {
+.trade-label {
+  width: fit-content;
   padding: 0.25rem 0.75rem;
   margin-bottom: 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   text-transform: uppercase;
+  color: var(--color-ink);
   background-color: var(--color-bg-accent);
   border-radius: 999px;
-}
-
-.trade-hero__title {
-  max-width: 16em;
-  text-wrap: balance;
-}
-
-.trade-hero__lead {
-  max-width: 38rem;
-  margin-top: 1.25rem;
-  font-size: 1.125rem;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: -0.02em;
-  text-wrap: pretty;
-}
-
-.trade-hero__cta {
-  margin-top: 2rem;
-}
-
-/* The panel is the muted grey the secondary button is, so it's white here. */
-.trade-hero .btn--muted {
-  background-color: var(--color-bg-white);
 }
 
 .trade-section {
@@ -63,7 +26,347 @@
   text-wrap: balance;
 }
 
-.trade-pains {
+/* Hero */
+
+.trade-hero {
+  position: relative;
+  padding-top: 7.5rem;
+  color: var(--color-ink);
+}
+
+.trade-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.trade-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4.4vw, 4.25rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.trade-hero__lead {
+  max-width: 34rem;
+  margin-top: 1.5rem;
+  font-size: 1.1875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+.trade-hero .cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.trade-hero__assure {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0;
+  margin: 1.75rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  list-style: none;
+}
+
+.trade-hero__assure li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trade-hero__check {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-bg-dark);
+}
+
+.trade-hero__stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 3.5rem 2rem 0;
+  overflow: clip;
+  background-color: var(--color-bg-dark);
+  border-radius: var(--radius-panel);
+}
+
+/* The phone stands at the bottom of the pine stage, cut by its edge, so the
+   page below it reads as the screen going on. */
+.trade-phone {
+  width: 19rem;
+  padding: 0.625rem 0.625rem 0;
+  background-color: #0d0d0d;
+  border-radius: 2.75rem 2.75rem 0 0;
+}
+
+.trade-phone__screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  height: 33rem;
+  padding: 1.25rem 0.875rem;
+  overflow: clip;
+  background-color: var(--color-bg-page);
+  border-radius: 2.25rem 2.25rem 0 0;
+}
+
+.trade-phone__shop {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.25rem 0.25rem 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.trade-phone__initials {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-bg-accent);
+  background-color: var(--color-bg-dark);
+  border-radius: 0.625rem;
+}
+
+.trade-phone__status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+  font-size: 0.8125rem;
+  background-color: var(--color-bg-accent);
+  border-radius: 1.25rem;
+}
+
+.trade-phone__status strong {
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.trade-phone__status span:last-child {
+  font-weight: 600;
+}
+
+.trade-phone__card {
+  padding: 1rem 1.125rem;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 1.25rem;
+}
+
+.trade-phone__heading {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trade-phone__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  list-style: none;
+}
+
+.trade-phone__steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.trade-phone__dot {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #c9c9c9;
+  border-radius: 50%;
+}
+
+.trade-phone__dot svg {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.trade-phone__steps .is-done .trade-phone__dot {
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+  border-color: var(--color-bg-dark);
+}
+
+.trade-phone__steps .is-now {
+  font-weight: 700;
+}
+
+.trade-phone__steps .is-now .trade-phone__dot {
+  background-color: var(--color-bg-accent);
+  border-color: var(--color-bg-dark);
+  box-shadow: inset 0 0 0 4px var(--color-bg-accent);
+  background-image: radial-gradient(circle, var(--color-bg-dark) 35%, transparent 40%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trade-phone__steps .is-now .trade-phone__dot {
+    animation: trade-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes trade-pulse {
+  50% {
+    scale: 1.2;
+  }
+}
+
+.trade-float {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 16rem;
+  padding: 0.75rem 1rem 0.75rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-white);
+  border-radius: 1rem;
+}
+
+.trade-float strong {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+}
+
+.trade-float--ready {
+  bottom: 1.75rem;
+  left: 1.5rem;
+}
+
+/* Over the progress card's right side, which its step names leave empty. */
+.trade-float--reminder {
+  top: 46%;
+  right: 1rem;
+  max-width: 13rem;
+}
+
+.trade-float__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-bg-accent);
+  background-color: var(--color-bg-dark);
+  border-radius: 0.75rem;
+}
+
+.trade-float__icon--lime {
+  color: var(--color-bg-dark);
+  background-color: var(--color-bg-accent);
+}
+
+.trade-float__icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Before and after */
+
+.trade-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.trade-compare__side {
+  padding: 2.5rem;
+  border-radius: var(--radius-panel);
+}
+
+.trade-compare__side--before {
+  background-color: var(--color-bg-white);
+}
+
+.trade-compare__side--after {
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+}
+
+.trade-compare__title {
+  margin-bottom: 1.75rem;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.trade-compare ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.trade-compare li {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 1.1875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.trade-compare__mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.trade-compare__mark svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.trade-compare__side--before .trade-compare__mark {
+  color: var(--color-ink);
+  background-color: var(--color-surface-muted);
+}
+
+.trade-compare__side--after .trade-compare__mark {
+  color: var(--color-bg-dark);
+  background-color: var(--color-bg-accent);
+}
+
+/* How it works */
+
+.trade-how {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -72,119 +375,251 @@
   list-style: none;
 }
 
-.trade-pain {
+.trade-how__step {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0.75rem 2rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius-panel);
+}
+
+.trade-how__step > :not(.trade-how__art) {
+  margin-inline: 1.25rem;
+}
+
+.trade-how__art {
+  display: grid;
+  place-items: center;
+  height: 17.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.75rem;
+  background-color: var(--color-bg-page);
+  border-radius: calc(var(--radius-panel) - 0.5rem);
+}
+
+.trade-how__number {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.trade-how__title {
+  margin-block: 0.5rem 0.75rem;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.how-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 17rem;
+}
+
+.how-form__field {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 0.75rem;
+}
+
+.how-form__field span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.how-form__button {
+  padding: 0.625rem;
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+  border-radius: 0.75rem;
+}
+
+.how-channels,
+.how-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  max-width: 17rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.how-channels li,
+.how-timeline li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 0.875rem;
+}
+
+.how-channels svg,
+.how-timeline svg {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-bg-dark);
+}
+
+.how-channels li:first-child,
+.how-timeline .is-ready {
+  background-color: var(--color-bg-accent);
+  border-color: transparent;
+}
+
+/* Features: a bento of uneven widths, pine, then white, then lime. */
+
+.trade-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0;
+  margin: 2.5rem 0 0;
+  list-style: none;
+}
+
+.trade-feature {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 15rem;
   padding: 2rem;
   font-size: 1.0625rem;
   line-height: 1.5;
   letter-spacing: -0.02em;
-  color: var(--color-ink);
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-bg-white);
   border-radius: var(--radius-panel);
 }
 
-.trade-pain--lime {
+.trade-feature:nth-child(6n + 1),
+.trade-feature:nth-child(6n + 4),
+.trade-feature:nth-child(6n + 5) {
+  grid-column: span 2;
+}
+
+.trade-feature:nth-child(6n + 1) {
+  color: var(--color-text-white);
+  background-color: var(--color-bg-dark);
+}
+
+.trade-feature:nth-child(6n + 4) {
   background-color: var(--color-bg-accent);
 }
 
-.trade-pain__title {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
+.trade-feature__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: auto;
+  color: var(--color-bg-accent);
+  background-color: var(--color-bg-dark);
+  border-radius: 0.875rem;
 }
 
-.trade-steps {
+.trade-feature:nth-child(6n + 1) .trade-feature__icon {
+  color: var(--color-bg-dark);
+  background-color: var(--color-bg-accent);
+}
+
+.trade-feature__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.trade-feature__title {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 1.625rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.trade-feature__pro {
+  padding: 0.125rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--color-bg-accent);
+  background-color: var(--color-bg-dark);
+  border-radius: 999px;
+}
+
+.trade-feature p {
+  max-width: 34rem;
+}
+
+/* Numbers */
+
+.trade-numbers {
   padding: var(--section-space) var(--container-padding);
   color: var(--color-text-white);
   background-color: var(--color-bg-dark);
   border-radius: var(--radius-panel);
 }
 
-.trade-steps__hint {
-  max-width: 34rem;
-  margin-top: 1rem;
+.trade-numbers__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.5rem;
+  padding: 2.5rem 0 0;
+  margin: 2.5rem 0 0;
   font-size: 1.0625rem;
-  line-height: 1.5;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.trade-numbers__list strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-bg-accent);
+}
+
+.trade-numbers__note {
+  margin-top: 2.5rem;
+  font-size: 0.9375rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.trade-steps__list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 0;
-  margin: 2.5rem 0 0;
-  list-style: none;
-}
-
-.trade-step {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.875rem 1.25rem;
-  font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-}
-
-.trade-step__dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-}
-
-.trade-step--done .trade-step__dot {
-  background-color: var(--color-bg-accent);
-  border-color: var(--color-bg-accent);
-}
-
-.trade-step--now {
-  color: var(--color-ink);
-  background-color: var(--color-bg-accent);
-}
-
-.trade-step--now .trade-step__dot {
-  border-color: var(--color-ink);
-  box-shadow: inset 0 0 0 2px var(--color-bg-accent);
-  background-color: var(--color-ink);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .trade-step--now .trade-step__dot {
-    animation: trade-pulse 1.6s ease-in-out infinite;
-  }
-}
-
-@keyframes trade-pulse {
-  50% {
-    scale: 1.35;
-  }
-}
+/* The trade in its own words */
 
 .trade-guide {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   gap: 2.5rem;
   align-items: start;
-}
-
-.trade-guide__label {
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
 }
 
 .trade-guide__text {
@@ -197,6 +632,8 @@
   letter-spacing: -0.01em;
   text-wrap: pretty;
 }
+
+/* Questions */
 
 .trade-faq {
   display: grid;
@@ -213,7 +650,7 @@
 
 .trade-faq__item {
   padding: 1.5rem 1.75rem;
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-bg-white);
   border-radius: 1.25rem;
 }
 
@@ -251,6 +688,31 @@
   color: var(--color-text-secondary);
 }
 
+/* Closing call */
+
+.trade-closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: var(--section-space) var(--container-padding);
+  text-align: center;
+  background-color: var(--color-bg-accent);
+  border-radius: var(--radius-panel);
+}
+
+.trade-closing .t-display {
+  max-width: 12em;
+}
+
+.trade-closing p {
+  font-size: 1.1875rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* Other trades */
+
 .trade-others__title {
   font-size: 1.125rem;
   font-weight: 600;
@@ -267,15 +729,22 @@
 }
 
 .trade-others a {
-  display: block;
-  padding: 0.625rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem 0.625rem 0.75rem;
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--color-ink);
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-bg-white);
   border-radius: var(--radius-btn);
   transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trade-others img {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -285,28 +754,71 @@
 }
 
 @media (max-width: 991px) {
-  .trade-pains,
+  .trade-hero__grid,
+  .trade-compare,
+  .trade-how,
+  .trade-numbers__list,
   .trade-guide,
   .trade-faq {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trade-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trade-feature:nth-child(6n + 4),
+  .trade-feature:nth-child(6n + 5) {
+    grid-column: auto;
   }
 
   .trade-guide,
   .trade-faq {
     gap: 1.5rem;
   }
+
+  .trade-numbers__list {
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 767px) {
-  .trade-hero__panel {
-    padding-top: 7rem;
+  .trade-hero {
+    padding-top: 6.5rem;
   }
 
-  .trade-steps {
-    padding-inline: 1.5rem;
+  .trade-hero__stage {
+    padding-inline: 1rem;
   }
 
-  .trade-pain {
+  .trade-float {
+    display: none;
+  }
+
+  .trade-compare__side,
+  .trade-feature {
     padding: 1.5rem;
+  }
+
+  .trade-how__art {
+    height: auto;
+    padding-block: 2rem;
+  }
+
+  .trade-feature {
+    min-height: 12rem;
+  }
+
+  .trade-features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trade-feature:nth-child(6n + 1) {
+    grid-column: auto;
+  }
+
+  .trade-numbers,
+  .trade-closing {
+    padding-inline: 1.5rem;
   }
 }
