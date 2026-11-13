@@ -325,7 +325,8 @@
         "ALTERATION": "Retouche",
         "FITTING": "Pasbeurt",
         "QUALITY_CHECK": "Kwaliteitscontrole"
-      }
+      },
+      "guideLabel": "In de praktijk"
     },
     "shoe": {
       "label": "Schoenmaker en lederwaren",
@@ -359,8 +360,28 @@
         {
           "q": "Moeten mijn klanten een app installeren?",
           "a": "Nee. Ze openen hun link in de browser van hun gsm, zonder account."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een schoenmaker?",
+          "a": "Essentiel kost € 29 per maand en Pro € 49 per maand, per zaak, zonder verbintenis. De eerste 14 dagen zijn gratis, zonder bankkaart."
+        },
+        {
+          "q": "En als een klant zijn schoenen niet komt ophalen?",
+          "a": "Er vertrekt automatisch een herinnering 3 dagen en daarna 10 dagen na de e-mail dat alles klaar is. Op uw dashboard blijven de paren die wachten goed zichtbaar."
+        },
+        {
+          "q": "Ik maak ook sleutels en doe graveerwerk. Werkt dat ook?",
+          "a": "Ja. Alles wat bij u wordt afgegeven en later wordt opgehaald, kan een ticket krijgen. Met Pro past u de stappen aan elk soort werk aan."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van herstellingen, gemaakt voor schoenmakers",
+        "paragraphs": [
+          "Bij een schoenmaker staan de rekken snel vol: nieuwe zolen, hakken, rubberzolen, tassen die genaaid moeten worden, ritsen die vervangen moeten worden. Elke klant wil weten wanneer hij terug kan komen, en meestal vraagt hij dat via de telefoon. Met ReadyYet krijgt elk afgegeven paar een ticket met een eigen opvolgingspagina, die de klant op zijn gsm opent.",
+          "Aan de toonbank noteert u de naam van de klant, het artikel en de verwachte datum. De klant krijgt zijn link per e-mail, via WhatsApp of door een QR-code te scannen. Op zijn pagina ziet hij hoe ver het staat, van Ontvangen over Herstelling tot Klaar, samen met uw adres en openingsuren.",
+          "Is het paar klaar, dan vertrekt er vanzelf een e-mail. Komt er niemand, dan volgt na 3 dagen een herinnering en na 10 dagen nog een, zodat vergeten schoenen eindelijk uit het rek verdwijnen. Met Pro voegt u eigen stappen toe, zoals een diagnose voor lederwaren of een offerte om goed te keuren voor een grote herstelling."
+        ]
+      }
     },
     "pressing": {
       "label": "Droogkuis",
@@ -394,8 +415,28 @@
         {
           "q": "Wat kost het?",
           "a": "Vanaf 29 € per maand en per winkel, zonder verbintenis. De eerste 14 dagen zijn gratis, zonder bankkaart."
+        },
+        {
+          "q": "Krijgt de klant bericht als een stuk langer duurt?",
+          "a": "Ja. U past de verwachte datum op het ticket aan en de klant krijgt een e-mail met de nieuwe datum."
+        },
+        {
+          "q": "Kan ik het ook gebruiken voor retouches?",
+          "a": "Ja. Met Pro voegt u stappen toe zoals \"Retouche\" of \"Pasbeurt\", in uw eigen volgorde."
+        },
+        {
+          "q": "Wat als mijn klant geen e-mailadres heeft?",
+          "a": "Hij scant de QR-code aan de toonbank, of u stuurt zijn link via WhatsApp. Zijn opvolgingspagina blijft altijd bereikbaar."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van bestellingen, gemaakt voor droogkuis",
+        "paragraphs": [
+          "Een droogkuis draait op afgiftes: de hemden van de week, een kostuum voor een trouwfeest, een delicaat kleed, een dekbed voor de zomer. Klanten komen te vroeg terug, of vergeten hun kleren wekenlang. ReadyYet geeft elke afgifte een opvolgingspagina die zegt hoe ver de bestelling staat en wanneer ze klaarligt.",
+          "Het ticket maakt u in enkele seconden aan de toonbank, met de stukken en de verwachte datum. De klant krijgt zijn link per e-mail of via een QR-code en ziet Ontvangen, Reiniging en Klaar, met uw openingsuren erbij, zonder te bellen.",
+          "Zodra de bestelling klaar is, krijgt de klant een e-mail. Komt hij niet, dan volgt een herinnering na 3 en na 10 dagen, en raakt uw rek sneller leeg. Duurt een vlek langer, dan verschuift u de datum en krijgt de klant de nieuwe per e-mail."
+        ]
+      }
     },
     "tailoring": {
       "label": "Retouches en maatwerk",
@@ -429,8 +470,28 @@
         {
           "q": "Moeten mijn klanten iets installeren?",
           "a": "Nee. Een link in de browser volstaat, zonder account."
+        },
+        {
+          "q": "Kan ik twee pasbeurten plannen?",
+          "a": "Ja, met Pro. U kiest de stappen en hun volgorde, bijvoorbeeld twee pasbeurten voor de laatste retouche."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een kleermaker?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per atelier en zonder verbintenis. De proefperiode van 14 dagen is gratis, zonder bankkaart."
+        },
+        {
+          "q": "En als een klant zijn kledingstuk niet ophaalt?",
+          "a": "Hij krijgt een e-mail als het klaar is, daarna een herinnering na 3 en na 10 dagen."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van retouches, gemaakt voor kleermakers",
+        "paragraphs": [
+          "Een retouche-atelier jongleert met zomen, innemen, ritsen en feestkledij, elk met een eigen datum. Het lastige moment is de pasbeurt: de klant moet op het juiste moment langskomen, niet te vroeg en niet te laat. ReadyYet zegt het hem op zijn opvolgingspagina, zonder telefoontje.",
+          "Bij elke afgifte maakt u een ticket met de naam, het kledingstuk en de verwachte datum. De klant krijgt zijn link per e-mail, via WhatsApp of met een QR-code, en volgt Ontvangen, Pasbeurt, Retouche en Klaar, met uw openingsuren om zijn bezoek te plannen.",
+          "Is het stuk klaar, dan vertrekt er vanzelf een e-mail, en na 3 en 10 dagen een herinnering als het nog aan het rek hangt. Voor een trouwjurk of een maatkostuum voegt u een foto van het afgewerkte stuk toe, en met Pro plant u zoveel pasbeurten als nodig."
+        ]
+      }
     },
     "electronics": {
       "label": "Gsm's en computers",
@@ -464,8 +525,28 @@
         {
           "q": "Moet ik van kassasoftware veranderen?",
           "a": "Nee. ReadyYet doet alleen de opvolging en werkt naast wat u al gebruikt."
+        },
+        {
+          "q": "Krijgt de klant bericht als er een offerte klaarligt?",
+          "a": "Ja. Met de stap \"Wacht op goedkeuring\", in Pro, krijgt hij een e-mail die hem vraagt u zijn antwoord te geven."
+        },
+        {
+          "q": "Kan ik foto's van het toestel toevoegen?",
+          "a": "Ja. Een foto bij het afgeven en na de herstelling verschijnt op zijn opvolgingspagina, handig bij een beschadigd scherm of hoesje."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een herstelzaak?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per zaak. De eerste 14 dagen zijn gratis, zonder bankkaart."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van herstellingen, gemaakt voor gsm- en computerherstellers",
+        "paragraphs": [
+          "Een gebarsten scherm, een uitgeputte batterij, een laptop die niet meer opstart: zonder zijn toestel heeft uw klant haast en belt hij vaak. ReadyYet geeft hem een opvolgingspagina waar zijn toestel van Diagnose naar Herstelling en Klaar gaat.",
+          "Bij het afgeven maakt u een ticket met het model, het defect en de verwachte datum. De klant krijgt zijn link per e-mail of door aan de toonbank een QR-code te scannen. Zijn link opent alleen zijn eigen ticket: niemand anders ziet zijn herstelling.",
+          "Moet er een onderdeel besteld worden, dan legt de stap \"Wacht op onderdelen\" het uit, met Pro. Wacht een offerte op zijn antwoord, dan krijgt hij met de stap \"Wacht op goedkeuring\" een e-mail. Is het toestel klaar, dan vertrekt er een e-mail, met een herinnering na 3 en 10 dagen als hij niet langskomt."
+        ]
+      }
     },
     "watch": {
       "label": "Uurwerken en juwelen",
@@ -499,8 +580,28 @@
         {
           "q": "Moeten mijn klanten een account aanmaken?",
           "a": "Nee. Ze openen een link in hun browser, zonder app."
+        },
+        {
+          "q": "Kan ik tonen in welke staat het horloge binnenkwam?",
+          "a": "Ja. Voeg foto's toe aan het ticket: ze verschijnen op de opvolgingspagina van de klant en houden bij hoe het stuk werd afgegeven."
+        },
+        {
+          "q": "En voor een offerte voor een revisie?",
+          "a": "Met Pro laat de stap \"Wacht op goedkeuring\" de klant per e-mail weten dat er een offerte op zijn antwoord wacht."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een horlogemaker?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per zaak en zonder verbintenis. 14 dagen gratis proberen, zonder bankkaart."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van herstellingen, gemaakt voor horlogemakers en juweliers",
+        "paragraphs": [
+          "Een volledige revisie, een nieuw glas, een ring die op maat moet: bij horloges en juwelen zijn de termijnen lang en de stukken kostbaar. Uw klanten willen gerustgesteld worden zonder u van de werkbank te halen. ReadyYet toont hen elke stap op een opvolgingspagina.",
+          "Bij het afgeven maakt u een ticket met het stuk, het werk en de verwachte datum, en u kunt een foto toevoegen van hoe het binnenkwam. De klant krijgt zijn link per e-mail of met een QR-code en volgt Ontvangen, Diagnose, Herstelling, Kwaliteitscontrole en Klaar.",
+          "Gaat het horloge terug naar de fabrikant of laat een onderdeel op zich wachten, dan voegt u met Pro een stap toe die dat uitlegt en verschuift u de datum: de klant krijgt een e-mail. Is alles klaar, dan krijgt hij bericht, en na 3 en 10 dagen een herinnering als hij wacht."
+        ]
+      }
     },
     "garage": {
       "label": "Garage",
@@ -534,8 +635,28 @@
         {
           "q": "Moeten mijn klanten een app installeren?",
           "a": "Nee. Ze openen een link in hun browser, zonder account."
+        },
+        {
+          "q": "Krijgt de klant bericht als de herstelling langer duurt?",
+          "a": "Ja. U past de verwachte datum aan en hij krijgt een e-mail met de nieuwe."
+        },
+        {
+          "q": "Kunnen meerdere mecaniciens ermee werken?",
+          "a": "Ja. Essentiel telt 2 teamleden en Pro een onbeperkt team, elk met een eigen toegang."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een garage?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per garage en zonder verbintenis. De eerste 14 dagen zijn gratis."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van herstellingen, gemaakt voor garages",
+        "paragraphs": [
+          "Een onderhoud, banden, remmen, een defect dat gezocht moet worden: zolang zijn wagen in de werkplaats staat, plant uw klant zijn dag eromheen. Hij belt om te vragen of hij vanavond klaar is, meestal terwijl u onder een motorkap ligt. ReadyYet geeft hem een opvolgingspagina die voor u antwoordt.",
+          "Als de wagen binnenkomt, maakt u een ticket met de nummerplaat of het model en de verwachte datum. De klant krijgt zijn link per e-mail of met een QR-code en volgt Ontvangen, Diagnose, Herstelling en Klaar, met het adres en de openingsuren van de garage.",
+          "Komt een onderdeel niet op tijd, dan zegt de stap \"Wacht op onderdelen\" het duidelijk, met Pro, en vertrekt de nieuwe datum per e-mail. Zodra de wagen klaar is, krijgt de klant bericht, en is uw parking sneller vrij. ReadyYet werkt naast uw software voor offertes en facturen."
+        ]
+      }
     },
     "appliance": {
       "label": "Huishoudtoestellen",
@@ -569,8 +690,28 @@
         {
           "q": "Moeten mijn klanten een account aanmaken?",
           "a": "Nee. Een link in de browser volstaat."
+        },
+        {
+          "q": "Ziet de klant waarom het lang duurt?",
+          "a": "Ja. De stap \"Wacht op onderdelen\" staat op zijn pagina, en elke nieuwe datum krijgt hij per e-mail."
+        },
+        {
+          "q": "En als er een offerte goedgekeurd moet worden?",
+          "a": "Voeg met Pro de stap \"Wacht op goedkeuring\" toe: de klant krijgt een e-mail die om zijn antwoord vraagt."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een hersteller van huishoudtoestellen?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per zaak en zonder verbintenis. 14 dagen gratis proberen, zonder bankkaart."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van herstellingen, gemaakt voor huishoudtoestellen",
+        "paragraphs": [
+          "Een wasmachine, een koffiemachine, een stofzuiger: bij huishoudtoestellen hangt een herstelling vaak af van een onderdeel dat besteld moet worden, en de klant weet niet waarom het zo lang duurt. ReadyYet legt het uit op een opvolgingspagina, zonder dat u de telefoon moet opnemen.",
+          "Bij het afgeven maakt u een ticket met het toestel, het defect en de verwachte datum. De klant krijgt zijn link per e-mail of door een QR-code te scannen, en volgt Ontvangen, Diagnose, Wacht op onderdelen, Herstelling en Klaar.",
+          "Komt het onderdeel later dan gepland, dan verschuift u de datum en krijgt de klant een e-mail. Is het toestel klaar, dan krijgt hij bericht, en na 3 en 10 dagen een herinnering als hij niet langskomt, zodat uw werkplaats geen opslagplaats wordt."
+        ]
+      }
     },
     "framing": {
       "label": "Inlijsten",
@@ -604,8 +745,28 @@
         {
           "q": "Moeten mijn klanten een app installeren?",
           "a": "Nee. Een link volstaat, zonder account."
+        },
+        {
+          "q": "Kan ik de klant laten weten dat de lijst besteld is?",
+          "a": "Ja. Voeg met Pro een stap toe zoals \"Wacht op onderdelen\" en pas de verwachte datum aan: de klant krijgt een e-mail."
+        },
+        {
+          "q": "En als een klant zijn lijst niet komt ophalen?",
+          "a": "Er vertrekt een herinnering 3 dagen en daarna 10 dagen na de e-mail die zegt dat alles klaar is."
+        },
+        {
+          "q": "Wat kost ReadyYet voor een lijstenmaker?",
+          "a": "€ 29 per maand met Essentiel, € 49 met Pro, per atelier en zonder verbintenis. De eerste 14 dagen zijn gratis, zonder bankkaart."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Opvolging van bestellingen, gemaakt voor lijstenmakers",
+        "paragraphs": [
+          "Een affiche, een doek, een diploma, een borduurwerk: elke lijst wordt op maat gemaakt, vaak met enkele weken levertijd. Uw klanten vragen zich af hoe ver hun werk staat. ReadyYet geeft hen een opvolgingspagina die op elk moment antwoordt.",
+          "Bij de bestelling maakt u een ticket met het werk, de gekozen lijst en de verwachte datum. De klant krijgt zijn link per e-mail of met een QR-code en volgt Ontvangen, Bezig, Kwaliteitscontrole en Klaar.",
+          "Is de lijst af, voeg dan een foto toe: de klant ziet ze op zijn pagina voor hij langskomt. Hij krijgt een e-mail zodra alles klaar is, en na 3 en 10 dagen een herinnering als hij wacht, zodat afgewerkte lijsten geen plaats meer innemen voor nieuwe."
+        ]
+      }
     }
   }
 }

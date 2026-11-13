@@ -325,7 +325,8 @@
         "ALTERATION": "Alteration",
         "FITTING": "Fitting",
         "QUALITY_CHECK": "Quality check"
-      }
+      },
+      "guideLabel": "Day to day"
     },
     "shoe": {
       "label": "Shoe and leather repair",
@@ -359,8 +360,28 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. They open their link in their phone's browser, with no account to create."
+        },
+        {
+          "q": "How much does ReadyYet cost for a shoe repair shop?",
+          "a": "Essentiel is €29 a month and Pro €49 a month, per shop, with no commitment. The first 14 days are free, no card needed."
+        },
+        {
+          "q": "What if a customer never picks up their pair?",
+          "a": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email. Pairs waiting for pickup stay in plain sight on your dashboard."
+        },
+        {
+          "q": "I also cut keys and do engraving. Does it work for that?",
+          "a": "Yes. Anything left with you and picked up later can have a Ticket. On Pro, you shape the steps to each kind of job."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for shoe repair shops",
+        "paragraphs": [
+          "Behind a cobbler's counter, the shelves fill up fast: resoles, heels, sole guards, bags to stitch, zips to replace. Every customer wants to know when to come back, and most of them ask by phone. With ReadyYet, each drop-off becomes a Ticket with its own tracking page the customer opens on their phone.",
+          "At the counter, you note the customer's name, the item and the expected date. They get their link by email, on WhatsApp or by scanning a QR code. Their page shows where things stand, from Received to Repairing to Ready, along with your address and opening hours.",
+          "When the pair is ready, an email goes out on its own. If nobody comes, a reminder follows after 3 days and again after 10, so forgotten shoes finally leave the shelf. On Pro, you add your own steps, like a diagnosis for leather goods or a quote to approve before a big job."
+        ]
+      }
     },
     "pressing": {
       "label": "Dry cleaning",
@@ -394,8 +415,28 @@
         {
           "q": "How much does it cost?",
           "a": "From €29 a month per shop, cancel any time. The first 14 days are free, no card needed."
+        },
+        {
+          "q": "Is the customer told if an item takes longer?",
+          "a": "Yes. Change the expected date on the Ticket and they get an email with the new date."
+        },
+        {
+          "q": "Can I use it for the alterations I also do?",
+          "a": "Yes. On Pro, add steps like \"Alteration\" or \"Fitting\" and put them in your own order."
+        },
+        {
+          "q": "What if a customer has no email address?",
+          "a": "They scan the QR code at the counter, or you send them their link on WhatsApp. Their tracking page stays open whenever they want it."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Order tracking built for dry cleaners",
+        "paragraphs": [
+          "A dry cleaner runs on drop-offs: the week's shirts, a suit for a wedding, a delicate dress, a duvet before summer. Customers come back too early, or forget their clothes for weeks. ReadyYet gives every drop-off a tracking page that says how the order is doing and when it's waiting.",
+          "The Ticket takes seconds at the counter, with the items and the expected date. The customer gets their link by email or by scanning a QR code, then sees Received, Cleaning and Ready, plus your opening hours, without ringing you.",
+          "As soon as the order is ready, the customer gets an email. If they don't come, a reminder goes out after 3 and 10 days, and your rail empties faster. When a stain takes longer, you push the date back and the customer is emailed the new one."
+        ]
+      }
     },
     "tailoring": {
       "label": "Alterations and tailoring",
@@ -429,8 +470,28 @@
         {
           "q": "Do my customers need to install anything?",
           "a": "No. A link in their browser is all it takes, with no account."
+        },
+        {
+          "q": "Can I plan two fittings?",
+          "a": "Yes, on Pro. You choose the steps and their order, for example two fittings before the final alteration."
+        },
+        {
+          "q": "How much does ReadyYet cost for a tailor?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per workshop, with no commitment. The 14-day trial is free, no card needed."
+        },
+        {
+          "q": "What if a customer doesn't collect their garment?",
+          "a": "They get an email when it's ready, then a reminder after 3 days and after 10."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Alteration tracking built for tailors",
+        "paragraphs": [
+          "A tailoring workshop juggles hems, take-ins, zips and formalwear, each with its own date. The tricky part is the fitting: the customer has to come in at the right time, not too early and not too late. ReadyYet tells them on their tracking page, without a phone call.",
+          "For each drop-off, you create a Ticket with the name, the garment and the expected date. The customer gets their link by email, on WhatsApp or by QR code, and follows Received, Fitting, Alteration and Ready, with your hours to plan their visit.",
+          "Once the garment is ready, an email goes out on its own, then a reminder after 3 and 10 days if it's still on the rail. For a wedding dress or a made-to-measure suit, attach a photo of the finished work, and on Pro add as many fittings as the job needs."
+        ]
+      }
     },
     "electronics": {
       "label": "Phones and computers",
@@ -464,8 +525,28 @@
         {
           "q": "Do I have to change my till software?",
           "a": "No. ReadyYet only does the tracking and works alongside whatever you already use."
+        },
+        {
+          "q": "Is the customer told when a quote is waiting?",
+          "a": "Yes. With the \"Awaiting approval\" step, on Pro, they get an email asking them to give you their answer."
+        },
+        {
+          "q": "Can I attach photos of the device?",
+          "a": "Yes. Photos at drop-off and once repaired appear on their tracking page, handy for a damaged screen or case."
+        },
+        {
+          "q": "How much does ReadyYet cost for a repair shop?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop. The first 14 days are free, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for phone and computer repair shops",
+        "paragraphs": [
+          "A cracked screen, a tired battery, a laptop that won't boot: without their device, your customer is in a hurry and tends to call. ReadyYet gives them a tracking page where their device moves from Diagnosing to Repairing to Ready.",
+          "At drop-off, you create a Ticket with the model, the fault and the expected date. The customer gets their link by email or by scanning a QR code at the counter. Their link opens only their Ticket, so nobody else sees their repair.",
+          "When a part has to be ordered, the \"Awaiting parts\" step explains the wait, on Pro. If a quote needs their answer, the \"Awaiting approval\" step emails them about it. The moment the device is ready, an email goes out, with a reminder after 3 and 10 days if they don't come."
+        ]
+      }
     },
     "watch": {
       "label": "Watch and jewellery repair",
@@ -499,8 +580,28 @@
         {
           "q": "Do my customers need an account?",
           "a": "No. They open a link in their browser, with no app."
+        },
+        {
+          "q": "Can I show the watch's condition at drop-off?",
+          "a": "Yes. Attach photos to the Ticket: they appear on the customer's tracking page and keep a record of how it came in."
+        },
+        {
+          "q": "What about a quote for a service?",
+          "a": "On Pro, the \"Awaiting approval\" step emails the customer that a quote is waiting for their answer."
+        },
+        {
+          "q": "How much does ReadyYet cost for a watchmaker?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop, with no commitment. 14-day free trial, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for watchmakers and jewellers",
+        "paragraphs": [
+          "A full service, a new crystal, a ring to resize: in watch and jewellery repair, lead times are long and the pieces are precious. Your customers want reassurance without pulling you away from the bench. ReadyYet shows them every step on a tracking page.",
+          "At drop-off, you create a Ticket with the piece, the work and the expected date, and you can attach a photo of its condition on arrival. The customer gets their link by email or QR code and follows Received, Diagnosing, Repairing, Quality check and Ready.",
+          "If the watch goes back to the maker or a part is slow to come, add a step that says so on Pro and push the date back: the customer gets an email. When it's all done, they're told, then reminded after 3 and 10 days if they take their time."
+        ]
+      }
     },
     "garage": {
       "label": "Garage",
@@ -534,8 +635,28 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. They open a link in their browser, with no account."
+        },
+        {
+          "q": "Is the customer told if the repair runs late?",
+          "a": "Yes. Change the expected date and they get an email with the new one."
+        },
+        {
+          "q": "Can several mechanics use it?",
+          "a": "Yes. Essentiel includes 2 team members and Pro an unlimited team, each with their own login."
+        },
+        {
+          "q": "How much does ReadyYet cost for a garage?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per garage, with no commitment. The first 14 days are free."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for garages",
+        "paragraphs": [
+          "A service, tyres, brakes, a fault to track down: while their car is in the workshop, your customer plans their day around it. They call to ask if it'll be ready tonight, usually while you're under a bonnet. ReadyYet gives them a tracking page that answers for you.",
+          "When the car comes in, you create a Ticket with the plate or model and the expected date. The customer gets their link by email or QR code, and follows Received, Diagnosing, Repairing and Ready, with the garage's address and hours.",
+          "If a part doesn't turn up, the \"Awaiting parts\" step says so plainly, on Pro, and a new date goes out by email. As soon as the car is ready, the customer is told, which clears your forecourt sooner. ReadyYet sits alongside your quoting and invoicing software."
+        ]
+      }
     },
     "appliance": {
       "label": "Appliance repair",
@@ -569,8 +690,28 @@
         {
           "q": "Do my customers need an account?",
           "a": "No. A link in their browser is enough."
+        },
+        {
+          "q": "Does the customer see why it's taking long?",
+          "a": "Yes. The \"Awaiting parts\" step shows on their page, and every new date is emailed to them."
+        },
+        {
+          "q": "What if a quote has to be approved?",
+          "a": "On Pro, add the \"Awaiting approval\" step: the customer gets an email asking for their answer."
+        },
+        {
+          "q": "How much does ReadyYet cost for an appliance repair shop?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop, with no commitment. 14-day free trial, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for appliance repair shops",
+        "paragraphs": [
+          "A washing machine, a coffee machine, a vacuum cleaner: appliance repairs often hang on a part that has to be ordered, and the customer has no idea why it's taking so long. ReadyYet explains it on a tracking page, without you picking up the phone.",
+          "At drop-off, you create a Ticket with the appliance, the fault and the expected date. The customer gets their link by email or by scanning a QR code, and follows Received, Diagnosing, Awaiting parts, Repairing and Ready.",
+          "If the part arrives later than planned, push the date back and the customer gets an email. When the appliance is ready, they're told, then reminded after 3 and 10 days if they don't come, so your workshop doesn't turn into a storeroom."
+        ]
+      }
     },
     "framing": {
       "label": "Picture framing",
@@ -604,8 +745,28 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. A link is enough, with no account."
+        },
+        {
+          "q": "Can I let the customer know the moulding is on order?",
+          "a": "Yes. On Pro, add a step like \"Awaiting parts\" and change the expected date: the customer gets an email."
+        },
+        {
+          "q": "What if a customer doesn't collect their frame?",
+          "a": "A reminder goes out 3 days and then 10 days after the email saying it's ready."
+        },
+        {
+          "q": "How much does ReadyYet cost for a framer?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per workshop, with no commitment. The first 14 days are free, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Order tracking built for picture framers",
+        "paragraphs": [
+          "A poster, a canvas, a diploma, a piece of embroidery: every frame is made to order, often with a few weeks' lead time. Your customers wonder how their piece is coming along. ReadyYet gives them a tracking page that answers any time.",
+          "When the order is placed, you create a Ticket with the piece, the moulding and the expected date. The customer gets their link by email or QR code and follows Received, In progress, Quality check and Ready.",
+          "Once the frame is done, attach a photo: the customer sees it on their page before coming in. They're emailed as soon as it's ready, then reminded after 3 and 10 days if they're slow, so finished frames stop taking up room meant for new ones."
+        ]
+      }
     }
   }
 }
