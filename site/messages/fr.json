@@ -1201,5 +1201,10 @@
       ],
       "closingTitle": "Moins d'appels, plus de cadres finis"
     }
+  },
+  "notFound": {
+    "title": "Cette page n'existe pas",
+    "lead": "Le lien est peut-être ancien ou mal tapé.",
+    "home": "Retour à l'accueil"
   }
 }
