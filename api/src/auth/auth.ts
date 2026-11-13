@@ -9,7 +9,9 @@ import { localeFromAcceptLanguage } from "@readyyet/shared";
 import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
+import { StorageService } from "../storage/storage.service";
 import { isDisposableEmail } from "./disposable-email";
+import { fillFromGoogle } from "./google-profile";
 import { isAllowedToSignIn } from "./sign-in-allowlist";
 import { SIGN_IN_CODES_PER_HOUR } from "../email/email-limits";
 
@@ -32,6 +34,7 @@ const prisma = new PrismaClient({
 // constructed directly here with the same PrismaClient, exactly the
 // reuse resend-client.ts's own comment anticipated.
 const emailService = new EmailService(prisma);
+const storage = new StorageService();
 
 // Explicit annotation, not inferred: the emailOTP plugin's zod-based
 // schemas make the fully-inferred return type reference an unexported
@@ -68,8 +71,8 @@ export const auth: Auth<any> = betterAuth({
       create: {
         // An account is created by its first sign-in, whose browser
         // language is the best first guess at the User's.
-        // A Google sign-up brings its own profile picture URL, but the avatar
-        // is a bucket key only PUT /me/avatar sets (ADR 0026), so it's dropped.
+        // A Google sign-up brings its picture as a URL, but the avatar is a
+        // bucket key (ADR 0026): the account hook below stores it as one.
         before(user, ctx) {
           if (!isAllowedToSignIn(user.email)) {
             throw notAllowedToSignIn();
@@ -86,6 +89,11 @@ export const auth: Auth<any> = betterAuth({
         before(user) {
           return Promise.resolve({ data: { ...user, image: undefined } });
         },
+      },
+    },
+    account: {
+      create: {
+        after: (account) => fillFromGoogle(prisma, storage, account),
       },
     },
     // ADR 0150: a User created before the allowlist, or signing in with

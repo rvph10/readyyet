@@ -6,6 +6,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createTestApp } from "./support/create-test-app";
+import { auth } from "../src/auth/auth";
 import { PrismaService } from "../src/database/prisma.service";
 import { getResendClient } from "../src/email/resend-client";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -236,5 +237,24 @@ describe("Better Auth email OTP", () => {
 
     expect((await send("203.0.113.1")).status).toBe(429);
     expect((await send("203.0.113.2")).status).toBe(400);
+  });
+
+  it("gives a User without a name the one Google has, once its Google account is linked (ADR 0153)", async () => {
+    const email = `delivered+google-link-${Date.now()}@resend.dev`;
+    await signInViaOtp(app, prisma, email);
+    // A code sign-in left before the name step.
+    const user = await prisma.user.update({ where: { email }, data: { name: "" } });
+    const claims = Buffer.from(JSON.stringify({ name: "Ana Peeters" })).toString("base64url");
+
+    // What Better Auth's Google callback does to link an account.
+    const { internalAdapter } = await auth.$context;
+    await internalAdapter.linkAccount({
+      providerId: "google",
+      accountId: randomUUID(),
+      userId: user.id,
+      idToken: `header.${claims}.signature`,
+    });
+
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).name).toBe("Ana Peeters");
   });
 });
