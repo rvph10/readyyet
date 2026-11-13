@@ -315,6 +315,7 @@
     "codeErrors": {
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "disposable": "This invitation went to a disposable address, which can't sign in. Ask for a new invitation at your work or personal email.",
+      "notAllowed": "This invitation went to an address that can't sign in here. Ask the person who invited you to have it added.",
       "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
     },
     "codeHint": "To answer, you'll sign in with a code sent to {email}."
@@ -765,7 +766,7 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
-    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
+    "yearlyNoRefund": "Paid a year ahead, a yearly plan isn't refunded if you stop early, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -1544,7 +1545,7 @@
     "since": "On the team since {date}",
     "thisMonth": "This month",
     "movedHint": "Every step a Ticket takes counts, up to its collection.",
-    "total": "Since joining",
+    "sinceJoining": "{count} since joining",
     "counts": {
       "moved": "Steps moved on",
       "created": "Tickets created",
