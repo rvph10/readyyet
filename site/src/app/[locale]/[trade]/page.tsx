@@ -45,13 +45,7 @@ export async function generateMetadata({ params }: Props, parent: ResolvingMetad
       },
     },
     // Next.js replaces a nested object whole, so the layout's site name, type and locale are carried over.
-    openGraph: {
-      ...openGraph,
-      url: path,
-      title: t("metaTitle"),
-      description: t("metaDescription"),
-      images: [{ url: `/og/${key}-${locale}.jpg`, width: 1200, height: 630, alt: t("title") }],
-    },
+    openGraph: { ...openGraph, url: path, title: t("metaTitle"), description: t("metaDescription") },
   };
 }
 
