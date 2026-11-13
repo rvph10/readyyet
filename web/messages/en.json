@@ -759,6 +759,7 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
+    "yearlyNoRefund": "Paid a year ahead, a yearly plan isn't refunded if you stop early, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
