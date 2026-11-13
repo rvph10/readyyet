@@ -339,6 +339,7 @@
   },
   "tracking": {
     "loading": "Chargement de l'avancement de votre article",
+    "shareImageAlt": "Suivez votre article, étape par étape",
     "notFoundTitle": "Ce lien de suivi ne fonctionne pas",
     "notFoundBody": "Il contient peut-être une erreur, ou le travail s'est terminé il y a plus de 30 jours. Le commerce peut vous envoyer un nouveau lien si besoin.",
     "meaning": {
