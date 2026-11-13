@@ -320,6 +320,26 @@ describe("Estimated ready date", () => {
       expect(await emailsTo("ready", "ticket_ready_date_changed")).toHaveLength(0);
       expect((await ticketRow(ticket.id)).readyDateEmailDueAt).toBeNull();
     });
+    it("takes the date back out of the calendar when the ticket is cancelled or rejected", async () => {
+      const told = (await createTicket({ email: address("cancelled"), estimatedReadyDate: inDays(4) })).body;
+      const untold = (await createTicket({ email: address("never-told"), estimatedReadyDate: null })).body;
+      await setStatus(told.id, "CANCELLED");
+      await setStatus(untold.id, "REJECTED");
+
+      await prisma.pendingStatusNotification.updateMany({
+        where: { statusEvent: { ticketId: { in: [BigInt(told.id), BigInt(untold.id)] } } },
+        data: { sendAfter: new Date(Date.now() - 1000) },
+      });
+      await notification.sendDueStatusEmails();
+
+      const [email] = await emailsTo("cancelled", "ticket_status_update");
+      const [event] = email.attachments as { content: string }[];
+      const ics = Buffer.from(event.content, "base64").toString();
+      expect(ics).toContain(`DTSTART;VALUE=DATE:${inDays(4).replaceAll("-", "")}`);
+      expect(ics).toContain("STATUS:CANCELLED");
+      const [untoldEmail] = await emailsTo("never-told", "ticket_status_update");
+      expect(untoldEmail.attachments).toBeNull();
+    });
   });
 
   describe("overdue filter", () => {
