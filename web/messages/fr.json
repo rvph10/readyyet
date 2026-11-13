@@ -34,6 +34,7 @@
       "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "disposableEmail": "Les adresses e-mail jetables ne sont pas acceptées. Utilisez votre e-mail professionnel ou personnel.",
+      "notAllowed": "Cette adresse ne peut pas se connecter ici.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
       "unreachable": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
@@ -310,6 +311,7 @@
     "codeErrors": {
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "disposable": "Cette invitation a été envoyée à une adresse jetable, qui ne permet pas de se connecter. Demandez une nouvelle invitation à votre e-mail professionnel ou personnel.",
+      "notAllowed": "Cette invitation a été envoyée à une adresse qui ne peut pas se connecter ici. Demandez à la personne qui vous a invité de la faire ajouter.",
       "unexpected": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
     },
     "codeHint": "Pour répondre, vous vous connecterez avec un code envoyé à {email}."

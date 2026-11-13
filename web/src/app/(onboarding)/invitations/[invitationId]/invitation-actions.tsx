@@ -39,7 +39,7 @@ export function InvitationActions({ invitationId, email, signedIn, joined }: Pro
   const router = useRouter();
   const toast = useToast();
   const [failure, setFailure] = useState<ActionFailure | null>(null);
-  const [codeFailed, setCodeFailed] = useState<"rateLimited" | "disposable" | "unexpected" | null>(null);
+  const [codeFailed, setCodeFailed] = useState<"rateLimited" | "disposable" | "notAllowed" | "unexpected" | null>(null);
   const [confirmingDecline, setConfirmingDecline] = useState(false);
   const [running, setRunning] = useState<Answer | null>(null);
   const [pending, startTransition] = useTransition();
@@ -75,7 +75,9 @@ export function InvitationActions({ invitationId, email, signedIn, joined }: Pro
         );
         if (error) {
           if (error.status === 429) setCodeFailed("rateLimited");
-          else setCodeFailed(error.code === "DISPOSABLE_EMAIL" ? "disposable" : "unexpected");
+          else if (error.code === "DISPOSABLE_EMAIL") setCodeFailed("disposable");
+          else if (error.code === "NOT_ALLOWED_TO_SIGN_IN") setCodeFailed("notAllowed");
+          else setCodeFailed("unexpected");
           return;
         }
       } catch {
