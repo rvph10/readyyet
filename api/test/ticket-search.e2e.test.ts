@@ -152,9 +152,7 @@ describe("Ticket search and filters", () => {
 
   it("finds a Ticket by its number in this Location, and sorts by it", async () => {
     expect(await titles({ q: "#2" })).toEqual(["Oil change"]);
-    const { items } = (await list({ sort: "number", dir: "asc" })).body as ListResponse & {
-      items: { number: number }[];
-    };
+    const { items } = (await list({ sort: "number", dir: "asc" })).body as { items: { number: number }[] };
     expect(items.map(({ number }) => number)).toEqual([1, 2, 3, 4]);
   });
 
