@@ -124,9 +124,6 @@ export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string;
       </p>
 
       <IntervalToggle interval={interval} onChange={setInterval} className="mt-5" />
-      {/* The terms keep a yearly plan unrefunded, which the Data Act allows only
-          if it is said before paying. Also in billing-board.tsx and add-shop.tsx. */}
-      {yearly && <p className="mt-3 text-p-sm">{tBilling("yearlyNoRefund")}</p>}
 
       {failure && (
         <div className="mt-4">

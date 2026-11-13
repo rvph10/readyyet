@@ -34,7 +34,7 @@ U meldt zich aan met een code die naar uw e-mailadres wordt gestuurd. U bent ver
 
 - U kunt een abonnement op elk moment opzeggen vanaf de facturatiepagina. Het loopt af aan het einde van de periode die al betaald is; de Location blijft tot dan bruikbaar, daarna wordt ze bevroren en blijven haar gegevens raadpleegbaar en exporteerbaar. Een maand- of jaarabonnement wordt stilzwijgend verlengd voor dezelfde duur, tenzij u het opzegt vóór de verlengingsdatum.
 - Een Location verwijderen beëindigt haar abonnement meteen, zonder terugbetaling van de lopende periode.
-- Reeds betaalde bedragen worden niet terugbetaald, ook niet gedeeltelijk en ook niet voor het resterende deel van een jaarperiode. Dat wordt u gemeld voordat u een jaarplan betaalt. Uitzonderingen: een terugbetaling naar rato wanneer u vertrekt wegens een wijziging in de zin van artikel 12, wanneer u bezwaar maakt tegen een nieuwe subverwerker volgens bijlage 1, artikel 7, of wanneer wij de overeenkomst beëindigen zonder tekortkoming van uw kant, volgens artikel 11.
+- Reeds betaalde bedragen worden niet terugbetaald, ook niet gedeeltelijk en ook niet voor het resterende deel van een jaarperiode. Uitzonderingen: een terugbetaling naar rato wanneer u vertrekt wegens een wijziging in de zin van artikel 12, wanneer u bezwaar maakt tegen een nieuwe subverwerker volgens bijlage 1, artikel 7, of wanneer wij de overeenkomst beëindigen zonder tekortkoming van uw kant, volgens artikel 11.
 - Vertrekken kost verder niets: er zijn geen kosten voor vertrek, overstap of export.
 
 ## 7. Uw gegevens en overstappen
