@@ -330,7 +330,8 @@
         "ALTERATION": "Retouche",
         "FITTING": "Essayage",
         "QUALITY_CHECK": "Contrôle qualité"
-      }
+      },
+      "guideLabel": "Au quotidien"
     },
     "shoe": {
       "label": "Cordonnerie et maroquinerie",
@@ -364,8 +365,28 @@
         {
           "q": "Mes clients doivent-ils installer une application ?",
           "a": "Non. Ils ouvrent leur lien dans le navigateur de leur téléphone, sans créer de compte."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour une cordonnerie ?",
+          "a": "Essentiel coûte 29 € par mois et Pro 49 € par mois, par boutique, sans engagement. Les 14 premiers jours sont gratuits, sans carte bancaire."
+        },
+        {
+          "q": "Et si le client ne vient pas chercher sa paire ?",
+          "a": "Un rappel part automatiquement 3 jours puis 10 jours après l'e-mail « c'est prêt ». Sur votre tableau de bord, les paires en attente de retrait restent bien visibles."
+        },
+        {
+          "q": "Je fais aussi des clés et de la gravure, ça marche ?",
+          "a": "Oui. Tout ce qui est déposé et repris plus tard peut avoir son ticket. En Pro, vous adaptez les étapes à chaque type de travail."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des réparations, pensé pour la cordonnerie",
+        "paragraphs": [
+          "Dans une cordonnerie, les paires s'accumulent vite derrière le comptoir : ressemelages, talons, patins, sacs à recoudre, fermetures à changer. Chaque client veut savoir quand repasser, et c'est souvent au téléphone qu'il le demande. Avec ReadyYet, chaque dépôt devient un ticket avec sa propre page de suivi, que le client ouvre depuis son téléphone.",
+          "Au comptoir, vous notez le nom du client, l'article et la date prévue. Le client reçoit son lien par e-mail, par WhatsApp ou en scannant un QR code. Sur sa page, il voit l'étape en cours, de Reçu à Réparation puis Prêt, avec l'adresse et les horaires de la boutique.",
+          "Quand la paire est prête, un e-mail part tout seul. Si personne ne passe, un rappel suit après 3 jours, puis après 10 jours, pour que les chaussures oubliées quittent enfin l'étagère. En Pro, vous ajoutez vos propres étapes, comme un diagnostic pour la maroquinerie ou un devis à faire accepter avant une grosse réparation."
+        ]
+      }
     },
     "pressing": {
       "label": "Pressing",
@@ -399,8 +420,28 @@
         {
           "q": "Combien ça coûte ?",
           "a": "À partir de 29 € par mois et par magasin, sans engagement. Les 14 premiers jours sont gratuits, sans carte bancaire."
+        },
+        {
+          "q": "Le client est-il prévenu si une pièce prend plus de temps ?",
+          "a": "Oui. Vous changez la date prévue sur le ticket, et le client reçoit un e-mail avec la nouvelle date."
+        },
+        {
+          "q": "Puis-je l'utiliser pour les retouches que je propose aussi ?",
+          "a": "Oui. En Pro, vous ajoutez des étapes comme « Retouche » ou « Essayage » et vous les placez dans votre ordre."
+        },
+        {
+          "q": "Mon client n'a pas d'adresse e-mail, que faire ?",
+          "a": "Il scanne le QR code au comptoir ou vous lui envoyez son lien sur WhatsApp. Sa page de suivi reste accessible à tout moment."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des commandes, pensé pour le pressing",
+        "paragraphs": [
+          "Un pressing vit au rythme des dépôts : chemises de la semaine, costume pour un mariage, robe délicate, couette avant l'été. Les clients reviennent souvent trop tôt, ou oublient leurs vêtements pendant des semaines. ReadyYet donne à chaque dépôt une page de suivi qui dit où en est la commande et quand elle attend.",
+          "Le ticket se crée en quelques secondes au comptoir, avec la description des pièces et la date prévue. Le client reçoit son lien par e-mail ou en scannant un QR code. Il voit les étapes Reçu, Nettoyage et Prêt, ainsi que vos horaires, sans devoir vous appeler.",
+          "Dès que la commande est prête, le client est prévenu par e-mail. S'il ne passe pas, un rappel part après 3 puis 10 jours, et votre portant se vide plus vite. Si un détachage prend plus de temps, vous repoussez la date et le client reçoit la nouvelle par e-mail."
+        ]
+      }
     },
     "tailoring": {
       "label": "Retouches et couture",
@@ -434,8 +475,28 @@
         {
           "q": "Mes clients doivent-ils installer quelque chose ?",
           "a": "Non. Un lien dans le navigateur suffit, sans compte."
+        },
+        {
+          "q": "Puis-je prévoir deux essayages ?",
+          "a": "Oui, en Pro. Vous choisissez les étapes et leur ordre, par exemple deux essayages avant la retouche finale."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour un atelier de retouches ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par atelier et sans engagement. L'essai de 14 jours est gratuit, sans carte bancaire."
+        },
+        {
+          "q": "Et si le client ne vient pas chercher sa pièce ?",
+          "a": "Il reçoit un e-mail quand elle est prête, puis un rappel après 3 jours et après 10 jours."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des retouches, pensé pour les couturiers",
+        "paragraphs": [
+          "Un atelier de retouches jongle avec les ourlets, les ajustements, les fermetures éclair et les tenues de cérémonie, chacune avec sa date. Le moment délicat, c'est l'essayage : le client doit passer au bon moment, ni trop tôt ni trop tard. ReadyYet le lui dit sur sa page de suivi, sans coup de fil.",
+          "À chaque dépôt, vous créez un ticket avec le nom, la pièce et la date prévue. Le client reçoit son lien par e-mail, par WhatsApp ou par QR code. Il suit les étapes Reçu, Essayage, Retouche puis Prêt, et voit vos horaires pour savoir quand venir.",
+          "Une fois la pièce prête, un e-mail part tout seul, puis un rappel après 3 et 10 jours si elle reste au portant. Pour une robe de mariée ou un costume sur mesure, vous joignez une photo du travail fini, et en Pro vous ajoutez autant d'essayages que nécessaire."
+        ]
+      }
     },
     "electronics": {
       "label": "Téléphones et ordinateurs",
@@ -469,8 +530,28 @@
         {
           "q": "Faut-il changer de logiciel de caisse ?",
           "a": "Non. ReadyYet s'occupe uniquement du suivi et fonctionne à côté de ce que vous utilisez déjà."
+        },
+        {
+          "q": "Le client est-il prévenu quand un devis l'attend ?",
+          "a": "Oui. Avec l'étape « En attente d'approbation », en Pro, il reçoit un e-mail qui lui demande de vous donner sa réponse."
+        },
+        {
+          "q": "Puis-je joindre des photos de l'appareil ?",
+          "a": "Oui. Une photo à l'arrivée et une fois réparé s'affichent sur sa page de suivi, utile pour un écran ou une coque abîmés."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour une boutique de réparation ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par boutique. Les 14 premiers jours sont gratuits, sans carte bancaire."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des réparations, pensé pour les réparateurs de téléphones et d'ordinateurs",
+        "paragraphs": [
+          "Un écran cassé, une batterie fatiguée, un ordinateur qui ne démarre plus : sans son appareil, votre client est pressé et il appelle souvent. ReadyYet lui donne une page de suivi où il voit son appareil passer du diagnostic à la réparation, puis à Prêt.",
+          "Au dépôt, vous créez un ticket avec le modèle, la panne et la date prévue. Le client reçoit son lien par e-mail ou en scannant un QR code au comptoir. Son lien n'ouvre que son ticket : personne d'autre ne voit sa réparation.",
+          "Quand une pièce doit être commandée, l'étape « En attente de pièces » explique le délai, en Pro. Si un devis attend sa réponse, l'étape « En attente d'approbation » le prévient par e-mail. Dès que l'appareil est prêt, un e-mail part, et un rappel suit après 3 et 10 jours s'il ne passe pas."
+        ]
+      }
     },
     "watch": {
       "label": "Horlogerie et bijouterie",
@@ -504,8 +585,28 @@
         {
           "q": "Mes clients doivent-ils créer un compte ?",
           "a": "Non. Ils ouvrent un lien dans leur navigateur, sans application."
+        },
+        {
+          "q": "Puis-je montrer l'état de la montre à l'arrivée ?",
+          "a": "Oui. Joignez des photos au ticket : elles s'affichent sur la page de suivi du client et gardent une trace de l'état au dépôt."
+        },
+        {
+          "q": "Et pour un devis de révision ?",
+          "a": "En Pro, l'étape « En attente d'approbation » prévient le client par e-mail qu'un devis attend sa réponse."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour une horlogerie ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par boutique et sans engagement. Essai gratuit de 14 jours, sans carte bancaire."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des réparations, pensé pour l'horlogerie et la bijouterie",
+        "paragraphs": [
+          "Une révision complète, un remplacement de verre, une bague à mettre à taille : en horlogerie et en bijouterie, les délais sont longs et les objets précieux. Vos clients veulent être rassurés sans vous déranger à l'établi. ReadyYet leur montre chaque étape sur une page de suivi.",
+          "Au dépôt, vous créez un ticket avec la pièce, le travail et la date prévue, et vous pouvez joindre une photo de son état à l'arrivée. Le client reçoit son lien par e-mail ou par QR code et suit les étapes Reçu, Diagnostic, Réparation, Contrôle qualité puis Prêt.",
+          "Si la montre part chez le fabricant ou qu'une pièce se fait attendre, vous ajoutez en Pro une étape qui l'explique, et vous repoussez la date : le client reçoit un e-mail. Quand tout est prêt, il est prévenu, puis relancé après 3 et 10 jours s'il tarde."
+        ]
+      }
     },
     "garage": {
       "label": "Garage",
@@ -539,8 +640,28 @@
         {
           "q": "Mes clients doivent-ils installer une application ?",
           "a": "Non. Ils ouvrent un lien dans leur navigateur, sans compte."
+        },
+        {
+          "q": "Le client est-il prévenu si la réparation prend plus longtemps ?",
+          "a": "Oui. Vous changez la date prévue et il reçoit un e-mail avec la nouvelle date."
+        },
+        {
+          "q": "Plusieurs mécaniciens peuvent-ils l'utiliser ?",
+          "a": "Oui. Essentiel compte 2 membres d'équipe, Pro une équipe illimitée, chacun avec son propre accès."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour un garage ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par garage et sans engagement. Les 14 premiers jours sont gratuits."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des réparations, pensé pour les garages",
+        "paragraphs": [
+          "Entretien, pneus, freins, panne à diagnostiquer : quand sa voiture est à l'atelier, votre client organise sa journée autour. Il appelle pour savoir si elle sera prête ce soir, souvent pendant que vous êtes sous un capot. ReadyYet lui donne une page de suivi qui répond à sa place.",
+          "À la réception du véhicule, vous créez un ticket avec la plaque ou le modèle et la date prévue. Le client reçoit son lien par e-mail ou par QR code, et suit les étapes Reçu, Diagnostic, Réparation puis Prêt, avec l'adresse et les horaires du garage.",
+          "Si une pièce n'arrive pas, l'étape « En attente de pièces » le dit clairement, en Pro, et un report de date part par e-mail. Dès que la voiture est prête, le client est prévenu, ce qui libère votre parking plus tôt. ReadyYet fonctionne à côté de votre logiciel de devis et de facturation."
+        ]
+      }
     },
     "appliance": {
       "label": "Électroménager",
@@ -574,8 +695,28 @@
         {
           "q": "Mes clients doivent-ils créer un compte ?",
           "a": "Non. Un lien dans le navigateur suffit."
+        },
+        {
+          "q": "Le client voit-il pourquoi c'est long ?",
+          "a": "Oui. L'étape « En attente de pièces » s'affiche sur sa page, et chaque report de date lui est envoyé par e-mail."
+        },
+        {
+          "q": "Et si un devis doit être accepté ?",
+          "a": "En Pro, ajoutez l'étape « En attente d'approbation » : le client reçoit un e-mail qui lui demande sa réponse."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour un réparateur d'électroménager ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par magasin et sans engagement. Essai gratuit de 14 jours, sans carte bancaire."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des réparations, pensé pour l'électroménager",
+        "paragraphs": [
+          "Un lave-linge, une machine à café, un aspirateur : en électroménager, la réparation dépend souvent d'une pièce à commander, et le client ne sait pas pourquoi c'est long. ReadyYet le lui explique sur une page de suivi, sans que vous décrochiez le téléphone.",
+          "Au dépôt, vous créez un ticket avec l'appareil, la panne et la date prévue. Le client reçoit son lien par e-mail ou en scannant un QR code. Il suit les étapes Reçu, Diagnostic, En attente de pièces, Réparation puis Prêt.",
+          "Si la pièce arrive plus tard que prévu, vous repoussez la date et le client reçoit un e-mail. Quand l'appareil est prêt, il est prévenu, puis relancé après 3 et 10 jours s'il ne passe pas, pour que votre atelier ne serve pas d'entrepôt."
+        ]
+      }
     },
     "framing": {
       "label": "Encadrement",
@@ -609,8 +750,28 @@
         {
           "q": "Mes clients doivent-ils installer une application ?",
           "a": "Non. Un lien suffit, sans compte."
+        },
+        {
+          "q": "Puis-je prévenir le client si la baguette est en commande ?",
+          "a": "Oui. En Pro, ajoutez une étape comme « En attente de pièces », et changez la date prévue : le client reçoit un e-mail."
+        },
+        {
+          "q": "Et si le client ne vient pas chercher son cadre ?",
+          "a": "Un rappel part 3 jours puis 10 jours après l'e-mail qui lui dit que c'est prêt."
+        },
+        {
+          "q": "Combien coûte ReadyYet pour un encadreur ?",
+          "a": "29 € par mois avec Essentiel, 49 € avec Pro, par atelier et sans engagement. Les 14 premiers jours sont gratuits, sans carte bancaire."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Le suivi des commandes, pensé pour l'encadrement",
+        "paragraphs": [
+          "Une affiche, une toile, un diplôme, une broderie : chaque cadre est une commande sur mesure, souvent avec quelques semaines de délai. Vos clients se demandent où en est leur œuvre. ReadyYet leur donne une page de suivi qui répond à tout moment.",
+          "À la commande, vous créez un ticket avec l'œuvre, la baguette choisie et la date prévue. Le client reçoit son lien par e-mail ou par QR code, et suit les étapes Reçu, En cours, Contrôle qualité puis Prêt.",
+          "Une fois le cadre terminé, joignez-en une photo : le client le découvre sur sa page avant de venir. Il est prévenu par e-mail dès que c'est prêt, puis relancé après 3 et 10 jours s'il tarde, et vos cadres finis ne prennent plus la place des nouveaux."
+        ]
+      }
     }
   }
 }

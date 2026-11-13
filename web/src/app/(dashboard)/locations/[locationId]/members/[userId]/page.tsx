@@ -35,13 +35,18 @@ export default async function MemberPage({ params }: PageProps<"/locations/[loca
   return (
     <div className="flex flex-col gap-4 lg:gap-5">
       <PageHeader title={member.name} crumb={member.name} />
+      {/* The name is the page's title, so the card holds what the title
+          doesn't. Each count shows this month, with the total since joining
+          under it, rather than a second panel of the same four. */}
       <div className="grid gap-3 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-4">
-        <section className="on-pine flex flex-col items-start rounded-sheet bg-pine p-6 text-surface">
+        <section
+          className="on-pine flex flex-col items-start rounded-sheet bg-pine p-6 text-surface"
+          aria-label={member.name}
+        >
           <span className="rounded-full ring-4 ring-brand">
             <Avatar id={member.userId} name={member.name} src={member.avatarUrl} size="xl" />
           </span>
-          <h2 className="mt-4 text-title-h5 wrap-anywhere">{member.name}</h2>
-          <span className="mt-2 rounded-full bg-brand px-3 py-1 text-label-xs text-ink">
+          <span className="mt-4 rounded-full bg-brand px-3 py-1 text-label-xs text-ink">
             {tDashboard(`roles.${member.role}`)}
           </span>
           <p className="mt-auto pt-6 text-p-sm">{t("since", { date: since })}</p>
@@ -58,6 +63,9 @@ export default async function MemberPage({ params }: PageProps<"/locations/[loca
                 {member.month.moved}
               </span>
               <span className="mt-2 text-p-sm">{t("movedHint")}</span>
+              <span className="mt-auto pt-3 text-p-sm font-medium">
+                {t("sinceJoining", { count: member.total.moved })}
+              </span>
             </div>
             {COUNTS.map((count) => (
               <div key={count} className="flex flex-col rounded-card bg-subtle p-4 last:col-span-2 md:last:col-span-1">
@@ -65,25 +73,14 @@ export default async function MemberPage({ params }: PageProps<"/locations/[loca
                 <span className="mt-2 text-[2.75rem] leading-none font-bold tracking-tight tabular-nums">
                   {member.month[count]}
                 </span>
+                <span className="mt-auto pt-3 text-p-sm text-muted">
+                  {t("sinceJoining", { count: member.total[count] })}
+                </span>
               </div>
             ))}
           </div>
         </Panel>
       </div>
-
-      <Panel as="section" padding="lg" aria-labelledby="member-total">
-        <h2 id="member-total" className="text-title-h6">
-          {t("total")}
-        </h2>
-        <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-          {(["moved", ...COUNTS] as const).map((count) => (
-            <div key={count} className="flex items-baseline justify-between gap-4 rounded-xl bg-subtle px-4 py-3">
-              <dt className="text-p-md">{t(`counts.${count}`)}</dt>
-              <dd className="text-title-h6 tabular-nums">{member.total[count]}</dd>
-            </div>
-          ))}
-        </dl>
-      </Panel>
     </div>
   );
 }

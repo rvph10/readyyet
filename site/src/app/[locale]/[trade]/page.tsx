@@ -6,6 +6,7 @@ import { ChipButton } from "@/components/home/ChipButton";
 import { FillButton } from "@/components/home/FillButton";
 import { Footer } from "@/components/home/footer/Footer";
 import { Nav } from "@/components/home/Nav";
+import { Pricing } from "@/components/home/pricing/Pricing";
 import { PageMotion } from "@/components/PageMotion";
 import { routing } from "@/i18n/routing";
 import { signInUrl } from "@/lib/sign-in-url";
@@ -16,6 +17,7 @@ import "@/components/trade/trade.css";
 type Props = PageProps<"/[locale]/[trade]">;
 type Pain = { title: string; text: string };
 type Question = { q: string; a: string };
+type Guide = { title: string; paragraphs: string[] };
 
 export const dynamicParams = false;
 
@@ -61,6 +63,7 @@ export default async function TradePage({ params }: Props) {
   // The first step past Received, drawn as where a Ticket is now.
   const now = 1;
   const faq = all.raw(`${key}.faq`) as Question[];
+  const guide = all.raw(`${key}.guide`) as Guide;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -94,7 +97,7 @@ export default async function TradePage({ params }: Props) {
           </p>
           <div className="cta trade-hero__cta" data-entrance="">
             <ChipButton href={signIn}>{page("start")}</ChipButton>
-            <FillButton href={`/${locale}#pricing`} className="btn--muted">
+            <FillButton href="#pricing" className="btn--muted">
               {page("pricing")}
             </FillButton>
           </div>
@@ -140,6 +143,30 @@ export default async function TradePage({ params }: Props) {
             </ol>
           </div>
         </section>
+
+        {/* What a shop of this trade does with ReadyYet, in its own words, for
+            the searches it makes as much as for the reader. */}
+        <section className="trade-section container container--padded" aria-labelledby="trade-guide">
+          <div className="trade-guide" data-entrance-group="">
+            <div>
+              <p className="trade-guide__label" data-entrance="">
+                {page("guideLabel")}
+              </p>
+              <h2 id="trade-guide" className="t-display" data-entrance="title">
+                {guide.title}
+              </h2>
+            </div>
+            <div className="trade-guide__text">
+              {guide.paragraphs.map((paragraph) => (
+                <p key={paragraph} data-entrance="">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <Pricing />
 
         <section className="trade-section container container--padded" aria-labelledby="trade-faq">
           <div className="trade-faq" data-entrance-group="">

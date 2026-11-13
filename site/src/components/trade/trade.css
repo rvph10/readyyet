@@ -1,5 +1,6 @@
 /* A trade's page (ADR 0145): the home's look, its heading under the nav, then
-   what changes, the steps, questions and the other trades. */
+   what changes, the steps, the trade in its own words, prices, questions
+   and the other trades. */
 
 .trade-hero {
   padding-top: var(--container-bleed);
@@ -171,6 +172,32 @@
   }
 }
 
+.trade-guide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.trade-guide__label {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.trade-guide__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 40rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
 .trade-faq {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
@@ -259,10 +286,12 @@
 
 @media (max-width: 991px) {
   .trade-pains,
+  .trade-guide,
   .trade-faq {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .trade-guide,
   .trade-faq {
     gap: 1.5rem;
   }
