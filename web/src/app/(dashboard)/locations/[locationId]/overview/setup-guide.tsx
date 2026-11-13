@@ -17,6 +17,7 @@ import { InPanel } from "../settings/section-form";
 import { ShopDetails } from "../settings/shop-details";
 import { Turnaround } from "../settings/turnaround";
 import { InviteForm } from "../team/invite-form";
+import { SampleTicket } from "./sample-ticket";
 import { foldedCookie, setupSteps, type StepKey } from "./setup-steps";
 import { COOKIE_MAX_AGE_SECONDS } from "@/lib/consent";
 
@@ -163,7 +164,7 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, froze
                 </p>
                 <h3 className="mt-2 text-title-h5">{t(`${current.key}.title`)}</h3>
                 <p className="mt-2 max-w-md text-p-md text-muted">{t(`${current.key}.body`)}</p>
-                <div className="mt-auto pt-6">
+                <div className="mt-auto flex flex-wrap gap-3 pt-6">
                   {current.key === "firstHandover" ? (
                     <Link
                       href={`/locations/${location.id}/tickets?view=ready`}
@@ -181,6 +182,9 @@ export function SetupGuide({ location, businessName, setup, owner, hasPro, froze
                       {current.isDone ? t("change") : t(`${current.key}.action`)}
                       <Icon name="arrow-right" className="size-3" />
                     </button>
+                  )}
+                  {current.key === "firstTicket" && !current.isDone && (
+                    <SampleTicket className={buttonClass({ variant: "secondary" })} />
                   )}
                 </div>
               </div>

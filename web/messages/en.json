@@ -243,7 +243,8 @@
       "done": "Done",
       "open": "Open Ticket"
     },
-    "recent": "Latest Tickets"
+    "recent": "Latest Tickets",
+    "deleted": "The Ticket was deleted."
   },
   "createBusiness": {
     "title": "Create your Business",
@@ -510,7 +511,16 @@
     "sendSms": "SMS",
     "printSlip": "Print a slip",
     "shareText": "Hi {name}, this is {shop}. Follow “{ticket}” here: {url}",
-    "scanToFollow": "Scan this with your phone's camera to follow your item."
+    "scanToFollow": "Scan this with your phone's camera to follow your item.",
+    "deleteTicket": {
+      "title": "Delete this Ticket",
+      "hint": "For a Ticket made by mistake or a sample. This can't be undone.",
+      "action": "Delete Ticket",
+      "confirmTitle": "Delete Ticket #{number}?",
+      "confirmBody": "This deletes the Ticket with its history, photos and feedback, and its tracking link stops working. This can't be undone.",
+      "confirm": "Delete",
+      "failed": "The Ticket couldn't be deleted. Try again."
+    }
   },
   "today": {
     "emailLimit": "Today's email limit for this shop is reached: emails to your customers start again tomorrow. Tickets and tracking pages work as usual. If this surprises you, write to support@readyyet.app.",
@@ -661,6 +671,13 @@
       "moved": "Moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
+    },
+    "sample": {
+      "action": "Try a sample Ticket",
+      "creating": "Creating the sample…",
+      "failed": "The sample couldn't be created. Try again.",
+      "title": "Sample item",
+      "customer": "Sample Customer"
     }
   },
   "plans": {

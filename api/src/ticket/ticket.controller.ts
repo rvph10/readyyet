@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiCookieAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { Role } from "@readyyet/db";
@@ -72,6 +84,15 @@ export class TicketController {
     @Body() dto: UpdateTicketDto,
   ): Promise<TicketDto> {
     return this.ticket.update(locationId, ticketId, dto);
+  }
+
+  @Delete(":ticketId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  // Not an employee's: a Ticket deleted is gone from the shop's history (ADR 0155).
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @ApiOperation({ summary: "Delete a ticket for good, its tracking link stops working (ADR 0155)" })
+  remove(@Param("locationId") locationId: string, @Param("ticketId") ticketId: string): Promise<void> {
+    return this.ticket.remove(locationId, ticketId);
   }
 
   @Patch(":ticketId/status")

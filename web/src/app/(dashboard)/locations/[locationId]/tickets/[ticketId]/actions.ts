@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { actionResult } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
@@ -80,4 +81,15 @@ export async function deletePhoto(locationId: string, ticketId: string, photoId:
   });
   refreshed(locationId);
   return actionResult(result);
+}
+
+// Redirects from here: refreshing the page they're on would be a 404 by then.
+export async function deleteTicket(locationId: string, ticketId: string) {
+  const result = await (
+    await api()
+  ).DELETE("/locations/{locationId}/tickets/{ticketId}", ticketPath(locationId, ticketId));
+  const outcome = await actionResult(result);
+  if (!outcome.ok) return outcome;
+  refreshed(locationId);
+  redirect(`/locations/${locationId}/tickets?deleted=1`);
 }

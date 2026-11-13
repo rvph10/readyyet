@@ -243,7 +243,8 @@
       "done": "Terminé",
       "open": "Ouvrir le ticket"
     },
-    "recent": "Derniers tickets"
+    "recent": "Derniers tickets",
+    "deleted": "Le ticket a été supprimé."
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
@@ -510,7 +511,16 @@
     "sendSms": "SMS",
     "printSlip": "Imprimer un ticket",
     "shareText": "Bonjour {name}, ici {shop}. Suivez « {ticket} » ici : {url}",
-    "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article."
+    "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article.",
+    "deleteTicket": {
+      "title": "Supprimer ce ticket",
+      "hint": "Pour un ticket créé par erreur ou un essai. C'est définitif.",
+      "action": "Supprimer le ticket",
+      "confirmTitle": "Supprimer le ticket n° {number} ?",
+      "confirmBody": "Le ticket est supprimé avec son historique, ses photos et l'avis du client, et son lien de suivi ne fonctionne plus. C'est définitif.",
+      "confirm": "Supprimer",
+      "failed": "Le ticket n'a pas pu être supprimé. Réessayez."
+    }
   },
   "today": {
     "emailLimit": "La limite d'e-mails du jour est atteinte pour ce magasin : les e-mails à vos clients reprennent demain. Les Tickets et les pages de suivi fonctionnent normalement. Si cela vous surprend, écrivez à support@readyyet.app.",
@@ -661,6 +671,13 @@
       "moved": "A fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
+    },
+    "sample": {
+      "action": "Essayer avec un ticket d'essai",
+      "creating": "Création de l'essai…",
+      "failed": "Le ticket d'essai n'a pas pu être créé. Réessayez.",
+      "title": "Article d'essai",
+      "customer": "Client d'essai"
     }
   },
   "plans": {

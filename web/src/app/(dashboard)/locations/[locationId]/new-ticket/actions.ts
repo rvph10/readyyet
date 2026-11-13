@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { api } from "@/lib/api/client";
 import { actionResult, type ActionFailure } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
@@ -36,4 +38,20 @@ export async function createTicket(
     params: { path: { locationId, ticketId: id } },
   });
   return { ok: true, id, title, customerName: customer.fullName, trackingUrl: data?.trackingUrl ?? "" };
+}
+
+// ADR 0155: an ordinary Ticket for a made-up Customer with no email, so
+// nothing is sent, to try the steps and the tracking page before the first
+// real one. Deleting it gives its number back.
+export async function createSampleTicket(locationId: string) {
+  const t = await getTranslations("today.sample");
+  const result = await (
+    await api()
+  ).POST("/locations/{locationId}/tickets", {
+    params: { path: { locationId } },
+    body: { title: t("title"), customer: { fullName: t("customer") } },
+  });
+  if (!result.data) return actionResult(result);
+  revalidatePath(`/locations/${locationId}`, "layout");
+  redirect(`/locations/${locationId}/tickets/${result.data.id}`);
 }
