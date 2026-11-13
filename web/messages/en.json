@@ -311,6 +311,7 @@
     "codeErrors": {
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "disposable": "This invitation went to a disposable address, which can't sign in. Ask for a new invitation at your work or personal email.",
+      "notAllowed": "This invitation went to an address that can't sign in here. Ask the person who invited you to have it added.",
       "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
     },
     "codeHint": "To answer, you'll sign in with a code sent to {email}."
