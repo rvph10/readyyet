@@ -759,7 +759,6 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
-    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -1538,7 +1537,7 @@
     "since": "On the team since {date}",
     "thisMonth": "This month",
     "movedHint": "Every step a Ticket takes counts, up to its collection.",
-    "total": "Since joining",
+    "sinceJoining": "{count} since joining",
     "counts": {
       "moved": "Steps moved on",
       "created": "Tickets created",

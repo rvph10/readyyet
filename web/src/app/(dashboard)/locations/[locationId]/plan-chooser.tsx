@@ -124,8 +124,6 @@ export function PlanChooser({ locationId, trialDaysLeft }: { locationId: string;
       </p>
 
       <IntervalToggle interval={interval} onChange={setInterval} className="mt-5" />
-      {/* The other way to a yearly payment, said here too (billing-board.tsx). */}
-      {yearly && <p className="mt-3 text-p-sm font-semibold">{tBilling("yearlyNoRefund")}</p>}
 
       {failure && (
         <div className="mt-4">
