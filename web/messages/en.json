@@ -339,6 +339,7 @@
   },
   "tracking": {
     "loading": "Loading your item's progress",
+    "shareImageAlt": "Follow your item, step by step",
     "notFoundTitle": "This tracking link doesn't work",
     "notFoundBody": "It may be mistyped, or the job ended more than 30 days ago. The shop can send you a new link if you still need one.",
     "meaning": {
