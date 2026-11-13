@@ -34,7 +34,7 @@ Sign-in is by a code sent to your email address. You are responsible for who you
 
 - You can cancel a subscription at any time from the billing page. It ends at the end of the period already paid; the Location stays usable until then, then it is frozen and its data stays readable and exportable. A monthly or yearly subscription renews for the same period unless you cancel it before the renewal date.
 - Deleting a Location ends its subscription at once, without a refund of the current period.
-- Payments already made are not refunded, in whole or in part, including the rest of a yearly period. This is shown before you pay for a yearly plan. Exceptions: a pro rata refund when you leave because of a change under section 12, when you object to a new subprocessor under Annex 1, section 7, or when we end the contract without any breach on your side under section 11.
+- Payments already made are not refunded, in whole or in part, including the rest of a yearly period. Exceptions: a pro rata refund when you leave because of a change under section 12, when you object to a new subprocessor under Annex 1, section 7, or when we end the contract without any breach on your side under section 11.
 - Leaving costs nothing beyond that: there are no exit, switching or export fees.
 
 ## 7. Your data, and moving it elsewhere

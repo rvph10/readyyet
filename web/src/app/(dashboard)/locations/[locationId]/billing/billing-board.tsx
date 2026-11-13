@@ -381,8 +381,6 @@ function PlansTile({
           ))}
         </div>
       </div>
-      {/* Above the plans, so a phone reads it before their buttons (plan-chooser.tsx). */}
-      {interval === "YEAR" && <p className="text-p-sm">{t("yearlyNoRefund")}</p>}
       <div className="grid gap-3 sm:grid-cols-2">{PLANS.map(cardFor)}</div>
       <p className="text-p-sm text-muted">{t("bothPlans")}</p>
 

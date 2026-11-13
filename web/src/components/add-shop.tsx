@@ -246,7 +246,6 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
             </div>
             <div>
               <IntervalToggle interval={interval} onChange={setInterval} />
-              {interval === "YEAR" && <p className="mt-3 text-p-sm">{tBilling("yearlyNoRefund")}</p>}
             </div>
             <RadioCards
               legend={tNew("planLegend")}
