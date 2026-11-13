@@ -13,7 +13,7 @@
   "signIn": {
     "pageTitle": "Connexion",
     "title": "Bienvenue sur ReadyYet",
-    "emailIntro": "Connectez-vous ou créez un compte, simplement avec votre e-mail.",
+    "emailIntro": "Connectez-vous ou créez un compte avec votre e-mail ou Google.",
     "email": "Adresse e-mail",
     "continue": "Continuer",
     "codeTitle": "Consultez vos e-mails",
@@ -35,6 +35,7 @@
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "disposableEmail": "Les adresses e-mail jetables ne sont pas acceptées. Utilisez votre e-mail professionnel ou personnel.",
       "notAllowed": "Cette adresse ne peut pas se connecter ici.",
+      "googleFailed": "La connexion avec Google n'a pas abouti. Réessayez, ou utilisez votre e-mail.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
       "unreachable": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
@@ -83,7 +84,10 @@
     "sendingCode": "Envoi du code…",
     "signingIn": "Connexion…",
     "saving": "Enregistrement…",
-    "codeResent": "Nous avons envoyé un nouveau code à {email}."
+    "codeResent": "Nous avons envoyé un nouveau code à {email}.",
+    "or": "ou",
+    "google": "Continuer avec Google",
+    "openingGoogle": "Ouverture de Google…"
   },
   "dashboard": {
     "signOut": "Se déconnecter",

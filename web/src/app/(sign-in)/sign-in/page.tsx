@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {
-  const { next, sentTo, ref } = await searchParams;
+  const { next, sentTo, ref, error } = await searchParams;
   // A referral link (/sign-in?ref=) carries its code on to the Business the
   // User creates next (ADR 0135).
   const nextPath = typeof next === "string" ? safeNextPath(next) : withReferral("/", referralCode(ref));
@@ -33,6 +33,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
       needsName={me !== null}
       // An invitation page already sent the code to this address (ADR 0051).
       sentTo={typeof sentTo === "string" ? sentTo : undefined}
+      googleError={typeof error === "string" ? error : undefined}
       nonce={nonce}
     />
   );

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { GoogleLogo } from "@/components/google-logo";
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
@@ -59,10 +60,12 @@ interface Props {
   needsName: boolean;
   // The address a code was already sent to, which opens on the code step.
   sentTo?: string;
+  // Why Google sent the User back here instead of signing them in.
+  googleError?: string;
   nonce: string;
 }
 
-export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
+export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Props) {
   const t = useTranslations("signIn");
   const locale = useLocale();
   const router = useRouter();
@@ -70,10 +73,14 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const [step, setStep] = useState<Step>(needsName ? "name" : sentTo ? "code" : "email");
   const [email, setEmail] = useState(sentTo ?? "");
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    googleError === undefined
+      ? null
+      : t(googleError === "NOT_ALLOWED_TO_SIGN_IN" ? "errors.notAllowed" : "errors.googleFailed"),
+  );
   const [fieldError, setFieldError] = useState<string | null>(null);
   // Which call is running, so only its button says so.
-  const [busy, setBusy] = useState<"sendCode" | "signIn" | "saveName" | null>(null);
+  const [busy, setBusy] = useState<"sendCode" | "signIn" | "saveName" | "google" | null>(null);
   const pending = busy !== null;
   const [resendIn, setResendIn] = useState(sentTo ? RESEND_AFTER_SECONDS : 0);
 
@@ -163,6 +170,22 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
     }
   }
 
+  // ADR 0151: Google signs the User in on the API, then sends them on to the
+  // page they were going to, or back here with the reason it failed.
+  async function signInWithGoogle() {
+    const here = `${location.origin}/sign-in?next=${encodeURIComponent(next)}`;
+    const started = await call("google", () =>
+      authClient.signIn.social(
+        { provider: "google", callbackURL: new URL(next, location.origin).href, errorCallbackURL: here },
+        inPageLanguage,
+      ),
+    );
+    // The client is leaving for Google: the button stays busy until it has.
+    if (started) {
+      setBusy("google");
+    }
+  }
+
   function submitEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (fieldIsValid(event.currentTarget.elements.namedItem("email") as HTMLInputElement, emailMessages)) {
@@ -247,6 +270,20 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
           />
           <Button type="submit" size="lg" pending={busy === "sendCode"} pendingLabel={t("sendingCode")}>
             {t("continue")}
+          </Button>
+          <p className="flex items-center gap-3 text-label-sm text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+            {t("or")}
+          </p>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => void signInWithGoogle()}
+            disabled={pending}
+            pending={busy === "google"}
+            pendingLabel={t("openingGoogle")}
+          >
+            <GoogleLogo className="size-4.5" />
+            {t("google")}
           </Button>
         </div>
       </form>
