@@ -452,6 +452,13 @@
     );
   }
 
+  /* Opened, the panel reaches below its box by the browser's toolbar, to
+     fill the screen once the toolbar hides, and keeps that reach once the
+     pin lets go: the room is kept so it can't cover the next section. */
+  .hero {
+    padding-bottom: calc(1rem + 100lvh - 100svh);
+  }
+
   .hero__phonelayer {
     clip-path: inset(calc(-1 * var(--tuck) * (120 * var(--u) + 1rem)) -50vw 0 -50vw);
   }

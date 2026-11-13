@@ -307,8 +307,6 @@
   "tradePage": {
     "page": {
       "painsTitle": "What changes at the counter",
-      "stepsTitle": "The steps your customer follows",
-      "stepsHint": "Ready the day you sign up. On Pro, you choose them and put them in your own order.",
       "faqTitle": "Common questions",
       "start": "Start free trial",
       "pricing": "See pricing",
@@ -316,7 +314,6 @@
       "statuses": {
         "RECEIVED": "Received",
         "READY": "Ready",
-        "COMPLETED": "Completed",
         "DIAGNOSING": "Diagnosing",
         "AWAITING_PARTS": "Awaiting parts",
         "IN_PROGRESS": "In progress",
@@ -325,6 +322,74 @@
         "ALTERATION": "Alteration",
         "FITTING": "Fitting",
         "QUALITY_CHECK": "Quality check"
+      },
+      "guideLabel": "Day to day",
+      "assurances": ["14 days free, no card", "Nothing for your customers to install", "Keep your till software"],
+      "phone": {
+        "progress": "Progress",
+        "expected": "Expected {date}"
+      },
+      "floats": {
+        "readyTitle": "Email sent",
+        "reminderTitle": "Automatic reminder",
+        "reminderText": "Not collected after 3 days"
+      },
+      "compare": {
+        "before": "Without ReadyYet",
+        "after": "With ReadyYet"
+      },
+      "how": {
+        "label": "How it works",
+        "title": "Three moments, no calls",
+        "mock": {
+          "customer": "Customer",
+          "item": "Item",
+          "expected": "Expected",
+          "create": "Create Ticket",
+          "channels": ["Email", "WhatsApp", "QR code"],
+          "ready": "Ready, email sent",
+          "reminder3": "Reminder after 3 days",
+          "reminder10": "Reminder after 10 days"
+        }
+      },
+      "features": {
+        "label": "Features",
+        "pro": "Pro",
+        "catalog": {
+          "photos": "Photos on the tracking page",
+          "reminders": "Pickup reminders",
+          "qr": "QR code at the counter",
+          "whatsapp": "Link on WhatsApp",
+          "steps": "Your own steps",
+          "parts": "Awaiting parts",
+          "approval": "Quote to approve",
+          "hours": "Address and hours",
+          "date": "Expected date and delays",
+          "reviews": "Google reviews",
+          "team": "The whole team"
+        }
+      },
+      "numbers": {
+        "label": "The maths",
+        "title": "What \"is it ready yet?\" costs you",
+        "items": [
+          {
+            "value": "3 h",
+            "text": "a week on the phone, for 10 calls of 3 minutes"
+          },
+          {
+            "value": "Day 3, day 10",
+            "text": "the reminders that clear what's still waiting on the shelf"
+          },
+          {
+            "value": "0",
+            "text": "apps or accounts for your customers to set up"
+          }
+        ],
+        "note": "An example with 10 calls a week. Run the numbers with yours."
+      },
+      "closing": {
+        "text": "14 days free, no card, no commitment."
       }
     },
     "shoe": {
@@ -333,20 +398,6 @@
       "metaDescription": "Your customers follow their resole or bag repair online and know when to come by. No calls, no account. 14-day free trial.",
       "title": "Online repair tracking for your shoe repair shop",
       "lead": "A resole, a new heel, a bag to stitch: your customer checks on their pair from their phone and comes in when it's ready.",
-      "pains": [
-        {
-          "title": "Fewer \"is it done yet?\" calls",
-          "text": "Customers get their tracking link at drop-off and check their page instead of ringing while you've got glue on your hands."
-        },
-        {
-          "title": "Forgotten pairs go home",
-          "text": "When it's ready, an email goes out on its own, then a reminder after 3 and 10 days if nobody comes."
-        },
-        {
-          "title": "A Ticket in seconds",
-          "text": "Name, item, expected date, done. The customer gets their link by email, on WhatsApp or by scanning a QR code."
-        }
-      ],
       "faq": [
         {
           "q": "Can I show the customer their pair?",
@@ -359,8 +410,87 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. They open their link in their phone's browser, with no account to create."
+        },
+        {
+          "q": "How much does ReadyYet cost for a shoe repair shop?",
+          "a": "Essentiel is €29 a month and Pro €49 a month, per shop, with no commitment. The first 14 days are free, no card needed."
+        },
+        {
+          "q": "What if a customer never picks up their pair?",
+          "a": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email. Pairs waiting for pickup stay in plain sight on your dashboard."
+        },
+        {
+          "q": "I also cut keys and do engraving. Does it work for that?",
+          "a": "Yes. Anything left with you and picked up later can have a Ticket. On Pro, you shape the steps to each kind of job."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for shoe repair shops",
+        "paragraphs": [
+          "Behind a cobbler's counter, the shelves fill up fast: resoles, heels, sole guards, bags to stitch, zips to replace. Every customer wants to know when to come back, and most of them ask by phone. With ReadyYet, each drop-off becomes a Ticket with its own tracking page the customer opens on their phone.",
+          "At the counter, you note the customer's name, the item and the expected date. They get their link by email, on WhatsApp or by scanning a QR code. Their page shows where things stand, from Received to Repairing to Ready, along with your address and opening hours.",
+          "When the pair is ready, an email goes out on its own. If nobody comes, a reminder follows after 3 days and again after 10, so forgotten shoes finally leave the shelf. On Pro, you add your own steps, like a diagnosis for leather goods or a quote to approve before a big job."
+        ]
+      },
+      "demo": {
+        "shop": "Martin Shoe Repair",
+        "customer": "Ms Dubois",
+        "item": "Ankle boots, resole",
+        "expected": "Thursday",
+        "readyMail": "\"Your boots are ready\""
+      },
+      "before": [
+        "The phone rings while you're gluing a sole.",
+        "Finished pairs sit on the shelf for weeks.",
+        "Customers come in for nothing, it isn't done yet."
+      ],
+      "after": [
+        "Customers see how their pair is doing on their phone.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days.",
+        "They come in once, when the work is done."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the name, the item and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the pair to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for a shoe repair counter",
+      "features": [
+        {
+          "key": "photos",
+          "text": "Show the pair as it came in and once it's resoled. Photos appear on the customer's page."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, without you thinking about it."
+        },
+        {
+          "key": "qr",
+          "text": "The customer scans the QR code at the counter and leaves with their tracking."
+        },
+        {
+          "key": "steps",
+          "text": "Add \"Diagnosing\" for leather goods, or a quote to approve before a big repair."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know when to come by."
+        },
+        {
+          "key": "team",
+          "text": "Essentiel includes 2 team members, Pro an unlimited team, each with their own login."
+        }
+      ],
+      "closingTitle": "Less phone, more soles"
     },
     "pressing": {
       "label": "Dry cleaning",
@@ -368,20 +498,6 @@
       "metaDescription": "Your customers follow their dry cleaning online and know when to pick it up. No calls, no account. 14-day free trial.",
       "title": "Online order tracking for your dry cleaner's",
       "lead": "Suits, dresses, duvets: every drop-off gets its own tracking page, and your customer knows when their order is waiting.",
-      "pains": [
-        {
-          "title": "No more \"when will it be ready?\"",
-          "text": "The expected date is on their page from drop-off. If it changes, they get an email with the new one."
-        },
-        {
-          "title": "Rails that clear",
-          "text": "Customers know the moment it's ready. If they don't come, a reminder goes out after 3 and then 10 days."
-        },
-        {
-          "title": "A counter that keeps moving",
-          "text": "A Ticket takes seconds, even on a Saturday morning with a queue at the door."
-        }
-      ],
       "faq": [
         {
           "q": "A customer drops off several items, what then?",
@@ -394,8 +510,87 @@
         {
           "q": "How much does it cost?",
           "a": "From €29 a month per shop, cancel any time. The first 14 days are free, no card needed."
+        },
+        {
+          "q": "Is the customer told if an item takes longer?",
+          "a": "Yes. Change the expected date on the Ticket and they get an email with the new date."
+        },
+        {
+          "q": "Can I use it for the alterations I also do?",
+          "a": "Yes. On Pro, add steps like \"Alteration\" or \"Fitting\" and put them in your own order."
+        },
+        {
+          "q": "What if a customer has no email address?",
+          "a": "They scan the QR code at the counter, or you send them their link on WhatsApp. Their tracking page stays open whenever they want it."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Order tracking built for dry cleaners",
+        "paragraphs": [
+          "A dry cleaner runs on drop-offs: the week's shirts, a suit for a wedding, a delicate dress, a duvet before summer. Customers come back too early, or forget their clothes for weeks. ReadyYet gives every drop-off a tracking page that says how the order is doing and when it's waiting.",
+          "The Ticket takes seconds at the counter, with the items and the expected date. The customer gets their link by email or by scanning a QR code, then sees Received, Cleaning and Ready, plus your opening hours, without ringing you.",
+          "As soon as the order is ready, the customer gets an email. If they don't come, a reminder goes out after 3 and 10 days, and your rail empties faster. When a stain takes longer, you push the date back and the customer is emailed the new one."
+        ]
+      },
+      "demo": {
+        "shop": "Park Dry Cleaners",
+        "customer": "Mr Lambert",
+        "item": "Two-piece suit",
+        "expected": "Friday",
+        "readyMail": "\"Your suit is ready\""
+      },
+      "before": [
+        "The phone rings to ask if the shirt is done.",
+        "Clean clothes hang on the rail for weeks.",
+        "Customers come in too early and leave empty-handed."
+      ],
+      "after": [
+        "Customers see whether their clothes are being cleaned or ready.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days.",
+        "They come in once, when everything is pressed."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the name, the item and the expected date. The Ticket is created in seconds, even with a queue at the counter."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the Ticket to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for the pace of a dry cleaner's",
+      "features": [
+        {
+          "key": "reminders",
+          "text": "Forgotten clothes leave the rail: a reminder goes out 3 days and then 10 days after the \"it's ready\" email."
+        },
+        {
+          "key": "qr",
+          "text": "The customer scans the QR code while you tag their clothes, and leaves with their tracking."
+        },
+        {
+          "key": "date",
+          "text": "A stain that won't budge? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "whatsapp",
+          "text": "Send the tracking link on WhatsApp to customers who read messages more than email."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know when to come by."
+        },
+        {
+          "key": "team",
+          "text": "Essentiel includes 2 team members, Pro an unlimited team, each with their own login."
+        }
+      ],
+      "closingTitle": "Fewer calls, more room on the rail"
     },
     "tailoring": {
       "label": "Alterations and tailoring",
@@ -403,20 +598,6 @@
       "metaDescription": "Your customers know when to come in for a fitting and when their alteration is ready, without calling. 14-day free trial.",
       "title": "Online tracking for your alterations",
       "lead": "Hems, take-ins, a wedding dress: your customer sees when the fitting is waiting for them, then when their piece is ready.",
-      "pains": [
-        {
-          "title": "Fittings at the right time",
-          "text": "The \"Fitting\" step shows on their page, so they know to come in without you calling."
-        },
-        {
-          "title": "Fewer calls while you sew",
-          "text": "The expected date and current step are on their page, day and night."
-        },
-        {
-          "title": "Finished pieces go home",
-          "text": "An email when it's ready, then a reminder after 3 and 10 days."
-        }
-      ],
       "faq": [
         {
           "q": "Can I push back the expected date?",
@@ -429,8 +610,87 @@
         {
           "q": "Do my customers need to install anything?",
           "a": "No. A link in their browser is all it takes, with no account."
+        },
+        {
+          "q": "Can I plan two fittings?",
+          "a": "Yes, on Pro. You choose the steps and their order, for example two fittings before the final alteration."
+        },
+        {
+          "q": "How much does ReadyYet cost for a tailor?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per workshop, with no commitment. The 14-day trial is free, no card needed."
+        },
+        {
+          "q": "What if a customer doesn't collect their garment?",
+          "a": "They get an email when it's ready, then a reminder after 3 days and after 10."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Alteration tracking built for tailors",
+        "paragraphs": [
+          "A tailoring workshop juggles hems, take-ins, zips and formalwear, each with its own date. The tricky part is the fitting: the customer has to come in at the right time, not too early and not too late. ReadyYet tells them on their tracking page, without a phone call.",
+          "For each drop-off, you create a Ticket with the name, the garment and the expected date. The customer gets their link by email, on WhatsApp or by QR code, and follows Received, Fitting, Alteration and Ready, with your hours to plan their visit.",
+          "Once the garment is ready, an email goes out on its own, then a reminder after 3 and 10 days if it's still on the rail. For a wedding dress or a made-to-measure suit, attach a photo of the finished work, and on Pro add as many fittings as the job needs."
+        ]
+      },
+      "demo": {
+        "shop": "Nadia's Alterations",
+        "customer": "Ms Renard",
+        "item": "Dress, hem and taking in",
+        "expected": "Saturday",
+        "readyMail": "\"Your dress is ready\""
+      },
+      "before": [
+        "Customers call to ask if the hem is done.",
+        "Questions come in by phone with a needle in your hand.",
+        "Finished pieces wait on the rack for weeks."
+      ],
+      "after": [
+        "Customers see the current step, from fitting to alteration.",
+        "An email goes out when the piece is ready, then reminders after 3 and 10 days.",
+        "They know where their piece is without calling you."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the customer, the piece and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the piece to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for an alterations workshop",
+      "features": [
+        {
+          "key": "steps",
+          "text": "Add as many fittings as a made-to-measure suit or a wedding dress needs, in your own order."
+        },
+        {
+          "key": "photos",
+          "text": "A photo of the finished piece on the tracking page, so the customer sees the result before coming in."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, and the rack empties."
+        },
+        {
+          "key": "date",
+          "text": "A fitting moved? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "reviews",
+          "text": "Once the piece is collected, the customer gets a thank-you with two choices: leave a Google review or write to you privately."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know when to come by."
+        }
+      ],
+      "closingTitle": "Fewer calls, more time at the machine"
     },
     "electronics": {
       "label": "Phones and computers",
@@ -438,20 +698,6 @@
       "metaDescription": "Your customers follow their phone or computer repair online, from diagnosis to pick-up. No calls, no account. 14-day free trial.",
       "title": "Online repair tracking for your repair shop",
       "lead": "Screen, battery, motherboard: your customer follows their device from diagnosis to pick-up without calling the shop.",
-      "pains": [
-        {
-          "title": "Quotes answered sooner",
-          "text": "When a quote is waiting for an answer, the customer gets an email and sees it on their page."
-        },
-        {
-          "title": "No more \"so, is it fixed?\"",
-          "text": "The current step and expected date are on their page, and an email goes out when it's ready."
-        },
-        {
-          "title": "A late part, explained",
-          "text": "On Pro, add the \"Awaiting parts\" step and the customer understands the wait without a phone call."
-        }
-      ],
       "faq": [
         {
           "q": "Can a customer see other repairs?",
@@ -464,8 +710,87 @@
         {
           "q": "Do I have to change my till software?",
           "a": "No. ReadyYet only does the tracking and works alongside whatever you already use."
+        },
+        {
+          "q": "Is the customer told when a quote is waiting?",
+          "a": "Yes. With the \"Awaiting approval\" step, on Pro, they get an email asking them to give you their answer."
+        },
+        {
+          "q": "Can I attach photos of the device?",
+          "a": "Yes. Photos at drop-off and once repaired appear on their tracking page, handy for a damaged screen or case."
+        },
+        {
+          "q": "How much does ReadyYet cost for a repair shop?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop. The first 14 days are free, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for phone and computer repair shops",
+        "paragraphs": [
+          "A cracked screen, a tired battery, a laptop that won't boot: without their device, your customer is in a hurry and tends to call. ReadyYet gives them a tracking page where their device moves from Diagnosing to Repairing to Ready.",
+          "At drop-off, you create a Ticket with the model, the fault and the expected date. The customer gets their link by email or by scanning a QR code at the counter. Their link opens only their Ticket, so nobody else sees their repair.",
+          "When a part has to be ordered, the \"Awaiting parts\" step explains the wait, on Pro. If a quote needs their answer, the \"Awaiting approval\" step emails them about it. The moment the device is ready, an email goes out, with a reminder after 3 and 10 days if they don't come."
+        ]
+      },
+      "demo": {
+        "shop": "Mobile Fix Lab",
+        "customer": "Mr Diallo",
+        "item": "Smartphone, cracked screen",
+        "expected": "tomorrow",
+        "readyMail": "\"Your phone is ready\""
+      },
+      "before": [
+        "Without their phone, customers call from someone else's.",
+        "A quote waits for an answer and the repair stalls.",
+        "Repaired devices sleep in the drawer."
+      ],
+      "after": [
+        "Customers follow the diagnosis and repair online.",
+        "On Pro, a quote to approve reaches them by email.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the model, the fault and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the device to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for phone and computer repair",
+      "features": [
+        {
+          "key": "approval",
+          "text": "Waiting on the customer's answer to a quote? The \"Awaiting approval\" step tells them by email."
+        },
+        {
+          "key": "parts",
+          "text": "A part to order? The \"Awaiting parts\" step explains the wait, without a call."
+        },
+        {
+          "key": "photos",
+          "text": "Photos at drop-off and after the repair on the tracking page, handy for a damaged screen or case."
+        },
+        {
+          "key": "date",
+          "text": "The repair takes longer? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, and the drawer empties."
+        },
+        {
+          "key": "team",
+          "text": "Essentiel includes 2 team members, Pro an unlimited team, each with their own login."
+        }
+      ],
+      "closingTitle": "Fewer calls, more repairs"
     },
     "watch": {
       "label": "Watch and jewellery repair",
@@ -473,20 +798,6 @@
       "metaDescription": "Services, batteries, resizing: your customers follow every step online, up to the final check. No calls, no account. 14-day free trial.",
       "title": "Online repair tracking for your watch shop",
       "lead": "A service that takes weeks? Your customer follows every step, from diagnosis to the final check, and knows when to come back.",
-      "pains": [
-        {
-          "title": "Long services, without the worry",
-          "text": "The customer sees their watch move step by step, instead of calling every week."
-        },
-        {
-          "title": "Quotes answered sooner",
-          "text": "When a quote is waiting for an answer, the customer is told by email."
-        },
-        {
-          "title": "Photos that reassure",
-          "text": "Add a photo of the piece when it comes in and once it's repaired: it shows on their page."
-        }
-      ],
       "faq": [
         {
           "q": "What if the watch goes to the manufacturer?",
@@ -499,8 +810,87 @@
         {
           "q": "Do my customers need an account?",
           "a": "No. They open a link in their browser, with no app."
+        },
+        {
+          "q": "Can I show the watch's condition at drop-off?",
+          "a": "Yes. Attach photos to the Ticket: they appear on the customer's tracking page and keep a record of how it came in."
+        },
+        {
+          "q": "What about a quote for a service?",
+          "a": "On Pro, the \"Awaiting approval\" step emails the customer that a quote is waiting for their answer."
+        },
+        {
+          "q": "How much does ReadyYet cost for a watchmaker?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop, with no commitment. 14-day free trial, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for watchmakers and jewellers",
+        "paragraphs": [
+          "A full service, a new crystal, a ring to resize: in watch and jewellery repair, lead times are long and the pieces are precious. Your customers want reassurance without pulling you away from the bench. ReadyYet shows them every step on a tracking page.",
+          "At drop-off, you create a Ticket with the piece, the work and the expected date, and you can attach a photo of its condition on arrival. The customer gets their link by email or QR code and follows Received, Diagnosing, Repairing, Quality check and Ready.",
+          "If the watch goes back to the maker or a part is slow to come, add a step that says so on Pro and push the date back: the customer gets an email. When it's all done, they're told, then reminded after 3 and 10 days if they take their time."
+        ]
+      },
+      "demo": {
+        "shop": "Lemaire Watchmakers",
+        "customer": "Mr Peeters",
+        "item": "Automatic watch, service",
+        "expected": "4 December",
+        "readyMail": "\"Your watch is ready\""
+      },
+      "before": [
+        "A service takes weeks, and the customer calls every week.",
+        "They can't tell if their watch is being diagnosed or waiting.",
+        "Finished pieces wait in the safe for someone to come."
+      ],
+      "after": [
+        "Customers follow every step, from diagnosis to quality check.",
+        "A photo records the piece's condition when it came in.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the piece, the work and the expected date, with a photo of its condition. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the watch to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for watch and jewellery repair",
+      "features": [
+        {
+          "key": "photos",
+          "text": "One photo records the piece as it came in, another shows the finished work."
+        },
+        {
+          "key": "approval",
+          "text": "A quote for a full service? The \"Awaiting approval\" step tells the customer by email."
+        },
+        {
+          "key": "date",
+          "text": "A part coming from the maker? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, and pieces leave the safe."
+        },
+        {
+          "key": "reviews",
+          "text": "Once the watch or jewellery is collected, the customer gets a thank-you with two choices: leave a Google review or write to you privately."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know when to come by."
+        }
+      ],
+      "closingTitle": "Fewer calls, more time at the bench"
     },
     "garage": {
       "label": "Garage",
@@ -508,20 +898,6 @@
       "metaDescription": "Your customers follow their car's service or repair online and know when to collect it. No calls, no account. 14-day free trial.",
       "title": "Online repair tracking for your garage",
       "lead": "Diagnosis, repair, car ready: your customer follows their vehicle from their phone and knows when to collect it.",
-      "pains": [
-        {
-          "title": "Fewer calls to the workshop",
-          "text": "Customers check their page instead of calling while you're under a bonnet."
-        },
-        {
-          "title": "A late part, said plainly",
-          "text": "On Pro, the \"Awaiting parts\" step explains a delay without a phone call."
-        },
-        {
-          "title": "Cars collected sooner",
-          "text": "An email goes out as soon as it's ready, then a reminder if nobody comes."
-        }
-      ],
       "faq": [
         {
           "q": "Can I keep my garage software?",
@@ -534,8 +910,87 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. They open a link in their browser, with no account."
+        },
+        {
+          "q": "Is the customer told if the repair runs late?",
+          "a": "Yes. Change the expected date and they get an email with the new one."
+        },
+        {
+          "q": "Can several mechanics use it?",
+          "a": "Yes. Essentiel includes 2 team members and Pro an unlimited team, each with their own login."
+        },
+        {
+          "q": "How much does ReadyYet cost for a garage?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per garage, with no commitment. The first 14 days are free."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for garages",
+        "paragraphs": [
+          "A service, tyres, brakes, a fault to track down: while their car is in the workshop, your customer plans their day around it. They call to ask if it'll be ready tonight, usually while you're under a bonnet. ReadyYet gives them a tracking page that answers for you.",
+          "When the car comes in, you create a Ticket with the plate or model and the expected date. The customer gets their link by email or QR code, and follows Received, Diagnosing, Repairing and Ready, with the garage's address and hours.",
+          "If a part doesn't turn up, the \"Awaiting parts\" step says so plainly, on Pro, and a new date goes out by email. As soon as the car is ready, the customer is told, which clears your forecourt sooner. ReadyYet sits alongside your quoting and invoicing software."
+        ]
+      },
+      "demo": {
+        "shop": "Dumont Motors",
+        "customer": "Ms Claes",
+        "item": "Estate, service and brakes",
+        "expected": "this evening",
+        "readyMail": "\"Your car is ready\""
+      },
+      "before": [
+        "Customers call while you're under a bonnet.",
+        "A part is late, and every customer needs a call back.",
+        "Finished cars clutter the forecourt."
+      ],
+      "after": [
+        "Customers follow the diagnosis and repair online.",
+        "A new date goes out by email as soon as you change it.",
+        "They're told the moment it's ready, and the forecourt clears."
+      ],
+      "how": [
+        {
+          "title": "At check-in",
+          "text": "Type the plate or model, the work and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the car to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for a garage workshop",
+      "features": [
+        {
+          "key": "date",
+          "text": "A part that hasn't turned up? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "parts",
+          "text": "The \"Awaiting parts\" step explains the wait, without a phone call."
+        },
+        {
+          "key": "approval",
+          "text": "Extra work to sign off? The \"Awaiting approval\" step tells the customer by email."
+        },
+        {
+          "key": "photos",
+          "text": "Show the worn pads or the part you replaced, in a photo on the tracking page."
+        },
+        {
+          "key": "team",
+          "text": "Essentiel includes 2 team members, Pro the whole team, each mechanic with their own login."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know how late they can come."
+        }
+      ],
+      "closingTitle": "Fewer calls, more time under the bonnet"
     },
     "appliance": {
       "label": "Appliance repair",
@@ -543,20 +998,6 @@
       "metaDescription": "Washing machines, ovens, vacuums: your customers follow the repair online, even while a part is on order. 14-day free trial.",
       "title": "Online tracking for your appliance repairs",
       "lead": "Part on order? Your customer sees it on their page and hears from you the moment their appliance is ready.",
-      "pains": [
-        {
-          "title": "Waiting for parts, explained",
-          "text": "\"Awaiting parts\" is one of the steps, so the customer understands the wait without calling."
-        },
-        {
-          "title": "A date that moves, announced",
-          "text": "If the expected date changes, the customer gets an email with the new one."
-        },
-        {
-          "title": "Appliances collected",
-          "text": "An email when it's ready, then a reminder after 3 and 10 days."
-        }
-      ],
       "faq": [
         {
           "q": "What about repairs at the customer's home?",
@@ -569,8 +1010,87 @@
         {
           "q": "Do my customers need an account?",
           "a": "No. A link in their browser is enough."
+        },
+        {
+          "q": "Does the customer see why it's taking long?",
+          "a": "Yes. The \"Awaiting parts\" step shows on their page, and every new date is emailed to them."
+        },
+        {
+          "q": "What if a quote has to be approved?",
+          "a": "On Pro, add the \"Awaiting approval\" step: the customer gets an email asking for their answer."
+        },
+        {
+          "q": "How much does ReadyYet cost for an appliance repair shop?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per shop, with no commitment. 14-day free trial, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Repair tracking built for appliance repair shops",
+        "paragraphs": [
+          "A washing machine, a coffee machine, a vacuum cleaner: appliance repairs often hang on a part that has to be ordered, and the customer has no idea why it's taking so long. ReadyYet explains it on a tracking page, without you picking up the phone.",
+          "At drop-off, you create a Ticket with the appliance, the fault and the expected date. The customer gets their link by email or by scanning a QR code, and follows Received, Diagnosing, Awaiting parts, Repairing and Ready.",
+          "If the part arrives later than planned, push the date back and the customer gets an email. When the appliance is ready, they're told, then reminded after 3 and 10 days if they don't come, so your workshop doesn't turn into a storeroom."
+        ]
+      },
+      "demo": {
+        "shop": "Appliance Care",
+        "customer": "Mr Dupont",
+        "item": "Washing machine, won't drain",
+        "expected": "Tuesday",
+        "readyMail": "\"Your washing machine is ready\""
+      },
+      "before": [
+        "A part to order, and the customer calls every week.",
+        "They can't tell if the machine is being diagnosed or waiting.",
+        "Repaired appliances take up room meant for the next ones."
+      ],
+      "after": [
+        "Customers see every step, from diagnosis to repair.",
+        "Waiting for a part shows on their page, with a date kept up to date.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days."
+      ],
+      "how": [
+        {
+          "title": "At drop-off",
+          "text": "Type the appliance, the fault and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the appliance to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for appliance repair",
+      "features": [
+        {
+          "key": "date",
+          "text": "The part arrives later than planned? Change the date and the customer gets an email with the new one."
+        },
+        {
+          "key": "approval",
+          "text": "An expensive repair? The \"Awaiting approval\" step emails the customer so they can give you their answer."
+        },
+        {
+          "key": "photos",
+          "text": "Show the faulty part in a photo, and the customer understands the repair."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, and the workshop frees up."
+        },
+        {
+          "key": "qr",
+          "text": "The customer scans the QR code at the counter and leaves with their tracking."
+        },
+        {
+          "key": "team",
+          "text": "Essentiel includes 2 team members, Pro an unlimited team, each with their own login."
+        }
+      ],
+      "closingTitle": "Fewer calls, more appliances fixed"
     },
     "framing": {
       "label": "Picture framing",
@@ -578,20 +1098,6 @@
       "metaDescription": "From choosing the moulding to fitting the glass, your customers know when their frame is ready, without calling. 14-day free trial.",
       "title": "Online order tracking for your framing workshop",
       "lead": "From choosing the moulding to fitting the glass, your customer knows where their frame is and when to collect it.",
-      "pains": [
-        {
-          "title": "Long lead times, without the worry",
-          "text": "The customer sees the current step and expected date, day and night."
-        },
-        {
-          "title": "A photo before they come",
-          "text": "Add a photo of the finished frame and the customer sees it on their page."
-        },
-        {
-          "title": "Finished frames go home",
-          "text": "An email as soon as it's ready, then a reminder if they don't come."
-        }
-      ],
       "faq": [
         {
           "q": "Can I change the expected date?",
@@ -604,8 +1110,87 @@
         {
           "q": "Do my customers need an app?",
           "a": "No. A link is enough, with no account."
+        },
+        {
+          "q": "Can I let the customer know the moulding is on order?",
+          "a": "Yes. On Pro, add a step like \"Awaiting parts\" and change the expected date: the customer gets an email."
+        },
+        {
+          "q": "What if a customer doesn't collect their frame?",
+          "a": "A reminder goes out 3 days and then 10 days after the email saying it's ready."
+        },
+        {
+          "q": "How much does ReadyYet cost for a framer?",
+          "a": "€29 a month on Essentiel, €49 on Pro, per workshop, with no commitment. The first 14 days are free, no card needed."
         }
-      ]
+      ],
+      "guide": {
+        "title": "Order tracking built for picture framers",
+        "paragraphs": [
+          "A poster, a canvas, a diploma, a piece of embroidery: every frame is made to order, often with a few weeks' lead time. Your customers wonder how their piece is coming along. ReadyYet gives them a tracking page that answers any time.",
+          "When the order is placed, you create a Ticket with the piece, the moulding and the expected date. The customer gets their link by email or QR code and follows Received, In progress, Quality check and Ready.",
+          "Once the frame is done, attach a photo: the customer sees it on their page before coming in. They're emailed as soon as it's ready, then reminded after 3 and 10 days if they're slow, so finished frames stop taking up room meant for new ones."
+        ]
+      },
+      "demo": {
+        "shop": "The Frame Workshop",
+        "customer": "Ms Wouters",
+        "item": "50 × 70 poster, oak frame",
+        "expected": "27 November",
+        "readyMail": "\"Your frame is ready\""
+      },
+      "before": [
+        "Customers call to ask if their frame has been started.",
+        "Finished frames pile up against the wall.",
+        "They only see the result when they collect it."
+      ],
+      "after": [
+        "Customers follow their frame from making to final check.",
+        "A photo of the finished frame waits on their page.",
+        "An email goes out when it's ready, then reminders after 3 and 10 days."
+      ],
+      "how": [
+        {
+          "title": "At the order",
+          "text": "Type the artwork, the frame chosen and the expected date. The Ticket is created in seconds."
+        },
+        {
+          "title": "They get their link",
+          "text": "By email, on WhatsApp or by scanning the QR code at the counter. No account, no app."
+        },
+        {
+          "title": "It's ready, they know",
+          "text": "You move the frame to Ready: the email goes out on its own, and reminders follow if nobody comes."
+        }
+      ],
+      "featuresTitle": "Built for a framing workshop",
+      "features": [
+        {
+          "key": "photos",
+          "text": "A photo of the finished frame on the tracking page, so the customer sees the result before coming in."
+        },
+        {
+          "key": "reminders",
+          "text": "A reminder goes out 3 days and then 10 days after the \"it's ready\" email, and the wall clears."
+        },
+        {
+          "key": "date",
+          "text": "A moulding out of stock? Change the expected date and the customer gets an email with the new one."
+        },
+        {
+          "key": "approval",
+          "text": "A quote for a custom frame? The \"Awaiting approval\" step tells the customer by email."
+        },
+        {
+          "key": "reviews",
+          "text": "Once the frame is collected, the customer gets a thank-you with two choices: leave a Google review or write to you privately."
+        },
+        {
+          "key": "hours",
+          "text": "Your address and opening hours on every tracking page, so customers know when to come by."
+        }
+      ],
+      "closingTitle": "Fewer calls, more frames finished"
     }
   }
 }
