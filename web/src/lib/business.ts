@@ -1,9 +1,9 @@
 import "server-only";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { api } from "./api/client";
 import { pageData } from "./api/errors";
+import { requestOrigin } from "./request-origin";
 
 // Asks the API rather than reading /me's Memberships: an Owner whose Locations
 // are all deleted has none, and still owns the Business. A stranger gets the
@@ -16,9 +16,7 @@ export const getOwnedBusiness = cache(async (businessId: string) => {
   return pageData(result);
 });
 
-// The sign-in page, which carries the code on to the new Business (ADR 0135). Read from the
-// request, as the web app has no setting for its own address.
+// The sign-in page, which carries the code on to the new Business (ADR 0135).
 export async function referralLink(referralCode: string) {
-  const request = await headers();
-  return `${request.get("x-forwarded-proto") ?? "http"}://${request.get("host")}/sign-in?ref=${referralCode}`;
+  return `${await requestOrigin()}/sign-in?ref=${referralCode}`;
 }
