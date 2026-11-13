@@ -127,6 +127,20 @@ describe("Better Auth email OTP", () => {
       .set("X-Real-IP", "203.0.113.50")
       .send({ email, type: "sign-in" });
 
+  it("refuses an address off the sign-in allowlist before sending a code", async () => {
+    const email = `stranger-${Date.now()}@example.com`;
+    process.env.SIGN_IN_ALLOWLIST = "@resend.dev";
+    try {
+      const response = await sendFromOwnIp(email);
+
+      expect(response.status).toBe(403);
+      expect(response.body.code).toBe("NOT_ALLOWED_TO_SIGN_IN");
+      expect(await prisma.verification.count({ where: { identifier: `sign-in-otp-${email}` } })).toBe(0);
+    } finally {
+      delete process.env.SIGN_IN_ALLOWLIST;
+    }
+  });
+
   it("refuses a disposable address before sending a code", async () => {
     const email = `someone-${Date.now()}@yopmail.com`;
 

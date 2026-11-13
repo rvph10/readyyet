@@ -10,6 +10,7 @@ import { CLIENT_IP_HEADER } from "../common/client-ip";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
 import { isDisposableEmail } from "./disposable-email";
+import { isAllowedToSignIn } from "./sign-in-allowlist";
 import { SIGN_IN_CODES_PER_HOUR } from "../email/email-limits";
 
 // Given to the plugin and quoted in the email, so the two can't disagree.
@@ -88,6 +89,12 @@ export const auth: Auth<any> = betterAuth({
     // valid is the plugin's to refuse.
     before: createAuthMiddleware(async (ctx) => {
       const email = (ctx.body as { email?: unknown } | undefined)?.email;
+      if (ctx.path === "/email-otp/send-verification-otp" && typeof email === "string" && !isAllowedToSignIn(email)) {
+        throw new APIError("FORBIDDEN", {
+          code: "NOT_ALLOWED_TO_SIGN_IN",
+          message: "This address isn't allowed to sign in here.",
+        });
+      }
       if (
         ctx.path === "/email-otp/send-verification-otp" &&
         typeof email === "string" &&
