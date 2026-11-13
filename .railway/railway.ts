@@ -73,6 +73,10 @@ export default defineRailway((ctx) => {
       STRIPE_WEBHOOK_SECRET: preserve(),
       PLATFORM_ADMIN_EMAILS: preserve(),
       GOOGLE_PLACES_API_KEY: preserve(),
+      GOOGLE_CLIENT_ID: preserve(),
+      GOOGLE_CLIENT_SECRET: preserve(),
+      // Staging only, the addresses allowed to sign in there (ADR 0150).
+      SIGN_IN_ALLOWLIST: preserve(),
     },
   });
 
