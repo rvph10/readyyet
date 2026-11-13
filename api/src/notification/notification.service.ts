@@ -378,7 +378,7 @@ export class NotificationService {
     // The emails that state the date carry it as a calendar event too.
     const statesDate = estimatedReadyDate && (kind === "TICKET_CREATED" || kind === "READY_DATE_CHANGED");
     // A Customer told a date may have it in their calendar: the email
-    // ending the Ticket takes it back out.
+    // ending the Ticket takes it back out (ADR 0152).
     const toldDate = toCalendarDate(ticket.customerToldReadyDate);
     const cancelsDate = toldDate && (kind === "CANCELLED" || kind === "REJECTED");
     const eventDate = statesDate ? estimatedReadyDate : cancelsDate ? toldDate : null;
