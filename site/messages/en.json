@@ -1192,5 +1192,10 @@
       ],
       "closingTitle": "Fewer calls, more frames finished"
     }
+  },
+  "notFound": {
+    "title": "This page doesn't exist",
+    "lead": "The link may be old or mistyped.",
+    "home": "Back to the home page"
   }
 }
