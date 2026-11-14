@@ -13,7 +13,7 @@
   "signIn": {
     "pageTitle": "Connexion",
     "title": "Bienvenue sur ReadyYet",
-    "emailIntro": "Connectez-vous ou créez un compte, simplement avec votre e-mail.",
+    "emailIntro": "Connectez-vous ou créez un compte avec votre e-mail ou Google.",
     "email": "Adresse e-mail",
     "continue": "Continuer",
     "codeTitle": "Consultez vos e-mails",
@@ -34,6 +34,8 @@
       "invalidCode": "Ce code n'est pas correct. Vérifiez-le et réessayez.",
       "expiredCode": "Ce code n'est plus utilisable. Demandez-en un nouveau.",
       "disposableEmail": "Les adresses e-mail jetables ne sont pas acceptées. Utilisez votre e-mail professionnel ou personnel.",
+      "notAllowed": "Cette adresse ne peut pas se connecter ici.",
+      "googleFailed": "La connexion avec Google n'a pas abouti. Réessayez, ou utilisez votre e-mail.",
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "unexpected": "Une erreur s'est produite. Veuillez réessayer.",
       "unreachable": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
@@ -82,7 +84,10 @@
     "sendingCode": "Envoi du code…",
     "signingIn": "Connexion…",
     "saving": "Enregistrement…",
-    "codeResent": "Nous avons envoyé un nouveau code à {email}."
+    "codeResent": "Nous avons envoyé un nouveau code à {email}.",
+    "or": "ou",
+    "google": "Continuer avec Google",
+    "openingGoogle": "Ouverture de Google…"
   },
   "dashboard": {
     "signOut": "Se déconnecter",
@@ -130,7 +135,7 @@
     "title": "Tickets",
     "new": "Nouveau ticket",
     "search": "Rechercher des tickets",
-    "searchPlaceholder": "Nom, téléphone, code ou travail",
+    "searchPlaceholder": "Nom, téléphone, numéro, code ou travail",
     "viewsLabel": "Filtrer les tickets",
     "views": {
       "open": "En cours",
@@ -238,7 +243,8 @@
       "done": "Terminé",
       "open": "Ouvrir le ticket"
     },
-    "recent": "Derniers tickets"
+    "recent": "Derniers tickets",
+    "deleted": "Le ticket a été supprimé."
   },
   "createBusiness": {
     "title": "Créez votre entreprise",
@@ -310,6 +316,7 @@
     "codeErrors": {
       "rateLimited": "Trop de tentatives. Attendez une minute, puis réessayez.",
       "disposable": "Cette invitation a été envoyée à une adresse jetable, qui ne permet pas de se connecter. Demandez une nouvelle invitation à votre e-mail professionnel ou personnel.",
+      "notAllowed": "Cette invitation a été envoyée à une adresse qui ne peut pas se connecter ici. Demandez à la personne qui vous a invité de la faire ajouter.",
       "unexpected": "Impossible de joindre ReadyYet. Vérifiez votre connexion et réessayez."
     },
     "codeHint": "Pour répondre, vous vous connecterez avec un code envoyé à {email}."
@@ -504,7 +511,16 @@
     "sendSms": "SMS",
     "printSlip": "Imprimer un ticket",
     "shareText": "Bonjour {name}, ici {shop}. Suivez « {ticket} » ici : {url}",
-    "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article."
+    "scanToFollow": "Scannez ce code avec l'appareil photo de votre téléphone pour suivre votre article.",
+    "deleteTicket": {
+      "title": "Supprimer ce ticket",
+      "hint": "Pour un ticket créé par erreur ou un essai. C'est définitif.",
+      "action": "Supprimer le ticket",
+      "confirmTitle": "Supprimer le ticket n° {number} ?",
+      "confirmBody": "Le ticket est supprimé avec son historique, ses photos et l'avis du client, et son lien de suivi ne fonctionne plus. C'est définitif.",
+      "confirm": "Supprimer",
+      "failed": "Le ticket n'a pas pu être supprimé. Réessayez."
+    }
   },
   "today": {
     "emailLimit": "La limite d'e-mails du jour est atteinte pour ce magasin : les e-mails à vos clients reprennent demain. Les Tickets et les pages de suivi fonctionnent normalement. Si cela vous surprend, écrivez à support@readyyet.app.",
@@ -655,6 +671,13 @@
       "moved": "A fait avancer",
       "emptyTitle": "Calme pour l'instant",
       "emptyBody": "Les changements sur les Tickets apparaîtront ici."
+    },
+    "sample": {
+      "action": "Essayer avec un ticket d'essai",
+      "creating": "Création de l'essai…",
+      "failed": "Le ticket d'essai n'a pas pu être créé. Réessayez.",
+      "title": "Article d'essai",
+      "customer": "Client d'essai"
     }
   },
   "plans": {
@@ -760,7 +783,6 @@
       "alreadyPaying": "Ce site a déjà un plan. Actualisez la page dans un instant."
     },
     "startPro": "Démarrer Pro, 49 €/mois",
-    "yearlyNoRefund": "Un abonnement annuel se paie un an d'avance et n'est pas remboursé si vous arrêtez en cours d'année, sauf dans les cas prévus par les conditions générales.",
     "payYearlyTitle": "Payer à l'année ?",
     "payMonthlyTitle": "Payer au mois ?",
     "intervalLaterBody": "Rien ne change jusqu'au {date}, puis vous payez {price}.",
@@ -1539,7 +1561,7 @@
     "since": "Dans l'équipe depuis le {date}",
     "thisMonth": "Ce mois-ci",
     "movedHint": "Chaque étape franchie par un ticket compte, jusqu'au retrait.",
-    "total": "Depuis son arrivée",
+    "sinceJoining": "{count} depuis son arrivée",
     "counts": {
       "moved": "Étapes avancées",
       "created": "Tickets créés",

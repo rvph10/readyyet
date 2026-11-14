@@ -11,7 +11,7 @@ export type LegalDoc = (typeof LEGAL_DOCS)[number];
 // the signed-in cookie (ADR 0144).
 export const LEGAL_DATES: Record<LegalDoc, string> = {
   terms: "2026-11-10",
-  privacy: "2026-11-12",
+  privacy: "2026-11-13",
   "legal-notice": "2026-11-10",
   "customer-data": "2026-11-10",
 };

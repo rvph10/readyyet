@@ -247,7 +247,7 @@ async function Guide({ page, empty = false }: { page: Today; empty?: boolean }) 
     getInsights(page.locationId),
     getBilling(page.locationId),
   ]);
-  if (!setupSteps(setup, page.owner).some(({ isDone }) => !isDone)) return empty ? <FirstTicket /> : null;
+  if (!setupSteps(setup, page.owner).some(({ isDone }) => !isDone)) return empty ? <FirstTicket sample /> : null;
   return (
     <SetupGuide
       location={location}

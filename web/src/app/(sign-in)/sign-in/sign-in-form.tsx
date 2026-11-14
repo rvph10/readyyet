@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { GoogleLogo } from "@/components/google-logo";
 import { Button } from "@/components/ui/button";
 import { Field, validityMessage } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
@@ -41,6 +42,8 @@ function errorKey(error: AuthError) {
       return "errors.emailInvalid";
     case "DISPOSABLE_EMAIL":
       return "errors.disposableEmail";
+    case "NOT_ALLOWED_TO_SIGN_IN":
+      return "errors.notAllowed";
     default:
       return "errors.unexpected";
   }
@@ -50,17 +53,19 @@ type Messages = Parameters<typeof validityMessage>[1];
 
 // The API's refusals that are about what was typed in the step's field, so
 // they show under it rather than above the button.
-const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL", "DISPOSABLE_EMAIL", "INVALID_OTP"]);
+const FIELD_ERROR_CODES = new Set(["INVALID_EMAIL", "DISPOSABLE_EMAIL", "NOT_ALLOWED_TO_SIGN_IN", "INVALID_OTP"]);
 
 interface Props {
   next: string;
   needsName: boolean;
   // The address a code was already sent to, which opens on the code step.
   sentTo?: string;
+  // Why Google sent the User back here instead of signing them in.
+  googleError?: string;
   nonce: string;
 }
 
-export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
+export function SignInForm({ next, needsName, sentTo, googleError, nonce }: Props) {
   const t = useTranslations("signIn");
   const locale = useLocale();
   const router = useRouter();
@@ -68,18 +73,26 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
   const [step, setStep] = useState<Step>(needsName ? "name" : sentTo ? "code" : "email");
   const [email, setEmail] = useState(sentTo ?? "");
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    googleError === undefined
+      ? null
+      : t(googleError === "NOT_ALLOWED_TO_SIGN_IN" ? "errors.notAllowed" : "errors.googleFailed"),
+  );
   const [fieldError, setFieldError] = useState<string | null>(null);
   // Which call is running, so only its button says so.
-  const [busy, setBusy] = useState<"sendCode" | "signIn" | "saveName" | null>(null);
+  const [busy, setBusy] = useState<"sendCode" | "signIn" | "saveName" | "google" | null>(null);
   const pending = busy !== null;
   const [resendIn, setResendIn] = useState(sentTo ? RESEND_AFTER_SECONDS : 0);
 
   // Coming back from Stripe, iOS Safari can leave the session cookie off the first
   // request, which is what brought a signed-in User here. This call carries it.
+  // A User without a name stays for the name step: the dashboard would send
+  // them straight back here.
   useEffect(() => {
     void authClient.getSession().then(({ data }) => {
-      if (data) window.location.replace(next);
+      if (!data) return;
+      if (data.user.name) window.location.replace(next);
+      else setStep("name");
     });
   }, [next]);
 
@@ -161,6 +174,27 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
     }
   }
 
+  // ADR 0151: Google signs the User in on the API, then sends them back here,
+  // signed in (GoogleReturn) or with the reason it failed.
+  async function signInWithGoogle() {
+    const here = `${location.origin}/sign-in?next=${encodeURIComponent(next)}`;
+    const started = await call("google", () =>
+      authClient.signIn.social(
+        {
+          provider: "google",
+          callbackURL: `${here}&google=back`,
+          newUserCallbackURL: `${here}&google=new`,
+          errorCallbackURL: here,
+        },
+        inPageLanguage,
+      ),
+    );
+    // The client is leaving for Google: the button stays busy until it has.
+    if (started) {
+      setBusy("google");
+    }
+  }
+
   function submitEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (fieldIsValid(event.currentTarget.elements.namedItem("email") as HTMLInputElement, emailMessages)) {
@@ -176,16 +210,7 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
     }
     // A first sign-in creates the User without a name (ADR 0011).
     if (data.user.name) {
-      // ADR 0118: the app speaks the User's own language, on this device too.
-      const saved = parseLocale((data.user as { locale?: string }).locale);
-      if (saved && saved.toLowerCase() !== locale) {
-        document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
-        // A full load, as the root layout holds the page's language and its
-        // messages, which a soft navigation keeps.
-        window.location.assign(next);
-        return;
-      }
-      router.replace(next);
+      goOn(next, (data.user as { locale?: string }).locale, locale, router);
     } else {
       setStep("name");
     }
@@ -198,9 +223,8 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
 
   async function saveName(name: string) {
     if (await call("saveName", () => authClient.updateUser({ name }))) {
-      // Only a first sign-in asks for the name (ADR 0011). Someone invited
-      // joins an existing Business, which isn't a sign-up.
-      if (!next.startsWith("/invitations/")) track("signed_up");
+      // Only a first sign-in asks for the name (ADR 0011).
+      trackSignUp(next);
       router.replace(next);
     }
   }
@@ -245,6 +269,20 @@ export function SignInForm({ next, needsName, sentTo, nonce }: Props) {
           />
           <Button type="submit" size="lg" pending={busy === "sendCode"} pendingLabel={t("sendingCode")}>
             {t("continue")}
+          </Button>
+          <p className="flex items-center gap-3 text-label-sm text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+            {t("or")}
+          </p>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => void signInWithGoogle()}
+            disabled={pending}
+            pending={busy === "google"}
+            pendingLabel={t("openingGoogle")}
+          >
+            <GoogleLogo className="size-4.5" />
+            {t("google")}
           </Button>
         </div>
       </form>
@@ -361,4 +399,40 @@ function ChangeableEmail({ email, hint, onClick }: { email: string; hint: string
       </Tooltip>
     </button>
   );
+}
+
+// Someone invited joins an existing Business, which isn't a sign-up.
+function trackSignUp(next: string) {
+  if (!next.startsWith("/invitations/")) track("signed_up");
+}
+
+// ADR 0118: the app speaks the User's own language, on this device too.
+function goOn(next: string, savedLocale: string | undefined, pageLocale: string, router: ReturnType<typeof useRouter>) {
+  const saved = parseLocale(savedLocale);
+  if (saved && saved.toLowerCase() !== pageLocale) {
+    document.cookie = `${LOCALE_COOKIE}=${saved}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
+    // A full load, as the root layout holds the page's language and its
+    // messages, which a soft navigation keeps.
+    window.location.assign(next);
+    return;
+  }
+  router.replace(next);
+}
+
+// Back from Google signed in: what a code sign-in does once the code is right,
+// as Google skips the code and the name steps (ADR 0151).
+export function GoogleReturn({ next, savedLocale, isNew }: { next: string; savedLocale: string; isNew: boolean }) {
+  const locale = useLocale();
+  const router = useRouter();
+  useEffect(() => {
+    // A new User was saved in the browser's language, not a choice of theirs
+    // yet, so the page's language stays.
+    if (isNew) {
+      trackSignUp(next);
+      router.replace(next);
+    } else {
+      goOn(next, savedLocale, locale, router);
+    }
+  }, [next, savedLocale, isNew, locale, router]);
+  return null;
 }

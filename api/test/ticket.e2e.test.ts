@@ -4,7 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
-import { EmailStatus } from "@readyyet/db";
+import { EmailStatus, Role } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -57,6 +57,7 @@ describe("Tickets", () => {
       });
 
     expect(response.status).toBe(201);
+    expect(response.body.number).toBe(1);
     expect(response.body.trackingCode).toMatch(/^[\w-]{12}$/);
     expect(response.body.currentStatus.code).toBe("RECEIVED");
     expect(response.body.customer.fullName).toBe("Alice Driver");
@@ -75,6 +76,7 @@ describe("Tickets", () => {
       .send({ title: "Tire rotation", customerId });
 
     expect(second.status).toBe(201);
+    expect(second.body.number).toBe(first.body.number + 1);
     expect(second.body.customer.id).toBe(customerId);
     expect(second.body.customer.fullName).toBe("Bob Returner");
   });
@@ -382,4 +384,81 @@ describe("Tickets", () => {
       expect(response.body.error.code).toBe("NOT_FOUND");
     },
   );
+
+  describe("deleting (ADR 0155)", () => {
+    const create = async (title: string) =>
+      (
+        await request(app.getHttpServer())
+          .post(`/locations/${locationId}/tickets`)
+          .set("Cookie", ownerCookie)
+          .send({ title, customer: { fullName: "Sam Sample" } })
+      ).body as { id: string; number: number; trackingCode: string; customer: { id: string } };
+    const remove = (ticketId: string, cookie = ownerCookie) =>
+      request(app.getHttpServer()).delete(`/locations/${locationId}/tickets/${ticketId}`).set("Cookie", cookie);
+
+    it("deletes a Ticket with its history, ends its tracking link and keeps its Customer", async () => {
+      const ticket = await create("Sample");
+      await request(app.getHttpServer())
+        .patch(`/locations/${locationId}/tickets/${ticket.id}/status`)
+        .set("Cookie", ownerCookie)
+        .send({ statusCode: "READY" });
+
+      expect((await remove(ticket.id)).status).toBe(204);
+
+      const detail = await request(app.getHttpServer())
+        .get(`/locations/${locationId}/tickets/${ticket.id}`)
+        .set("Cookie", ownerCookie);
+      expect(detail.status).toBe(404);
+      expect((await request(app.getHttpServer()).get(`/tracking/${ticket.trackingCode}`)).status).toBe(404);
+      expect(await prisma.ticketStatusEvent.count({ where: { ticketId: BigInt(ticket.id) } })).toBe(0);
+      expect((await remove(ticket.id)).status).toBe(404);
+    });
+
+    it("keeps a Customer who can be reached or has another Ticket, and removes one left with nothing", async () => {
+      const reachable = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Reachable", customer: { fullName: "Rita Reach", phone: "+32470000001" } });
+      const first = await create("First");
+      const second = await request(app.getHttpServer())
+        .post(`/locations/${locationId}/tickets`)
+        .set("Cookie", ownerCookie)
+        .send({ title: "Second", customerId: first.customer.id });
+      const alone = await create("Alone");
+      const exists = (id: string) => prisma.customer.count({ where: { id: BigInt(id) } });
+
+      await remove(reachable.body.id);
+      await remove(first.id);
+      await remove(alone.id);
+
+      expect(await exists(reachable.body.customer.id)).toBe(1);
+      expect(await exists(first.customer.id)).toBe(1);
+      expect(await exists(alone.customer.id)).toBe(0);
+      await remove(second.body.id);
+      expect(await exists(first.customer.id)).toBe(0);
+    });
+
+    it("gives the newest Ticket's number to the next one, but never an older one's", async () => {
+      const older = await create("Older");
+      const newest = await create("Newest");
+      await remove(newest.id);
+      const next = await create("Next");
+      expect(next.number).toBe(newest.number);
+
+      await remove(older.id);
+      const after = await create("After");
+      expect(after.number).toBe(next.number + 1);
+    });
+
+    it("refuses an employee, as a deleted Ticket leaves the shop's history", async () => {
+      const ticket = await create("Kept");
+      const email = `delivered+ticket-employee-${Date.now()}@resend.dev`;
+      const employeeCookie = await signInViaOtp(app, prisma, email);
+      const employee = await prisma.user.findUniqueOrThrow({ where: { email } });
+      await prisma.membership.create({ data: { userId: employee.id, locationId, role: Role.EMPLOYEE } });
+
+      expect((await remove(ticket.id, employeeCookie)).status).toBe(403);
+      expect((await remove(ticket.id, otherCookie)).status).toBe(403);
+    });
+  });
 });

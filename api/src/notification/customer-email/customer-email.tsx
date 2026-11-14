@@ -13,6 +13,8 @@ export interface CustomerEmailInput {
   businessTypeCode: string;
   customerName: string;
   ticketTitle: string;
+  // The shop's number for the Ticket, for the Customer to quote (ADR 0154).
+  ticketNumber: number;
   // Shown in the ticket-created email when set, the subject of a
   // READY_DATE_CHANGED one.
   estimatedReadyDate: CalendarDate | null;
@@ -111,7 +113,9 @@ function CustomerEmail({ input }: { input: CustomerEmailInput }) {
         ) : input.kind === "FEEDBACK_REPLY" ? (
           <KeyValue prose>{input.reply}</KeyValue>
         ) : (
-          <KeyValue detail={showsDate ? messages.readyBy(params) : undefined}>{input.ticketTitle}</KeyValue>
+          <KeyValue detail={showsDate ? messages.readyBy(params) : undefined}>
+            {input.ticketTitle} · #{input.ticketNumber}
+          </KeyValue>
         )}
       </KeyCard>
       {input.kind === "TICKET_CREATED" && input.asksForFeedback && (

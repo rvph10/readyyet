@@ -16,6 +16,7 @@ import { parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
 import { nextReadyReminderAt } from "../notification/ready-reminders";
+import { StorageService } from "../storage/storage.service";
 import { WorkflowService } from "../workflow/workflow.service";
 import { BillingService } from "../billing/billing.service";
 import { isFrozen } from "../billing/plans";
@@ -47,7 +48,7 @@ type ListTicket = Prisma.TicketGetPayload<{ include: typeof LIST_INCLUDE }>;
 
 function ticketOrder({ sort, dir = "asc" }: ListTicketsQueryDto): Prisma.TicketOrderByWithRelationInput[] {
   const orders = {
-    number: { id: dir },
+    number: { number: dir },
     customer: { customer: { fullName: dir } },
     title: { title: dir },
     // A Workflow's order lives on its steps, which a sort can't reach, so this
@@ -63,6 +64,7 @@ function ticketOrder({ sort, dir = "asc" }: ListTicketsQueryDto): Prisma.TicketO
 function listItem(ticket: ListTicket) {
   return {
     id: ticket.id.toString(),
+    number: ticket.number,
     trackingCode: ticket.trackingCode,
     title: ticket.title,
     estimatedReadyDate: toCalendarDate(ticket.estimatedReadyDate),
@@ -153,6 +155,7 @@ export class TicketService {
     private readonly billing: BillingService,
     private readonly photos: TicketPhotoService,
     private readonly emailRetry: EmailRetryService,
+    private readonly storage: StorageService,
   ) {}
 
   async create(locationId: string, userId: string, dto: CreateTicketDto) {
@@ -219,6 +222,35 @@ export class TicketService {
     });
 
     return this.mapDetail(ticket);
+  }
+
+  // ADR 0155: gone for good, with its history, photos, feedback and queued
+  // emails. The Customer stays, unless this was their only Ticket and they
+  // have no email or phone, like a sample's, as nothing of them is left to
+  // keep. The number goes back only if it was the newest, so a sample tried
+  // and deleted leaves the first real Ticket #1.
+  async remove(locationId: string, ticketId: string) {
+    const id = parseBigIntId(ticketId, "Ticket");
+    const ticket = await this.prisma.ticket.findFirst({
+      where: { id, locationId },
+      select: { number: true, customerId: true, photos: { select: { objectKey: true } } },
+    });
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+    await this.prisma.$transaction([
+      this.prisma.ticketFeedback.deleteMany({ where: { ticketId: id } }),
+      this.prisma.ticketPhoto.deleteMany({ where: { ticketId: id } }),
+      this.prisma.ticket.delete({ where: { id } }),
+      this.prisma.location.updateMany({
+        where: { id: locationId, ticketCount: ticket.number },
+        data: { ticketCount: { decrement: 1 } },
+      }),
+      this.prisma.customer.deleteMany({
+        where: { id: ticket.customerId, email: null, phone: null, tickets: { none: {} } },
+      }),
+    ]);
+    await this.storage.delete(ticket.photos.map(({ objectKey }) => objectKey));
   }
 
   async resendTrackingLink(locationId: string, ticketId: string) {
@@ -356,8 +388,11 @@ export class TicketService {
     if (query.q) {
       const contains = { contains: escapeLike(query.q), mode: "insensitive" } as const;
       const digits = phoneDigits(query.q);
+      // "12" or "#12", the number on the Ticket's screens (ADR 0154).
+      const number = /^#?(\d{1,9})$/.exec(query.q)?.[1];
       filters.push({
         OR: [
+          ...(number ? [{ number: Number(number) }] : []),
           // An erased Customer's Tickets have a placeholder title (ADR 0128).
           { title: contains, customer: { deletedAt: null } },
           { description: contains },
@@ -661,6 +696,7 @@ export class TicketService {
 
   private mapDetail(ticket: {
     id: bigint;
+    number: number;
     trackingCode: string;
     title: string;
     description: string | null;
@@ -682,6 +718,7 @@ export class TicketService {
   }) {
     return {
       id: ticket.id.toString(),
+      number: ticket.number,
       trackingCode: ticket.trackingCode,
       title: ticket.title,
       description: ticket.description,

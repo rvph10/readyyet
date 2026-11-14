@@ -34,7 +34,7 @@ La connexion se fait par un code envoyé à votre adresse e-mail. Vous êtes res
 
 - Vous pouvez résilier un abonnement à tout moment depuis la page de facturation. Il prend fin au terme de la période déjà payée ; la Location reste utilisable jusque-là, puis elle est gelée et ses données restent consultables et exportables. Un abonnement mensuel ou annuel est renouvelé pour la même durée, sauf résiliation avant la date de renouvellement.
 - Supprimer une Location met fin immédiatement à son abonnement, sans remboursement de la période en cours.
-- Les paiements effectués ne sont remboursés ni en tout ni en partie, y compris le reste d'une période annuelle. Cette règle est rappelée avant le paiement d'une formule annuelle. Exceptions : un remboursement au prorata si vous partez à la suite d'une modification au sens de l'article 12, si vous vous opposez à un nouveau sous-traitant ultérieur selon l'annexe 1, article 7, ou si nous mettons fin au contrat sans manquement de votre part selon l'article 11.
+- Les paiements effectués ne sont remboursés ni en tout ni en partie, y compris le reste d'une période annuelle. Exceptions : un remboursement au prorata si vous partez à la suite d'une modification au sens de l'article 12, si vous vous opposez à un nouveau sous-traitant ultérieur selon l'annexe 1, article 7, ou si nous mettons fin au contrat sans manquement de votre part selon l'article 11.
 - Partir ne coûte rien de plus : il n'y a ni frais de sortie, ni frais de changement de fournisseur, ni frais d'export.
 
 ## 7. Vos données, et les emporter ailleurs

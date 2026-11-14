@@ -6,6 +6,7 @@ import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createTestApp } from "./support/create-test-app";
+import { auth } from "../src/auth/auth";
 import { PrismaService } from "../src/database/prisma.service";
 import { getResendClient } from "../src/email/resend-client";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -127,6 +128,48 @@ describe("Better Auth email OTP", () => {
       .set("X-Real-IP", "203.0.113.50")
       .send({ email, type: "sign-in" });
 
+  it("refuses an address off the sign-in allowlist before sending a code", async () => {
+    const email = `stranger-${Date.now()}@example.com`;
+    process.env.SIGN_IN_ALLOWLIST = "@resend.dev";
+    try {
+      const response = await sendFromOwnIp(email);
+
+      expect(response.status).toBe(403);
+      expect(response.body.code).toBe("NOT_ALLOWED_TO_SIGN_IN");
+      expect(await prisma.verification.count({ where: { identifier: `sign-in-otp-${email}` } })).toBe(0);
+    } finally {
+      delete process.env.SIGN_IN_ALLOWLIST;
+    }
+  });
+
+  it.each([
+    ["creates no User", false],
+    ["refuses a session to an existing User", true],
+  ])("off the allowlist, %s, as a Google sign-in sends no code", async (_, existing) => {
+    const email = `off-list-${existing}-${Date.now()}@example.com`;
+    if (existing) {
+      await signInViaOtp(app, prisma, email);
+    }
+    await sendFromOwnIp(email);
+    const { value } = await prisma.verification.findFirstOrThrow({
+      where: { identifier: `sign-in-otp-${email}` },
+      orderBy: { createdAt: "desc" },
+    });
+    process.env.SIGN_IN_ALLOWLIST = "@resend.dev";
+    try {
+      const response = await request(app.getHttpServer())
+        .post("/api/auth/sign-in/email-otp")
+        .set("X-Real-IP", "203.0.113.51")
+        .send({ email, otp: value.split(":")[0] });
+
+      expect(response.status).toBe(403);
+      expect(response.body.code).toBe("NOT_ALLOWED_TO_SIGN_IN");
+      expect(await prisma.user.count({ where: { email } })).toBe(existing ? 1 : 0);
+    } finally {
+      delete process.env.SIGN_IN_ALLOWLIST;
+    }
+  });
+
   it("refuses a disposable address before sending a code", async () => {
     const email = `someone-${Date.now()}@yopmail.com`;
 
@@ -194,5 +237,24 @@ describe("Better Auth email OTP", () => {
 
     expect((await send("203.0.113.1")).status).toBe(429);
     expect((await send("203.0.113.2")).status).toBe(400);
+  });
+
+  it("gives a User without a name the one Google has, once its Google account is linked (ADR 0153)", async () => {
+    const email = `delivered+google-link-${Date.now()}@resend.dev`;
+    await signInViaOtp(app, prisma, email);
+    // A code sign-in left before the name step.
+    const user = await prisma.user.update({ where: { email }, data: { name: "" } });
+    const claims = Buffer.from(JSON.stringify({ name: "Ana Peeters" })).toString("base64url");
+
+    // What Better Auth's Google callback does to link an account.
+    const { internalAdapter } = await auth.$context;
+    await internalAdapter.linkAccount({
+      providerId: "google",
+      accountId: randomUUID(),
+      userId: user.id,
+      idToken: `header.${claims}.signature`,
+    });
+
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).name).toBe("Ana Peeters");
   });
 });

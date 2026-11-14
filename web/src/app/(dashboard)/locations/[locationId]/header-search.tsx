@@ -170,7 +170,9 @@ export function HeaderSearch({ locationId, compact }: { locationId: string; comp
           <Avatar id={ticket.customer.fullName} name={name(ticket)} src={null} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-label-sm">{name(ticket)}</span>
-            <span className="block truncate text-p-xs text-muted">{title(ticket)}</span>
+            <span className="block truncate text-p-xs text-muted">
+              #{ticket.number} · {title(ticket)}
+            </span>
           </span>
           <span className="hidden shrink-0 text-p-xs text-muted sm:block">
             {statusLabel(ticket.currentStatus, locale)}

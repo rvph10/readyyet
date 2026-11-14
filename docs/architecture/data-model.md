@@ -89,20 +89,21 @@ Every default `Workflow` the seed script creates includes all five system status
 
 ## Indexes
 
-| Index                              | Columns                                            | Supports                                                             |
-| ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
-| idx_location_business              | business_id                                        | List a business's locations                                          |
-| idx_membership_user                | user_id                                            | "Which locations can this user see", checked on nearly every request |
-| membership unique                  | (user_id, location_id)                             | Permission check, prevents duplicate grants                          |
-| idx_ticket_location_created        | (location_id, created_at DESC)                     | Dashboard ticket list, most recent first                             |
-| idx_ticket_location_status_created | (location_id, current_status_id, created_at DESC)  | Dashboard filtered by status                                         |
-| ticket tracking_code unique        | tracking_code                                      | Public tracking page lookup, hottest single-row read in the app      |
-| idx_ticket_customer                | customer_id                                        | Customer detail page                                                 |
-| idx_status_event_ticket_created    | (ticket_id, created_at)                            | Ticket timeline / public tracking history                            |
-| idx_customer_location_name         | (location_id, full_name)                           | Customer search within a location                                    |
-| idx_ticket_photo_ticket_created    | (ticket_id, created_at)                            | A ticket's photos, oldest first                                      |
-| invitation partial unique          | (location_id, lower(email)) WHERE status='PENDING' | Prevent duplicate pending invites                                    |
-| workflow partial unique (×2)       | business_type_id / location_id WHERE is_active     | Resolve the current workflow for a new ticket                        |
+| Index                               | Columns                                            | Supports                                                             |
+| ----------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
+| idx_location_business               | business_id                                        | List a business's locations                                          |
+| idx_membership_user                 | user_id                                            | "Which locations can this user see", checked on nearly every request |
+| membership unique                   | (user_id, location_id)                             | Permission check, prevents duplicate grants                          |
+| idx_ticket_location_created         | (location_id, created_at DESC)                     | Dashboard ticket list, most recent first                             |
+| idx_ticket_location_status_created  | (location_id, current_status_id, created_at DESC)  | Dashboard filtered by status                                         |
+| ticket tracking_code unique         | tracking_code                                      | Public tracking page lookup, hottest single-row read in the app      |
+| ticket (location_id, number) unique | (location_id, number)                              | One number per Ticket in a Location, search by number (ADR 0154)     |
+| idx_ticket_customer                 | customer_id                                        | Customer detail page                                                 |
+| idx_status_event_ticket_created     | (ticket_id, created_at)                            | Ticket timeline / public tracking history                            |
+| idx_customer_location_name          | (location_id, full_name)                           | Customer search within a location                                    |
+| idx_ticket_photo_ticket_created     | (ticket_id, created_at)                            | A ticket's photos, oldest first                                      |
+| invitation partial unique           | (location_id, lower(email)) WHERE status='PENDING' | Prevent duplicate pending invites                                    |
+| workflow partial unique (×2)        | business_type_id / location_id WHERE is_active     | Resolve the current workflow for a new ticket                        |
 
 Deliberately not indexed: `customer.email` (no uniqueness requirement, low query frequency), `ticket.description` (free text, not searched in v1), `ticket_status_event.status_id` alone (always queried through `ticket_id`).
 
@@ -142,5 +143,5 @@ The Ticket, Customer and private feedback lists are paged by number with a total
 
 - **Row-Level Security**: application-level `location_id` scoping in the API service layer is sufficient with one trusted backend. RLS is real future hardening (defense-in-depth against an application bug), not a day-one requirement, and it adds real operational complexity with Prisma's connection pooling on Railway.
 - **Partitioning**: `ticket_status_event` will be the fastest-growing table, worth partitioning by `created_at` range only if it reaches tens of millions of rows. Not before.
-- **No `deleted_at` on `Ticket`**: it's a permanent business record, there's no deletion flow and none should exist. A considered omission, not an oversight.
+- **No `deleted_at` on `Ticket`**: an Owner or admin can delete a Ticket outright, with its history, photos and feedback (ADR 0155, which replaced the rule that a Ticket is never deleted). There's no soft delete to undo it.
 - **No Postgres enum for `Status`/`BusinessType`**: both are extensible, translated catalogues the developer seeds over time, an enum would mean a schema migration every time a new one is added.

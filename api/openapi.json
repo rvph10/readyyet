@@ -4571,6 +4571,111 @@
         "tags": [
           "Tickets"
         ]
+      },
+      "delete": {
+        "operationId": "TicketController_remove",
+        "parameters": [
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ticketId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND: the resource doesn't exist, or isn't visible to you",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a ticket for good, its tracking link stops working (ADR 0155)",
+        "tags": [
+          "Tickets"
+        ]
       }
     },
     "/locations/{locationId}/tickets/{ticketId}/status": {
@@ -10647,6 +10752,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10681,6 +10789,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "description",
@@ -10723,6 +10832,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10752,6 +10864,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "customerCollectedAt",
@@ -10829,6 +10942,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -10870,6 +10986,7 @@
         "required": [
           "estimatedReadyDate",
           "id",
+          "number",
           "trackingCode",
           "title",
           "customerCollectedAt",
@@ -11039,6 +11156,9 @@
           "id": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "trackingCode": {
             "type": "string"
           },
@@ -11079,6 +11199,7 @@
           "trackingUrl",
           "trackingLinkExpired",
           "id",
+          "number",
           "trackingCode",
           "title",
           "description",
@@ -11942,6 +12063,9 @@
           "trackingCode": {
             "type": "string"
           },
+          "number": {
+            "type": "number"
+          },
           "title": {
             "type": "string"
           },
@@ -11999,6 +12123,7 @@
           "estimatedReadyDate",
           "locale",
           "trackingCode",
+          "number",
           "title",
           "customerCollectedAt",
           "createdAt",

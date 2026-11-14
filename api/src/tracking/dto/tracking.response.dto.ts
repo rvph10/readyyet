@@ -46,6 +46,8 @@ export class TrackingFeedbackDto {
 
 export class TrackingDto {
   trackingCode!: string;
+  // The shop's number for it, which the Customer can quote (ADR 0154).
+  number!: number;
   title!: string;
   // A date on the Location's clock, null once the ticket is READY or ended.
   @ApiProperty({ type: String, format: "date", nullable: true })

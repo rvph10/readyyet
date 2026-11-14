@@ -13,7 +13,7 @@
   "signIn": {
     "pageTitle": "Sign in",
     "title": "Welcome to ReadyYet",
-    "emailIntro": "Sign in or create an account with just your email.",
+    "emailIntro": "Sign in or create an account with your email or Google.",
     "email": "Email address",
     "continue": "Continue",
     "codeTitle": "Check your email",
@@ -34,6 +34,8 @@
       "invalidCode": "That code isn't right. Check it and try again.",
       "expiredCode": "This code can't be used anymore. Send a new one.",
       "disposableEmail": "Disposable email addresses can't be used. Use your work or personal email.",
+      "notAllowed": "This address can't sign in here.",
+      "googleFailed": "Signing in with Google didn't work. Try again, or use your email.",
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "unexpected": "Something went wrong. Please try again.",
       "unreachable": "We couldn't reach ReadyYet. Check your connection and try again."
@@ -82,7 +84,10 @@
     "sendingCode": "Sending the code…",
     "signingIn": "Signing in…",
     "saving": "Saving…",
-    "codeResent": "We sent a new code to {email}."
+    "codeResent": "We sent a new code to {email}.",
+    "or": "or",
+    "google": "Continue with Google",
+    "openingGoogle": "Opening Google…"
   },
   "dashboard": {
     "signOut": "Sign out",
@@ -130,7 +135,7 @@
     "title": "Tickets",
     "new": "New Ticket",
     "search": "Search Tickets",
-    "searchPlaceholder": "Search by name, phone, code or job",
+    "searchPlaceholder": "Name, phone, number, code or job",
     "viewsLabel": "Filter Tickets",
     "views": {
       "open": "Open",
@@ -238,7 +243,8 @@
       "done": "Done",
       "open": "Open Ticket"
     },
-    "recent": "Latest Tickets"
+    "recent": "Latest Tickets",
+    "deleted": "The Ticket was deleted."
   },
   "createBusiness": {
     "title": "Create your Business",
@@ -310,6 +316,7 @@
     "codeErrors": {
       "rateLimited": "Too many attempts. Wait a minute, then try again.",
       "disposable": "This invitation went to a disposable address, which can't sign in. Ask for a new invitation at your work or personal email.",
+      "notAllowed": "This invitation went to an address that can't sign in here. Ask the person who invited you to have it added.",
       "unexpected": "We couldn't reach ReadyYet. Check your connection and try again."
     },
     "codeHint": "To answer, you'll sign in with a code sent to {email}."
@@ -504,7 +511,16 @@
     "sendSms": "SMS",
     "printSlip": "Print a slip",
     "shareText": "Hi {name}, this is {shop}. Follow “{ticket}” here: {url}",
-    "scanToFollow": "Scan this with your phone's camera to follow your item."
+    "scanToFollow": "Scan this with your phone's camera to follow your item.",
+    "deleteTicket": {
+      "title": "Delete this Ticket",
+      "hint": "For a Ticket made by mistake or a sample. This can't be undone.",
+      "action": "Delete Ticket",
+      "confirmTitle": "Delete Ticket #{number}?",
+      "confirmBody": "This deletes the Ticket with its history, photos and feedback, and its tracking link stops working. This can't be undone.",
+      "confirm": "Delete",
+      "failed": "The Ticket couldn't be deleted. Try again."
+    }
   },
   "today": {
     "emailLimit": "Today's email limit for this shop is reached: emails to your customers start again tomorrow. Tickets and tracking pages work as usual. If this surprises you, write to support@readyyet.app.",
@@ -655,6 +671,13 @@
       "moved": "Moved",
       "emptyTitle": "Quiet so far",
       "emptyBody": "Changes to Tickets show up here."
+    },
+    "sample": {
+      "action": "Try a sample Ticket",
+      "creating": "Creating the sample…",
+      "failed": "The sample couldn't be created. Try again.",
+      "title": "Sample item",
+      "customer": "Sample Customer"
     }
   },
   "plans": {
@@ -760,7 +783,6 @@
       "alreadyPaying": "This shop already has a plan. Refresh the page in a moment."
     },
     "startPro": "Start Pro, €49/month",
-    "yearlyNoRefund": "A yearly plan is paid a year in advance and isn't refunded if you stop before the year ends, except in the cases the terms set out.",
     "payYearlyTitle": "Pay yearly?",
     "payMonthlyTitle": "Pay monthly?",
     "intervalLaterBody": "Nothing changes until {date}, then you pay {price}.",
@@ -1539,7 +1561,7 @@
     "since": "On the team since {date}",
     "thisMonth": "This month",
     "movedHint": "Every step a Ticket takes counts, up to its collection.",
-    "total": "Since joining",
+    "sinceJoining": "{count} since joining",
     "counts": {
       "moved": "Steps moved on",
       "created": "Tickets created",

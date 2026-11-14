@@ -29,6 +29,7 @@ import { statusLabel } from "@/lib/status-label";
 import { PageHeader } from "../../page-header";
 import { daysBetween, expected, formatDay, formatMoment } from "../ticket-views";
 import { isStopped, statusChoices } from "./status-choices";
+import { DeleteTicket } from "./delete-ticket";
 import { StatusPanel } from "./status-panel";
 import { TicketDetails } from "./ticket-details";
 import { TicketPhotos } from "./ticket-photos";
@@ -48,7 +49,7 @@ export default async function TicketPage({ params }: PageProps<"/locations/[loca
       <Reveal
         fallback={
           <>
-            <PageHeader title={null} crumb={`#${ticketId}`} />
+            <PageHeader title={null} />
             <TicketLoading />
           </>
         }
@@ -121,7 +122,7 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
 
   return (
     <>
-      <PageHeader title={title} crumb={`#${ticket.id}`} />
+      <PageHeader title={title} crumb={`#${ticket.number}`} />
 
       {ticket.emailProblem === "GAVE_UP" && (
         <Banner tone="error">{t(ended ? "emailGaveUpEnded" : "emailGaveUp", { name })}</Banner>
@@ -177,6 +178,9 @@ async function TicketContent({ locationId, ticketId }: { locationId: string; tic
                 dateLate={late}
                 erased={erased}
               />
+              {membership.role !== "EMPLOYEE" && (
+                <DeleteTicket locationId={locationId} ticketId={ticketId} number={ticket.number} />
+              )}
             </Panel>
 
             <Panel as="section" padding="lg" className="flex flex-col max-xl:order-4 xl:flex-1">

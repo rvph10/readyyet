@@ -271,3 +271,29 @@ describe("a business's referrer, a sponsor or a sales partner, never both", () =
     ).rejects.toThrow(/business_one_referrer/);
   });
 });
+
+describe("ticket numbers (ADR 0154)", () => {
+  it("numbers each Location's Tickets from 1, without a gap or a repeat when they are created at once", async () => {
+    const f = await seedFixtures(db);
+    const ticket = (locationId: string, customerId: bigint, code: string) =>
+      db.ticket.create({
+        data: {
+          locationId,
+          customerId,
+          workflowId: f.defaultWorkflow.id,
+          currentStatusId: f.status.id,
+          trackingCode: code,
+          title: code,
+          createdBy: f.user.id,
+        },
+      });
+
+    const numbers = await Promise.all(
+      Array.from({ length: 10 }, (_, i) => ticket(f.locationA.id, f.customerA.id, `number-a-${i}`)),
+    ).then((tickets) => tickets.map(({ number }) => number).sort((a, b) => a - b));
+    const other = await ticket(f.locationB.id, f.customerB.id, "number-b-0");
+
+    expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(other.number).toBe(1);
+  });
+});

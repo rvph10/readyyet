@@ -22,6 +22,7 @@ function input(overrides: Partial<CustomerEmailInput> = {}): CustomerEmailInput 
     businessTypeCode: "GARAGE",
     customerName: "Alice Martin",
     ticketTitle: "Brake pads",
+    ticketNumber: 12,
     estimatedReadyDate: null,
     location: {
       name: "Joe's Garage",
@@ -162,6 +163,12 @@ describe("Customer emails", () => {
     }
     expect(html).toContain('aria-label="1 étoile sur 5"');
     expect(html).toContain('aria-label="5 étoiles sur 5"');
+  });
+
+  it("gives the shop's number for the Ticket beside its title, for the Customer to quote", async () => {
+    const text = await render(buildCustomerEmail(input()).react, { plainText: true });
+
+    expect(text).toContain("Brake pads · #12");
   });
 
   it("escapes user-entered text instead of rendering it as HTML", async () => {
