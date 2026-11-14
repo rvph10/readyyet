@@ -8,9 +8,12 @@ export function redactUrl(url: string): string {
 }
 
 // Shared by the server (instrumentation.ts) and the browser
-// (instrumentation-client.ts). Without a DSN (locally, in CI) nothing is sent.
+// (instrumentation-client.ts).
 export const sentryOptions: BrowserOptions & NodeOptions = {
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  // Only on Railway, like the API's, even with a DSN in a local .env.
+  // next.config.ts falls back to "development" when not built there.
+  enabled: process.env.SENTRY_ENVIRONMENT !== "development",
   environment: process.env.SENTRY_ENVIRONMENT,
   // The API's project too (ADR 0045), told apart by this tag.
   initialScope: { tags: { service: "web" } },
