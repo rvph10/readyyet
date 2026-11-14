@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nestjs";
 import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { Heartbeat } from "../common/decorators/heartbeat.decorator";
 import { EmailStatus } from "@readyyet/db";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -93,6 +94,7 @@ export class NotificationService {
     checkinMargin: 1,
     maxRuntime: 5,
   })
+  @Heartbeat("created")
   monitoredTicketCreatedSweep() {
     return this.sendDueTicketCreatedEmails();
   }

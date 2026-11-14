@@ -72,6 +72,8 @@ export default defineRailway((ctx) => {
       EMAIL_FROM: preserve(),
       SUPPORT_EMAIL: preserve(),
       SENTRY_DSN: preserve(),
+      // Production only, Uptime Kuma's heartbeats (ADR 0157).
+      UPTIME_PUSH_URL: preserve(),
       STRIPE_SECRET_KEY: preserve(),
       STRIPE_WEBHOOK_SECRET: preserve(),
       PLATFORM_ADMIN_EMAILS: preserve(),
