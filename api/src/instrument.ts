@@ -2,11 +2,14 @@ import * as Sentry from "@sentry/nestjs";
 import { maskTrackingCode, withoutQueryArguments } from "./common/logging/redact";
 
 // Loaded by main.ts right after dotenv: Sentry hooks into modules as they
-// are first required. Without SENTRY_DSN (local, tests) this does nothing.
+// are first required.
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
+  // Only on Railway: a DSN copied into a local .env sent every dev error to
+  // the production project.
+  enabled: process.env.RAILWAY_ENVIRONMENT_NAME !== undefined,
   // Both set by Railway on every deploy.
-  environment: process.env.RAILWAY_ENVIRONMENT_NAME ?? process.env.NODE_ENV ?? "development",
+  environment: process.env.RAILWAY_ENVIRONMENT_NAME,
   release: process.env.RAILWAY_GIT_COMMIT_SHA,
   // Only the method and path of a failing request go out: its body and
   // query carry customer data, and a tracking code in the path gives
