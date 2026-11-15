@@ -121,7 +121,7 @@ export class RetentionService {
       }
       const ids = customers.map((customer) => customer.id);
       const photoKeys = await photoKeysOfCustomers(this.prisma, ids);
-      await this.prisma.$transaction(customerErasure(this.prisma, { id: { in: ids } }));
+      await this.prisma.$transaction(await customerErasure(this.prisma, { id: { in: ids } }));
       await this.storage.delete(photoKeys);
     }
   }

@@ -114,7 +114,7 @@ export class LocationService {
       this.prisma.location.update({ where: { id: locationId }, data: { deletedAt: new Date() } }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticket: { locationId } } }),
       // Every one, even one added while this runs.
-      ...customerErasure(this.prisma, { locationId }),
+      ...(await customerErasure(this.prisma, { locationId })),
       this.prisma.invitation.updateMany({
         where: { locationId, status: InvitationStatus.PENDING },
         data: { status: InvitationStatus.REVOKED },
