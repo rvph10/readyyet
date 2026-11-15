@@ -5,6 +5,8 @@ updates:
     directories:
       - "/"
       - "/api"
+      - "/web"
+      - "/site"
       - "/packages/*"
     # Like any change, updates go through staging first (ADR 0022).
     target-branch: staging
@@ -21,7 +23,9 @@ updates:
         update-types: [minor, patch]
     open-pull-requests-limit: 5
     # nest build needs TypeScript's compiler API, which 7.0 dropped and 7.1
-    # restores (ADR 0001 addendum), so api/ stays on 6 until then.
+    # restores (ADR 0001 addendum), so api/ stays on 6 until then. web/ and
+    # site/, already on 7.0, skip its patches too: an ignore covers every
+    # directory of the entry.
     ignore:
       - dependency-name: typescript
         versions: ["7.0.x"]

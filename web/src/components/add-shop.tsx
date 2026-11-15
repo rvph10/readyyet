@@ -6,6 +6,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useRef,
   useState,
   useTransition,
   type FormEvent,
@@ -35,6 +36,7 @@ import { orFailure } from "@/lib/api/or-failure";
 import { browserTimeZone, FALLBACK_COUNTRY } from "@/lib/browser-region";
 import { fieldErrors } from "@/lib/validation";
 import { addLocation, addShopData } from "./add-shop-actions";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 // What each step asks, so Next only stops on what's in front of the Owner. The
 // plan has nothing to get wrong, one is always chosen.
@@ -79,6 +81,8 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
   const [workflowFrom, setWorkflowFrom] = useState(DEFAULT_STEPS);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const form = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(form);
   const otherType = data.businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
   const isOther = businessTypeCode === OTHER_BUSINESS_TYPE;
   const last = step === STEPS.length - 1;
@@ -99,7 +103,10 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
     const found = location.success ? {} : fieldErrors(location.error);
     const here = Object.fromEntries(Object.entries(found).filter(([field]) => STEPS[step].includes(field)));
     setErrors(here);
-    if (Object.keys(here).length > 0) return;
+    if (Object.keys(here).length > 0) {
+      focusFirstError();
+      return;
+    }
     if (!last) {
       setStep(step + 1);
       return;
@@ -128,12 +135,13 @@ function AddShopForm({ businessId, data, onClose, pending, startSubmit }: FormPr
       }
       // Back to whatever the API refused, where editing it clears the error.
       setErrors(Object.fromEntries(refused.map((field) => [field, t("invalid")])));
+      focusFirstError();
       setStep(STEPS.findIndex((fields) => fields.includes(refused[0])));
     });
   }
 
   return (
-    <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+    <form ref={form} onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-4 md:px-7">
         <Steps
           steps={[tNew("stepName"), tNew("stepType"), tNew("stepContact"), tNew("stepPlan")]}
