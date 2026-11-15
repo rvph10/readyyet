@@ -77,6 +77,7 @@ describe("Email limits", () => {
         type: "ticket_status_update",
         status: "DELIVERED" as const,
         ticketId,
+        locationId,
       })),
     });
 
@@ -96,6 +97,34 @@ describe("Email limits", () => {
     expect(overview.body.customerEmailsLimited).toBe(true);
   });
 
+  it("keeps counting a deleted Ticket's emails, so deleting one gives no allowance back", async () => {
+    const { locationId, ticketId } = await createTicket();
+    const other = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Capot", customer: { fullName: "Chloé Dubois" } });
+    const otherId = BigInt(other.body.id as string);
+    await prisma.customer.update({ where: { id: BigInt(other.body.customer.id as string) }, data: { email: to } });
+    await prisma.emailLog.createMany({
+      data: Array.from({ length: DAILY_CUSTOMER_EMAILS.trial - 1 }, () => ({
+        to: "delivered@resend.dev",
+        subject: "Earlier",
+        type: "ticket_status_update",
+        status: "DELIVERED" as const,
+        ticketId,
+        locationId,
+      })),
+    });
+    expect((await statusEmail(ticketId))?.status).toBe("SENT");
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/tickets/${ticketId}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    expect((await statusEmail(otherId))?.status).toBe("LIMITED");
+  });
+
   it("counts only today's emails to Customers", async () => {
     const { locationId, ticketId } = await createTicket();
     const yesterday = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
@@ -107,6 +136,7 @@ describe("Email limits", () => {
         type: index % 2 ? "feedback_received" : "ticket_status_update",
         status: "DELIVERED" as const,
         ticketId,
+        locationId,
         createdAt: index % 2 ? new Date() : yesterday,
       })),
     });

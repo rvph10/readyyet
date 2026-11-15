@@ -625,7 +625,7 @@ export interface paths {
         get: operations["CustomerController_findOne"];
         put?: never;
         post?: never;
-        /** Soft-delete (archive) a customer */
+        /** Erase a customer's personal data for good, their Tickets stay under "Erased Customer" (ADR 0158) */
         delete: operations["CustomerController_remove"];
         options?: never;
         head?: never;

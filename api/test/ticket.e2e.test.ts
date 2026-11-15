@@ -414,6 +414,35 @@ describe("Tickets", () => {
       expect((await remove(ticket.id)).status).toBe(404);
     });
 
+    it("gives up on its emails not sent yet, so the retry sweep never sends them, and keeps the sent ones", async () => {
+      const ticket = await create("Unsent");
+      const log = (status: EmailStatus) =>
+        prisma.emailLog.create({
+          data: {
+            to: "delivered@resend.dev",
+            subject: "Link",
+            type: "ticket_tracking_link",
+            status,
+            ticketId: BigInt(ticket.id),
+            locationId,
+          },
+        });
+      const [queued, failed, delivered] = await Promise.all([
+        log(EmailStatus.QUEUED),
+        log(EmailStatus.FAILED),
+        log(EmailStatus.DELIVERED),
+      ]);
+
+      await remove(ticket.id);
+
+      const after = await prisma.emailLog.findMany({ where: { id: { in: [queued.id, failed.id, delivered.id] } } });
+      const byId = new Map(after.map((row) => [row.id, row]));
+      expect(byId.get(queued.id)).toMatchObject({ ticketId: null, locationId });
+      expect(byId.get(queued.id)?.gaveUpAt).toBeTruthy();
+      expect(byId.get(failed.id)?.gaveUpAt).toBeTruthy();
+      expect(byId.get(delivered.id)?.gaveUpAt).toBeNull();
+    });
+
     it("keeps a Customer who can be reached or has another Ticket, and removes one left with nothing", async () => {
       const reachable = await request(app.getHttpServer())
         .post(`/locations/${locationId}/tickets`)
