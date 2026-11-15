@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useRef, useState, useTransition, type FormEvent } from "react";
 import { isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { formatPhone } from "@/components/phone-number";
@@ -17,6 +17,7 @@ import type { components } from "@/lib/api/schema";
 import { useLocationActions } from "../../location-actions";
 import { newCustomerSchema } from "../../new-ticket/schema";
 import { eraseCustomer, updateCustomer } from "../actions";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 type Locale = "EN" | "FR";
 
@@ -60,6 +61,8 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
   const [phone, setPhone] = useState(customer.phone ?? "");
   const [locale, setLocale] = useState<Locale>(savedLocale);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const form = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(form);
   const [failed, setFailed] = useState(false);
   const [saving, startSaving] = useTransition();
   const [removing, startRemoving] = useTransition();
@@ -84,7 +87,10 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
     for (const issue of parsed.error?.issues ?? []) found[String(issue.path[1])] = issue.message;
     setErrors(found);
     setFailed(false);
-    if (!parsed.success) return;
+    if (!parsed.success) {
+      focusFirstError();
+      return;
+    }
     const next = parsed.data.customer;
     startSaving(async () => {
       // Only what changed, so a colleague's edit to another field survives, and
@@ -104,6 +110,7 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
       if (result.fields?.email) setErrors({ email: tForm("emailInvalid") });
       else if (result.fields?.phone) setErrors({ phone: tForm("phoneInvalid") });
       else setFailed(true);
+      focusFirstError();
     });
   }
 
@@ -176,7 +183,7 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
 
       {/* In a side panel, so editing never moves the page under it (ADR 0087). */}
       <Dialog open={editing} onClose={() => setEditing(false)} title={t("editTitle")} variant="panel">
-        <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <form ref={form} onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-3 md:px-7">
             {failed && <FormAlert>{tDetail("saveFailed")}</FormAlert>}
             <Field
