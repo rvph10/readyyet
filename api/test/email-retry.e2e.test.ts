@@ -102,6 +102,27 @@ describe("EmailRetryService", () => {
     expect(after.attempts).toBe(1);
   });
 
+  it("gives up on a Customer's email whose Ticket was deleted, rather than sending it", async () => {
+    const stuck = await prisma.emailLog.create({
+      data: {
+        to: "delivered@resend.dev",
+        subject: "readyyet retry deleted ticket test",
+        html: "<p>Should not be retried.</p>",
+        type: "ticket_tracking_link",
+        status: EmailStatus.FAILED,
+        attempts: 1,
+        lastError: "simulated failure",
+        lastAttemptAt: new Date(Date.now() - 5 * 60_000),
+      },
+    });
+
+    await retry.sweep();
+
+    const after = await prisma.emailLog.findUniqueOrThrow({ where: { id: stuck.id } });
+    expect(after.attempts).toBe(1);
+    expect(after.gaveUpAt).toBeTruthy();
+  });
+
   it("does not retry a FAILED row still inside its cooldown window", async () => {
     const recent = await prisma.emailLog.create({
       data: {

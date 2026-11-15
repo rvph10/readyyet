@@ -50,7 +50,11 @@ export class CustomerController {
 
   @Delete(":customerId")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Soft-delete (archive) a customer" })
+  // Not an employee's, like deleting a Ticket: it can't be undone (ADR 0158).
+  @LocationRoles(Role.OWNER, Role.ADMIN)
+  @ApiOperation({
+    summary: 'Erase a customer\'s personal data for good, their Tickets stay under "Erased Customer" (ADR 0158)',
+  })
   remove(@Param("locationId") locationId: string, @Param("customerId") customerId: string) {
     return this.customer.remove(locationId, customerId);
   }

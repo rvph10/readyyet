@@ -1,11 +1,5 @@
-import { getTranslations } from "next-intl/server";
-import { ErrorMessage } from "@/components/error-message";
+import { NotFoundMessage } from "@/components/not-found-message";
 
-export default async function NotFound() {
-  const t = await getTranslations("notFound");
-  return (
-    <ErrorMessage illustration="lost" title={t("title")}>
-      <p className="text-p-md text-muted">{t("body")}</p>
-    </ErrorMessage>
-  );
+export default function NotFound() {
+  return <NotFoundMessage />;
 }
