@@ -886,6 +886,7 @@
     "editTitle": "Modifier le client",
     "eraseTitle": "Effacer ce client",
     "eraseHint": "Quand quelqu'un vous demande de supprimer ses données. C'est irréversible.",
+    "eraseHintEmployee": "Quand quelqu'un vous demande de supprimer ses données. Seul un propriétaire ou un administrateur peut effacer un client, transmettez-lui la demande.",
     "eraseAction": "Effacer le client",
     "eraseConfirmTitle": "Effacer {name} ?",
     "eraseConfirmBody": "Cela supprime son nom, son e-mail et son téléphone, les photos de ses tickets, ses avis privés et les e-mails envoyés à son sujet. Ses tickets restent, sous « Client effacé ». C'est irréversible.",

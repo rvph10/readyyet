@@ -6199,7 +6199,7 @@
             "cookie": []
           }
         ],
-        "summary": "Soft-delete (archive) a customer",
+        "summary": "Erase a customer's personal data for good, their Tickets stay under \"Erased Customer\" (ADR 0158)",
         "tags": [
           "Customers"
         ]

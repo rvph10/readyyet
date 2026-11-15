@@ -2,7 +2,7 @@
 
 import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH, calendarDateIn } from "@readyyet/shared";
 import { useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useRef, useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { DateField } from "@/components/ui/date-field";
 import { Dialog } from "@/components/ui/dialog";
@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { orFailure } from "@/lib/api/or-failure";
 import { updateTicket } from "./actions";
 import { ticketSchema } from "../../new-ticket/schema";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 interface Props {
   locationId: string;
@@ -43,6 +44,8 @@ export function TicketDetails(props: Props) {
   const [notes, setNotes] = useState(props.notes ?? "");
   const [date, setDate] = useState(props.date ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const form = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(form);
   const [failed, setFailed] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -68,7 +71,10 @@ export function TicketDetails(props: Props) {
     for (const issue of parsed.error?.issues ?? []) found[String(issue.path[0])] = issue.message;
     setErrors(found);
     setFailed(false);
-    if (!parsed.success || Object.keys(found).length > 0) return;
+    if (!parsed.success || Object.keys(found).length > 0) {
+      focusFirstError();
+      return;
+    }
     startTransition(async () => {
       const result = await orFailure(
         updateTicket(props.locationId, props.ticketId, {
@@ -112,7 +118,7 @@ export function TicketDetails(props: Props) {
         </div>
       </dl>
       <Dialog open={editing} onClose={() => setEditing(false)} title={t("editTicket")} variant="panel">
-        <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <form ref={form} onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-3 md:px-7">
             {failed && <FormAlert>{t("saveFailed")}</FormAlert>}
             <Field
