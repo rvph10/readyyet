@@ -561,7 +561,7 @@ model EmailLog {
   @@index([to, createdAt])
   // A Location's Customer emails since its midnight (ADR 0140).
   @@index([locationId, createdAt])
-  // A Location's Customer emails of the day (ADR 0140).
+  // Retention's sweeps by age.
   @@index([createdAt])
   @@index([ticketId])
   @@index([invitationId])
