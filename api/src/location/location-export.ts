@@ -37,6 +37,37 @@ function csv(header: string[], rows: Cell[][], separator: string) {
 const EXPORTS_AN_HOUR = 5;
 const HOUR_MS = 60 * 60_000;
 
+const TICKET_INCLUDE = {
+  currentStatus: { select: { code: true } },
+  creator: { select: { name: true } },
+  statusEvents: {
+    orderBy: { createdAt: "asc" },
+    include: { status: { select: { code: true } }, changer: { select: { name: true } } },
+  },
+  feedback: { include: { handler: { select: { name: true } } } },
+  photos: { orderBy: { createdAt: "asc" }, include: { uploader: { select: { name: true } } } },
+} satisfies Prisma.TicketInclude;
+
+// Prisma loads the relations above with one query parameter per Ticket, and
+// the database caps them: a Location with 20,000 Tickets couldn't export.
+const TICKETS_PER_QUERY = 2_000;
+
+async function allTickets(tx: Prisma.TransactionClient, locationId: string) {
+  const tickets: Prisma.TicketGetPayload<{ include: typeof TICKET_INCLUDE }>[] = [];
+  for (;;) {
+    const batch = await tx.ticket.findMany({
+      where: { locationId, id: { gt: tickets.at(-1)?.id ?? 0n } },
+      orderBy: { id: "asc" },
+      take: TICKETS_PER_QUERY,
+      include: TICKET_INCLUDE,
+    });
+    tickets.push(...batch);
+    if (batch.length < TICKETS_PER_QUERY) {
+      return tickets;
+    }
+  }
+}
+
 const iso = (date: Date | null) => date?.toISOString() ?? null;
 const day = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null;
 
@@ -76,20 +107,7 @@ export class LocationExportService {
       (tx) =>
         Promise.all([
           tx.customer.findMany({ where: { locationId }, orderBy: { id: "asc" } }),
-          tx.ticket.findMany({
-            where: { locationId },
-            orderBy: { id: "asc" },
-            include: {
-              currentStatus: { select: { code: true } },
-              creator: { select: { name: true } },
-              statusEvents: {
-                orderBy: { createdAt: "asc" },
-                include: { status: { select: { code: true } }, changer: { select: { name: true } } },
-              },
-              feedback: { include: { handler: { select: { name: true } } } },
-              photos: { orderBy: { createdAt: "asc" }, include: { uploader: { select: { name: true } } } },
-            },
-          }),
+          allTickets(tx, locationId),
           tx.workflow.findMany({
             // The one it runs too, its Business type's while it has none of its own.
             where: {
@@ -107,7 +125,9 @@ export class LocationExportService {
             include: { status: { select: { code: true } } },
           }),
         ]),
-      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+      // Prisma's default is 5 s: a Location with 30,000 Tickets took about 5 s
+      // to read on a laptop (2026-11-15), and failed one run out of three.
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead, timeout: 60_000, maxWait: 10_000 },
     );
     const label = new Map(labels.map((translation) => [translation.status.code, translation.label]));
     const separator = SEPARATORS[location.locale];

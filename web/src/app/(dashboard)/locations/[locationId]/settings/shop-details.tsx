@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useTransition, type FormEvent } from "react";
+import { useRef, useState, useTransition, type FormEvent } from "react";
 import { getCountries, isSupportedCountry } from "react-phone-number-input";
 import { PhoneField } from "@/components/phone-field";
 import { Field, SelectField } from "@/components/ui/field";
@@ -12,6 +12,7 @@ import { fieldErrors } from "@/lib/validation";
 import { updateLocation } from "./actions";
 import { shopSchema } from "./schema";
 import { FieldGroup, SectionForm, useInBrowser } from "./section-form";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 type Location = components["schemas"]["LocationDto"];
 
@@ -58,6 +59,8 @@ export function ShopDetails({
   const saved = fromLocation(location);
   const [form, setForm] = useState(saved);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const formElement = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(formElement);
   const [failure, setFailure] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const inBrowser = useInBrowser();
@@ -76,6 +79,7 @@ export function ShopDetails({
     setFailure(null);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
+      focusFirstError();
       return;
     }
     setErrors({});
@@ -110,6 +114,7 @@ export function ShopDetails({
       } else {
         setFailure(t("saveFailed"));
       }
+      if (!result.ok) focusFirstError();
     });
   }
 
@@ -117,6 +122,7 @@ export function ShopDetails({
     <SectionForm
       title={t("nav.shop")}
       hint={t("shopHint")}
+      ref={formElement}
       onSubmit={submit}
       onDiscard={() => {
         setForm(saved);

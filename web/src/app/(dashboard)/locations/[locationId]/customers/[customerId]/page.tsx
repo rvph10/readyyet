@@ -12,6 +12,7 @@ import { RollingNumber } from "@/components/ui/rolling-number";
 import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
+import { getMe } from "@/lib/me";
 import { pageData } from "@/lib/api/errors";
 import { parsePage } from "@/lib/pagination";
 import { statusLabel } from "@/lib/status-label";
@@ -134,12 +135,14 @@ async function Header({ locationId, customerId }: { locationId: string; customer
 }
 
 async function Card({ locationId, customerId }: { locationId: string; customerId: string }) {
-  const [customer, location, open, locale] = await Promise.all([
+  const [customer, location, open, locale, me] = await Promise.all([
     getCustomer(locationId, customerId),
     getLocation(locationId),
     getOpenTickets(locationId, customerId),
     getLocale(),
+    getMe(),
   ]);
+  const role = me.memberships.find((membership) => membership.location.id === locationId)?.role;
   const today = calendarDateIn(new Date(), location.timeZone);
   return (
     <CustomerCard
@@ -149,6 +152,7 @@ async function Card({ locationId, customerId }: { locationId: string; customerId
       country={location.address?.addressCountry}
       since={formatDay(calendarDateIn(new Date(customer.createdAt), location.timeZone), today, locale)}
       openTickets={open.items.length}
+      canErase={role !== "EMPLOYEE"}
     />
   );
 }
