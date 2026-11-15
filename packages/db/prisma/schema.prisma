@@ -253,6 +253,7 @@ model Location {
   tickets      Ticket[]
   workflows    Workflow[]
   subscription Subscription?
+  emailLogs    EmailLog[]
 
   @@index([businessId])
   @@map("location")
@@ -543,17 +544,23 @@ model EmailLog {
   dedupeKey     String?     @unique @map("dedupe_key")
   // What it's about, so a late retry can check it's still wanted (ADR 0081).
   ticketId      BigInt?     @map("ticket_id")
+  // The Ticket's Location, kept when the Ticket is deleted so its emails
+  // still count toward the Location's daily limit (ADR 0140).
+  locationId    String?     @map("location_id") @db.Uuid
   invitationId  String?     @map("invitation_id") @db.Uuid
   deliveredAt   DateTime?   @map("delivered_at")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
   ticket     Ticket?     @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  location   Location?   @relation(fields: [locationId], references: [id], onDelete: Restrict)
   invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
 
   @@index([status, lastAttemptAt])
   // The sign-in codes an address got in the last hour (ADR 0140).
   @@index([to, createdAt])
+  // A Location's Customer emails since its midnight (ADR 0140).
+  @@index([locationId, createdAt])
   // A Location's Customer emails of the day (ADR 0140).
   @@index([createdAt])
   @@index([ticketId])
