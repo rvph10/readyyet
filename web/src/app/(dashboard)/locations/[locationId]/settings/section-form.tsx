@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { createContext, use, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
+import { createContext, use, useSyncExternalStore, type FormEvent, type ReactNode, type Ref } from "react";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,6 +49,7 @@ interface Props {
   title: string;
   hint: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  ref?: Ref<HTMLFormElement>;
   onDiscard: () => void;
   // Unsaved changes wake the bar, which stays put so nothing moves as they do.
   dirty: boolean;
@@ -57,12 +58,12 @@ interface Props {
   children: ReactNode;
 }
 
-export function SectionForm({ title, hint, onSubmit, onDiscard, dirty, pending, failure, children }: Props) {
+export function SectionForm({ title, hint, onSubmit, ref, onDiscard, dirty, pending, failure, children }: Props) {
   const t = useTranslations("settings");
   const tDetail = useTranslations("ticketDetail");
   const inPanel = use(InPanel);
   return (
-    <form onSubmit={onSubmit} noValidate className="@container flex flex-1 flex-col">
+    <form ref={ref} onSubmit={onSubmit} noValidate className="@container flex flex-1 flex-col">
       {!inPanel && <SectionHeading title={title} hint={hint} />}
       {failure && (
         <div className="mb-5">
