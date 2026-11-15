@@ -50,7 +50,7 @@ function stillWanted({ ticket, invitation, to, type, createdAt }: StuckEmail) {
     );
   }
   // A copy for staff, nothing about the Customer's address applies. Erasure
-  // gives up on it itself.
+  // and deleting a Ticket give up on their emails themselves.
   if (!ticket || type === "feedback_received") {
     return true;
   }
