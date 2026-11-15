@@ -50,6 +50,11 @@ export default defineRailway((ctx) => {
     start: "node --enable-source-maps api/dist/main.js",
     healthcheck: "/health",
     replicas: { [REGION]: 1 },
+    // Railway's default is 0: SIGKILL right after SIGTERM, cutting off the
+    // requests the shutdown hooks in main.ts would let finish. 60 s covers an
+    // export's transaction. No overlap: the crons take no lock, two
+    // containers would both run them.
+    deploy: { drainingSeconds: 60 },
     env: {
       NODE_ENV: "production",
       // Set rather than left to Railway, so the web app can address the API
@@ -94,6 +99,11 @@ export default defineRailway((ctx) => {
     start: "pnpm --filter @readyyet/web run start",
     healthcheck: "/health",
     replicas: { [REGION]: 1 },
+    // next start exits on SIGTERM without waiting for open requests, so
+    // draining can't help: the old deployment keeps running for a while
+    // after traffic moves to the new one instead, long enough for a photo
+    // upload from a phone.
+    deploy: { overlapSeconds: 30 },
     env: {
       NODE_ENV: "production",
       // The private network: no public hop, and no edge to overwrite the
@@ -126,6 +136,8 @@ export default defineRailway((ctx) => {
     start: "pnpm --filter @readyyet/site run start",
     healthcheck: "/health",
     replicas: { [REGION]: 1 },
+    // As for web, its pages render in well under that.
+    deploy: { overlapSeconds: 10 },
     env: {
       NODE_ENV: "production",
       NEXT_PUBLIC_APP_URL: `https://app.${root}`,
