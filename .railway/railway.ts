@@ -49,6 +49,8 @@ export default defineRailway((ctx) => {
     preDeploy: "pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed",
     start: "node --enable-source-maps api/dist/main.js",
     healthcheck: "/health",
+    // Exactly one: its crons take no lock and its rate limits are counted
+    // in memory, a second instance would double both (ADR 0159).
     replicas: { [REGION]: 1 },
     env: {
       NODE_ENV: "production",
