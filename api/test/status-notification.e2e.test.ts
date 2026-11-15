@@ -3,9 +3,10 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -200,6 +201,42 @@ describe("Customer status emails", () => {
     await Promise.all([notification.sendDueStatusEmails(), notification.sendDueStatusEmails()]);
 
     expect(await statusEmailsTo("concurrent")).toHaveLength(1);
+  });
+
+  it("keeps an email that throws on a lease, and the others still go out", async () => {
+    const failing = await createTicket("throws");
+    const other = await createTicket("after-throw");
+    await setStatus(failing.id, "READY");
+    await setStatus(other.id, "READY");
+    // The failing one first: the sweep takes the oldest due first.
+    await prisma.pendingStatusNotification.updateMany({
+      where: { statusEvent: { ticketId: BigInt(failing.id) } },
+      data: { sendAfter: new Date(Date.now() - 2000) },
+    });
+    await prisma.pendingStatusNotification.updateMany({
+      where: { statusEvent: { ticketId: BigInt(other.id) } },
+      data: { sendAfter: new Date(Date.now() - 1000) },
+    });
+    const spy = vi.spyOn(app.get(EmailService), "send").mockRejectedValueOnce(new Error("simulated render failure"));
+
+    await notification.sendDueStatusEmails();
+    spy.mockRestore();
+
+    const [kept] = await pendingFor(failing.id);
+    expect(kept.sendAfter.getTime()).toBeGreaterThan(Date.now());
+    expect(await statusEmailsTo("after-throw")).toHaveLength(1);
+  });
+
+  it("drops an email still unsent a day after the change, as it would be out of date", async () => {
+    const ticket = await createTicket("day-old");
+    await setStatus(ticket.id, "READY");
+    // The whole history, so the READY change is still the latest.
+    await prisma.$executeRaw`UPDATE ticket_status_event SET created_at = created_at - interval '25 hours' WHERE ticket_id = ${BigInt(ticket.id)}`;
+
+    await makeDueAndSweep(ticket.id);
+
+    expect(await statusEmailsTo("day-old")).toHaveLength(0);
+    expect(await pendingFor(ticket.id)).toHaveLength(0);
   });
 
   it("doesn't send it again when the process stopped before forgetting it", async () => {
