@@ -125,7 +125,9 @@ export class LocationExportService {
             include: { status: { select: { code: true } } },
           }),
         ]),
-      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+      // Prisma's default is 5 s: a Location with 30,000 Tickets took about 5 s
+      // to read on a laptop (2026-11-15), and failed one run out of three.
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead, timeout: 60_000, maxWait: 10_000 },
     );
     const label = new Map(labels.map((translation) => [translation.status.code, translation.label]));
     const separator = SEPARATORS[location.locale];
