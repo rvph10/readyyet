@@ -3,10 +3,10 @@ import type { Auth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@readyyet/db";
 import { localeFromAcceptLanguage } from "@readyyet/shared";
 import { CLIENT_IP_HEADER } from "../common/client-ip";
+import { pgAdapter } from "../database/pg-adapter";
 import { EmailService } from "../email/email.service";
 import { buildSignInCodeEmail } from "../notification/staff-email/staff-email";
 import { StorageService } from "../storage/storage.service";
@@ -25,9 +25,7 @@ const OTP_EXPIRES_IN_MINUTES = 5;
 // PrismaService (src/database/prisma.service.ts). It's mounted as raw
 // middleware outside Nest's DI, not worth coupling its lifecycle to
 // Nest's module init/shutdown for a single-instance app.
-const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-});
+const prisma = new PrismaClient({ adapter: pgAdapter() });
 
 // EmailService is normally Nest-injected, but this file is evaluated
 // outside Nest's DI container entirely (see the comment above), so it's
