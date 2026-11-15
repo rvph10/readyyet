@@ -49,6 +49,8 @@ export default defineRailway((ctx) => {
     preDeploy: "pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed",
     start: "node --enable-source-maps api/dist/main.js",
     healthcheck: "/health",
+    // Exactly one: its crons take no lock and its rate limits are counted
+    // in memory, a second instance would double both (ADR 0159).
     replicas: { [REGION]: 1 },
     // Railway's default is 0: SIGKILL right after SIGTERM, cutting off the
     // requests the shutdown hooks in main.ts would let finish. 60 s covers an
