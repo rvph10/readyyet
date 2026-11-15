@@ -30,6 +30,9 @@ export default defineRailway((ctx) => {
   // Photos, logos and avatars (ADR 0026). Amsterdam too, and a bucket's
   // region can't be changed once it exists.
   const images = bucket("images", { region: "ams" });
+  // Production's point-in-time recovery WAL archive. Railway created it when
+  // PITR was turned on; left undeclared, an apply would delete it.
+  const pitr = production ? [bucket("Postgres-PITR", { region: "ams" })] : [];
 
   const api = service("api", {
     // The repo root, not api/: the build needs the whole pnpm workspace.
@@ -129,5 +132,5 @@ export default defineRailway((ctx) => {
     },
   });
 
-  return project("readyyet", { resources: [api, web, site, db, images] });
+  return project("readyyet", { resources: [api, web, site, db, images, ...pitr] });
 });
