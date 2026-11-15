@@ -35,6 +35,8 @@ Daily at 00:47 UTC (6 days) and weekly on Saturday at 09:43 UTC (27 days). No po
 
 The `images` bucket (Ticket photos, logos, avatars, ADR 0026) has no backup. A deleted or overwritten object is gone. The database only holds the objects' keys.
 
+Accepted for now (2026-11-15): Railway buckets offer no versioning, object lock or backup, and the pictures are secondary to the Tickets and their Statuses, which the database keeps. Revisit once shops rely on their photos, for example as proof of an item's state at drop-off. The likely answer then is a nightly copy to a second bucket that keeps 30 days, and the privacy policy would need to say that erased photos stay in it that long.
+
 ## Before a release
 
 Take a named backup, then promote:
