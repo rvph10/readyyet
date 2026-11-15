@@ -94,6 +94,16 @@ Migrations run in the API's pre-deploy step, before the new code takes traffic, 
 - **Expand, then contract.** Add a column, table or index in one release; stop using the old one in the code; drop it in a later release. `location.logo_key` was kept through one release (`20260928090000_business_logo_and_declined_invitations`) and dropped in a later one (`20261113120000_drop_location_logo_key`).
 - **Nothing the old code would break on.** A new required column needs a default or a trigger that fills it, as the Ticket number does (`20261114090000_ticket_number`), since the old API inserts without knowing it.
 - **Rename in three steps.** Add the new column, write both, read the new one, then drop the old one. Never rename in place.
+- **One transaction.** Wrap a migration of more than one statement in `BEGIN;` and `COMMIT;`. Prisma doesn't: a migration that fails half way leaves its first statements applied, and running it again then fails on them. `CREATE INDEX CONCURRENTLY` can't run in a transaction, give it a migration of its own.
+
+### When a migration fails on deploy
+
+A migration waits at most 5 seconds for a lock (`packages/db/prisma.config.ts`), for example behind a long export. Past that, or on any error, the pre-deploy step fails, the deploy stops and the previous release keeps serving. Prisma then refuses every later deploy (error P3009) until the failed migration is resolved:
+
+1. Read the error in the api deployment's logs. If it says `canceling statement due to lock timeout`, nothing is wrong with the migration, only the timing.
+2. Check what it left behind. Wrapped in a transaction, nothing. Otherwise undo its applied statements by hand.
+3. Mark it rolled back, from a shell in the api container (`railway ssh -s api -e <environment>`, the database is only reachable from inside Railway): `pnpm --filter @readyyet/db exec prisma migrate resolve --rolled-back <migration folder name>`.
+4. Redeploy the api.
 
 A migration that destroys or rewrites data can only be undone by restoring the database, so it gets its own release, after a `pre-release-*` backup.
 
