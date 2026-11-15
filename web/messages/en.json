@@ -886,6 +886,7 @@
     "editTitle": "Edit Customer",
     "eraseTitle": "Erase this Customer",
     "eraseHint": "For when someone asks you to delete their data. This can't be undone.",
+    "eraseHintEmployee": "For when someone asks you to delete their data. Only an Owner or an Admin can erase a Customer, pass the request on to them.",
     "eraseAction": "Erase Customer",
     "eraseConfirmTitle": "Erase {name}?",
     "eraseConfirmBody": "This deletes their name, email and phone, the photos on their Tickets, their private feedback and the emails sent about them. Their Tickets stay, under “Erased Customer”. This can't be undone.",

@@ -31,6 +31,8 @@ interface Props {
   // Already formatted.
   since: string;
   openTickets: number;
+  // An employee can't erase (ADR 0158).
+  canErase: boolean;
 }
 
 function ContactLine({ label, value }: { label: string; value: string }) {
@@ -42,7 +44,7 @@ function ContactLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function CustomerCard({ locationId, customer, locationLocale, country, since, openTickets }: Props) {
+export function CustomerCard({ locationId, customer, locationLocale, country, since, openTickets, canErase }: Props) {
   const t = useTranslations("customers");
   const tTickets = useTranslations("tickets");
   const tForm = useTranslations("tickets.form");
@@ -164,10 +166,12 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
 
       <section className="mt-auto pt-8">
         <h3 className="text-label-sm">{t("eraseTitle")}</h3>
-        <p className="mt-1 text-p-sm text-muted">{t("eraseHint")}</p>
-        <Button variant="danger-secondary" size="sm" className="mt-3" onClick={() => setErasing(true)}>
-          {t("eraseAction")}
-        </Button>
+        <p className="mt-1 text-p-sm text-muted">{t(canErase ? "eraseHint" : "eraseHintEmployee")}</p>
+        {canErase && (
+          <Button variant="danger-secondary" size="sm" className="mt-3" onClick={() => setErasing(true)}>
+            {t("eraseAction")}
+          </Button>
+        )}
       </section>
 
       {/* In a side panel, so editing never moves the page under it (ADR 0087). */}
@@ -220,27 +224,29 @@ export function CustomerCard({ locationId, customer, locationLocale, country, si
         </form>
       </Dialog>
 
-      <Dialog
-        open={erasing}
-        onClose={() => setErasing(false)}
-        title={t("eraseConfirmTitle", { name: customer.fullName })}
-        variant="destructive"
-      >
-        <p className="text-p-sm text-muted">{t("eraseConfirmBody")}</p>
-        {openTickets > 0 && (
-          <div className="mt-3">
-            <FormAlert>{t("eraseOpenTickets", { count: openTickets })}</FormAlert>
+      {canErase && (
+        <Dialog
+          open={erasing}
+          onClose={() => setErasing(false)}
+          title={t("eraseConfirmTitle", { name: customer.fullName })}
+          variant="destructive"
+        >
+          <p className="text-p-sm text-muted">{t("eraseConfirmBody")}</p>
+          {openTickets > 0 && (
+            <div className="mt-3">
+              <FormAlert>{t("eraseOpenTickets", { count: openTickets })}</FormAlert>
+            </div>
+          )}
+          <div className="mt-5 flex justify-end gap-3">
+            <Button variant="secondary" disabled={removing} onClick={() => setErasing(false)}>
+              {tForm("cancel")}
+            </Button>
+            <Button variant="danger" pending={removing} pendingLabel={t("erasing")} onClick={erase}>
+              {t("eraseConfirm")}
+            </Button>
           </div>
-        )}
-        <div className="mt-5 flex justify-end gap-3">
-          <Button variant="secondary" disabled={removing} onClick={() => setErasing(false)}>
-            {tForm("cancel")}
-          </Button>
-          <Button variant="danger" pending={removing} pendingLabel={t("erasing")} onClick={erase}>
-            {t("eraseConfirm")}
-          </Button>
-        </div>
-      </Dialog>
+        </Dialog>
+      )}
     </>
   );
 }
