@@ -9,19 +9,14 @@ const ERASED_EMAIL_ADDRESS = "erased@deleted.invalid";
 // See docs/architecture/data-model.md#gdpr-erasure. The writes go in the
 // caller's transaction, the photos' objects are the caller's to delete after.
 // `customers` must still match them once erased: the Customers go last.
-export async function customerErasure(prisma: PrismaService, customers: Prisma.CustomerWhereInput) {
+export function customerErasure(
+  prisma: PrismaService,
+  customers: Prisma.CustomerWhereInput,
+  // Emails of their Tickets deleted earlier (ADR 0155), which no longer point
+  // to them: emailsOfDeletedTickets, or a whole Location's.
+  ofDeletedTickets: Prisma.EmailLogWhereInput | null,
+) {
   const theirTickets = { ticket: { customer: customers } };
-  // A Ticket deleted earlier left its emails without it (ADR 0155). Found
-  // by address instead, within the Location: the same address at another
-  // Location is another Customer.
-  const reachable = await prisma.customer.findMany({
-    where: { AND: [customers, { email: { not: null } }] },
-    select: { email: true, locationId: true },
-  });
-  const ofDeletedTickets = {
-    ticketId: null,
-    OR: reachable.map(({ email, locationId }) => ({ to: email!, locationId })),
-  };
   // What was sent about them: their address, their name, the staff copy of
   // their feedback.
   const scrubbedEmail = {
@@ -46,7 +41,7 @@ export async function customerErasure(prisma: PrismaService, customers: Prisma.C
     // Their own words (ADR 0039).
     prisma.ticketFeedback.deleteMany({ where: theirTickets }),
     prisma.emailLog.updateMany({
-      where: { OR: [theirTickets, ...(reachable.length ? [ofDeletedTickets] : [])] },
+      where: { OR: [theirTickets, ...(ofDeletedTickets ? [{ ticketId: null, ...ofDeletedTickets }] : [])] },
       data: scrubbedEmail,
     }),
     prisma.customer.updateMany({
@@ -54,6 +49,20 @@ export async function customerErasure(prisma: PrismaService, customers: Prisma.C
       data: { deletedAt: new Date(), fullName: ERASED_CUSTOMER_NAME, email: null, phone: null },
     }),
   ];
+}
+
+// Found by address, within the Location: the same address at another Location
+// is another Customer. One pair per Customer, too many query parameters for a
+// whole Location, which takes all its emails without a Ticket instead.
+export async function emailsOfDeletedTickets(
+  prisma: PrismaService,
+  customers: Prisma.CustomerWhereInput,
+): Promise<Prisma.EmailLogWhereInput | null> {
+  const reachable = await prisma.customer.findMany({
+    where: { AND: [customers, { email: { not: null } }] },
+    select: { email: true, locationId: true },
+  });
+  return reachable.length ? { OR: reachable.map(({ email, locationId }) => ({ to: email!, locationId })) } : null;
 }
 
 export async function photoKeysOfCustomers(prisma: PrismaService, customerIds: bigint[]) {

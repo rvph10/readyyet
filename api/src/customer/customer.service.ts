@@ -4,7 +4,7 @@ import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { NotFoundError } from "../common/errors/app-error";
 import { parseBigIntId } from "../common/parse-bigint-id";
-import { customerErasure, photoKeysOfCustomers } from "./customer-erasure";
+import { customerErasure, emailsOfDeletedTickets, photoKeysOfCustomers } from "./customer-erasure";
 import { customerIdsMatching } from "./customer-search";
 import { ListCustomersQueryDto } from "./dto/list-customers.query.dto";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
@@ -73,7 +73,10 @@ export class CustomerService {
   async remove(locationId: string, customerId: string) {
     const customer = await this.loadActive(locationId, customerId);
     const photoKeys = await photoKeysOfCustomers(this.prisma, [customer.id]);
-    await this.prisma.$transaction(await customerErasure(this.prisma, { id: customer.id }));
+    const erased = { id: customer.id };
+    await this.prisma.$transaction(
+      customerErasure(this.prisma, erased, await emailsOfDeletedTickets(this.prisma, erased)),
+    );
     await this.storage.delete(photoKeys);
   }
 

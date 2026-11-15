@@ -126,6 +126,36 @@ describe("Deleting a location", () => {
     expect(kept.customer.deletedAt).not.toBeNull();
   });
 
+  it("erases the emails of its Tickets deleted earlier too", async () => {
+    const locationId = await createLocation();
+    const ticket = await createTicket(locationId);
+    // Kept with the Customer: deleting a Ticket leaves its Customer when they have an email.
+    await createTicket(locationId);
+    const sent = await prisma.emailLog.create({
+      data: {
+        to: address("customer"),
+        subject: "Chloé Dubois",
+        html: "<p>Chloé Dubois</p>",
+        type: "ticket_tracking_link",
+        ticketId: BigInt(ticket.id),
+        locationId,
+      },
+    });
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/tickets/${ticket.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    await remove(locationId);
+
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: sent.id } })).resolves.toMatchObject({
+      ticketId: null,
+      to: "erased@deleted.invalid",
+      subject: "[deleted]",
+      html: null,
+    });
+  });
+
   it("drops status emails that were still waiting", async () => {
     const locationId = await createLocation();
     const ticket = await createTicket(locationId);
