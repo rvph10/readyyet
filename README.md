@@ -64,6 +64,21 @@ pnpm format:check   # or pnpm format to fix
 
 Both run against the real local Postgres from `docker compose`, not a mock. The `api` e2e suite also checks every JSON response against `api/openapi.json` (`api/test/support/openapi-contract.ts`), so regenerate the spec before running it after changing a DTO, then `pnpm run api-types` to regenerate the web app's types from it (`web/src/lib/api/schema.d.ts`). The `api` suite sends no real email: `api/test/support/resend-setup.ts` stands in for Resend's sending, as every send counts against the plan (ADR 0137). Its test files run one at a time, as they share one database. Addresses in tests stay Resend's test addresses (`delivered+<label>@resend.dev`), so a send that slipped through would never be delivered.
 
+The browser smoke test (ADR 0159) runs against built apps, with no `next dev` on ports 3000 and 3001, and its own database so a dev API on the shared one can't send its emails:
+
+```bash
+docker compose exec postgres createdb -U readyyet readyyet_e2e   # once
+export DATABASE_URL=postgresql://readyyet:readyyet@localhost:5432/readyyet_e2e
+pnpm --filter @readyyet/db run migrate:deploy && pnpm --filter @readyyet/db run seed
+unset DATABASE_URL
+pnpm --filter @readyyet/shared run build && pnpm --filter @readyyet/api run build
+API_URL=http://localhost:3000 NEXT_PUBLIC_API_URL=http://localhost:3000 S3_ENDPOINT=http://localhost:9090 \
+  SITE_URL=http://localhost:3002 SUPPORT_EMAIL=support@readyyet.app NEXT_PUBLIC_POSTHOG_KEY= \
+  pnpm --filter @readyyet/web run build
+pnpm --filter @readyyet/web exec playwright install chromium   # once per Playwright version
+pnpm --filter @readyyet/web run e2e
+```
+
 ## CI
 
 `.github/workflows/ci.yml` runs five jobs: `audit` (known vulnerabilities in any dependency, high severity and up), `lint` (ESLint and Prettier), and `shared`, `db`, `api`, the last two against a fresh Postgres service container each.
@@ -72,6 +87,7 @@ Both run against the real local Postgres from `docker compose`, not a mock. The 
 
 - The `api` job needs no Resend key: the workflow sets a placeholder, as the tests never send (ADR 0137).
 - The `api` job also runs `pnpm --filter @readyyet/db run seed` before tests, not just `migrate deploy`. Migrations alone don't populate the `BusinessType`/`Status` catalogue that several tests depend on, only the seed script does.
+- The `e2e` job runs the browser smoke test against its own Postgres service, uploading the Playwright report and traces when it fails. It isn't a required check yet (ADR 0159).
 
 ## Deploy
 
