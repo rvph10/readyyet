@@ -20,6 +20,7 @@ import { createTicket } from "./actions";
 import type { CreatedTicket, NewTicketProps } from "./new-ticket-panel";
 import { newCustomerSchema, ticketSchema } from "./schema";
 import { useCustomerLookup } from "./use-customer-lookup";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 type Customer = components["schemas"]["CustomerDto"];
 
@@ -154,6 +155,7 @@ export function TicketForm({
   const emailed = chosen ? chosen.email : email.trim();
   const emailFails = chosen && (chosen.emailBouncedAt || chosen.emailComplainedAt);
   const form = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(form);
   // Without an email the Customer hears nothing: said before creating, once.
   const [askingNoEmail, setAskingNoEmail] = useState(false);
   const noEmailAccepted = useRef(false);
@@ -188,7 +190,10 @@ export function TicketForm({
     });
     setFailure(null);
     setCustomerGone(false);
-    if (!ticket.success || (customer && !customer.success)) return;
+    if (!ticket.success || (customer && !customer.success)) {
+      focusFirstError();
+      return;
+    }
     if ((!emailed || emailFails) && !noEmailAccepted.current) {
       setAskingNoEmail(true);
       return;
@@ -214,6 +219,7 @@ export function TicketForm({
         return;
       }
       setFailure(result);
+      focusFirstError();
       // Erased by a colleague since being chosen, retrying can't work.
       if (result.code === "NOT_FOUND" && chosen) {
         unchoose();

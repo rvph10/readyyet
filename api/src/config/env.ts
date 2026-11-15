@@ -39,6 +39,10 @@ const envSchema = z
     S3_SECRET_ACCESS_KEY: z.string().min(1),
     // Places API (New) only, for finding a shop on Google (ADR 0126).
     GOOGLE_PLACES_API_KEY: z.string().min(1).optional(),
+    // Google sign-in (ADR 0151). Without them Better Auth still starts, and
+    // only the first "Continue with Google" fails.
+    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",
@@ -55,6 +59,14 @@ const envSchema = z
   .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_PLACES_API_KEY, {
     message: "Required in production",
     path: ["GOOGLE_PLACES_API_KEY"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_CLIENT_ID, {
+    message: "Required in production",
+    path: ["GOOGLE_CLIENT_ID"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_CLIENT_SECRET, {
+    message: "Required in production",
+    path: ["GOOGLE_CLIENT_SECRET"],
   });
 
 export function validateEnv(config: Record<string, unknown>) {

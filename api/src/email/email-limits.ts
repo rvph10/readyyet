@@ -18,8 +18,8 @@ export const CUSTOMER_EMAIL_TYPES = [
 // flood someone's inbox.
 export const SIGN_IN_CODES_PER_HOUR = 5;
 
-// Customer emails a Location has had since its midnight, sent or held back.
-// From today's rows only, through the created_at index.
+// Customer emails a Location has had since its midnight, sent or held back,
+// those of a Ticket deleted since included.
 export function customerEmailsToday(locationId: string) {
   return Prisma.sql`
     SELECT
@@ -27,8 +27,8 @@ export function customerEmailsToday(locationId: string) {
       count(e.id) FILTER (WHERE e.status = 'LIMITED')::int AS limited
     FROM location l
     JOIN email_log e
-      ON e.created_at >= (date_trunc('day', now() AT TIME ZONE l.time_zone) AT TIME ZONE l.time_zone) AT TIME ZONE 'UTC'
-    JOIN ticket t ON t.id = e.ticket_id AND t.location_id = l.id
+      ON e.location_id = l.id
+      AND e.created_at >= (date_trunc('day', now() AT TIME ZONE l.time_zone) AT TIME ZONE l.time_zone) AT TIME ZONE 'UTC'
     WHERE l.id = ${locationId}::uuid
       AND e.type IN (${Prisma.join(CUSTOMER_EMAIL_TYPES)})`;
 }
