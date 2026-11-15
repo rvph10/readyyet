@@ -3,6 +3,7 @@
 import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import * as Sentry from "@sentry/nestjs";
 import request from "supertest";
 import Stripe from "stripe";
 import { ReferralRewardService } from "../src/billing/referral-reward.service";
@@ -17,6 +18,10 @@ vi.mock("../src/billing/stripe-client", async () => {
   const { stripe } = await import("./support/billing");
   return { getStripeClient: () => stripe };
 });
+vi.mock("@sentry/nestjs", async (importOriginal) => ({
+  ...(await importOriginal<typeof Sentry>()),
+  captureException: vi.fn(),
+}));
 
 const location = {
   name: "Main Shop",
@@ -384,10 +389,12 @@ describe("The sponsor's credit, held 14 days from the referred Business's first 
     const business = await referredBusiness();
     await send("invoice.paid", invoice(business.customer, 2450)).expect(200);
     await pastTheHold(business.id);
-    stripe.customers.createBalanceTransaction.mockRejectedValueOnce(new Error("Stripe is down"));
+    const down = new Error("Stripe is down");
+    stripe.customers.createBalanceTransaction.mockRejectedValueOnce(down);
 
     await rewards.creditDueSponsors();
     expect((await creditOf(business.id))!.creditedAt).toBeNull();
+    expect(Sentry.captureException).toHaveBeenCalledWith(down);
 
     await rewards.creditDueSponsors();
     expect(stripe.customers.create).toHaveBeenCalledWith(

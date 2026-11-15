@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import * as Sentry from "@sentry/nestjs";
 import { BillingInterval } from "@readyyet/db";
 import type Stripe from "stripe";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
@@ -76,6 +77,9 @@ export class ReferralRewardService {
           `Failed to credit the sponsor of business ${credit.businessId}`,
           err instanceof Error ? err.stack : err,
         );
+        // Retried every hour, so a lasting failure would otherwise only show
+        // as the same log line over and over.
+        Sentry.captureException(err);
       });
     }
   }
