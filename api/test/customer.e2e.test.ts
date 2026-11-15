@@ -4,6 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { Role } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
@@ -314,7 +315,24 @@ describe("Customers", () => {
     expect(await prisma.emailLog.count({ where: { to: "delivered+customer-dan-bounce@resend.dev" } })).toBe(0);
   });
 
-  it("soft-deletes a customer, removing it from get and list", async () => {
+  it("refuses an employee the erasure, which an admin can do (ADR 0158)", async () => {
+    const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Erin Employee");
+    const member = async (role: Role) => {
+      const email = `delivered+customer-${role.toLowerCase()}-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+      await prisma.membership.create({ data: { userId: user.id, locationId, role } });
+      return cookie;
+    };
+    const erase = (cookie: string) =>
+      request(app.getHttpServer()).delete(`/locations/${locationId}/customers/${customerId}`).set("Cookie", cookie);
+
+    expect((await erase(await member(Role.EMPLOYEE))).status).toBe(403);
+    expect((await prisma.customer.findUniqueOrThrow({ where: { id: BigInt(customerId) } })).deletedAt).toBeNull();
+    expect((await erase(await member(Role.ADMIN))).status).toBe(204);
+  });
+
+  it("erases a customer, removing it from get and list", async () => {
     const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Carol Deleteme");
 
     const deleted = await request(app.getHttpServer())
