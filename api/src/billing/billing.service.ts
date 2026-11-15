@@ -89,7 +89,6 @@ export class BillingService {
       await Promise.all(live.map((subscription) => this.sync(subscription.id)));
       throw new ConflictError("This location already has a subscription, change its plan instead");
     }
-    await this.expireOpenCheckouts(customer, locationId);
     const price = await this.price(lookupKey(dto.plan, dto.interval));
     // A campaign code replaces the referral discount, a Checkout Session
     // takes one discount (ADR 0040).
@@ -104,28 +103,39 @@ export class BillingService {
     const keepsTrial = trialEnd && trialEnd.getTime() - Date.now() > MIN_CHECKOUT_TRIAL_MS;
 
     const billingPage = `${process.env.WEB_URL}/locations/${locationId}/billing`;
-    const session = await getStripeClient()
-      .checkout.sessions.create({
-        mode: "subscription",
-        customer,
-        // referralDiscount tells the webhook to mark the discount used.
-        metadata: { locationId, ...(referral && { referralDiscount: "true" }) },
-        line_items: [{ price: price.id, quantity: 1 }],
-        ...(discount && { discounts: [discount] }),
-        subscription_data: {
-          description: location.name,
-          metadata: { locationId },
-          ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
-        },
-        // The shop's VAT number and address, for its own accounting.
-        billing_address_collection: "required",
-        tax_id_collection: { enabled: true },
-        customer_update: { name: "auto", address: "auto" },
-        // Only a kept trial can be told "nothing to pay today".
-        success_url: `${billingPage}?checkout=success&plan=${dto.plan}${keepsTrial ? "&trial=kept" : ""}`,
-        cancel_url: billingPage,
-      })
-      .catch(refusedPromotionCode);
+    // Two checkouts at once (two tabs, two Owners) would each expire the open
+    // ones before either exists, then both stay payable. One at a time, the
+    // second expires the first.
+    const session = await this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT 1 FROM subscription WHERE location_id = ${locationId}::uuid FOR UPDATE`;
+        await this.expireOpenCheckouts(customer, locationId);
+        return getStripeClient()
+          .checkout.sessions.create({
+            mode: "subscription",
+            customer,
+            // referralDiscount tells the webhook to mark the discount used.
+            metadata: { locationId, ...(referral && { referralDiscount: "true" }) },
+            line_items: [{ price: price.id, quantity: 1 }],
+            ...(discount && { discounts: [discount] }),
+            subscription_data: {
+              description: location.name,
+              metadata: { locationId },
+              ...(keepsTrial && { trial_end: Math.floor(trialEnd.getTime() / 1000) }),
+            },
+            // The shop's VAT number and address, for its own accounting.
+            billing_address_collection: "required",
+            tax_id_collection: { enabled: true },
+            customer_update: { name: "auto", address: "auto" },
+            // Only a kept trial can be told "nothing to pay today".
+            success_url: `${billingPage}?checkout=success&plan=${dto.plan}${keepsTrial ? "&trial=kept" : ""}`,
+            cancel_url: billingPage,
+          })
+          .catch(refusedPromotionCode);
+      },
+      // Stripe's calls run inside, the default 5 seconds is too short.
+      { timeout: 30_000 },
+    );
     return { url: session.url! };
   }
 

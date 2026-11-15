@@ -224,6 +224,35 @@ describe("POST /locations/:locationId/billing/checkout", () => {
     });
   });
 
+  it("leaves one checkout payable when two start at once, so two tabs can't both bill the location", async () => {
+    const open = new Map<string, string>();
+    let created = 0;
+    stripe.checkout.sessions.list.mockImplementation(() =>
+      [...open].map(([id, locationId]) => ({ id, metadata: { locationId } })),
+    );
+    stripe.checkout.sessions.expire.mockImplementation((id: string) => open.delete(id));
+    stripe.checkout.sessions.create.mockImplementation(async (params: Stripe.Checkout.SessionCreateParams) => {
+      // Slow enough that the other checkout has looked for open ones by now.
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const id = `cs_test_${++created}`;
+      open.set(id, params.metadata!.locationId as string);
+      return { url: `https://checkout.stripe.com/c/pay/${id}` };
+    });
+
+    try {
+      const responses = await Promise.all([
+        checkout({ plan: "PRO", interval: "MONTH" }),
+        checkout({ plan: "PRO", interval: "YEAR" }),
+      ]);
+
+      expect(responses.map((response) => response.status)).toEqual([201, 201]);
+      expect(open.size).toBe(1);
+    } finally {
+      stripe.checkout.sessions.list.mockImplementation(() => []);
+      stripe.checkout.sessions.expire.mockReset();
+    }
+  });
+
   it("expires the location's checkouts still open, so an abandoned tab can't bill it too", async () => {
     stripe.checkout.sessions.list.mockReturnValueOnce([
       { id: "cs_old_tab", metadata: { locationId } },
