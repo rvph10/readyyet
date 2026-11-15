@@ -8,12 +8,12 @@ Commands use the Railway CLI from the repo root. If its version check complains,
 
 ### Production Postgres
 
-| What                                                                                        | When                                                      | Kept                       |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------- |
-| Point-in-time recovery (WAL archived continuously to the `Postgres-PITR` bucket, Amsterdam) | Continuous, plus a base backup every day around 12:20 UTC | See the restore test below |
-| Daily backup of the volume                                                                  | 15:14 UTC                                                 | 6 days                     |
-| Weekly backup of the volume                                                                 | Saturday 20:25 UTC                                        | 27 days                    |
-| `pre-release-<commit>` backup, taken by hand before each release                            | Before promoting `staging` to `main`                      | Until deleted by hand      |
+| What                                                                                        | When                                                      | Kept                          |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------- |
+| Point-in-time recovery (WAL archived continuously to the `Postgres-PITR` bucket, Amsterdam) | Continuous, plus a base backup every day around 12:20 UTC | Back to the oldest backup set |
+| Daily backup of the volume                                                                  | 15:14 UTC                                                 | 6 days                        |
+| Weekly backup of the volume                                                                 | Saturday 20:25 UTC                                        | 27 days                       |
+| `pre-release-<commit>` backup, taken by hand before each release                            | Before promoting `staging` to `main`                      | Until deleted by hand         |
 
 The `Postgres-PITR` bucket is declared in `.railway/railway.ts` for production only. Left undeclared, a `config apply` would delete it.
 
@@ -55,6 +55,8 @@ Never touches the running database: Railway creates a new Postgres service (`pos
 railway postgres pitr restore -s postgres -e production --at 2026-11-15T13:30:00Z
 # or relative: --at 30m
 ```
+
+It takes a couple of minutes. The restore can't go past the last commit in the archive: on a database nobody wrote to since the last base backup, "Restorable up to" in `pitr status` shows that backup's time, and asking for a later moment restores to it instead. That is the newest state there is, not a gap.
 
 Then, depending on what went wrong:
 
@@ -99,5 +101,6 @@ A migration that destroys or rewrites data can only be undone by restoring the d
 
 Run one every few months, and after any change to the backup setup. Record it here.
 
-| Date | What | Result |
-| ---- | ---- | ------ |
+| Date       | What                                                                                                  | Result                                                                                                                                                                                                                                                                       |
+| ---------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-15 | Point in time restore of production into `postgres-restore-test`, asked for 15 minutes before (14:58) | Worked in about 2 minutes. Recovered to 12:20:23, the last commit (no writes since the day before). Same row counts and newest `created_at` as live in `email_log`, `session` and `ticket`, all 44 migrations. Service deleted afterwards. The cutover to it was not tested. |
