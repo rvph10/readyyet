@@ -3,6 +3,7 @@ import { Cron } from "@nestjs/schedule";
 import { EmailStatus, InvitationStatus, type Prisma } from "@readyyet/db";
 import { showsEstimatedReadyDate } from "@readyyet/shared";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { Heartbeat } from "../common/decorators/heartbeat.decorator";
 import { PrismaService } from "../database/prisma.service";
 import { GIVE_UP_AFTER_MS } from "./email-status";
 import { EmailService } from "./email.service";
@@ -126,6 +127,7 @@ export class EmailRetryService {
     checkinMargin: 2,
     maxRuntime: 10,
   })
+  @Heartbeat("retry")
   async sweep() {
     const now = Date.now();
     const stuck = await this.prisma.emailLog.findMany({
