@@ -44,6 +44,10 @@ function canEmail<C extends { email: string | null; emailBouncedAt: Date | null;
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
+  // A failing email is tried again at every lease for up to a day, each
+  // event counts against Sentry's quota: reported the first time, then once
+  // more when given up. In memory, as the API runs alone (ADR 0159).
+  private readonly reported = new Set<string>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -80,8 +84,7 @@ export class NotificationService {
         }
         await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
       } catch (error) {
-        this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
-        Sentry.captureException(error);
+        this.reportFailure(`ticket-created:${id}`, `Ticket-created email for Ticket ${id}`, error);
       }
     }
   }
@@ -177,8 +180,7 @@ export class NotificationService {
         }
         await this.prisma.pendingStatusNotification.deleteMany({ where: { statusEventId: statusEvent.id } });
       } catch (error) {
-        this.logger.error(`Status email for status event ${statusEvent.id} failed`, error);
-        Sentry.captureException(error);
+        this.reportFailure(`status:${statusEvent.id}`, `Status email for status event ${statusEvent.id}`, error);
       }
     }
   }
@@ -255,8 +257,7 @@ export class NotificationService {
           data: { readyDateEmailDueAt: null },
         });
       } catch (error) {
-        this.logger.error(`Ready date email for Ticket ${id} failed`, error);
-        Sentry.captureException(error);
+        this.reportFailure(`ready-date:${id}`, `Ready date email for Ticket ${id}`, error);
       }
     }
   }
@@ -330,8 +331,7 @@ export class NotificationService {
       try {
         await this.sendReadyReminder(id, dueAt!, lease);
       } catch (error) {
-        this.logger.error(`Ready reminder for Ticket ${id} failed`, error);
-        Sentry.captureException(error);
+        this.reportFailure(`ready-reminder:${id}`, `Ready reminder for Ticket ${id}`, error);
       }
     }
   }
@@ -372,6 +372,14 @@ export class NotificationService {
       where: { id, nextReadyReminderAt: lease },
       data: { readyRemindersSent: sent, nextReadyReminderAt: nextReadyReminderAt(readyAt, sent) },
     });
+  }
+
+  private reportFailure(key: string, what: string, error: unknown) {
+    this.logger.error(`${what} failed`, error);
+    if (!this.reported.has(key)) {
+      this.reported.add(key);
+      Sentry.captureException(error);
+    }
   }
 
   private loadTicket(ticketId: bigint) {

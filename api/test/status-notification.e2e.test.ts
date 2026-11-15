@@ -5,12 +5,18 @@ import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
+import * as Sentry from "@sentry/nestjs";
 import { PrismaService } from "../src/database/prisma.service";
 import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
 import { TERMS_VERSION } from "@readyyet/shared";
+
+vi.mock("@sentry/nestjs", async (importOriginal) => ({
+  ...(await importOriginal<typeof Sentry>()),
+  captureException: vi.fn(),
+}));
 
 // ADR 0015: a notifying status queues an email that's only sent once the
 // undo window has passed, and only if the ticket is still at that status.
@@ -225,6 +231,21 @@ describe("Customer status emails", () => {
     const [kept] = await pendingFor(failing.id);
     expect(kept.sendAfter.getTime()).toBeGreaterThan(Date.now());
     expect(await statusEmailsTo("after-throw")).toHaveLength(1);
+  });
+
+  it("reports a failing email to Sentry once, not again at every lease", async () => {
+    const ticket = await createTicket("throws-twice");
+    await setStatus(ticket.id, "READY");
+    const failure = new Error("simulated render failure");
+    const spy = vi.spyOn(app.get(EmailService), "send").mockRejectedValue(failure);
+    vi.mocked(Sentry.captureException).mockClear();
+
+    await makeDueAndSweep(ticket.id);
+    await makeDueAndSweep(ticket.id);
+    spy.mockRestore();
+
+    expect(vi.mocked(Sentry.captureException).mock.calls.filter(([error]) => error === failure)).toHaveLength(1);
+    expect(await pendingFor(ticket.id)).toHaveLength(1);
   });
 
   it("drops an email still unsent a day after the change, as it would be out of date", async () => {
