@@ -3,7 +3,7 @@
 import { NAME_MAX_LENGTH, OTHER_BUSINESS_TYPE, TERMS_VERSION } from "@readyyet/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import type { Country } from "react-phone-number-input";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -22,6 +22,7 @@ import type { WorkflowStep } from "@/components/workflow-steps";
 import { PhoneField } from "@/components/phone-field";
 import { businessStep, locationStep } from "./schema";
 import { FitToHeight, TicketPreview } from "./ticket-preview";
+import { useFocusFirstError } from "@/components/ui/use-focus-first-error";
 
 const STEP_ONE_FIELDS = ["name", "location.businessTypeCode", "location.businessTypeDetail"];
 const SHOWN_FIELDS = [...STEP_ONE_FIELDS, "location.name", "location.contactPhone", "location.contactEmail"];
@@ -53,6 +54,8 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
   const [country, setCountry] = useState<Country>(FALLBACK_COUNTRY);
   const [failure, setFailure] = useState<ActionFailure | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const formRef = useRef<HTMLFormElement>(null);
+  const focusFirstError = useFocusFirstError(formRef);
   const [pending, startTransition] = useTransition();
   const chosenType = businessTypes.find(({ code }) => code === businessTypeCode);
   const otherType = businessTypes.find(({ code }) => code === OTHER_BUSINESS_TYPE);
@@ -82,7 +85,10 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
     event.preventDefault();
     const business = businessValues();
     setErrors(business.success ? {} : fieldErrors(business.error));
-    if (!business.success) return;
+    if (!business.success) {
+      focusFirstError();
+      return;
+    }
     setCountry(browserCountry(browserTimeZone()));
     setStep(2);
   }
@@ -95,7 +101,10 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
     setErrors(location.success ? {} : fieldErrors(location.error));
     // Step one was checked on the way here.
     const business = businessValues();
-    if (!location.success || !business.success) return;
+    if (!location.success || !business.success) {
+      focusFirstError();
+      return;
+    }
     startTransition(async () => {
       const result = await orFailure(
         createBusiness({
@@ -117,6 +126,7 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
         return;
       }
       setFailure(result);
+      focusFirstError();
       if (STEP_ONE_FIELDS.some((field) => result.fields?.[field])) {
         setStep(1);
       }
@@ -131,7 +141,7 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
 
   const form =
     step === 1 ? (
-      <form key="business" onSubmit={toStepTwo} noValidate className="flex flex-1 flex-col">
+      <form key="business" ref={formRef} onSubmit={toStepTwo} noValidate className="flex flex-1 flex-col">
         {progress}
         <div className="flex flex-col gap-6">
           <Field
@@ -179,7 +189,7 @@ export function CreateBusinessForm({ header, businessTypes, email, referralCode,
         </div>
       </form>
     ) : (
-      <form key="location" onSubmit={submit} noValidate className="flex flex-1 flex-col">
+      <form key="location" ref={formRef} onSubmit={submit} noValidate className="flex flex-1 flex-col">
         {progress}
         <div className="flex flex-col gap-6">
           {failure && !SHOWN_FIELDS.some((field) => failure.fields?.[field]) && (
