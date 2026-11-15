@@ -22,3 +22,9 @@ auditConfig:
     # deepmerge-ts, pinned by @prisma/config@7.10.0 to merge our own
     # prisma.config.ts, which the Prisma CLI reads, never untrusted input.
     - GHSA-ggr8-5vv4-36mx
+
+# typescript-eslint still asks for minimatch 10, which has a ReDoS advisory
+# fixed in 11. Lint only, never in the API. Drop this once a typescript-eslint
+# release depends on 11.
+overrides:
+  "@typescript-eslint/typescript-estree>minimatch": "11.0.8"

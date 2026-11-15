@@ -38,7 +38,7 @@ describe("validateEnv", () => {
     expect(check).toThrow(/WEB_URL/);
   });
 
-  it("requires the webhook secrets, error tracking and Google Places in production only", () => {
+  it("requires the webhook secrets, error tracking and the Google keys in production only", () => {
     const production = {
       ...valid,
       NODE_ENV: "production",
@@ -46,12 +46,16 @@ describe("validateEnv", () => {
       STRIPE_WEBHOOK_SECRET: "whsec_y",
       SENTRY_DSN: "https://key@o1.ingest.sentry.io/1",
       GOOGLE_PLACES_API_KEY: "AIza-test",
+      GOOGLE_CLIENT_ID: "client.apps.googleusercontent.com",
+      GOOGLE_CLIENT_SECRET: "GOCSPX-test",
     };
 
     expect(() => validateEnv({ ...production, RESEND_WEBHOOK_SECRET: undefined })).toThrow(/RESEND_WEBHOOK_SECRET/);
     expect(() => validateEnv({ ...production, STRIPE_WEBHOOK_SECRET: undefined })).toThrow(/STRIPE_WEBHOOK_SECRET/);
     expect(() => validateEnv({ ...production, SENTRY_DSN: undefined })).toThrow(/SENTRY_DSN/);
     expect(() => validateEnv({ ...production, GOOGLE_PLACES_API_KEY: undefined })).toThrow(/GOOGLE_PLACES_API_KEY/);
+    expect(() => validateEnv({ ...production, GOOGLE_CLIENT_ID: undefined })).toThrow(/GOOGLE_CLIENT_ID/);
+    expect(() => validateEnv({ ...production, GOOGLE_CLIENT_SECRET: undefined })).toThrow(/GOOGLE_CLIENT_SECRET/);
     expect(validateEnv(production)).toBeTruthy();
   });
 
