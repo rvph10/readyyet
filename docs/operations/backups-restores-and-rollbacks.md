@@ -62,7 +62,20 @@ It takes a couple of minutes. The restore can't go past the last commit in the a
 
 Then, depending on what went wrong:
 
-- **Some rows were lost or damaged:** read them from the restored service (`railway connect <restored service> -e production` opens psql) and write them back into production by hand or with `pg_dump --data-only -t <table>` into the live database. The cutover is then nothing more than that copy.
+- **Some rows were lost or damaged:** copy only those rows, never a whole table: the live table still holds every other row, and a full `pg_dump --data-only` into it stops at the first duplicate key. In psql on the restored service (`railway connect <restored service> -e production`), export them with `\copy (SELECT * FROM <table> WHERE <the lost rows>) TO 'rows.csv' CSV`. In psql on production, load them into a scratch table and write them back from there, in one transaction:
+
+  ```sql
+  BEGIN;
+  CREATE TEMP TABLE restored (LIKE <table>);
+  \copy restored FROM 'rows.csv' CSV
+  -- Lost rows:
+  INSERT INTO <table> SELECT * FROM restored ON CONFLICT (id) DO NOTHING;
+  -- Or damaged ones: UPDATE <table> t SET <columns> FROM restored r WHERE t.id = r.id;
+  COMMIT;
+  ```
+
+  The cutover is then nothing more than that copy.
+
 - **The whole database is bad:** the API's `DATABASE_URL` comes from the `postgres` service in `.railway/railway.ts`. Point it at the restored service there, `config plan`, `config apply`, and the API redeploys onto it. Rehearse this on staging first, it hasn't been done yet.
 
 Delete the restored service once done. It isn't in `railway.ts`, so the next `config apply` would also delete it.
@@ -95,7 +108,7 @@ Migrations run in the API's pre-deploy step, before the new code takes traffic, 
 - **Forward only.** No down migrations. To undo one, write a new migration.
 - **Expand, then contract.** Add a column, table or index in one release; stop using the old one in the code; drop it in a later release. `location.logo_key` was kept through one release (`20260928090000_business_logo_and_declined_invitations`) and dropped in a later one (`20261113120000_drop_location_logo_key`).
 - **Nothing the old code would break on.** A new required column needs a default or a trigger that fills it, as the Ticket number does (`20261114090000_ticket_number`), since the old API inserts without knowing it.
-- **Rename in three steps.** Add the new column, write both, read the new one, then drop the old one. Never rename in place.
+- **Rename in four steps.** Add the new column, write both, read the new one, then drop the old one. Never rename in place.
 - **One transaction.** Wrap a migration of more than one statement in `BEGIN;` and `COMMIT;`. Prisma doesn't: a migration that fails half way leaves its first statements applied, and running it again then fails on them. `CREATE INDEX CONCURRENTLY` can't run in a transaction, give it a migration of its own.
 
 ### When a migration fails on deploy
