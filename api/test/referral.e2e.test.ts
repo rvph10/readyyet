@@ -376,6 +376,16 @@ describe("The sponsor's credit, held 14 days from the referred Business's first 
     );
   });
 
+  it("waits for the first subscription invoice when a one-off one is paid first", async () => {
+    const business = await referredBusiness();
+
+    await send("invoice.paid", { ...invoice(business.customer, 1500), parent: null }).expect(200);
+    expect(await creditOf(business.id)).toBeNull();
+
+    await send("invoice.paid", invoice(business.customer, 2450)).expect(200);
+    expect(await creditOf(business.id)).toMatchObject({ amount: 4900 });
+  });
+
   it("gives nothing before the 14 days are over", async () => {
     const business = await referredBusiness();
     await send("invoice.paid", invoice(business.customer, 2450)).expect(200);

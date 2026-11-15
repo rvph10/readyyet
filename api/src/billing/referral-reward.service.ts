@@ -157,13 +157,14 @@ export class ReferralRewardService {
   // One month of the plan the referred Business chose, at the monthly
   // price, from its first paid invoice only. A voided one isn't replaced.
   private async recordSponsorCredit(businessId: string, sponsorBusinessId: string, invoice: Stripe.Invoice) {
-    if (await this.prisma.sponsorCredit.findUnique({ where: { businessId } })) {
+    const subscriptionId = invoice.parent?.subscription_details?.subscription as string | undefined;
+    // A one-off invoice, made by hand in Stripe, has no plan to give a month
+    // of. The credit waits for the first subscription invoice.
+    if (!subscriptionId || (await this.prisma.sponsorCredit.findUnique({ where: { businessId } }))) {
       return;
     }
     const stripe = getStripeClient();
-    const subscription = await stripe.subscriptions.retrieve(
-      invoice.parent!.subscription_details!.subscription as string,
-    );
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const { plan } = fromLookupKey(subscription.items.data[0].price.lookup_key);
     const {
       data: [monthly],
