@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start --port ${PORT:-3001}",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --dir test",
+    "e2e": "playwright test",
     "icon": "node --env-file-if-exists=.env.local scripts/icon.mjs"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",
     "@types/node": "22.20.5",
     "@types/react": "19.3.0",

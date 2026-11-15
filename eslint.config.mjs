@@ -50,8 +50,8 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    // Run by Node from the command line, like pnpm icon.
-    files: ["**/scripts/**/*.mjs"],
+    // Run by Node from the command line, like pnpm icon and the e2e email sink.
+    files: ["**/scripts/**/*.mjs", "web/e2e/**/*.mjs"],
     languageOptions: { globals: { console: "readonly", process: "readonly", URL: "readonly" } },
   },
   // Last, so formatting is left to Prettier alone.

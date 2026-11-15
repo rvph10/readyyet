@@ -21,6 +21,8 @@ out/
 
 # Test output
 coverage/
+web/test-results/
+web/playwright-report/
 
 # OS and editor
 .DS_Store
