@@ -71,7 +71,7 @@ export default async function SalesPartnerPage({ params, searchParams }: PagePro
             ? t("partner.since", { email: partner.email, date: formatDate(partner.salesPartnerSince, locale) })
             : t("partner.former", { email: partner.email })
         }
-        crumbs={[{ label: t("nav.salesPartners"), href: "/admin" }, { label: partner.name }]}
+        crumbs={[{ label: t("nav.salesPartners"), href: "/admin/sales-partners" }, { label: partner.name }]}
       />
       <div className="grid flex-1 grid-cols-1 items-start gap-4 lg:gap-5 xl:grid-cols-12">
         <Panel as="section" padding="none" className="flex flex-col overflow-clip xl:col-span-8">

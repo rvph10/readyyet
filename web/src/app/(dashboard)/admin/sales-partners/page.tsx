@@ -6,10 +6,10 @@ import { Icon } from "@/components/ui/icon";
 import { Panel } from "@/components/ui/panel";
 import { api } from "@/lib/api/client";
 import { pageData } from "@/lib/api/errors";
-import { AddPartner } from "./add-partner";
+import { AddPartner } from "../add-partner";
 import { SheetTitle } from "@/components/sheet-title";
 import { formatCents, formatDate } from "@/lib/commissions";
-import { partnerHref } from "./admin-views";
+import { partnerHref } from "../admin-views";
 
 const GRID = "lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.9fr)] lg:gap-x-5";
 
