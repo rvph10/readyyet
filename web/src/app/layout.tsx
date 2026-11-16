@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 // home indicator rather than be squeezed as Safari's toolbar comes and goes.
 export const viewport: Viewport = { viewportFit: "cover" };
 
+// The app has nothing to find through a search engine, and a Customer's link
+// is the only key to their Ticket (ADR 0013).
 export const metadata: Metadata = {
   title: "ReadyYet",
+  robots: { index: false, follow: false },
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
