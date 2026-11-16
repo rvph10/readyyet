@@ -30,20 +30,24 @@ export class OverviewService {
 
     // Counted in the database: Tickets run to the tens of thousands.
     const notAdmin = (owner: Prisma.Sql) => Prisma.sql`lower(${owner}.email) <> ALL(${admins}::text[])`;
-    const users = Prisma.sql`FROM "user" x WHERE x.deleted_at IS NULL AND ${notAdmin(Prisma.sql`x`)}`;
+    const users = Prisma.sql`FROM "user" x WHERE ${notAdmin(Prisma.sql`x`)}`;
     const locations = Prisma.sql`FROM location x
       JOIN business b ON b.id = x.business_id
       JOIN "user" o ON o.id = b.owner_id
-      WHERE x.deleted_at IS NULL AND ${notAdmin(Prisma.sql`o`)}`;
+      WHERE ${notAdmin(Prisma.sql`o`)}`;
+    // A deleted Location's Tickets stay as its history (ADR 0017), so they
+    // still count.
     const tickets = Prisma.sql`FROM ticket x
       JOIN location l ON l.id = x.location_id
       JOIN business b ON b.id = l.business_id
       JOIN "user" o ON o.id = b.owner_id
       WHERE ${notAdmin(Prisma.sql`o`)}`;
 
-    const series = async (rows: Prisma.Sql): Promise<OverviewSeriesDto> => {
+    // The total is what exists now, the weeks what was created then: someone
+    // who deleted their account since still signed up that week.
+    const series = async (rows: Prisma.Sql, existing: Prisma.Sql): Promise<OverviewSeriesDto> => {
       const [[{ total }], days] = await Promise.all([
-        this.prisma.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total ${rows}`,
+        this.prisma.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total ${rows} AND ${existing}`,
         // created_at holds UTC without a zone.
         this.prisma.$queryRaw<{ day: string; count: number }[]>`
           SELECT (x.created_at AT TIME ZONE 'UTC' AT TIME ZONE ${TIME_ZONE})::date::text AS day, count(*)::int AS count
@@ -70,9 +74,9 @@ export class OverviewService {
     };
 
     const [userSeries, locationSeries, ticketSeries, subscriptions, latest] = await Promise.all([
-      series(users),
-      series(locations),
-      series(tickets),
+      series(users, Prisma.sql`x.deleted_at IS NULL`),
+      series(locations, Prisma.sql`x.deleted_at IS NULL`),
+      series(tickets, Prisma.sql`TRUE`),
       this.prisma.$queryRaw<{ status: SubscriptionStatus; trialEndsAt: Date | null }[]>`
         SELECT s.status, s.trial_ends_at AS "trialEndsAt" FROM subscription s
         JOIN location x ON x.id = s.location_id

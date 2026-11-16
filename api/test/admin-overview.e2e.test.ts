@@ -65,6 +65,16 @@ describe("Back-office overview, seen by the platform admin", () => {
     });
   });
 
+  it("drops a deleted account from the total but not from the week it signed up", async () => {
+    const before = (await overview(adminCookie).expect(200)).body;
+    await prisma.user.update({ where: { email: ownerEmail }, data: { deletedAt: new Date() } });
+    const after = (await overview(adminCookie).expect(200)).body;
+
+    expect(after.users.total).toBe(before.users.total - 1);
+    expect(after.users.weeks.at(-1).count).toBe(before.users.weeks.at(-1).count);
+    expect(after.latestSignups.map(({ email }: { email: string }) => email)).not.toContain(ownerEmail);
+  });
+
   it("leaves out the platform admin's own account and shops", async () => {
     const before = (await overview(adminCookie).expect(200)).body;
     await openShopWithTicket(adminCookie, "Admin Test Garage");

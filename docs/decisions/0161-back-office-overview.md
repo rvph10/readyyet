@@ -8,6 +8,8 @@ Date: 2026-11-16
 
 - `GET /admin/overview` gives, for Users, Locations and Tickets, the total, a count per week for the last 12 weeks and last week's count up to the same weekday, the same comparison as a Location's month tile (ADR 0116).
 - Weeks start on a Monday in Brussels, where ReadyYet is run.
+- A total counts what exists now, a week counts what was created that week, deleted since or not, so a past bar never shrinks when someone deletes their account or a Location.
+- A deleted Location's Tickets keep counting, as they stay as its history (ADR 0017).
 - Locations are also split by subscription: in a trial, paying, past due, or inactive (a trial that ended without paying, or a subscription that ended).
 - The 10 newest accounts are listed with their first Business, their Locations and their Tickets, so a new sign-up shows up as soon as it happens.
 - The platform admin's own accounts, and the Businesses they own, count nowhere: they are where the admin tests production.
