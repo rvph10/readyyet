@@ -40,7 +40,7 @@ export function BarChart({ bars, label }: { bars: Bar[]; label: string }) {
                 {bar.tooltip}
               </span>
             </div>
-            <span className="relative h-4">
+            <span className="relative h-5">
               <span
                 className={`absolute left-1/2 -translate-x-1/2 text-p-xs whitespace-nowrap ${now ? "font-semibold text-ink" : "text-muted"}`}
               >
