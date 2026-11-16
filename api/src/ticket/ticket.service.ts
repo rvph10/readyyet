@@ -11,7 +11,7 @@ import {
 import { customerIdsNamed, phoneDigits } from "../customer/customer-search";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
-import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
+import { addDays, fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
@@ -78,12 +78,6 @@ function listItem(ticket: ListTicket) {
     },
     currentStatus: ticket.currentStatus,
   };
-}
-
-function addDays(date: string, days: number) {
-  const moved = fromCalendarDate(date);
-  moved.setUTCDate(moved.getUTCDate() + days);
-  return toCalendarDate(moved)!;
 }
 
 interface Ranked {
@@ -239,6 +233,12 @@ export class TicketService {
       throw new NotFoundError("Ticket not found");
     }
     await this.prisma.$transaction([
+      // Its link and updates are about a Ticket that no longer exists. Once
+      // the delete clears their ticket_id, the retry sweep couldn't tell.
+      this.prisma.emailLog.updateMany({
+        where: { ticketId: id, status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] }, gaveUpAt: null },
+        data: { gaveUpAt: new Date() },
+      }),
       this.prisma.ticketFeedback.deleteMany({ where: { ticketId: id } }),
       this.prisma.ticketPhoto.deleteMany({ where: { ticketId: id } }),
       this.prisma.ticket.delete({ where: { id } }),

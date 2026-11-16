@@ -13,6 +13,12 @@ export function fromCalendarDate(date: CalendarDate): Date {
   return new Date(date);
 }
 
+export function addDays(date: CalendarDate, days: number): CalendarDate {
+  const moved = fromCalendarDate(date);
+  moved.setUTCDate(moved.getUTCDate() + days);
+  return toCalendarDate(moved)!;
+}
+
 // "YYYY-MM-DD" and a day that exists: new Date("2026-02-30") rolls over to
 // March instead of failing.
 function isCalendarDate(value: unknown): value is CalendarDate {

@@ -3,7 +3,8 @@ import { Cron } from "@nestjs/schedule";
 import { Prisma } from "@readyyet/db";
 import { ENDED_STATUS_CODES } from "@readyyet/shared";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
-import { customerErasure, photoKeysOfCustomers } from "../customer/customer-erasure";
+import { Heartbeat } from "../common/decorators/heartbeat.decorator";
+import { customerErasure, emailsOfDeletedTickets, photoKeysOfCustomers } from "../customer/customer-erasure";
 import { PrismaService } from "../database/prisma.service";
 import { StorageService } from "../storage/storage.service";
 
@@ -31,7 +32,8 @@ export class RetentionService {
     maxRuntime: 30,
   })
   // One step failing doesn't hold the others back. The run still fails, for
-  // the monitor and Sentry.
+  // the monitors and Sentry.
+  @Heartbeat("retention")
   async run() {
     const failures: unknown[] = [];
     for (const step of [
@@ -119,7 +121,10 @@ export class RetentionService {
       }
       const ids = customers.map((customer) => customer.id);
       const photoKeys = await photoKeysOfCustomers(this.prisma, ids);
-      await this.prisma.$transaction(customerErasure(this.prisma, { id: { in: ids } }));
+      const erased = { id: { in: ids } };
+      await this.prisma.$transaction(
+        customerErasure(this.prisma, erased, await emailsOfDeletedTickets(this.prisma, erased)),
+      );
       await this.storage.delete(photoKeys);
     }
   }

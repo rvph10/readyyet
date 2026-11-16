@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { Icon } from "@/components/ui/icon";
+import { BarChart, ChangeBadge } from "@/components/bar-chart";
 import { RollingNumber } from "@/components/ui/rolling-number";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { components } from "@/lib/api/schema";
@@ -29,7 +29,6 @@ export function MonthTile({
   const { months, lastMonthSoFar } = received;
   const current = months.at(-1)!.received;
   const change = current - lastMonthSoFar;
-  const max = Math.max(1, ...months.map((month) => month.received));
   const name = new Intl.DateTimeFormat(intlLocale(locale), { timeZone: "UTC", month: "short" });
   const longName = new Intl.DateTimeFormat(intlLocale(locale), { timeZone: "UTC", month: "long" });
   const monthDate = (month: string) => new Date(`${month}-01T00:00:00Z`);
@@ -46,47 +45,21 @@ export function MonthTile({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span
-            className={`inline-flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-label-sm font-bold ${
-              change > 0 ? "bg-brand text-ink" : change < 0 ? "bg-danger-subtle text-danger" : "bg-subtle text-ink"
-            }`}
-          >
-            {change !== 0 && <Icon name={change > 0 ? "arrow-up-1" : "arrow-down-1"} className="size-2.5" />}
-            {change > 0 ? `+${change}` : change}
-          </span>
+          <ChangeBadge change={change} />
           <span className="text-p-xs text-muted">{t("vsLastMonth", { month: lastMonth })}</span>
         </div>
       </div>
 
-      <ul className="flex h-36 gap-2 lg:gap-3" aria-label={t("chartLabel")}>
-        {months.map(({ month, received: count }, index) => {
-          const now = index === months.length - 1;
-          return (
-            <li key={month} className="group/bar grid min-w-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2">
-              <div className="relative">
-                <span
-                  role="img"
-                  tabIndex={0}
-                  aria-label={`${longName.format(monthDate(month))}: ${t("tickets", { count })}`}
-                  className="absolute inset-0 rounded-t-lg focus-visible:outline-offset-1"
-                />
-                <div
-                  ref={sized("height", count === 0 ? 2 : (count / max) * 100)}
-                  className={`grows pointer-events-none absolute inset-x-0 bottom-0 rounded-t-lg rounded-b-sm ${
-                    now ? "bg-pine" : "bg-pine-subtle group-hover/bar:bg-pine/30"
-                  }`}
-                />
-                <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 rounded-lg bg-ink px-2 py-1 text-label-xs font-semibold whitespace-nowrap text-surface group-hover/bar:block group-has-focus-visible/bar:block">
-                  {t("tickets", { count })}
-                </span>
-              </div>
-              <span className={`truncate text-center text-p-xs ${now ? "font-semibold text-ink" : "text-muted"}`}>
-                {name.format(monthDate(month))}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      <BarChart
+        label={t("chartLabel")}
+        bars={months.map(({ month, received: count }) => ({
+          key: month,
+          label: name.format(monthDate(month)),
+          description: `${longName.format(monthDate(month))}: ${t("tickets", { count })}`,
+          tooltip: t("tickets", { count }),
+          value: count,
+        }))}
+      />
 
       <div className="mt-auto">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

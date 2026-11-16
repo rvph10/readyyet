@@ -159,6 +159,43 @@ describe("Exporting a Location", () => {
     expect(files.get("tickets.csv")!.toString("utf8")).toContain(',"Brake, pads",Rayure,RECEIVED,');
   });
 
+  it("exports every Ticket of a Location too big to load in one query", async () => {
+    const locationId = await createLocation("FR");
+    const first = await prisma.ticket.findUniqueOrThrow({
+      where: { id: BigInt((await createTicket(locationId, "Grande Flotte")).id) },
+    });
+    // Past two batches, each Ticket with a Status change to load.
+    const more = 4_500;
+    await prisma.ticket.createMany({
+      data: Array.from({ length: more }, (_, index) => ({
+        locationId,
+        customerId: first.customerId,
+        workflowId: first.workflowId,
+        currentStatusId: first.currentStatusId,
+        createdBy: first.createdBy,
+        trackingCode: `${first.trackingCode}-${index}`,
+        title: `Flotte ${index}`,
+        number: index + 2,
+      })),
+    });
+    const tickets = await prisma.ticket.findMany({ where: { locationId, id: { gt: first.id } }, select: { id: true } });
+    await prisma.ticketStatusEvent.createMany({
+      data: tickets.map(({ id }) => ({
+        ticketId: id,
+        workflowId: first.workflowId,
+        statusId: first.currentStatusId,
+        changedBy: first.createdBy,
+      })),
+    });
+
+    const files = await unzip((await download(locationId)).body as Buffer);
+
+    const rows = (name: string) => files.get(name)!.toString("utf8").trimEnd().split("\r\n").length - 1;
+    expect(rows("tickets.csv")).toBe(more + 1);
+    expect(rows("status_history.csv")).toBe(more + 1);
+    expect(files.get("tickets.csv")!.toString("utf8")).toContain(`;Flotte ${more - 1};`);
+  });
+
   it("is the Owner's alone", async () => {
     const locationId = await createLocation("FR");
     await prisma.membership.createMany({

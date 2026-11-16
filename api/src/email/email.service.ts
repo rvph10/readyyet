@@ -94,6 +94,7 @@ export class EmailService {
     let firstLimitedToday = false;
     const log = await this.prisma.$transaction(async (tx) => {
       let limited = false;
+      let locationId: string | undefined;
       // Locks the Customer against an erasure running now, which either waits
       // and then clears this row too, or has finished and this isn't written.
       if (input.ticketId) {
@@ -105,6 +106,7 @@ export class EmailService {
         if (customer.deleted_at) {
           return null;
         }
+        locationId = customer.location_id;
         // ADR 0140: over its daily limit, a Location's email to a Customer is
         // recorded but not sent, nor sent later, when it would be stale.
         if (CUSTOMER_EMAIL_TYPES.includes(input.type)) {
@@ -131,6 +133,7 @@ export class EmailService {
           headers: input.headers,
           attachments: input.attachments as unknown as Prisma.InputJsonValue | undefined,
           ticketId: input.ticketId,
+          locationId,
           invitationId: input.invitationId,
           dedupeKey: input.dedupeKey,
           // Never sent, so nothing of the Customer's is kept with it.

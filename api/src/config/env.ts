@@ -21,6 +21,9 @@ const envSchema = z
     RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
     // Error tracking (src/instrument.ts), off where unset.
     SENTRY_DSN: z.url().optional(),
+    // Uptime Kuma's push URL without its last part, the job's name
+    // (ADR 0157). Production only, staging's runs aren't watched.
+    UPTIME_PUSH_URL: z.url().optional(),
     // A secret key (sk_) or a restricted one (rk_).
     STRIPE_SECRET_KEY: z.string().regex(/^(sk|rk)_/),
     // Only deployed environments receive Stripe's webhooks, locally
@@ -36,6 +39,10 @@ const envSchema = z
     S3_SECRET_ACCESS_KEY: z.string().min(1),
     // Places API (New) only, for finding a shop on Google (ADR 0126).
     GOOGLE_PLACES_API_KEY: z.string().min(1).optional(),
+    // Google sign-in (ADR 0151). Without them Better Auth still starts, and
+    // only the first "Continue with Google" fails.
+    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
   })
   .refine((env) => env.NODE_ENV !== "production" || env.RESEND_WEBHOOK_SECRET, {
     message: "Required in production",
@@ -52,6 +59,14 @@ const envSchema = z
   .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_PLACES_API_KEY, {
     message: "Required in production",
     path: ["GOOGLE_PLACES_API_KEY"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_CLIENT_ID, {
+    message: "Required in production",
+    path: ["GOOGLE_CLIENT_ID"],
+  })
+  .refine((env) => env.NODE_ENV !== "production" || env.GOOGLE_CLIENT_SECRET, {
+    message: "Required in production",
+    path: ["GOOGLE_CLIENT_SECRET"],
   });
 
 export function validateEnv(config: Record<string, unknown>) {

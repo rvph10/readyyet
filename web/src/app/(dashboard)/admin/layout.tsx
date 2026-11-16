@@ -25,7 +25,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         title={t("title")}
         icon="layers"
         detail={t("platformAdmin")}
-        nav={[{ href: "/admin", icon: "user", label: t("nav.salesPartners") }]}
+        nav={[
+          { href: "/admin", icon: "dashboard", label: t("nav.overview") },
+          { href: "/admin/sales-partners", icon: "user", label: t("nav.salesPartners") },
+        ]}
         exit={{ href: "/", label: t("backToShops"), icon: "arrow-left-1" }}
       >
         {children}

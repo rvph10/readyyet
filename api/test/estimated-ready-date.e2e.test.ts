@@ -5,9 +5,10 @@ import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Role } from "@readyyet/db";
 import { calendarDateIn, TERMS_VERSION, turnaroundReadyDate } from "@readyyet/shared";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -271,6 +272,43 @@ describe("Estimated ready date", () => {
       await notification.sendDueReadyDateEmails();
 
       expect(await emailsTo("crashed", "ticket_ready_date_changed")).toHaveLength(1);
+    });
+
+    it("keeps an email that throws on a lease, and the others still go out", async () => {
+      const failing = (await createTicket({ email: address("throws"), estimatedReadyDate: inDays(2) })).body;
+      const other = (await createTicket({ email: address("after-throw"), estimatedReadyDate: inDays(2) })).body;
+      await patchTicket(failing.id, inDays(5));
+      await patchTicket(other.id, inDays(5));
+      // The failing one first: the sweep takes the oldest due first.
+      await prisma.ticket.update({
+        where: { id: BigInt(failing.id) },
+        data: { readyDateEmailDueAt: new Date(Date.now() - 2000) },
+      });
+      await prisma.ticket.update({
+        where: { id: BigInt(other.id) },
+        data: { readyDateEmailDueAt: new Date(Date.now() - 1000) },
+      });
+      const spy = vi.spyOn(app.get(EmailService), "send").mockRejectedValueOnce(new Error("simulated render failure"));
+
+      await notification.sendDueReadyDateEmails();
+      spy.mockRestore();
+
+      expect((await ticketRow(failing.id)).readyDateEmailDueAt!.getTime()).toBeGreaterThan(Date.now());
+      expect(await emailsTo("after-throw", "ticket_ready_date_changed")).toHaveLength(1);
+    });
+
+    it("drops an email whose new date has already passed, after a send that kept failing", async () => {
+      const ticket = (await createTicket({ email: address("past"), estimatedReadyDate: inDays(2) })).body;
+      await patchTicket(ticket.id, inDays(5));
+      await prisma.ticket.update({
+        where: { id: BigInt(ticket.id) },
+        data: { customerToldReadyDate: new Date(inDays(-5)), estimatedReadyDate: new Date(inDays(-1)) },
+      });
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await emailsTo("past", "ticket_ready_date_changed")).toHaveLength(0);
+      expect((await ticketRow(ticket.id)).readyDateEmailDueAt).toBeNull();
     });
 
     it("sends nothing for a later date corrected back within the delay", async () => {

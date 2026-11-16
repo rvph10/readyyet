@@ -37,7 +37,7 @@ export function MarkPaid({
       setOpen(false);
       if (result.ok) {
         toast({ message: t("done", { amount, name }) });
-        if (lastOwed) router.push("/admin");
+        if (lastOwed) router.push("/admin/sales-partners");
       } else if (result.code === ErrorCode.CONFLICT) {
         // One was voided or paid since the page loaded, the total changed.
         // The action's revalidation already shows the new one.
@@ -84,7 +84,7 @@ export function RemovePartner({ userId, name }: { userId: string; name: string }
       if (result.ok) {
         toast({ message: t("done", { name }) });
         // Their page goes away with the status once nothing is owed.
-        router.push("/admin");
+        router.push("/admin/sales-partners");
       } else {
         toast({ tone: "error", message: t("failed") });
       }

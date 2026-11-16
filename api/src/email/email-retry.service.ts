@@ -3,7 +3,9 @@ import { Cron } from "@nestjs/schedule";
 import { EmailStatus, InvitationStatus, type Prisma } from "@readyyet/db";
 import { showsEstimatedReadyDate } from "@readyyet/shared";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { Heartbeat } from "../common/decorators/heartbeat.decorator";
 import { PrismaService } from "../database/prisma.service";
+import { CUSTOMER_EMAIL_TYPES } from "./email-limits";
 import { GIVE_UP_AFTER_MS } from "./email-status";
 import { EmailService } from "./email.service";
 
@@ -48,9 +50,15 @@ function stillWanted({ ticket, invitation, to, type, createdAt }: StuckEmail) {
       !invitation.location.deletedAt
     );
   }
+  // Deleting a Ticket clears its emails' ticket_id, so one to a Customer
+  // without it is about a deleted Ticket, even one written as the delete ran.
+  // Other emails never had a Ticket.
+  if (!ticket) {
+    return !CUSTOMER_EMAIL_TYPES.includes(type);
+  }
   // A copy for staff, nothing about the Customer's address applies. Erasure
   // gives up on it itself.
-  if (!ticket || type === "feedback_received") {
+  if (type === "feedback_received") {
     return true;
   }
   const { currentStatus, customer, customerCollectedAt, emailLogs, location, notificationsStoppedAt, statusEvents } =
@@ -126,6 +134,7 @@ export class EmailRetryService {
     checkinMargin: 2,
     maxRuntime: 10,
   })
+  @Heartbeat("retry")
   async sweep() {
     const now = Date.now();
     const stuck = await this.prisma.emailLog.findMany({

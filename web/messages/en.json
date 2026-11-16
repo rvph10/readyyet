@@ -886,6 +886,7 @@
     "editTitle": "Edit Customer",
     "eraseTitle": "Erase this Customer",
     "eraseHint": "For when someone asks you to delete their data. This can't be undone.",
+    "eraseHintEmployee": "For when someone asks you to delete their data. Only an Owner or an Admin can erase a Customer, pass the request on to them.",
     "eraseAction": "Erase Customer",
     "eraseConfirmTitle": "Erase {name}?",
     "eraseConfirmBody": "This deletes their name, email and phone, the photos on their Tickets, their private feedback and the emails sent about them. Their Tickets stay, under “Erased Customer”. This can't be undone.",
@@ -1337,7 +1338,38 @@
     "backToShops": "Back to your shops",
     "platformAdmin": "Platform admin",
     "nav": {
+      "overview": "Overview",
       "salesPartners": "Sales partners"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "How ReadyYet is growing, week by week. Your own accounts aren't counted.",
+      "users": "Users",
+      "locations": "Shops",
+      "tickets": "Tickets created",
+      "thisWeek": "this week, against {count} last week by this day",
+      "chartLabel": "{what} per week, over 12 weeks",
+      "weekOf": "Week of {day}: {amount}",
+      "units": {
+        "users": "{count, plural, =0 {No users} one {# user} other {# users}}",
+        "locations": "{count, plural, =0 {No shops} one {# shop} other {# shops}}",
+        "tickets": "{count, plural, =0 {No Tickets} one {# Ticket} other {# Tickets}}"
+      },
+      "states": {
+        "paying": "Paying",
+        "trial": "On trial",
+        "pastDue": "Payment overdue",
+        "inactive": "Inactive"
+      },
+      "latest": {
+        "title": "Latest sign-ups",
+        "shop": "{name} · {locations, plural, one {# shop} other {# shops}} · {tickets, plural, one {# Ticket} other {# Tickets}}",
+        "noBusiness": "No shop yet",
+        "empty": {
+          "title": "Nobody yet",
+          "description": "The first sign-up shows up here as soon as they create their account."
+        }
+      }
     },
     "states": {
       "OWED": "Owed",

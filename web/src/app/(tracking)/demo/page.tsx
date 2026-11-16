@@ -7,7 +7,7 @@ import { demoTracking, MOMENTS, type Moment } from "./demo-tracking";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("demo");
-  return { title: t("title"), robots: { index: false, follow: false } };
+  return { title: t("title") };
 }
 
 // The page a Customer gets, on a made-up Ticket, for a Business that wants to see

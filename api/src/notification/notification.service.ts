@@ -1,9 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import * as Sentry from "@sentry/nestjs";
-import { isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
+import { calendarDateIn, isNotifyingStatus, showsEstimatedReadyDate } from "@readyyet/shared";
 import { toCalendarDate } from "../common/calendar-date";
 import { CronMonitor } from "../common/decorators/cron-monitor.decorator";
+import { Heartbeat } from "../common/decorators/heartbeat.decorator";
 import { EmailStatus } from "@readyyet/db";
 import { ConflictError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -43,6 +44,10 @@ function canEmail<C extends { email: string | null; emailBouncedAt: Date | null;
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
+  // A failing email is tried again at every lease for up to a day, each
+  // event counts against Sentry's quota: reported the first time, then once
+  // more when given up. In memory, as the API runs alone (ADR 0159).
+  private readonly reported = new Set<string>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -79,8 +84,7 @@ export class NotificationService {
         }
         await this.prisma.ticket.update({ where: { id }, data: { trackingEmailDueAt: null } });
       } catch (error) {
-        this.logger.error(`Ticket-created email for Ticket ${id} failed`, error);
-        Sentry.captureException(error);
+        this.reportFailure(`ticket-created:${id}`, `Ticket-created email for Ticket ${id}`, error);
       }
     }
   }
@@ -93,6 +97,7 @@ export class NotificationService {
     checkinMargin: 1,
     maxRuntime: 5,
   })
+  @Heartbeat("created")
   monitoredTicketCreatedSweep() {
     return this.sendDueTicketCreatedEmails();
   }
@@ -165,8 +170,18 @@ export class NotificationService {
       if (count === 0) {
         continue;
       }
-      await this.sendStatusEmail(statusEvent);
-      await this.prisma.pendingStatusNotification.deleteMany({ where: { statusEventId: statusEvent.id } });
+      // One email's problem mustn't hold up the others. Its lease expires and
+      // it's tried again, until it would be out of date.
+      try {
+        if (Date.now() - statusEvent.createdAt.getTime() > GIVE_UP_AFTER_MS) {
+          Sentry.captureMessage(`Gave up on the status email of status event ${statusEvent.id}`, { level: "error" });
+        } else {
+          await this.sendStatusEmail(statusEvent);
+        }
+        await this.prisma.pendingStatusNotification.deleteMany({ where: { statusEventId: statusEvent.id } });
+      } catch (error) {
+        this.reportFailure(`status:${statusEvent.id}`, `Status email for status event ${statusEvent.id}`, error);
+      }
     }
   }
 
@@ -232,12 +247,18 @@ export class NotificationService {
       if (count === 0) {
         continue;
       }
-      await this.sendReadyDateEmail(id);
-      // A date changed during the send queued its own email, left as is.
-      await this.prisma.ticket.updateMany({
-        where: { id, readyDateEmailDueAt: lease },
-        data: { readyDateEmailDueAt: null },
-      });
+      // One email's problem mustn't hold up the others. Its lease expires and
+      // it's tried again, until the new date is past (sendReadyDateEmail).
+      try {
+        await this.sendReadyDateEmail(id);
+        // A date changed during the send queued its own email, left as is.
+        await this.prisma.ticket.updateMany({
+          where: { id, readyDateEmailDueAt: lease },
+          data: { readyDateEmailDueAt: null },
+        });
+      } catch (error) {
+        this.reportFailure(`ready-date:${id}`, `Ready date email for Ticket ${id}`, error);
+      }
     }
   }
 
@@ -245,11 +266,13 @@ export class NotificationService {
     const ticket = await this.loadTicket(ticketId);
     const date = toCalendarDate(ticket.estimatedReadyDate);
     const told = toCalendarDate(ticket.customerToldReadyDate);
-    // Moved back within the delay, or overtaken by the ticket reaching READY.
+    // Moved back within the delay, overtaken by the ticket reaching READY, or
+    // a date already past, after a failing send was retried for days.
     if (
       !date ||
       !told ||
       date <= told ||
+      date < calendarDateIn(new Date(), ticket.location.timeZone) ||
       !showsEstimatedReadyDate(ticket.currentStatus.code) ||
       ticket.notificationsStoppedAt ||
       !canEmail(ticket.customer) ||
@@ -303,39 +326,59 @@ export class NotificationService {
         continue;
       }
 
-      const ticket = await this.loadTicket(id);
-      // Changed since the query: handed back as it was, a later READY or a
-      // dismissed mark decides what happens next.
-      if (ticket.currentStatus.code !== "READY" || ticket.customerCollectedAt || ticket.notificationsStoppedAt) {
-        await this.prisma.ticket.updateMany({
-          where: { id, nextReadyReminderAt: lease },
-          data: { nextReadyReminderAt: dueAt },
-        });
-        continue;
+      // One reminder's problem mustn't hold up the others. Its lease expires
+      // and it's tried again, for a day, then skipped for the next one.
+      try {
+        await this.sendReadyReminder(id, dueAt!, lease);
+      } catch (error) {
+        this.reportFailure(`ready-reminder:${id}`, `Ready reminder for Ticket ${id}`, error);
       }
-      const sent = ticket.readyRemindersSent + 1;
-      if (canEmail(ticket.customer)) {
-        // Keyed on the READY event, as a Ticket that is READY again counts its
-        // reminders from zero.
-        await this.sendCustomerEmail(
-          ticket,
-          ticket.customer.email,
-          "READY_REMINDER",
-          "ticket_ready_reminder",
-          `ready-reminder:${ticket.statusEvents[0].id}:${sent}`,
-        );
-      }
-      // Counted even when there was no one to email, so the next one is
-      // scheduled rather than retried every sweep. A READY reached during
-      // the send rescheduled it already, and wins.
+    }
+  }
+
+  private async sendReadyReminder(id: bigint, dueAt: Date, lease: Date) {
+    const ticket = await this.loadTicket(id);
+    // Changed since the query: handed back as it was, a later READY or a
+    // dismissed mark decides what happens next.
+    if (ticket.currentStatus.code !== "READY" || ticket.customerCollectedAt || ticket.notificationsStoppedAt) {
       await this.prisma.ticket.updateMany({
         where: { id, nextReadyReminderAt: lease },
-        data: {
-          readyRemindersSent: sent,
-          // The latest event is the one that set READY, the sweep only takes READY tickets.
-          nextReadyReminderAt: nextReadyReminderAt(ticket.statusEvents[0].createdAt, sent),
-        },
+        data: { nextReadyReminderAt: dueAt },
       });
+      return;
+    }
+    // The latest event is the one that set READY, the sweep only takes READY tickets.
+    const readyAt = ticket.statusEvents[0].createdAt;
+    const sent = ticket.readyRemindersSent + 1;
+    // From the schedule, not dueAt: each failed try pushed that out by a lease.
+    const scheduledAt = nextReadyReminderAt(readyAt, ticket.readyRemindersSent)!;
+    if (Date.now() - scheduledAt.getTime() > GIVE_UP_AFTER_MS) {
+      Sentry.captureMessage(`Gave up on ready reminder ${sent} of Ticket ${id}`, { level: "error" });
+    } else if (canEmail(ticket.customer)) {
+      // Keyed on the READY event, as a Ticket that is READY again counts its
+      // reminders from zero.
+      await this.sendCustomerEmail(
+        ticket,
+        ticket.customer.email,
+        "READY_REMINDER",
+        "ticket_ready_reminder",
+        `ready-reminder:${ticket.statusEvents[0].id}:${sent}`,
+      );
+    }
+    // Counted even when there was no one to email, so the next one is
+    // scheduled rather than retried every sweep. A READY reached during
+    // the send rescheduled it already, and wins.
+    await this.prisma.ticket.updateMany({
+      where: { id, nextReadyReminderAt: lease },
+      data: { readyRemindersSent: sent, nextReadyReminderAt: nextReadyReminderAt(readyAt, sent) },
+    });
+  }
+
+  private reportFailure(key: string, what: string, error: unknown) {
+    this.logger.error(`${what} failed`, error);
+    if (!this.reported.has(key)) {
+      this.reported.add(key);
+      Sentry.captureException(error);
     }
   }
 

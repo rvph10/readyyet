@@ -4,6 +4,7 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
+import { Role } from "@readyyet/db";
 import { PrismaService } from "../src/database/prisma.service";
 import { EmailService } from "../src/email/email.service";
 import { createTestApp } from "./support/create-test-app";
@@ -161,6 +162,40 @@ describe("Customers", () => {
     await prisma.emailLog.delete({ where: { id: elsewhere.id } });
   });
 
+  it("also clears the emails of their Tickets deleted earlier, found by address within the Location", async () => {
+    const email = `delivered+erased-deleted-${Date.now()}@resend.dev`;
+    const created = await request(app.getHttpServer())
+      .post(`/locations/${locationId}/tickets`)
+      .set("Cookie", ownerCookie)
+      .send({ title: "Deleted later", customer: { fullName: "Deleted Later", email } });
+    const sent = await prisma.emailLog.create({
+      data: {
+        to: email,
+        subject: "Deleted Later",
+        html: "<p>Deleted Later</p>",
+        type: "ticket_tracking_link",
+        ticketId: BigInt(created.body.id),
+        locationId,
+      },
+    });
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/tickets/${created.body.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+    expect((await prisma.emailLog.findUniqueOrThrow({ where: { id: sent.id } })).ticketId).toBeNull();
+
+    await request(app.getHttpServer())
+      .delete(`/locations/${locationId}/customers/${created.body.customer.id}`)
+      .set("Cookie", ownerCookie)
+      .expect(204);
+
+    await expect(prisma.emailLog.findUniqueOrThrow({ where: { id: sent.id } })).resolves.toMatchObject({
+      to: "erased@deleted.invalid",
+      subject: "[deleted]",
+      html: null,
+    });
+  });
+
   it("writes no email about a Customer once they're erased, and sends none from an old list", async () => {
     const prisma = app.get(PrismaService);
     const created = await request(app.getHttpServer())
@@ -280,7 +315,24 @@ describe("Customers", () => {
     expect(await prisma.emailLog.count({ where: { to: "delivered+customer-dan-bounce@resend.dev" } })).toBe(0);
   });
 
-  it("soft-deletes a customer, removing it from get and list", async () => {
+  it("refuses an employee the erasure, which an admin can do (ADR 0158)", async () => {
+    const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Erin Employee");
+    const member = async (role: Role) => {
+      const email = `delivered+customer-${role.toLowerCase()}-${Date.now()}@resend.dev`;
+      const cookie = await signInViaOtp(app, prisma, email);
+      const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+      await prisma.membership.create({ data: { userId: user.id, locationId, role } });
+      return cookie;
+    };
+    const erase = (cookie: string) =>
+      request(app.getHttpServer()).delete(`/locations/${locationId}/customers/${customerId}`).set("Cookie", cookie);
+
+    expect((await erase(await member(Role.EMPLOYEE))).status).toBe(403);
+    expect((await prisma.customer.findUniqueOrThrow({ where: { id: BigInt(customerId) } })).deletedAt).toBeNull();
+    expect((await erase(await member(Role.ADMIN))).status).toBe(204);
+  });
+
+  it("erases a customer, removing it from get and list", async () => {
     const customerId = await createTicketWithCustomer(app, ownerCookie, locationId, "Carol Deleteme");
 
     const deleted = await request(app.getHttpServer())

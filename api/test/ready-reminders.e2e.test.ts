@@ -4,9 +4,10 @@ import "dotenv/config";
 import { INestApplication } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { Role } from "@readyyet/db";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { PrismaService } from "../src/database/prisma.service";
+import { EmailService } from "../src/email/email.service";
 import { NotificationService } from "../src/notification/notification.service";
 import { createTestApp } from "./support/create-test-app";
 import { signInViaOtp } from "./support/sign-in-via-otp";
@@ -201,6 +202,43 @@ describe("Uncollected item reminders", () => {
 
       expect(await remindersTo("crashed")).toHaveLength(1);
       expect((await ticketRow(ticket.id)).readyRemindersSent).toBe(1);
+    });
+
+    it("keeps a reminder that throws on a lease, and the others still go out", async () => {
+      const failing = await readyTicket("throws");
+      const other = await readyTicket("after-throw");
+      // The failing one first: the sweep takes the oldest due first.
+      await prisma.ticket.update({
+        where: { id: BigInt(failing.id) },
+        data: { nextReadyReminderAt: new Date(Date.now() - 2000) },
+      });
+      await prisma.ticket.update({
+        where: { id: BigInt(other.id) },
+        data: { nextReadyReminderAt: new Date(Date.now() - 1000) },
+      });
+      const spy = vi.spyOn(app.get(EmailService), "send").mockRejectedValueOnce(new Error("simulated render failure"));
+
+      await notification.sendDueReadyReminders();
+      spy.mockRestore();
+
+      const kept = await ticketRow(failing.id);
+      expect(kept.readyRemindersSent).toBe(0);
+      expect(kept.nextReadyReminderAt!.getTime()).toBeGreaterThan(Date.now());
+      expect(await remindersTo("after-throw")).toHaveLength(1);
+    });
+
+    it("skips a reminder still unsent a day after it was due, and schedules the next one", async () => {
+      const ticket = await readyTicket("day-late");
+      // READY 5 days ago: the first reminder, due after 3, is 2 days late.
+      await prisma.$executeRaw`UPDATE ticket_status_event SET created_at = created_at - interval '5 days' WHERE ticket_id = ${BigInt(ticket.id)}`;
+      const since = await readyAt(ticket.id);
+
+      await makeDueAndSweep(ticket.id);
+
+      expect(await remindersTo("day-late")).toHaveLength(0);
+      const row = await ticketRow(ticket.id);
+      expect(row.readyRemindersSent).toBe(1);
+      expect(row.nextReadyReminderAt).toEqual(new Date(since.getTime() + 10 * DAY_MS));
     });
 
     it("picks up where it was when a move away from READY is undone", async () => {

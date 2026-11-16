@@ -8,7 +8,9 @@ import {
   AdminListCommissionsQueryDto,
   MarkCommissionsPaidDto,
 } from "./dto/commission.dto";
+import { AdminOverviewDto } from "./dto/overview.dto";
 import { MarkSalesPartnerDto, SalesPartnerDto } from "./dto/sales-partner.dto";
+import { OverviewService } from "./overview.service";
 import { PlatformAdminGuard } from "./platform-admin";
 import { SalesPartnerService } from "./sales-partner.service";
 
@@ -21,7 +23,14 @@ export class AdminController {
   constructor(
     private readonly salesPartners: SalesPartnerService,
     private readonly commissions: CommissionService,
+    private readonly overview: OverviewService,
   ) {}
+
+  @Get("overview")
+  @ApiOperation({ summary: "Users, Locations and Tickets week by week, and the newest accounts (ADR 0161)" })
+  getOverview(): Promise<AdminOverviewDto> {
+    return this.overview.get();
+  }
 
   @Get("sales-partners")
   @ApiOperation({ summary: "List the sales partners (platform admin only, ADR 0032)" })

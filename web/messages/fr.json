@@ -886,6 +886,7 @@
     "editTitle": "Modifier le client",
     "eraseTitle": "Effacer ce client",
     "eraseHint": "Quand quelqu'un vous demande de supprimer ses données. C'est irréversible.",
+    "eraseHintEmployee": "Quand quelqu'un vous demande de supprimer ses données. Seul un propriétaire ou un administrateur peut effacer un client, transmettez-lui la demande.",
     "eraseAction": "Effacer le client",
     "eraseConfirmTitle": "Effacer {name} ?",
     "eraseConfirmBody": "Cela supprime son nom, son e-mail et son téléphone, les photos de ses tickets, ses avis privés et les e-mails envoyés à son sujet. Ses tickets restent, sous « Client effacé ». C'est irréversible.",
@@ -1337,7 +1338,38 @@
     "backToShops": "Retour à vos magasins",
     "platformAdmin": "Administrateur de la plateforme",
     "nav": {
+      "overview": "Vue d'ensemble",
       "salesPartners": "Partenaires commerciaux"
+    },
+    "overview": {
+      "title": "Vue d'ensemble",
+      "subtitle": "Comment ReadyYet grandit, semaine après semaine. Vos propres comptes ne sont pas comptés.",
+      "users": "Utilisateurs",
+      "locations": "Magasins",
+      "tickets": "Tickets créés",
+      "thisWeek": "cette semaine, contre {count} la semaine dernière à ce jour",
+      "chartLabel": "{what} par semaine, sur 12 semaines",
+      "weekOf": "Semaine du {day} : {amount}",
+      "units": {
+        "users": "{count, plural, =0 {Aucun utilisateur} one {# utilisateur} other {# utilisateurs}}",
+        "locations": "{count, plural, =0 {Aucun magasin} one {# magasin} other {# magasins}}",
+        "tickets": "{count, plural, =0 {Aucun Ticket} one {# Ticket} other {# Tickets}}"
+      },
+      "states": {
+        "paying": "Payants",
+        "trial": "En essai",
+        "pastDue": "Paiement en retard",
+        "inactive": "Inactifs"
+      },
+      "latest": {
+        "title": "Derniers inscrits",
+        "shop": "{name} · {locations, plural, one {# magasin} other {# magasins}} · {tickets, plural, one {# Ticket} other {# Tickets}}",
+        "noBusiness": "Pas encore de magasin",
+        "empty": {
+          "title": "Personne pour l'instant",
+          "description": "Le premier inscrit apparaîtra ici, dès qu'il crée son compte."
+        }
+      }
     },
     "states": {
       "OWED": "Dues",

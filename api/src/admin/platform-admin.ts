@@ -5,9 +5,15 @@ import { UnauthorizedError } from "../common/errors/app-error";
 
 // One person runs ReadyYet, named in configuration rather than by a role in
 // the database (ADR 0032). Read on each call, like WEB_URL, so tests can set it.
+export function platformAdminEmails() {
+  return (process.env.PLATFORM_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((admin) => admin.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function isPlatformAdmin(email: string) {
-  const admins = (process.env.PLATFORM_ADMIN_EMAILS ?? "").split(",").map((admin) => admin.trim().toLowerCase());
-  return admins.includes(email.toLowerCase());
+  return platformAdminEmails().includes(email.toLowerCase());
 }
 
 @Injectable()
