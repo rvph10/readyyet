@@ -21,8 +21,6 @@ export async function generateMetadata({ params }: PageProps<"/t/[code]">): Prom
   ]);
   return {
     title: `${statusLabel(tracking.currentStatus, locale)}, ${tracking.location.name}`,
-    // The link is the only key to the Ticket (ADR 0013).
-    robots: { index: false, follow: false },
     // A forwarded link shows the same picture for every Ticket, nothing of the
     // Customer, the item or its photos. Without a title of its own, the card
     // would take the Status above, and messaging apps keep it long after.

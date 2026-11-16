@@ -9,8 +9,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tracking");
   return {
     title: t("stopTitle"),
-    // The link is the only key to the Ticket (ADR 0013).
-    robots: { index: false, follow: false },
   };
 }
 

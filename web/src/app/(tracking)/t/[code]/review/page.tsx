@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -9,11 +8,6 @@ import { parseStars, STARS } from "../tracking";
 import { getTracking, openInTicketLanguage } from "../tracking-data";
 import { GoogleChoice } from "./google-choice";
 import { ReviewForm } from "./review-form";
-
-export const metadata: Metadata = {
-  // The link is the only key to the Ticket (ADR 0013).
-  robots: { index: false, follow: false },
-};
 
 // ADR 0076: where a star of the feedback email leads. Opening it records
 // nothing, mail scanners open every link. ADR 0114: every rating gets the same
