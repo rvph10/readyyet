@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InvitationStatus } from "@readyyet/db";
 import { calendarDateIn, SYSTEM_STATUS_CODES } from "@readyyet/shared";
-import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
+import { addDays, fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { statusSelect } from "../common/status-select";
 import { NotFoundError } from "../common/errors/app-error";
 import { PrismaService } from "../database/prisma.service";
@@ -10,12 +10,6 @@ import { publicImageUrl } from "../storage/image";
 const MONTHS = 6;
 const ACTIVITY = 8;
 const [CREATED_STATUS_CODE] = SYSTEM_STATUS_CODES;
-
-function addDays(date: string, days: number) {
-  const moved = fromCalendarDate(date);
-  moved.setUTCDate(moved.getUTCDate() + days);
-  return toCalendarDate(moved)!;
-}
 
 function addMonths(month: string, months: number) {
   const moved = fromCalendarDate(`${month}-01`);

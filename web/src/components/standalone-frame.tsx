@@ -48,6 +48,11 @@ export function StandaloneFrame({ me, collapsed: initial, title, icon, detail, n
   const t = useTranslations("dashboard");
   const [collapsed, toggle] = useCollapsed(initial);
   const pathname = usePathname();
+  // The most precise item wins, so the back office's overview at /admin isn't
+  // lit up on the pages below it.
+  const current = nav
+    .filter(({ href }) => pathname === href || pathname.startsWith(`${href}/`))
+    .reduce<string | undefined>((best, { href }) => (best && best.length > href.length ? best : href), undefined);
   const exitLink = (
     <Link href={exit.href} className={buttonClass({ variant: "secondary", size: "sm" })}>
       <Icon name={exit.icon} className="size-2.5" />
@@ -61,7 +66,7 @@ export function StandaloneFrame({ me, collapsed: initial, title, icon, detail, n
         <SidebarFrame collapsed={collapsed} onToggle={toggle}>
           <nav aria-label={t("navigation")} className="flex flex-1 flex-col gap-0.5 roomy:gap-1">
             {nav.map((item) => (
-              <NavItem key={item.href} {...item} current={pathname.startsWith(item.href)} />
+              <NavItem key={item.href} {...item} current={item.href === current} />
             ))}
           </nav>
           <UserRow me={me} detail={detail} />

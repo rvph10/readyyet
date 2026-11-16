@@ -8694,6 +8694,93 @@
         ]
       }
     },
+    "/admin/overview": {
+      "get": {
+        "operationId": "AdminController_getOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverviewDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED: no valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UNAUTHORIZED: signed in, but not allowed to do this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "VALIDATION_ERROR: the request body is over the size limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "VALIDATION_ERROR: the request body's charset or encoding isn't supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMITED: too many requests, retry after the Retry-After header's seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR: something went wrong on our side, the message is always generic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Users, Locations and Tickets week by week, and the newest accounts (ADR 0161)",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/admin/sales-partners": {
       "get": {
         "operationId": "AdminController_listSalesPartners",
@@ -12550,6 +12637,144 @@
           "code",
           "translations",
           "isSystem"
+        ]
+      },
+      "OverviewWeekDto": {
+        "type": "object",
+        "properties": {
+          "week": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "week",
+          "count"
+        ]
+      },
+      "OverviewSeriesDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewWeekDto"
+            }
+          },
+          "lastWeekSoFar": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "weeks",
+          "lastWeekSoFar"
+        ]
+      },
+      "OverviewLocationsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewWeekDto"
+            }
+          },
+          "lastWeekSoFar": {
+            "type": "number"
+          },
+          "trial": {
+            "type": "number"
+          },
+          "paying": {
+            "type": "number"
+          },
+          "pastDue": {
+            "type": "number"
+          },
+          "inactive": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "weeks",
+          "lastWeekSoFar",
+          "trial",
+          "paying",
+          "pastDue",
+          "inactive"
+        ]
+      },
+      "OverviewSignupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "businessName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locations": {
+            "type": "number"
+          },
+          "tickets": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "createdAt",
+          "businessName",
+          "locations",
+          "tickets"
+        ]
+      },
+      "AdminOverviewDto": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "$ref": "#/components/schemas/OverviewSeriesDto"
+          },
+          "locations": {
+            "$ref": "#/components/schemas/OverviewLocationsDto"
+          },
+          "tickets": {
+            "$ref": "#/components/schemas/OverviewSeriesDto"
+          },
+          "latestSignups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewSignupDto"
+            }
+          }
+        },
+        "required": [
+          "users",
+          "locations",
+          "tickets",
+          "latestSignups"
         ]
       },
       "SalesPartnerDto": {
