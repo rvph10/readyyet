@@ -17,7 +17,7 @@ export function trialSubscription(now = new Date()) {
 export const UNPAID_SUBSCRIPTION = { status: SubscriptionStatus.ENDED };
 
 // Computed, never stored (ADR 0033): no job has to run for a trial to end.
-export function isFrozen(subscription: Subscription, now = new Date()) {
+export function isFrozen(subscription: Pick<Subscription, "status" | "trialEndsAt">, now = new Date()) {
   if (subscription.status === SubscriptionStatus.TRIAL) {
     return subscription.trialEndsAt! <= now;
   }
