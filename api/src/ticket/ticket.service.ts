@@ -11,7 +11,7 @@ import {
 import { customerIdsNamed, phoneDigits } from "../customer/customer-search";
 import { PrismaService } from "../database/prisma.service";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../common/errors/app-error";
-import { fromCalendarDate, toCalendarDate } from "../common/calendar-date";
+import { addDays, fromCalendarDate, toCalendarDate } from "../common/calendar-date";
 import { parseBigIntId } from "../common/parse-bigint-id";
 import { statusSelect } from "../common/status-select";
 import { NotificationService } from "../notification/notification.service";
@@ -78,12 +78,6 @@ function listItem(ticket: ListTicket) {
     },
     currentStatus: ticket.currentStatus,
   };
-}
-
-function addDays(date: string, days: number) {
-  const moved = fromCalendarDate(date);
-  moved.setUTCDate(moved.getUTCDate() + days);
-  return toCalendarDate(moved)!;
 }
 
 interface Ranked {
